@@ -156,6 +156,33 @@ header {
     align-items: center
 }
 
+.language-label {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+#languageSelect {
+    min-height: 32px;
+    padding: 5px 28px 5px 9px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: var(--card2);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: .15s;
+}
+
+#languageSelect:hover {
+    background: #16233d;
+    border-color: #2b446b;
+}
+
+#languageSelect:focus-visible {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgb(56 189 248 / 20%);
+}
+
 .btn {
     background: var(--card2);
     color: var(--text);
@@ -357,7 +384,7 @@ main {
 
 .welcome p {
     margin: 0;
-    max-width: 520px;
+    max-width: 900px;
     line-height: 1.7
 }
 

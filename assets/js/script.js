@@ -3,10 +3,139 @@
 /* ---------- Konstanta ---------- */
 const MAGIC = "GF1PATCH110", GRAVIS_ID = "ID#000002";
 const M16=0x01, MUNS=0x02, MLOOP=0x04, MPING=0x08, MREV=0x10, MSUS=0x20, MENV=0x40, MCLAMP=0x80;
-const MODE_LABELS=[[M16,"16-bit"],[MUNS,"Unsigned"],[MLOOP,"Loop"],[MPING,"Ping-pong"],[MREV,"Reverse"],[MSUS,"Sustain"],[MENV,"Envelope"],[MCLAMP,"Clamped release"]];
+const MODE_LABELS=[[M16,"mode_16_bit"],[MUNS,"mode_unsigned"],[MLOOP,"mode_loop"],[MPING,"mode_ping_pong"],[MREV,"mode_reverse"],[MSUS,"mode_sustain"],[MENV,"mode_envelope"],[MCLAMP,"mode_clamped_release"]];
 const $ = id => document.getElementById(id);
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const midiToFreq = n => 440 * Math.pow(2, (n-69)/12);
+
+/* ---------- Localization ---------- */
+let locale = "id";
+try {
+  locale = localStorage.getItem("gus-patch-editor-locale") || "id";
+} catch (err) {
+  console.warn("Unable to read saved language preference:", err);
+}
+let translations = {};
+let localePacks = {};
+let lastTranslation = null;
+let currentStatusTranslation = null;
+let currentMidiStatusTranslation = null;
+function t(key, values = {}) {
+  const template = translations[key];
+  if (typeof template !== "string") {
+    console.error(`Missing localization key: ${key}`);
+    return `{{${key}}}`;
+  }
+  const text = template.replace(/\{([a-z_]+)\}/g, (match, name) =>
+    Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : match
+  );
+  lastTranslation = {key, values, text};
+  return text;
+}
+function localizeElement(element) {
+  if (element.dataset.i18nContent) {
+    element.innerHTML = "";
+    if (element.dataset.i18nBefore) element.appendChild(document.createTextNode(element.dataset.i18nBefore));
+    const content = document.createElement("template");
+    content.innerHTML = t(element.dataset.i18nContent);
+    element.appendChild(content.content);
+    if (element.dataset.i18nAfter) element.appendChild(document.createTextNode(element.dataset.i18nAfter));
+  }
+  for (const [attribute, key] of Object.entries({
+    title: element.dataset.i18nTitle,
+    placeholder: element.dataset.i18nPlaceholder,
+    "aria-label": element.dataset.i18nAriaLabel
+  })) {
+    if (key) element.setAttribute(attribute, t(key));
+  }
+}
+function applyLocalization() {
+  document.documentElement.lang = locale;
+  document.title = t("app_title");
+  const languageSelect = $("languageSelect");
+  languageSelect.value = locale;
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let node;
+  while ((node = walker.nextNode())) textNodes.push(node);
+  for (node of textNodes) {
+    const match = node.nodeValue.match(/^([\s\S]*?)\{\{([a-z0-9_]+)\}\}([\s\S]*)$/);
+    if (!match || node.parentElement.closest("[data-i18n-content]")) continue;
+    if (node.parentElement.tagName === "OPTION") {
+      const option = node.parentElement;
+      option.dataset.i18nContent = match[2];
+      option.dataset.i18nBefore = match[1];
+      option.dataset.i18nAfter = match[3];
+      localizeElement(option);
+    } else {
+      const wrapper = document.createElement("span");
+      wrapper.dataset.i18nContent = match[2];
+      wrapper.dataset.i18nBefore = match[1];
+      wrapper.dataset.i18nAfter = match[3];
+      node.parentNode.replaceChild(wrapper, node);
+      localizeElement(wrapper);
+    }
+  }
+  document.querySelectorAll("[title], [placeholder], [aria-label]").forEach(element => {
+    for (const attribute of ["title", "placeholder", "aria-label"]) {
+      const match = element.getAttribute(attribute)?.match(/^\{\{([a-z0-9_]+)\}\}$/);
+      if (!match) continue;
+      const dataAttribute = `i18n${attribute[0].toUpperCase()}${attribute.slice(1).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())}`;
+      element.dataset[dataAttribute] = match[1];
+    }
+    localizeElement(element);
+  });
+}
+async function initLocalization() {
+  if (locale !== "id" && locale !== "en") locale = "id";
+  const [idResponse, enResponse] = await Promise.all([
+    fetch("assets/locales/id.json"),
+    fetch("assets/locales/en.json")
+  ]);
+  if (!idResponse.ok || !enResponse.ok) {
+    throw new Error(`Failed to load locale files (id: ${idResponse.status}, en: ${enResponse.status})`);
+  }
+  [localePacks.id, localePacks.en] = await Promise.all([idResponse.json(), enResponse.json()]);
+  translations = localePacks[locale];
+  applyLocalization();
+  $("languageSelect").addEventListener("change", event => {
+    setLanguage(event.target.value);
+  });
+}
+function setLanguage(nextLocale) {
+  if (!localePacks[nextLocale] || nextLocale === locale) return;
+  const previousLocale = locale;
+  const defaultProjectName = t("create_project_default", {number: state.projects.length + 1});
+  locale = nextLocale;
+  translations = localePacks[locale];
+  let preferenceSaved = true;
+  try {
+    localStorage.setItem("gus-patch-editor-locale", locale);
+  } catch (err) {
+    console.error("Unable to save language preference:", err);
+    preferenceSaved = false;
+  }
+  applyLocalization();
+  document.querySelectorAll("[data-i18n-content], [data-i18n-title], [data-i18n-placeholder], [data-i18n-aria-label]")
+    .forEach(localizeElement);
+  if ($("newProjectDialog") && !$("newProjectDialog").hidden && $("newProjectName").value === defaultProjectName) {
+    $("newProjectName").value = t("create_project_default", {number: state.projects.length + 1});
+  }
+  render(false);
+  $("btnMidi").textContent = t(state.midi.enabled ? "disable" : "enable");
+  $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
+  $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
+  if (currentStatusTranslation) {
+    status(t(currentStatusTranslation.key, currentStatusTranslation.values), currentStatusTranslation.kind);
+  }
+  if (currentMidiStatusTranslation) {
+    $("midiStatus").textContent = t(currentMidiStatusTranslation.key, currentMidiStatusTranslation.values);
+  }
+  if (!preferenceSaved) {
+    status(t("language_preference_save_failed"), "bad");
+  }
+  if (previousLocale !== locale) $("languageSelect").value = locale;
+}
 
 /* ---------- State ---------- */
 const state = {
@@ -30,7 +159,16 @@ let timidityPlayer = null;
 /* ---------- Utilitas ---------- */
 function decodeAscii(b){let s="";for(let i=0;i<b.length;i++){if(b[i]===0)break;s+=String.fromCharCode(b[i]);}return s.replace(/\s+$/,"");}
 function encodeAscii(s,len){const o=new Uint8Array(len);s=String(s??"");for(let i=0;i<len;i++)o[i]=i<s.length?s.charCodeAt(i)&255:0;return o;}
-function status(m,k){$("statusBar").textContent=m;$("statusBar").style.color=k==="bad"?"#f87171":k==="ok"?"#34d399":"";}
+function status(m,k){
+  const translated = lastTranslation && lastTranslation.text === m ? lastTranslation : null;
+  currentStatusTranslation = translated ? {...translated, kind:k} : null;
+  $("statusBar").textContent=m;
+  $("statusBar").style.color=k==="bad"?"#f87171":k==="ok"?"#34d399":"";
+}
+function setMidiStatus(key, values = {}) {
+  currentMidiStatusTranslation = {key, values};
+  $("midiStatus").textContent = t(key, values);
+}
 function fmtBytes(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function uid(prefix){return (prefix||"patch")+"-"+Date.now()+"-"+Math.random().toString(36).substr(2,8);}
@@ -144,24 +282,24 @@ function parsePAT(ab){
   const u32=()=>{const v=dv.getUint32(p,true);p+=4;return v;};
   const rB=n=>{const v=bytes.slice(p,p+n);p+=n;return v;};
   const rS=n=>decodeAscii(rB(n));
-  if(bytes.length<129)throw new Error("File terlalu kecil.");
-  const magic=rS(12); if(!magic.startsWith("GF1PATCH"))throw new Error("Bukan file .PAT.");
+  if(bytes.length<129)throw new Error(t("file_too_small"));
+  const magic=rS(12); if(!magic.startsWith("GF1PATCH"))throw new Error(t("not_pat_file"));
   const gravisId=rS(10), description=rS(60);
   let ic=u8(); if(ic===0)ic=1;
   const voices=u8(), channels=u8(), waveForms=u16(), masterVolume=u16(), dataSize=u32();
   const reserved=rB(36);
   const instruments=[];
   for(let i=0;i<ic;i++){
-    if(p+63>bytes.length)throw new Error("Header instrumen terpotong.");
+    if(p+63>bytes.length)throw new Error(t("truncated_instrument_header"));
     const instrument=u16(), name=rS(16), size=u32();
     let lc=u8(); if(lc===0)lc=1;
     const rI=rB(40), layers=[];
     for(let j=0;j<lc;j++){
-      if(p+47>bytes.length)throw new Error("Header layer terpotong.");
+      if(p+47>bytes.length)throw new Error(t("truncated_layer_header"));
       const duplicate=u8(), layer=u8(), layerSize=u32(), sc=u8(), rL=rB(40);
       const samples=[];
       for(let k=0;k<sc;k++){
-        if(p+96>bytes.length)throw new Error("Header sampel terpotong.");
+        if(p+96>bytes.length)throw new Error(t("truncated_sample_header"));
         const waveName=rS(7), fractions=u8(), ws=u32(), loopStart=u32(), loopEnd=u32();
         
         let srRaw = u16();
@@ -185,7 +323,7 @@ function parsePAT(ab){
         const tremoloSweep=u8(), tremoloRate=u8(), tremoloDepth=u8();
         const vibratoSweep=u8(), vibratoRate=u8(), vibratoDepth=u8();
         const modes=u8(), scaleFreq=u16(), scaleFactor=u16(), rS2=rB(36);
-        if(ws>bytes.length-p)throw new Error("Data sampel melebihi file.");
+        if(ws>bytes.length-p)throw new Error(t("sample_data_exceeds_file"));
         const pcm=bytes.slice(p,p+ws);p+=ws;
         samples.push({name:waveName,fractions,dataSize:ws,loopStart,loopEnd,sampleRate,lowFreq,highFreq,rootFreq,tune,balance,envRates,envOffsets,tremoloSweep,tremoloRate,tremoloDepth,vibratoSweep,vibratoRate,vibratoDepth,modes,scaleFreq,scaleFactor,reserved:rS2,pcm,_float:null});
       }
@@ -211,14 +349,14 @@ const TIMIDITY_TARGET_RATE = 22050;   // harus ≥ 15258 (jangan 11025)
 function writeTimidityPatch(patch) {
   const norm = cleanPatchForStorage(patch);
   const inst = norm.instruments[0];
-  if (!inst) throw new Error("Patch kosong");
+  if (!inst) throw new Error(t("empty_patch"));
 
   const samples = norm.instruments.flatMap(i =>
     i.layers.flatMap(l => l.samples)
   );
-  if (samples.length === 0) throw new Error("Tidak ada sampel");
+  if (samples.length === 0) throw new Error(t("no_samples"));
   if (samples.length > 255) {
-    throw new Error(`Patch berisi ${samples.length} sampel; max 255.`);
+    throw new Error(t("too_many_samples", {count: samples.length}));
   }
 
   // DEBUG: log SEBELUM resample untuk diagnosa
@@ -402,7 +540,7 @@ function encodeWav(s){
 function decodeWav(ab){
   const dv=new DataView(ab), bytes=new Uint8Array(ab);
   const s4=o=>String.fromCharCode(bytes[o],bytes[o+1],bytes[o+2],bytes[o+3]);
-  if(s4(0)!=="RIFF"||s4(8)!=="WAVE")throw new Error("Bukan file WAV.");
+  if(s4(0)!=="RIFF"||s4(8)!=="WAVE")throw new Error(t("not_wav_file"));
   let p=12, fmtC=null, dataC=null, smplC=null;
   while(p+8<=bytes.length){
     const id=s4(p), sz=dv.getUint32(p+4,true); p+=8;
@@ -411,7 +549,7 @@ function decodeWav(ab){
     if(id==="fmt ")fmtC=c; else if(id==="data")dataC=c; else if(id==="smpl")smplC=c;
     p+=sz+(sz&1);
   }
-  if(!fmtC||!dataC)throw new Error("WAV tidak lengkap.");
+  if(!fmtC||!dataC)throw new Error(t("incomplete_wav"));
   const fd=new DataView(fmtC.buffer,fmtC.byteOffset,fmtC.byteLength);
   const tag=fd.getUint16(0,true), ch=fd.getUint16(2,true), sr=fd.getUint32(4,true), bits=fd.getUint16(14,true);
   const bps=Math.ceil(bits/8), frameB=bps*ch, frames=Math.floor(dataC.length/frameB);
@@ -445,7 +583,7 @@ function parseSF2(ab){
   const bytes=new Uint8Array(ab), dv=new DataView(ab);
   const s4=o=>String.fromCharCode(bytes[o]||0,bytes[o+1]||0,bytes[o+2]||0,bytes[o+3]||0);
   const u16=o=>dv.getUint16(o,true), u32=o=>dv.getUint32(o,true);
-  if(s4(0)!=="RIFF"||s4(8)!=="sfbk")throw new Error("Bukan file SF2 (magic tidak cocok).");
+  if(s4(0)!=="RIFF"||s4(8)!=="sfbk")throw new Error(t("not_sf2_file"));
 
   const chunks={info:{},sdta:{},pdta:{}};
   let p=12;
@@ -466,12 +604,12 @@ function parseSF2(ab){
     p=start+sz+(sz&1);
   }
 
-  if(!chunks.sdta.smpl)throw new Error("SF2 tidak memiliki sdta/smpl.");
+  if(!chunks.sdta.smpl)throw new Error(t("sf2_missing_sample_data"));
   const smplData = chunks.sdta.smpl;
 
   const getDV=name=>{
     const d=chunks.pdta[name];
-    if(!d)throw new Error("SF2 tidak memiliki pdta/"+name);
+    if(!d)throw new Error(t("sf2_missing_chunk", {name}));
     return new DataView(d.buffer,d.byteOffset,d.byteLength);
   };
   const getName=(d,off,len)=>{
@@ -801,7 +939,7 @@ function sf2ToGusPatches(sf2, fileName){
 function ensureAudio(){
   if(!state.audio.ctx){
     const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC)throw new Error("Web Audio tidak didukung.");
+    if(!AC)throw new Error(t("web_audio_unsupported"));
     state.audio.ctx=new AC();
     state.audio.master=state.audio.ctx.createGain();
     state.audio.master.gain.value=0.8;
@@ -952,7 +1090,7 @@ function drawWave(){
   ctx.strokeStyle="rgba(56,189,248,0.06)";
   for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(0,h/4*i);ctx.lineTo(w,h/4*i);ctx.stroke();}
 
-  const s=state.selSample; if(!s){$("waveInfo").textContent="—";$("selInfo").textContent="—";return;}
+  const s=state.selSample; if(!s){$("waveInfo").textContent="—";$("selInfo").textContent=t("selection_empty");return;}
   const floats=ensureFloat(s), n=floats.length;
   if(!n)return;
   clampView(n);
@@ -996,8 +1134,8 @@ function drawWave(){
   ctx.strokeStyle="rgba(148,163,184,0.25)";
   ctx.beginPath();ctx.moveTo(0,mid);ctx.lineTo(w,mid);ctx.stroke();
 
-  $("waveInfo").textContent=`${n.toLocaleString()} smp · ${(n/(s.sampleRate||1)).toFixed(2)} dtk · ${fmt(s).is16?"16-bit":"8-bit"}`;
-  $("selInfo").textContent=selE>selS?`Sel: ${(selE-selS).toLocaleString()}`:"Sel: —";
+  $("waveInfo").textContent=t("wave_info", {count: n.toLocaleString(), duration: (n/(s.sampleRate||1)).toFixed(2), bit_depth: fmt(s).is16?"16-bit":"8-bit"});
+  $("selInfo").textContent=selE>selS?t("selection_count", {count: (selE-selS).toLocaleString()}):t("selection_empty");
 }
 function canvasPt(e){const cv=$("waveCanvas"), r=cv.getBoundingClientRect(); return {x:clamp(e.clientX-r.left,0,r.width),y:clamp(e.clientY-r.top,0,r.height),w:r.width,h:r.height};}
 function yToAmp(y,h){return clamp((h/2-y)/(h/2*0.92),-1,1);}
@@ -1008,12 +1146,12 @@ function pushUndo(s){
 }
 function undo(){
   const it=state.undo.pop();
-  if(!it){status("Tidak ada undo.","bad");return;}
+  if(!it){status(t("no_undo"),"bad");return;}
   it.ref.sample._float=it.floats;
   commitFloat(it.ref.sample);
   state.selStart=state.selEnd=0;
   renderSampleEditor(); render();
-  status("Undo.","ok");
+  status(t("undo_done"),"ok");
 }
 function editRange(s){
   const n=ensureFloat(s).length;
@@ -1055,7 +1193,8 @@ function applyEdit(kind,param){
   }
   commitFloat(s);
   renderSampleEditor(); render();
-  status("Edit: "+kind,"ok");
+  const operationKey = {fadeIn: "fade_in", fadeOut: "fade_out", dc: "remove_dc"}[kind] || kind;
+  status(t("edit_done", {operation: t(operationKey)}),"ok");
 }
 
 function bindCanvas(){
@@ -1122,7 +1261,7 @@ function bindCanvas(){
   cv.addEventListener("mouseup",e=>{
     if(state.panning){state.panning=null; cv.style.cursor="crosshair"; return;}
     if(!state.drag)return;
-    if(state.drag.mode==="pen"){ commitFloat(state.drag.s); renderSampleEditor(); status("Waveform digambar.","ok"); }
+    if(state.drag.mode==="pen"){ commitFloat(state.drag.s); renderSampleEditor(); status(t("waveform_drawn"),"ok"); }
     state.drag=null; drawWave();
   });
   cv.addEventListener("mouseleave",e=>{
@@ -1165,7 +1304,7 @@ async function addPatchEntries(entries, autoAddToProject = false){
       await dbPutMany(STORE, entries.map(cleanEntryForStorage));
     }catch(err){
       console.error("DB save error:",err);
-      status("Peringatan: gagal menyimpan ke DB.","bad");
+      status(t("database_save_warning"),"bad");
     }
   }, 500);
 }
@@ -1186,7 +1325,7 @@ function selectPatch(id){
 async function deletePatchById(id){
   const entry=state.patches.find(p=>p.id===id);
   if(!entry)return;
-  if(!confirm(`Hapus patch "${entry.name}"?`))return;
+  if(!confirm(t("confirm_delete_patch", {name: entry.name})))return;
   state.patches=state.patches.filter(p=>p.id!==id);
   try{ await dbDelete(STORE, id); }catch(e){console.error(e);}
   
@@ -1208,7 +1347,7 @@ async function deletePatchById(id){
 
 async function clearLibrary(){
   if(state.patches.length===0)return;
-  if(!confirm(`Hapus semua ${state.patches.length} patch dari library?`))return;
+  if(!confirm(t("confirm_clear_library", {count: state.patches.length})))return;
   state.patches=[]; state.currentPatchId=null; state.patch=null;
   for(const proj of state.projects){
     proj.patchIds = [];
@@ -1225,7 +1364,7 @@ function scheduleSave(){
   state.saveTimer=setTimeout(async()=>{
     const entry=state.patches.find(p=>p.id===state.currentPatchId);
     if(!entry)return;
-    entry.name=(state.patch.header.description||entry.name||"Patch").substring(0,64);
+    entry.name=(state.patch.header.description||entry.name||t("patch")).substring(0,64);
     try{
       await dbPutMany(STORE, [cleanEntryForStorage(entry)]);
     }catch(err){
@@ -1247,7 +1386,7 @@ async function saveProject(project) {
 async function createProject(name) {
   const project = {
     id: uid("proj"),
-    name: name || "Proyek Baru",
+    name: name || t("create_project_default", {number: state.projects.length + 1}),
     patchIds: []
   };
   await saveProject(project);
@@ -1255,7 +1394,7 @@ async function createProject(name) {
   state.currentProjectId = project.id;
   invalidateTimidityPlayer();
   renderProjects();
-  status("Proyek dibuat: " + project.name, "ok");
+  status(t("project_created", {name: project.name}), "ok");
 }
 
 async function confirmNewProject() {
@@ -1265,7 +1404,7 @@ async function confirmNewProject() {
   const confirmButton = $("btnConfirmNewProject");
   const name = nameInput.value.trim();
   if (!name) {
-    error.textContent = "Nama proyek tidak boleh kosong.";
+    error.textContent = t("project_name_required");
     nameInput.focus();
     return;
   }
@@ -1277,7 +1416,7 @@ async function confirmNewProject() {
     dialog.hidden = true;
   } catch (err) {
     console.error("Create project error:", err);
-    error.textContent = "Gagal menyimpan proyek. Silakan coba lagi.";
+    error.textContent = t("project_save_failed");
   } finally {
     confirmButton.disabled = false;
   }
@@ -1286,7 +1425,7 @@ async function confirmNewProject() {
 async function deleteProject(id) {
   const project = state.projects.find(p => p.id === id);
   if (!project) return;
-  if (!confirm(`Hapus proyek "${project.name}"?`)) return;
+  if (!confirm(t("confirm_delete_project", {name: project.name}))) return;
   state.projects = state.projects.filter(p => p.id !== id);
   try { await dbDelete(STORE_PROJECTS, id); } catch(e) { console.error(e); }
   if (state.currentProjectId === id) {
@@ -1301,13 +1440,13 @@ function addCurrentPatchToProject() {
   const project = state.projects.find(p => p.id === state.currentProjectId);
   if (!project) return;
   if (project.patchIds.includes(state.currentPatchId)) {
-    status("Patch sudah ada di proyek ini.", "bad");
+    status(t("patch_already_in_project"), "bad");
     return;
   }
   project.patchIds.push(state.currentPatchId);
   saveProject(project);
   renderProjects();
-  status("Patch ditambahkan ke proyek.", "ok");
+  status(t("patch_added_to_project"), "ok");
 }
 
 function removePatchFromProject(projectId, patchId) {
@@ -1356,14 +1495,14 @@ function resamplePcmTo(pcm, fromRate, toRate, is16) {
 function writeTimidityPatch(patch) {
   const norm = cleanPatchForStorage(patch);
   const inst = norm.instruments[0];
-  if (!inst) throw new Error("Patch kosong");
+  if (!inst) throw new Error(t("empty_patch"));
 
   const samples = norm.instruments.flatMap(instrument =>
     instrument.layers.flatMap(layer => layer.samples)
   );
-  if (samples.length === 0) throw new Error("Tidak ada sampel");
+  if (samples.length === 0) throw new Error(t("no_samples"));
   if (samples.length > 255) {
-    throw new Error(`Patch berisi ${samples.length} sampel; TiMidity hanya mendukung maksimal 255 sampel per patch.`);
+    throw new Error(t("too_many_samples", {count: samples.length}));
   }
 
   for (const sample of samples) {
@@ -1545,7 +1684,7 @@ function invalidateTimidityPlayer() {
 async function ensureTimidityPlayer() {
   if (timidityPlayer) return;
   if (typeof TimidityPlayer === 'undefined') {
-    throw new Error("LibTiMidityPlayer tidak ditemukan. Pastikan script sudah dimuat.");
+    throw new Error(t("player_library_missing"));
   }
   timidityPlayer = new TimidityPlayer({
     patchUrlBase: '', 
@@ -1563,14 +1702,25 @@ async function ensureTimidityPlayer() {
   // PERBAIKAN: Tambahkan event listener untuk debugging
   timidityPlayer.onError((err) => {
     console.error("TiMidity Error:", err);
-    $("midiStatus").textContent = "Error: " + err;
-    status("TiMidity Error: " + err, "bad");
+    setMidiStatus("midi_error", {message: err});
+    status(t("timidity_error", {message: err}), "bad");
   });
   timidityPlayer.onInstrumentLoading((loaded, total, filename) => {
-    $("midiStatus").textContent = `Memuat patch ${loaded}/${total}...`;
+    setMidiStatus("loading_patch", {loaded, total});
   });
   timidityPlayer.onInstrumentLoaded((total) => {
-    $("midiStatus").textContent = `Semua ${total} patch dimuat.`;
+    setMidiStatus("all_patches_loaded", {total});
+  });
+  timidityPlayer.onEnded(() => {
+    midiProgress.playing = false;
+    midiProgress.paused = false;
+    midiProgress.current = midiProgress.duration;
+    cancelAnimationFrame(midiProgress.raf);
+    $("btnPlayMidi").disabled = false;
+    $("btnPauseMidi").disabled = true;
+    $("btnStopMidi").disabled = true;
+    setMidiStatus("midi_finished");
+    updateMidiUI();
   });
 
   await timidityPlayer.init();
@@ -1588,11 +1738,11 @@ async function loadMidiFile(e) {
   midiProgress.playing = false;
   midiProgress.paused = false;
   
-  $("midiStatus").textContent = `MIDI siap: ${file.name}`;
+  setMidiStatus("midi_ready", {filename: file.name});
   $("btnPlayMidi").disabled = false;
-  $("btnPlayMidi").innerHTML = '<svg class="icon"><use href="#i-play"></use></svg> Play';
+  $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
   $("btnPauseMidi").disabled = true;
-  $("btnPauseMidi").innerHTML = '<svg class="icon"><use href="#i-pause"></use></svg> Pause';
+  $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   $("btnStopMidi").disabled = true;
   $("midiSeek").disabled = false;
   
@@ -1739,12 +1889,12 @@ function togglePauseMidi() {
     cancelAnimationFrame(midiProgress.raf);
     
     $("btnPlayMidi").disabled = false;
-    $("btnPauseMidi").innerHTML = '<svg class="icon"><use href="#i-play"></use></svg> Resume';
-    $("midiStatus").textContent = "Di-pause.";
+    $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("resume")}`;
+    setMidiStatus("midi_paused");
   } else if (midiProgress.paused) {
     // Aksi Resume
     playMidi(midiProgress.current);
-    $("btnPauseMidi").innerHTML = '<svg class="icon"><use href="#i-pause"></use></svg> Pause';
+    $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   }
 }
 
@@ -1754,7 +1904,7 @@ async function playMidi(fromTime = 0) {
 
   try {
     await ensureTimidityPlayer();
-    $("midiStatus").textContent = "Memuat patch...";
+    setMidiStatus("midi_loading_patch");
     
     midiProgress.playing = true;
     midiProgress.paused = false;
@@ -1766,11 +1916,11 @@ async function playMidi(fromTime = 0) {
     
     // Terapkan volume saat mulai play
 
-    $("midiStatus").textContent = "Memutar...";
+    setMidiStatus("midi_playing");
     $("btnPlayMidi").disabled = true;
-    $("btnPlayMidi").textContent = "▶ Play"; // Pastikan teks kembali normal
+    $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
     $("btnPauseMidi").disabled = false;
-    $("btnPauseMidi").textContent = "⏸ Pause";
+    $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
     $("btnStopMidi").disabled = false;
     $("midiSeek").disabled = false;
 
@@ -1794,7 +1944,7 @@ async function playMidi(fromTime = 0) {
 
   } catch (err) {
     console.error(err);
-    $("midiStatus").textContent = "Error: " + err.message;
+    setMidiStatus("midi_error", {message: err.message});
     stopMidi();
   }
 }
@@ -1811,9 +1961,9 @@ function stopMidi() {
   
   $("btnPlayMidi").disabled = false;
   $("btnPauseMidi").disabled = true;
-  $("btnPauseMidi").textContent = "⏸ Pause";
+  $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   $("btnStopMidi").disabled = true;
-  $("midiStatus").textContent = "Dihentikan.";
+  setMidiStatus("midi_stopped");
   updateMidiUI();
 }
 
@@ -1832,10 +1982,10 @@ function exportPatchById(id){
     a.download=(entry.name||"patch").replace(/[^\w\-]+/g,"_")+".pat";
     a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status("Patch diekspor: "+entry.name,"ok");
+    status(t("patch_exported", {name: entry.name}),"ok");
   }catch(err){
     console.error(err);
-    status("Gagal ekspor: "+err.message,"bad");
+    status(t("export_failed", {message: err.message}),"bad");
   }
 }
 
@@ -1844,7 +1994,7 @@ async function exportProject(projectId) {
   if (!project) return;
   const patches = getProjectPatches(project);
   if (patches.length === 0) {
-    status("Proyek kosong.", "bad");
+    status(t("empty_project"), "bad");
     return;
   }
 
@@ -1891,15 +2041,15 @@ async function exportProject(projectId) {
     a.download = `${project.name.replace(/[^\w\-]+/g, "_")}.zip`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status(`Proyek diekspor: ${project.name}`, "ok");
+    status(t("project_exported", {name: project.name}), "ok");
   } catch (err) {
     console.error(err);
-    status("Gagal ekspor proyek: " + err.message, "bad");
+    status(t("project_export_failed", {message: err.message}), "bad");
   }
 }
 
 async function exportAllPatches(){
-  if(state.patches.length===0){status("Library kosong.","bad");return;}
+  if(state.patches.length===0){status(t("empty_library"),"bad");return;}
   try {
     const zipFiles = [];
     for (const entry of state.patches) {
@@ -1941,17 +2091,17 @@ async function exportAllPatches(){
     a.download = "gus_patches.zip";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status(`Berhasil mengekspor ${zipFiles.length} file.`, "ok");
+    status(t("zip_exported", {count: zipFiles.length}), "ok");
   } catch (err) {
     console.error(err);
-    status("Gagal membuat ZIP: " + err.message, "bad");
+    status(t("zip_failed", {message: err.message}), "bad");
   }
 }
 
 function exportInstrument(instIdx){
   if(!state.patch)return;
   const inst=state.patch.instruments[instIdx];
-  if(!inst){status("Instrumen tidak ditemukan.","bad");return;}
+  if(!inst){status(t("instrument_not_found"),"bad");return;}
   try{
     const newPatch={
       header: cleanPatchForStorage(state.patch).header,
@@ -1965,10 +2115,10 @@ function exportInstrument(instIdx){
     a.download=(inst.name||("instrument_"+inst.instrument)).replace(/[^\w\-]+/g,"_")+".pat";
     a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status("Instrumen diekspor.","ok");
+    status(t("instrument_exported"),"ok");
   }catch(err){
     console.error(err);
-    status("Gagal ekspor instrumen.","bad");
+    status(t("instrument_export_failed"),"bad");
   }
 }
 
@@ -2061,7 +2211,7 @@ function renderLibrary(){
   list.innerHTML="";
   $("libCount").textContent=state.patches.length;
   if(state.patches.length===0){
-    list.innerHTML='<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">Belum ada patch</div>';
+    list.innerHTML=`<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_patch")}</div>`;
     return;
   }
   state.patches.forEach(entry=>{
@@ -2073,14 +2223,14 @@ function renderLibrary(){
                    state.patches.filter(p => p.gmProgram === entry.gmProgram && p.gmBank === entry.gmBank).length > 1;
     
     const gmInfo = entry.gmProgram !== -1 && entry.gmProgram !== undefined ? `GM #${entry.gmProgram}` : '';
-    const dupeBadge = isDupe ? `<span class="tag" style="color:#f59e0b;border-color:#78350f;margin-right:4px;display:inline-flex;align-items:center;" title="Duplikat"><svg class="icon" style="width:10px;height:10px;"><use href="#i-warning"></use></svg></span>` : '';
+    const dupeBadge = isDupe ? `<span class="tag" style="color:#f59e0b;border-color:#78350f;margin-right:4px;display:inline-flex;align-items:center;" title="${t("duplicate")}"><svg class="icon" style="width:10px;height:10px;"><use href="#i-warning"></use></svg></span>` : '';
 
     d.innerHTML=`
       <span class="name" title="${escapeHtml(entry.name)}">${escapeHtml(entry.name)}</span>
-      <span class="meta">${dupeBadge}${gmInfo ? gmInfo + ' · ' : ''}${totalSamples}s</span>
+      <span class="meta">${dupeBadge}${gmInfo ? gmInfo + ' · ' : ''}${t(totalSamples === 1 ? "sample_count_one" : "sample_count_many", {count: totalSamples})}</span>
       <span class="tools">
-    <button class="icon-btn" data-act="export" title="Export .PAT"><svg class="icon"><use href="#i-download"></use></svg></button>
-    <button class="icon-btn danger" data-act="delete" title="Hapus"><svg class="icon"><use href="#i-close"></use></svg></button>
+    <button class="icon-btn" data-act="export" title="${t("export_pat")}"><svg class="icon"><use href="#i-download"></use></svg></button>
+    <button class="icon-btn danger" data-act="delete" title="${t("delete")}"><svg class="icon"><use href="#i-close"></use></svg></button>
     </span>`;
     d.addEventListener("click",ev=>{
       const btn=ev.target.closest("button");
@@ -2101,7 +2251,7 @@ function renderProjects() {
   list.innerHTML = "";
   $("projCount").textContent = state.projects.length;
   if (state.projects.length === 0) {
-    list.innerHTML = '<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">Belum ada proyek</div>';
+    list.innerHTML = `<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_project")}</div>`;
     $("btnAddToProject").disabled = true;
     $("btnDeleteProject").disabled = true;
     $("btnExportProject").disabled = true;
@@ -2113,10 +2263,10 @@ function renderProjects() {
     const patchCount = proj.patchIds.length;
     d.innerHTML = `
       <span class="name" title="${escapeHtml(proj.name)}">${escapeHtml(proj.name)}</span>
-      <span class="meta">${patchCount} patch</span>
+      <span class="meta">${t(patchCount === 1 ? "patch_count_one" : "patch_count_many", {count: patchCount})}</span>
       <span class="tools">
-  <button class="icon-btn" data-act="export" title="Export ZIP"><svg class="icon"><use href="#i-download"></use></svg></button>
-  <button class="icon-btn danger" data-act="delete" title="Hapus"><svg class="icon"><use href="#i-close"></use></svg></button>
+  <button class="icon-btn" data-act="export" title="${t("export_project_zip")}"><svg class="icon"><use href="#i-download"></use></svg></button>
+  <button class="icon-btn danger" data-act="delete" title="${t("delete")}"><svg class="icon"><use href="#i-close"></use></svg></button>
 </span>`;
         d.addEventListener("click", ev => {
       const btn = ev.target.closest("button");
@@ -2154,7 +2304,7 @@ function renderProjects() {
             midiProgress.current = resumeTime;
             midiProgress.startTime = performance.now() - (resumeTime * 1000);
             updateMidiUI();
-            $("midiStatus").textContent = `Di-pause pada ${formatTime(resumeTime)}.`;
+            setMidiStatus("midi_paused_at", {time: formatTime(resumeTime)});
           } else {
             // Mulai putar dari detik terakhir dengan instrumen baru
             playMidi(resumeTime);
@@ -2170,7 +2320,7 @@ function renderProjects() {
   $("btnExportProject").disabled = !hasActive;
 }
 
-function render(){
+function render(save=true){
   const has=!!state.patch;
   $("welcome").hidden=has; $("workspace").hidden=!has; $("btnSave").disabled=!has;
   $("btnExportInst").disabled=!has;
@@ -2179,7 +2329,7 @@ function render(){
   if(!has)return;
 
   const p=state.patch, samples=allSamples();
-  $("patchNameSide").textContent=p.header.description||"Tanpa nama";
+  $("patchNameSide").textContent=p.header.description||t("unnamed");
   $("statInst").textContent=p.instruments.length;
   $("statSamples").textContent=samples.length;
   $("statVoices").textContent=p.header.voices??"—";
@@ -2198,15 +2348,15 @@ function render(){
     const d=document.createElement("div");
     d.className="li"+(i===state.selInst?" active":"");
     const count=inst.layers.reduce((a,l)=>a+l.samples.length,0);
-    d.innerHTML=`<span class="name">${escapeHtml(inst.name||"(tanpa nama)")}</span><span class="meta">#${inst.instrument} · ${count}</span>`;
+    d.innerHTML=`<span class="name">${escapeHtml(inst.name||t("unnamed"))}</span><span class="meta">${t("instrument_info", {number: inst.instrument, count})}</span>`;
     d.onclick=()=>{state.selInst=i;state.selSample=null;state.selStart=state.selEnd=0;state.zoom=1;state.offset=0;updateZoomUI();render();};
     il.appendChild(d);
   });
 
   const inst=p.instruments[state.selInst];
   if(inst){
-    $("instTitle").textContent=inst.name||"Instrumen";
-    $("instPill").textContent=`#${inst.instrument} · ${inst.layers.length} layer`;
+    $("instTitle").textContent=inst.name||t("instrument_default");
+    $("instPill").textContent=`#${inst.instrument} · ${t(inst.layers.length === 1 ? "layer_count_one" : "layer_count_many", {count: inst.layers.length})}`;
     $("iNumber").value=inst.instrument;
     $("iName").value=inst.name||"";
   }
@@ -2214,18 +2364,18 @@ function render(){
   const sl=$("sampleList"); sl.innerHTML="";
   const instSamples=[];
   if(inst)for(const layer of inst.layers)for(const s of layer.samples)instSamples.push({inst,layer,sample:s});
-  $("sampleCountPill").textContent=instSamples.length+" sampel";
+  $("sampleCountPill").textContent=t(instSamples.length === 1 ? "sample_count_one" : "sample_count_many", {count: instSamples.length});
   instSamples.forEach(ref=>{
     const s=ref.sample, bps=fmt(s).bps, n=Math.floor(s.pcm.length/bps), li=loopInfo(s);
     const d=document.createElement("div");
     d.className="sc"+(state.selSample===s?" active":"");
     d.innerHTML=`
-      <div class="n">${escapeHtml(s.name||"(tanpa nama)")}</div>
+      <div class="n">${escapeHtml(s.name||t("unnamed"))}</div>
       <div class="m">
         <span class="tag">${fmt(s).is16?"16-bit":"8-bit"}</span>
         <span class="tag">${(s.sampleRate||0).toLocaleString()} Hz</span>
-        <span class="tag">${n.toLocaleString()} smp</span>
-        ${li.enabled?`<span class="tag loop">Loop ${Math.round(li.start)}–${Math.round(li.end)}</span>`:""}
+        <span class="tag">${t(n === 1 ? "sample_count_one" : "sample_count_many", {count: n.toLocaleString()})}</span>
+        ${li.enabled?`<span class="tag loop">${t("loop_range", {start: Math.round(li.start), end: Math.round(li.end)})}</span>`:""}
       </div>`;
     d.onclick=()=>{
       state.selSample=s; state.selStart=state.selEnd=0; state.undo=[];
@@ -2235,10 +2385,14 @@ function render(){
     sl.appendChild(d);
   });
 
-  renderSampleEditor();
+  renderSampleEditor(save);
   const totalBytes=p.instruments.reduce((a,i)=>a+i.size,0);
-  $("footerInfo").textContent=`${p.instruments.length} inst · ${samples.length} sampel · ${fmtBytes(totalBytes)}`;
-  scheduleSave();
+  $("footerInfo").textContent=t("footer_summary", {
+    instruments: t(p.instruments.length === 1 ? "instrument_count_one" : "instrument_count_many", {count: p.instruments.length}),
+    samples: t(samples.length === 1 ? "sample_count_one" : "sample_count_many", {count: samples.length}),
+    size: fmtBytes(totalBytes)
+  });
+  if(save) scheduleSave();
 
   const entry = state.patches.find(p=>p.id===state.currentPatchId);
   if (entry) {
@@ -2247,13 +2401,13 @@ function render(){
   }
 }
 
-function renderSampleEditor(){
+function renderSampleEditor(save=true){
   const s=state.selSample;
-  if(!s){$("sampleEditor").hidden=true; scheduleSave(); return;}
+  if(!s){$("sampleEditor").hidden=true; if(save) scheduleSave(); return;}
   $("sampleEditor").hidden=false;
 
-  $("sampleTitle").textContent=s.name||"Sampel";
-  $("sampleFormatPill").textContent=`${fmt(s).is16?"16-bit":"8-bit"} ${fmt(s).unsigned?"unsigned":"signed"} · ${(s.sampleRate||0).toLocaleString()} Hz`;
+  $("sampleTitle").textContent=s.name||t("sample");
+  $("sampleFormatPill").textContent=`${fmt(s).is16?"16-bit":"8-bit"} ${t(fmt(s).unsigned?"format_unsigned":"format_signed")} · ${(s.sampleRate||0).toLocaleString()} Hz`;
 
   $("sName").value=s.name||"";
   $("sRate").value=s.sampleRate||0;
@@ -2271,15 +2425,15 @@ function renderSampleEditor(){
   $("sScaleFreq").value=s.scaleFreq??60;
   $("sScaleFactor").value=s.scaleFactor??1024;
 
-  const names=["Attack","Decay","Sustain","R1","R2","R3"];
+  const names=["env_attack","env_decay","env_sustain","env_rate_1","env_rate_2","env_rate_3"];
   const rg=$("envRatesGrid"), og=$("envOffsetsGrid");
   rg.innerHTML=""; og.innerHTML="";
   for(let i=0;i<6;i++){
     const rf=document.createElement("div"); rf.className="field";
-    rf.innerHTML=`<label>Rate ${names[i]}</label><input type="number" min="0" max="255" data-er="${i}" value="${s.envRates[i]??0}">`;
+    rf.innerHTML=`<label>${t("rate_label", {name: t(names[i])})}</label><input type="number" min="0" max="255" data-er="${i}" value="${s.envRates[i]??0}">`;
     rg.appendChild(rf);
     const of=document.createElement("div"); of.className="field";
-    of.innerHTML=`<label>Offset ${names[i]}</label><input type="number" min="0" max="255" data-eo="${i}" value="${s.envOffsets[i]??0}">`;
+    of.innerHTML=`<label>${t("offset_label", {name: t(names[i])})}</label><input type="number" min="0" max="255" data-eo="${i}" value="${s.envOffsets[i]??0}">`;
     og.appendChild(of);
   }
 
@@ -2293,7 +2447,7 @@ function renderSampleEditor(){
   const mr=$("modesRow"); mr.innerHTML="";
   for(const [bit,label] of MODE_LABELS){
     const l=document.createElement("label"); l.className="check";
-    l.innerHTML=`<input type="checkbox" data-mb="${bit}" ${(s.modes&bit)?"checked":""}><span>${label}</span>`;
+    l.innerHTML=`<input type="checkbox" data-mb="${bit}" ${(s.modes&bit)?"checked":""}><span>${t(label)}</span>`;
     mr.appendChild(l);
   }
 
@@ -2301,7 +2455,7 @@ function renderSampleEditor(){
   const keys=[["A",57],["W",58],["S",59],["E",60],["D",61],["F",62],["T",63],["G",64],["Y",65],["H",66],["U",67],["J",68],["K",69]];
   for(const [k,note] of keys){
     const b=document.createElement("button");
-    b.className="btn small"; b.textContent=k+" ("+note+")";
+    b.className="btn small"; b.textContent=t("play_instrument_key", {key: k, note});
     b.onmousedown=()=>{ensureAudio();playSample(s,note,100,false);};
     b.onmouseup=()=>releaseAllVoices(true);
     b.onmouseleave=()=>releaseAllVoices(true);
@@ -2387,42 +2541,44 @@ function handleFileOpen(e){
           patch
         };
         addPatchEntries([entry], false).then(()=>{
-          status(`Memuat ${file.name} (${allSamples().length} sampel).`,"ok");
+          const count = allSamples().length;
+          status(t("file_loading", {filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count})}),"ok");
         });
       } else if(type==="sf2"){
-        status("Mengonversi SF2...");
+        status(t("converting_sf2"));
         setTimeout(() => {
           try {
             const sf2=parseSF2(ab);
             const entries=sf2ToGusPatches(sf2,file.name);
             if(entries.length===0){
-              status("SF2 tidak memiliki preset yang bisa dikonversi.","bad");
-              alert("SF2 tidak memiliki preset/sampel yang bisa dikonversi. Pastikan file SF2 valid dan memiliki sampel.");
+              status(t("sf2_no_preset"),"bad");
+              alert(t("sf2_no_samples_alert"));
             } else {
               addPatchEntries(entries, true).then(()=>{
-                status(`SF2 ${file.name}: ${entries.length} patch ditambahkan ke proyek.`,"ok");
+                const count = entries.length;
+                status(t("sf2_added_to_project", {filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", {count})}),"ok");
               });
             }
           } catch(err) {
             console.error(err);
-            status("Gagal konversi SF2: " + err.message, "bad");
-            alert("Gagal konversi SF2:\n\n" + err.message);
+            status(t("sf2_conversion_failed", {message: err.message}), "bad");
+            alert(t("sf2_conversion_alert", {message: err.message}));
           }
           e.target.value="";
         }, 100);
         return;
       } else {
-        throw new Error("Format file tidak dikenali (bukan .PAT atau .SF2).");
+        throw new Error(t("unknown_file_format"));
       }
       e.target.value="";
     }catch(err){
       console.error(err);
-      status("Gagal parsing: "+err.message,"bad");
-      alert("Gagal memuat file:\n\n"+err.message);
+      status(t("file_parse_failed", {message: err.message}),"bad");
+      alert(t("file_load_alert", {message: err.message}));
       e.target.value="";
     }
   };
-  reader.onerror=()=>{status("Gagal membaca file.","bad");e.target.value="";};
+  reader.onerror=()=>{status(t("file_read_failed"),"bad");e.target.value="";};
   reader.readAsArrayBuffer(file);
 }
 
@@ -2440,10 +2596,10 @@ function savePAT(){
     a.download=name+".pat";
     a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status("File .PAT diunduh.","ok");
+    status(t("pat_downloaded"),"ok");
   }catch(err){
-    alert("Gagal menyimpan: "+err.message);
-    status("Gagal menyimpan.","bad");
+    alert(t("save_alert", {message: err.message}));
+    status(t("save_failed_short"),"bad");
   }
 }
 
@@ -2457,12 +2613,12 @@ function exportWav(){
   a.download=(s.name||"sample")+".wav";
   a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
-  status("WAV diunduh.","ok");
+  status(t("wav_downloaded"),"ok");
 }
 
 function importWav(e){
   const file=e.target.files&&e.target.files[0]; if(!file)return;
-  const s=state.selSample; if(!s){alert("Pilih sampel dulu.");e.target.value="";return;}
+  const s=state.selSample; if(!s){alert(t("select_sample_first"));e.target.value="";return;}
   const reader=new FileReader();
   reader.onload=()=>{
     try{
@@ -2478,10 +2634,11 @@ function importWav(e){
         s.modes|=MLOOP;
       }
       renderSampleEditor(); render();
-      status("WAV diimpor: "+(s._float.length).toLocaleString()+" sampel.","ok");
+      const count = s._float.length;
+      status(t("wav_imported", {samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count: count.toLocaleString()})}),"ok");
     }catch(err){
-      alert("Gagal impor WAV: "+err.message);
-      status("Gagal impor WAV.","bad");
+      alert(t("wav_import_alert", {message: err.message}));
+      status(t("wav_import_failed"),"bad");
     }
     e.target.value="";
   };
@@ -2491,7 +2648,7 @@ function importWav(e){
 /* ---------- MIDI ---------- */
 async function enableMidi(){
   if(state.midi.enabled){disableMidi();return;}
-  if(!navigator.requestMIDIAccess){alert("Browser tidak mendukung Web MIDI.");return;}
+  if(!navigator.requestMIDIAccess){alert(t("midi_not_supported"));return;}
   try{
     const access=await navigator.requestMIDIAccess();
     state.midi.access=access;
@@ -2499,25 +2656,25 @@ async function enableMidi(){
     refreshMidiInputs();
     access.onstatechange=refreshMidiInputs;
     $("midiDot").classList.add("on");
-    $("btnMidi").textContent="Matikan";
-    status("MIDI diaktifkan.","ok");
-  }catch(err){ alert("Gagal mengaktifkan MIDI: "+err.message); }
+    $("btnMidi").textContent=t("disable");
+    status(t("midi_enabled"),"ok");
+  }catch(err){ alert(t("midi_enable_failed", {message: err.message})); }
 }
 function disableMidi(){
   if(state.midi.input)state.midi.input.onmidimessage=null;
   state.midi.enabled=false; state.midi.input=null;
   $("midiDot").classList.remove("on");
-  $("btnMidi").textContent="Aktifkan";
-  $("midiSelect").innerHTML='<option>MIDI off</option>';
+  $("btnMidi").textContent=t("enable");
+  $("midiSelect").innerHTML=`<option>${t("midi_off")}</option>`;
   $("midiSelect").disabled=true;
-  status("MIDI dimatikan.");
+  status(t("midi_disabled"));
   releaseAllVoices(true);
 }
 function refreshMidiInputs(){
   const access=state.midi.access; if(!access)return;
   const sel=$("midiSelect"); sel.innerHTML="";
   const inputs=Array.from(access.inputs.values());
-  if(inputs.length===0){sel.innerHTML='<option>Tidak ada input</option>'; return;}
+  if(inputs.length===0){sel.innerHTML=`<option>${t("no_midi_input")}</option>`; return;}
   inputs.forEach(inp=>{
     const o=document.createElement("option");
     o.value=inp.id; o.textContent=inp.name||inp.id;
@@ -2559,7 +2716,7 @@ function bind(){
     const patch=makeDemoPatch();
     const entry={ id:uid("demo"), name:"Demo Patch", source:"demo", gmProgram:0, gmBank:0, patch };
     await addPatchEntries([entry], false);
-    status("Demo patch dimuat.","ok");
+    status(t("demo_loaded"),"ok");
   };
   $("btnDemo").addEventListener("click",loadDemo);
   const b2=$("btnDemo2"); if(b2)b2.addEventListener("click",loadDemo);
@@ -2581,7 +2738,7 @@ function bind(){
   const newProjectName = $("newProjectName");
   const newProjectError = $("newProjectError");
   $("btnNewProject").addEventListener("click", () => {
-    newProjectName.value = "Proyek " + (state.projects.length + 1);
+    newProjectName.value = t("create_project_default", {number: state.projects.length + 1});
     newProjectError.textContent = "";
     newProjectDialog.hidden = false;
     newProjectName.focus();
@@ -2642,7 +2799,7 @@ $("midiSeek").addEventListener("change", (e) => {
     
     if (midiProgress.paused) {
       updateMidiUI();
-      $("midiStatus").textContent = `Di-pause pada ${formatTime(targetTime)}.`;
+      setMidiStatus("midi_paused_at", {time: formatTime(targetTime)});
     } else {
       playMidi(targetTime);
     }
@@ -2672,9 +2829,9 @@ $("midiSeek").addEventListener("change", (e) => {
   $("pDescription").addEventListener("input",e=>{
     if(!state.patch)return;
     state.patch.header.description=e.target.value.slice(0,60);
-    $("patchNameSide").textContent=state.patch.header.description||"Tanpa nama";
+    $("patchNameSide").textContent=state.patch.header.description||t("unnamed");
     const entry=state.patches.find(p=>p.id===state.currentPatchId);
-    if(entry){ entry.name=state.patch.header.description||"Patch"; renderLibrary(); }
+    if(entry){ entry.name=state.patch.header.description||t("patch"); renderLibrary(); }
     scheduleSave();
   });
   $("pMasterVolume").addEventListener("change",e=>{
@@ -2710,9 +2867,9 @@ $("midiSeek").addEventListener("change", (e) => {
   $("iName").addEventListener("input",e=>{
     const inst=state.patch?.instruments[state.selInst]; if(!inst)return;
     inst.name=e.target.value.slice(0,16);
-    $("instTitle").textContent=inst.name||"Instrumen";
+    $("instTitle").textContent=inst.name||t("instrument_default");
     const items=$("instrumentList").children;
-    if(items[state.selInst])items[state.selInst].querySelector(".name").textContent=inst.name||"(tanpa nama)";
+    if(items[state.selInst])items[state.selInst].querySelector(".name").textContent=inst.name||t("unnamed");
     scheduleSave();
   });
 
@@ -2786,7 +2943,7 @@ $("midiSeek").addEventListener("change", (e) => {
   const editBtn=(id,kind,param)=>{
     $(id).addEventListener("click",()=>{
       if(kind==="amplify"){
-        const g=parseFloat(prompt("Faktor amplifikasi (mis. 1.5):","1.5"));
+        const g=parseFloat(prompt(t("amplify_factor_prompt"),"1.5"));
         if(isFinite(g))applyEdit("amplify",g);
       } else applyEdit(kind,param);
     });
@@ -2803,19 +2960,19 @@ $("midiSeek").addEventListener("change", (e) => {
   $("btnLoopSel").addEventListener("click",()=>{
     const s=state.selSample; if(!s)return;
     const a=Math.min(state.selStart,state.selEnd), b=Math.max(state.selStart,state.selEnd);
-    if(b<=a){status("Pilih rentang dulu.","bad");return;}
+    if(b<=a){status(t("select_range_first"),"bad");return;}
     const bps=fmt(s).bps;
     s.loopStart=Math.round(a*bps); s.loopEnd=Math.round(b*bps);
     s.modes|=MLOOP;
     renderSampleEditor(); render();
-    status("Loop diset ke seleksi.","ok");
+    status(t("loop_set_selection"),"ok");
   });
   $("btnLoopAll").addEventListener("click",()=>{
     const s=state.selSample; if(!s)return;
     const n=ensureFloat(s).length, bps=fmt(s).bps;
     s.loopStart=0; s.loopEnd=n*bps; s.modes|=MLOOP;
     renderSampleEditor(); render();
-    status("Loop diset ke seluruh sampel.","ok");
+    status(t("loop_set_all"),"ok");
   });
 
   $("btnPlay").addEventListener("click",()=>{
@@ -2830,7 +2987,7 @@ $("midiSeek").addEventListener("change", (e) => {
   hold.addEventListener("mouseleave",endHold);
   hold.addEventListener("touchstart",startHold,{passive:false});
   hold.addEventListener("touchend",endHold,{passive:false});
-  $("btnStop").addEventListener("click",()=>{stopAllVoices();status("Stop.");});
+  $("btnStop").addEventListener("click",()=>{stopAllVoices();status(t("status_stopped"));});
 
   $("btnExportWav").addEventListener("click",exportWav);
   $("btnImportWav").addEventListener("click",()=>{$("wavFile").value="";$("wavFile").click();});
@@ -2838,7 +2995,7 @@ $("midiSeek").addEventListener("change", (e) => {
 
   $("btnDeleteSample").addEventListener("click",()=>{
     const s=state.selSample; if(!s)return;
-    if(!confirm("Hapus sampel ini?"))return;
+    if(!confirm(t("delete_sample_confirm")))return;
     for(const inst of state.patch.instruments){
       for(const layer of inst.layers){
         const idx=layer.samples.indexOf(s);
@@ -2850,7 +3007,7 @@ $("midiSeek").addEventListener("change", (e) => {
           }
           state.selSample=null; state.selStart=state.selEnd=0;
           state.selInst=clamp(state.selInst,0,Math.max(0,state.patch.instruments.length-1));
-          render(); status("Sampel dihapus.","ok");
+          render(); status(t("sample_deleted"),"ok");
           return;
         }
       }
@@ -2880,8 +3037,17 @@ $("midiSeek").addEventListener("change", (e) => {
 
 /* ---------- Init ---------- */
 (async function init(){
+  try {
+    await initLocalization();
+  } catch (err) {
+    console.error("Localization load error:", err);
+    $("statusBar").textContent = locale === "en"
+      ? `Failed to load language resources: ${err.message}`
+      : `Gagal memuat berkas bahasa: ${err.message}`;
+    return;
+  }
   bind();
-  status("Memuat library...");
+  status(t("library_loading"));
   try{
     const [entries, projects] = await Promise.all([
       dbGetAll(STORE),
@@ -2905,9 +3071,12 @@ $("midiSeek").addEventListener("change", (e) => {
       render();
     }
     renderProjects();
-    status(`Library dimuat: ${entries.length} patch, ${projects.length} proyek.`,"ok");
+    status(t("library_loaded", {
+      patches: t(entries.length === 1 ? "patch_count_one" : "patch_count_many", {count: entries.length}),
+      projects: t(projects.length === 1 ? "project_count_one" : "project_count_many", {count: projects.length})
+    }),"ok");
   }catch(err){
     console.error("Load DB error:",err);
-    status("Gagal memuat library dari IndexedDB.","bad");
+    status(t("library_load_failed"),"bad");
   }
 })();
