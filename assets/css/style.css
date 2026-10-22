@@ -630,7 +630,7 @@ main {
 }
 
 footer {
-    height: 24px;
+    height: 28px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -705,6 +705,13 @@ footer {
 .modal-content h2 {
     margin: 0 0 14px;
     font-size: 16px
+}
+
+.modal-message {
+    margin: 0;
+    color: var(--dim);
+    font-size: 12px;
+    line-height: 1.5
 }
 
 .modal-actions {

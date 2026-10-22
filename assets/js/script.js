@@ -131,6 +131,10 @@ function setLanguage(nextLocale) {
   if (currentMidiStatusTranslation) {
     $("midiStatus").textContent = t(currentMidiStatusTranslation.key, currentMidiStatusTranslation.values);
   }
+  if (pendingProjectDeletionId) {
+    const project = state.projects.find(entry => entry.id === pendingProjectDeletionId);
+    if (project) $("deleteProjectMessage").textContent = t("confirm_delete_project", {name: project.name});
+  }
   if (!preferenceSaved) {
     status(t("language_preference_save_failed"), "bad");
   }
@@ -150,11 +154,14 @@ const state = {
   projects: [],
   currentProjectId: null,
   midiData: null,
+  midiFileName: null,
   saveTimer: null,
   db: null
 };
 
 let timidityPlayer = null;
+let isMidiRendering = false;
+let pendingProjectDeletionId = null;
 
 /* ---------- Utilitas ---------- */
 function decodeAscii(b){let s="";for(let i=0;i<b.length;i++){if(b[i]===0)break;s+=String.fromCharCode(b[i]);}return s.replace(/\s+$/,"");}
@@ -218,6 +225,18 @@ async function dbDelete(store, id){
     tx.onerror=e=>reject(e.target.error);
   });
 }
+async function dbDeleteProjectAndPatches(projectId, patchIds){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction([STORE_PROJECTS,STORE],"readwrite");
+    tx.objectStore(STORE_PROJECTS).delete(projectId);
+    const patches=tx.objectStore(STORE);
+    for(const id of patchIds) patches.delete(id);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error || new Error("Unable to delete project data."));
+    tx.onabort=()=>reject(tx.error || new Error("Project deletion transaction was aborted."));
+  });
+}
 async function dbClear(store){
   const db=await openDB();
   return new Promise((resolve,reject)=>{
@@ -270,6 +289,7 @@ function cleanEntryForStorage(entry){
     source: entry.source||"pat", 
     gmProgram: entry.gmProgram ?? -1,
     gmBank: entry.gmBank ?? 0,
+    drumSet: entry.drumSet ?? (entry.gmBank === 128 ? 0 : undefined),   // ← TAMBAHKAN
     patch: cleanPatchForStorage(entry.patch) 
   };
 }
@@ -358,24 +378,6 @@ function writeTimidityPatch(patch) {
   if (samples.length > 255) {
     throw new Error(t("too_many_samples", {count: samples.length}));
   }
-
-  // DEBUG: log SEBELUM resample untuk diagnosa
-  console.group(`[writeTimidityPatch] "${inst.name}" (${samples.length} samples)`);
-  samples.slice(0, 5).forEach((s, i) => {
-    console.log(`sample[${i}]`, {
-      name: s.name,
-      rate: s.sampleRate,
-      period_ns: Math.round(1e9 / (s.sampleRate || 22050)),
-      rootFreq: s.rootFreq,
-      lowFreq: s.lowFreq,
-      highFreq: s.highFreq,
-      is16: !!(s.modes & 0x01),
-      pcmBytes: s.pcm.length,
-      loopStart: s.loopStart,
-      loopEnd: s.loopEnd
-    });
-  });
-  console.groupEnd();
 
   // === RESAMPLE ke TARGET (fix pitch) ===
   for (const s of samples) {
@@ -819,12 +821,15 @@ function sf2ToGusPatches(sf2, fileName){
 
     if (preset.bank === 128) {
   // === DRUM KIT: split per note ===
-  // Kumpulkan semua zone (instrument + sample) beserta key-range-nya
   const zones = [];
   for (let pb = pbagStart; pb < pbagEnd; pb++) {
     const pzone = pbag[pb];
-    const nextPzone = pbag[pb+1];
+    const nextPzone = pbag[pb + 1];
     const pgens = getGens(pgen, pzone.genIdx, nextPzone ? nextPzone.genIdx : pgen.length);
+
+    // (1) Baca key range dari preset level (pgen 43) — sering dipakai di drum SF2
+    const [presetKeyLow, presetKeyHigh] = getKeyRange(pgens);
+
     const instGen = findGen(pgens, 41);
     if (!instGen) continue;
     const instIdx = instGen.amt;
@@ -843,23 +848,25 @@ function sf2ToGusPatches(sf2, fileName){
       const sampGen = findGen(igens, 53);
       if (!sampGen) continue;
 
-      const keyLo = findGen(igens, 43)?.amt ?? 0;
-      const keyHi = findGen(igens, 44)?.amt ?? 127;
+      // (2) Baca key range dari instrument level (igen 43) — PERBAIKAN UTAMA
+      const [instKeyLow, instKeyHigh] = getKeyRange(igens);
+
+      // (3) Intersect kedua range (persis seperti di PHP)
+      const keyLo = Math.max(presetKeyLow, instKeyLow);
+      const keyHi = Math.min(presetKeyHigh, instKeyHigh);
+      if (keyLo > keyHi) continue;
+
       const rootGen = findGen(igens, 58);
       const coarseGen = findGen(igens, 51);
       const fineGen = findGen(igens, 52);
       const coarseSemis = coarseGen ? s16(coarseGen.amt) : 0;
       const fineCents = fineGen ? s16(fineGen.amt) : 0;
 
-      const klGen = findGen(igens, 43);
-      const khGen = findGen(igens, 44);
-      const kl = klGen ? (klGen.amt & 0xff) : 0;
-      const kh = khGen ? ((khGen.amt >> 8) & 0xff) : 127;
       const sample = convertSample(
         sampGen.amt,
         rootGen ? rootGen.amt : undefined,
         coarseSemis, fineCents,
-        kl, kh
+        keyLo, keyHi
       );
       if (!sample) continue;
       zones.push({ keyLo, keyHi, sample, sampIdx: sampGen.amt });
@@ -904,6 +911,7 @@ function sf2ToGusPatches(sf2, fileName){
       source: "sf2:" + fileName,
       gmProgram: note,     // ← pakai NOTE sebagai "program" untuk lookup
       gmBank: 128,         // ← tandai sebagai drum
+      drumSet: preset.preset,   // ← TAMBAHKAN BARIS INI
       patch: drumPatch
     });
   }
@@ -1425,14 +1433,77 @@ async function confirmNewProject() {
 async function deleteProject(id) {
   const project = state.projects.find(p => p.id === id);
   if (!project) return;
-  if (!confirm(t("confirm_delete_project", {name: project.name}))) return;
+  const projectPatchIds = [...new Set(Array.isArray(project.patchIds) ? project.patchIds : [])];
+  const exclusivePatchIds = projectPatchIds.filter(patchId =>
+    !state.projects.some(other =>
+      other.id !== id && Array.isArray(other.patchIds) && other.patchIds.includes(patchId)
+    )
+  );
+
+  if (exclusivePatchIds.includes(state.currentPatchId) && state.saveTimer) {
+    clearTimeout(state.saveTimer);
+    state.saveTimer = null;
+  }
+  await dbDeleteProjectAndPatches(id, exclusivePatchIds);
+  if (state.currentProjectId === id && (midiProgress.playing || midiProgress.paused)) {
+    stopMidi();
+  }
   state.projects = state.projects.filter(p => p.id !== id);
-  try { await dbDelete(STORE_PROJECTS, id); } catch(e) { console.error(e); }
+  state.patches = state.patches.filter(patch => !exclusivePatchIds.includes(patch.id));
   if (state.currentProjectId === id) {
     state.currentProjectId = state.projects.length > 0 ? state.projects[0].id : null;
     invalidateTimidityPlayer();
   }
+
+  if (exclusivePatchIds.includes(state.currentPatchId)) {
+    if (state.patches.length > 0) {
+      selectPatch(state.patches[0].id);
+    } else {
+      state.currentPatchId = null;
+      state.patch = null;
+      render();
+    }
+  } else {
+    renderLibrary();
+  }
   renderProjects();
+  status(t("project_deleted"), "ok");
+}
+
+function requestDeleteProject(id) {
+  if (isMidiRendering) return;
+  const project = state.projects.find(entry => entry.id === id);
+  if (!project) return;
+  pendingProjectDeletionId = id;
+  $("deleteProjectMessage").textContent = t("confirm_delete_project", {name: project.name});
+  $("deleteProjectError").textContent = "";
+  $("deleteProjectDialog").hidden = false;
+  $("btnCancelDeleteProject").focus();
+}
+
+function closeDeleteProjectDialog(force = false) {
+  if (!force && $("btnConfirmDeleteProject").disabled) return;
+  pendingProjectDeletionId = null;
+  $("deleteProjectDialog").hidden = true;
+}
+
+async function confirmDeleteProject() {
+  if (!pendingProjectDeletionId) return;
+  const confirmButton = $("btnConfirmDeleteProject");
+  const cancelButton = $("btnCancelDeleteProject");
+  confirmButton.disabled = true;
+  cancelButton.disabled = true;
+  $("deleteProjectError").textContent = "";
+  try {
+    await deleteProject(pendingProjectDeletionId);
+    closeDeleteProjectDialog(true);
+  } catch (err) {
+    console.error("Delete project error:", err);
+    $("deleteProjectError").textContent = t("project_delete_failed");
+  } finally {
+    confirmButton.disabled = false;
+    cancelButton.disabled = false;
+  }
 }
 
 function addCurrentPatchToProject() {
@@ -1446,6 +1517,7 @@ function addCurrentPatchToProject() {
   project.patchIds.push(state.currentPatchId);
   saveProject(project);
   renderProjects();
+renderLibrary();
   status(t("patch_added_to_project"), "ok");
 }
 
@@ -1455,6 +1527,7 @@ function removePatchFromProject(projectId, patchId) {
   project.patchIds = project.patchIds.filter(id => id !== patchId);
   saveProject(project);
   renderProjects();
+renderLibrary();
 }
 
 function getProjectPatches(project) {
@@ -1603,7 +1676,7 @@ function generateProjectTimidityCfg(project) {
   let cfg = "# Generated by GUS Patch Editor\n";
   cfg += "dir /gus-patch\n\n";
 
-  // === Melodic: bank 0..127, program 0..127 ===
+  // Melodic
   const melodicByBank = {};
   for (const p of melodic) {
     const b = p.gmBank ?? 0;
@@ -1618,16 +1691,25 @@ function generateProjectTimidityCfg(project) {
     cfg += "\n";
   }
 
-  // === Drums: drumset 0, note → file ===
+  // Drums — group per drumSet
   if (drums.length > 0) {
-    cfg += "drumset 0\n";
-    for (const p of drums.sort((a, b) => a.gmProgram - b.gmProgram)) {
-      cfg += `${p.gmProgram} ${sanitizeFilename(p.name)}.pat\n`;
+    const drumGroups = {};
+    for (const p of drums) {
+      const kitId = p.drumSet ?? 0;
+      if (!drumGroups[kitId]) drumGroups[kitId] = [];
+      drumGroups[kitId].push(p);
     }
-    cfg += "\n";
+    const kitIds = Object.keys(drumGroups).map(Number).sort((a,b)=>a-b);
+    for (const kitId of kitIds) {
+      cfg += `drumset ${kitId}\n`;
+      for (const p of drumGroups[kitId].sort((a,b)=>a.gmProgram - b.gmProgram)) {
+        cfg += `${p.gmProgram} ${sanitizeFilename(p.name)}.pat\n`;
+      }
+      cfg += "\n";
+    }
   }
 
-  // Fallback: bila user belum assign GM sama sekali, bagi berurutan
+  // Fallback (tidak berubah)
   if (melodic.length === 0 && drums.length === 0 && patches.length > 0) {
     cfg += "bank 0\n";
     patches.slice(0, 128).forEach((p, i) => {
@@ -1635,7 +1717,58 @@ function generateProjectTimidityCfg(project) {
     });
   }
 
-  console.log("[TiMidity cfg]\n" + cfg);
+  return cfg;
+}
+
+function generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankMap) {
+  const patches = getProjectPatches(project);
+  const melodic = patches.filter(p => (p.gmBank ?? 0) !== 128 && (p.gmProgram ?? -1) !== -1);
+  const drums   = patches.filter(p => (p.gmBank ?? 0) === 128 && (p.gmProgram ?? -1) !== -1);
+
+  let cfg = "# Generated by GUS Patch Editor\n";
+  cfg += "dir .\n\n";
+
+  const pathFor = (p) => {
+    const pp = patchPaths.get(p.id);
+    if (pp) return pp.folderPath + pp.filename;
+    return sanitizeFilename(p.name) + ".pat";
+  };
+
+  // Melodic (folder: {seqBank}/tone/)
+  const melodicByBank = {};
+  for (const p of melodic) {
+    const b = p.gmBank ?? 0;
+    if (!melodicByBank[b]) melodicByBank[b] = [];
+    melodicByBank[b].push(p);
+  }
+  for (const origBank of Object.keys(melodicByBank).map(Number).sort((a,b)=>a-b)) {
+    const seqBank = bankMap ? (bankMap.get(origBank) ?? origBank) : origBank;
+    cfg += `bank ${seqBank}\n`;
+    for (const p of melodicByBank[origBank]) {
+      cfg += `${p.gmProgram} ${pathFor(p)}\n`;
+    }
+    cfg += "\n";
+  }
+
+  // Drums (folder: {seqDrumSet}/drum/)
+  if (drums.length > 0) {
+    const drumGroups = {};
+    for (const p of drums) {
+      const kitId = p.drumSet ?? 0;
+      if (!drumGroups[kitId]) drumGroups[kitId] = [];
+      drumGroups[kitId].push(p);
+    }
+    const kitIds = Object.keys(drumGroups).map(Number).sort((a,b)=>a-b);
+    for (const origKit of kitIds) {
+      const seqKit = drumSetMap ? (drumSetMap.get(origKit) ?? origKit) : origKit;
+      cfg += `drumset ${seqKit}\n`;
+      for (const p of drumGroups[origKit].sort((a,b)=>a.gmProgram - b.gmProgram)) {
+        cfg += `${p.gmProgram} ${pathFor(p)}\n`;
+      }
+      cfg += "\n";
+    }
+  }
+
   return cfg;
 }
 
@@ -1666,7 +1799,6 @@ function getProjectPatchData(bank, isDrum, program, file) {
 
   try {
     const bytes = writeTimidityPatch(target.patch);
-    console.log(`[TiMidity] load bank=${bank} isDrum=${isDrum} prog=${program} → "${target.name}" (${bytes.length}B)`);
     return bytes.buffer;   // ← ArrayBuffer, bukan Uint8Array
   } catch (e) {
     console.error("[TiMidity] writeTimidityPatch failed:", e);
@@ -1711,6 +1843,11 @@ async function ensureTimidityPlayer() {
   timidityPlayer.onInstrumentLoaded((total) => {
     setMidiStatus("all_patches_loaded", {total});
   });
+  timidityPlayer.on("onRenderProgress", (progress) => {
+    if (isMidiRendering) {
+      setMidiStatus("offline_render_progress", {progress: Math.round(progress)});
+    }
+  });
   timidityPlayer.onEnded(() => {
     midiProgress.playing = false;
     midiProgress.paused = false;
@@ -1732,6 +1869,7 @@ async function loadMidiFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   state.midiData = new Uint8Array(await file.arrayBuffer());
+  state.midiFileName = file.name;
   
   midiProgress.duration = calculateMidiDuration(state.midiData);
   midiProgress.current = 0;
@@ -1744,9 +1882,63 @@ async function loadMidiFile(e) {
   $("btnPauseMidi").disabled = true;
   $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   $("btnStopMidi").disabled = true;
+  $("btnRenderMidi").disabled = false;
   $("midiSeek").disabled = false;
   
   updateMidiUI();
+}
+
+async function renderMidiToWav() {
+  if (!state.midiData || isMidiRendering) return;
+  if (!state.currentProjectId) {
+    setMidiStatus("select_project_before_render");
+    return;
+  }
+
+  isMidiRendering = true;
+  $("btnRenderMidi").disabled = true;
+  $("btnLoadMidi").disabled = true;
+  $("btnPlayMidi").disabled = true;
+  $("btnPauseMidi").disabled = true;
+  $("btnStopMidi").disabled = true;
+  $("midiSeek").disabled = true;
+  try {
+    if (midiProgress.playing || midiProgress.paused) stopMidi();
+    setMidiStatus("offline_rendering");
+    await ensureTimidityPlayer();
+    const loaded = await timidityPlayer.load(state.midiData);
+    if (!loaded) {
+      throw new Error(t("midi_load_failed"));
+    }
+
+    setMidiStatus("offline_rendering");
+    const wavBlob = await timidityPlayer.renderOffline();
+    if (!(wavBlob instanceof Blob)) {
+      throw new Error(t("offline_render_failed"));
+    }
+
+    const fileBaseName = (state.midiFileName || "midi").replace(/\.(mid|midi)$/i, "");
+    const downloadUrl = URL.createObjectURL(wavBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = downloadUrl;
+    downloadLink.download = `${sanitizeFilename(fileBaseName)}.wav`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+    setMidiStatus("offline_render_complete");
+  } catch (err) {
+    console.error("Offline MIDI render failed:", err);
+    setMidiStatus("offline_render_failed", {message: err.message});
+  } finally {
+    isMidiRendering = false;
+    $("btnLoadMidi").disabled = false;
+    $("btnPlayMidi").disabled = !state.midiData;
+    $("btnPauseMidi").disabled = true;
+    $("btnStopMidi").disabled = true;
+    $("midiSeek").disabled = !state.midiData;
+    $("btnRenderMidi").disabled = !state.midiData;
+  }
 }
 
 
@@ -2000,16 +2192,44 @@ async function exportProject(projectId) {
 
   try {
     const zipFiles = [];
+    const usedPaths = new Set();
+    const patchPaths = new Map();
+
+    // === BUAT MAPPING URUTAN (0, 1, 2, ...) ===
+    const drums = patches.filter(p => (p.gmBank ?? 0) === 128);
+    const melodic = patches.filter(p => (p.gmBank ?? 0) !== 128);
+    
+    const uniqueDrumSets = [...new Set(drums.map(p => p.drumSet ?? 0))].sort((a, b) => a - b);
+    const drumSetMap = new Map(uniqueDrumSets.map((id, idx) => [id, idx]));
+    
+    const uniqueBanks = [...new Set(melodic.map(p => p.gmBank ?? 0))].sort((a, b) => a - b);
+    const bankMap = new Map(uniqueBanks.map((id, idx) => [id, idx]));
+    // ==========================================
+
     for (const entry of patches) {
       const clean = cleanPatchForStorage(entry.patch);
       const bytes = writePAT(clean);
-      let filename = sanitizeFilename(entry.name) + ".pat"; // PERBAIKAN
+
+      const isDrum = (entry.gmBank ?? 0) === 128;
+      
+      // Gunakan ID berurutan dari mapping
+      const groupId = isDrum 
+        ? drumSetMap.get(entry.drumSet ?? 0) 
+        : bankMap.get(entry.gmBank ?? 0);
+        
+      const kind = isDrum ? "drum" : "tone";
+      const folderPath = `${groupId}/${kind}/`;
+
+      let filename = sanitizeFilename(entry.name) + ".pat";
       let suffix = 1;
       let original = filename;
-      while (zipFiles.some(f => f.name === filename)) {
+      while (usedPaths.has(folderPath + filename)) {
         filename = original.replace(".pat", `_${suffix++}.pat`);
       }
-      zipFiles.push({ name: filename, data: bytes, entry });
+      usedPaths.add(folderPath + filename);
+
+      patchPaths.set(entry.id, { folderPath, filename });
+      zipFiles.push({ name: folderPath + filename, data: bytes, entry });
     }
 
     zipFiles.sort((a, b) => {
@@ -2027,12 +2247,21 @@ async function exportProject(projectId) {
       patchName: zf.entry.name,
       gmBank: zf.entry.gmBank ?? 0,
       gmProgram: zf.entry.gmProgram ?? -1,
+      drumSet: zf.entry.drumSet,
       description: zf.entry.patch.header.description || ""
     }));
-    zipFiles.push({ name: "manifest.json", data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2)) });
+    zipFiles.push({
+      name: "manifest.json",
+      data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2))
+    });
 
-    zipFiles.push({ name: "timidity.cfg", data: new TextEncoder().encode(generateProjectTimidityCfg(project)) });
+    // Kirim mapping ke fungsi timidity.cfg
+    zipFiles.push({
+      name: "timidity.cfg",
+      data: new TextEncoder().encode(generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankMap))
+    });
 
+    // ... (sisa kode createZip & download tetap sama)
     const zipBytes = createZip(zipFiles);
     const blob = new Blob([zipBytes], { type: "application/zip" });
     const url = URL.createObjectURL(blob);
@@ -2052,17 +2281,44 @@ async function exportAllPatches(){
   if(state.patches.length===0){status(t("empty_library"),"bad");return;}
   try {
     const zipFiles = [];
+    const usedPaths = new Set();
+    const patchPaths = new Map();
+
+    // === BUAT MAPPING URUTAN (0, 1, 2, ...) ===
+    const drums = state.patches.filter(p => (p.gmBank ?? 0) === 128);
+    const melodic = state.patches.filter(p => (p.gmBank ?? 0) !== 128);
+    
+    const uniqueDrumSets = [...new Set(drums.map(p => p.drumSet ?? 0))].sort((a, b) => a - b);
+    const drumSetMap = new Map(uniqueDrumSets.map((id, idx) => [id, idx]));
+    
+    const uniqueBanks = [...new Set(melodic.map(p => p.gmBank ?? 0))].sort((a, b) => a - b);
+    const bankMap = new Map(uniqueBanks.map((id, idx) => [id, idx]));
+    // ==========================================
+
     for (const entry of state.patches) {
       const clean = cleanPatchForStorage(entry.patch);
       const bytes = writePAT(clean);
-      let filename = sanitizeFilename(entry.name) + ".pat"; // PERBAIKAN
+
+      const isDrum = (entry.gmBank ?? 0) === 128;
+      const groupId = isDrum 
+        ? drumSetMap.get(entry.drumSet ?? 0) 
+        : bankMap.get(entry.gmBank ?? 0);
+        
+      const kind = isDrum ? "drum" : "tone";
+      const folderPath = `${groupId}/${kind}/`;
+
+      let filename = sanitizeFilename(entry.name) + ".pat";
       let suffix = 1;
       let original = filename;
-      while (zipFiles.some(f => f.name === filename)) {
+      while (usedPaths.has(folderPath + filename)) {
         filename = original.replace(".pat", `_${suffix++}.pat`);
       }
-      zipFiles.push({ name: filename, data: bytes, entry });
+      usedPaths.add(folderPath + filename);
+
+      patchPaths.set(entry.id, { folderPath, filename });
+      zipFiles.push({ name: folderPath + filename, data: bytes, entry });
     }
+
     zipFiles.sort((a, b) => {
       const bankA = a.entry.gmBank ?? 0;
       const bankB = b.entry.gmBank ?? 0;
@@ -2072,16 +2328,25 @@ async function exportAllPatches(){
       if (progA !== progB) return progA - progB;
       return a.name.localeCompare(b.name);
     });
+
     const manifestData = zipFiles.map(zf => ({
       filename: zf.name,
       patchName: zf.entry.name,
       gmBank: zf.entry.gmBank ?? 0,
       gmProgram: zf.entry.gmProgram ?? -1,
+      drumSet: zf.entry.drumSet,
       description: zf.entry.patch.header.description || ""
     }));
-    zipFiles.push({ name: "manifest.json", data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2)) });
+    zipFiles.push({
+      name: "manifest.json",
+      data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2))
+    });
+
     const fakeProject = { patchIds: state.patches.map(p => p.id) };
-    zipFiles.push({ name: "timidity.cfg", data: new TextEncoder().encode(generateProjectTimidityCfg(fakeProject)) });
+    zipFiles.push({
+      name: "timidity.cfg",
+      data: new TextEncoder().encode(generateProjectTimidityCfgForZip(fakeProject, patchPaths, drumSetMap, bankMap))
+    });
 
     const zipBytes = createZip(zipFiles);
     const blob = new Blob([zipBytes], { type: "application/zip" });
@@ -2206,18 +2471,36 @@ function allSamples(){
   return o;
 }
 
-function renderLibrary(){
-  const list=$("patchList");
-  list.innerHTML="";
-  $("libCount").textContent=state.patches.length;
-  if(state.patches.length===0){
-    list.innerHTML=`<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_patch")}</div>`;
+function renderLibrary(filterProjectId = undefined) {
+  // Gunakan currentProjectId jika parameter tidak diberikan
+  const projectId = filterProjectId !== undefined ? filterProjectId : state.currentProjectId;
+  let displayPatches = state.patches;
+
+  // Jika ada proyek yang dipilih/difilter, ambil patch dari proyek tersebut saja
+  if (projectId) {
+    const project = state.projects.find(p => p.id === projectId);
+    if (project) {
+      displayPatches = state.patches.filter(p => project.patchIds.includes(p.id));
+    } else {
+      displayPatches = [];
+    }
+  }
+
+  const list = $("patchList");
+  list.innerHTML = "";
+  
+  // PERBAIKAN: Update libCount secara eksplisit berdasarkan patch yang difilter
+  $("libCount").textContent = displayPatches.length;
+
+  if (displayPatches.length === 0) {
+    list.innerHTML = `<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_patch")}</div>`;
     return;
   }
-  state.patches.forEach(entry=>{
-    const d=document.createElement("div");
-    d.className="li"+(entry.id===state.currentPatchId?" active":"");
-    const totalSamples=entry.patch.instruments.reduce((a,i)=>a+i.layers.reduce((b,l)=>b+l.samples.length,0),0);
+
+  displayPatches.forEach(entry => {
+    const d = document.createElement("div");
+    d.className = "li" + (entry.id === state.currentPatchId ? " active" : "");
+    const totalSamples = entry.patch.instruments.reduce((a, i) => a + i.layers.reduce((b, l) => b + l.samples.length, 0), 0);
     
     const isDupe = entry.gmProgram !== -1 && entry.gmProgram !== undefined && 
                    state.patches.filter(p => p.gmProgram === entry.gmProgram && p.gmBank === entry.gmBank).length > 1;
@@ -2225,19 +2508,20 @@ function renderLibrary(){
     const gmInfo = entry.gmProgram !== -1 && entry.gmProgram !== undefined ? `GM #${entry.gmProgram}` : '';
     const dupeBadge = isDupe ? `<span class="tag" style="color:#f59e0b;border-color:#78350f;margin-right:4px;display:inline-flex;align-items:center;" title="${t("duplicate")}"><svg class="icon" style="width:10px;height:10px;"><use href="#i-warning"></use></svg></span>` : '';
 
-    d.innerHTML=`
+    d.innerHTML = `
       <span class="name" title="${escapeHtml(entry.name)}">${escapeHtml(entry.name)}</span>
       <span class="meta">${dupeBadge}${gmInfo ? gmInfo + ' · ' : ''}${t(totalSamples === 1 ? "sample_count_one" : "sample_count_many", {count: totalSamples})}</span>
       <span class="tools">
-    <button class="icon-btn" data-act="export" title="${t("export_pat")}"><svg class="icon"><use href="#i-download"></use></svg></button>
-    <button class="icon-btn danger" data-act="delete" title="${t("delete")}"><svg class="icon"><use href="#i-close"></use></svg></button>
-    </span>`;
-    d.addEventListener("click",ev=>{
-      const btn=ev.target.closest("button");
-      if(btn){
+        <button class="icon-btn" data-act="export" title="${t("export_pat")}"><svg class="icon"><use href="#i-download"></use></svg></button>
+        <button class="icon-btn danger" data-act="delete" title="${t("delete")}"><svg class="icon"><use href="#i-close"></use></svg></button>
+      </span>`;
+      
+    d.addEventListener("click", ev => {
+      const btn = ev.target.closest("button");
+      if (btn) {
         ev.stopPropagation();
-        if(btn.dataset.act==="export") exportPatchById(entry.id);
-        else if(btn.dataset.act==="delete") deletePatchById(entry.id);
+        if (btn.dataset.act === "export") exportPatchById(entry.id);
+        else if (btn.dataset.act === "delete") deletePatchById(entry.id);
         return;
       }
       selectPatch(entry.id);
@@ -2268,12 +2552,13 @@ function renderProjects() {
   <button class="icon-btn" data-act="export" title="${t("export_project_zip")}"><svg class="icon"><use href="#i-download"></use></svg></button>
   <button class="icon-btn danger" data-act="delete" title="${t("delete")}"><svg class="icon"><use href="#i-close"></use></svg></button>
 </span>`;
-        d.addEventListener("click", ev => {
-      const btn = ev.target.closest("button");
+    d.addEventListener("click", ev => {
+  if (isMidiRendering) return;
+  const btn = ev.target.closest("button");
       if (btn) {
         ev.stopPropagation();
         if (btn.dataset.act === "export") exportProject(proj.id);
-        else if (btn.dataset.act === "delete") deleteProject(proj.id);
+        else if (btn.dataset.act === "delete") requestDeleteProject(proj.id);
         return;
       }
 
@@ -2290,6 +2575,7 @@ function renderProjects() {
       
       // Update UI Proyek
       renderProjects();
+      renderLibrary();
       $("btnAddToProject").disabled = false;
       $("btnDeleteProject").disabled = false;
       $("btnExportProject").disabled = false;
@@ -2756,6 +3042,16 @@ function bind(){
       newProjectDialog.hidden = true;
     }
   });
+  $("btnCancelDeleteProject").addEventListener("click", closeDeleteProjectDialog);
+  $("btnConfirmDeleteProject").addEventListener("click", confirmDeleteProject);
+  $("deleteProjectDialog").addEventListener("click", event => {
+    if (event.target === $("deleteProjectDialog")) closeDeleteProjectDialog();
+  });
+  $("deleteProjectDialog").addEventListener("keydown", event => {
+    if (event.key === "Escape" && !$("btnConfirmDeleteProject").disabled) {
+      closeDeleteProjectDialog();
+    }
+  });
   newProjectName.addEventListener("input", () => {
     newProjectError.textContent = "";
   });
@@ -2763,7 +3059,7 @@ function bind(){
     if (event.target === newProjectDialog) newProjectDialog.hidden = true;
   });
   $("btnDeleteProject").addEventListener("click", () => {
-    if (state.currentProjectId) deleteProject(state.currentProjectId);
+    if (state.currentProjectId) requestDeleteProject(state.currentProjectId);
   });
   $("btnExportProject").addEventListener("click", () => {
     if (state.currentProjectId) exportProject(state.currentProjectId);
@@ -2785,6 +3081,7 @@ function bind(){
 
   $("btnPauseMidi").addEventListener("click", togglePauseMidi);
   $("btnStopMidi").addEventListener("click", stopMidi);
+  $("btnRenderMidi").addEventListener("click", renderMidiToWav);
 
 $("midiSeek").addEventListener("change", (e) => {
     if (!state.midiData) return;
