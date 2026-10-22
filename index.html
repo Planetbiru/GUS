@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>GUS Patch Editor</title>
+<style>
+  :root{--bg:#070b14;--card:#0f172a;--card2:#111c33;--line:#1e2d4a;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--accent:#38bdf8;--accent2:#a78bfa;--ok:#34d399;--bad:#f87171}
+  *{box-sizing:border-box}
+  body{margin:0;height:100vh;overflow:hidden;background:radial-gradient(1200px 800px at 20% -10%,#12203a,#070b14 55%);color:var(--text);font:13px ui-sans-serif,system-ui,sans-serif;display:flex;flex-direction:column}
+  button,input,select{font:inherit}
+  header{height:56px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#080d18;border-bottom:1px solid var(--line);flex:none}
+  .brand{display:flex;align-items:center;gap:9px;min-width:200px}
+  .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#06111f;font-weight:900}
+  .brand b{font-size:13px}.brand span{display:block;font-size:9px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+  .actions{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap;align-items:center}
+  .btn{background:var(--card2);color:var(--text);border:1px solid var(--line);padding:7px 11px;border-radius:8px;cursor:pointer;transition:.15s}
+  .btn:hover{background:#16233d;border-color:#2b446b}
+  .btn.primary{background:linear-gradient(135deg,#0ea5e9,#6366f1);border:0;color:#fff;font-weight:600}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.small{padding:4px 8px;font-size:11px}
+  .btn.danger{color:var(--bad);border-color:#4a2029}
+  .btn.active{background:rgba(56,189,248,.15);border-color:var(--accent)}
+  .app{flex:1;display:flex;min-height:0}
+  aside{width:270px;border-right:1px solid var(--line);padding:10px;overflow:auto;background:rgba(8,13,24,.45);flex:none}
+  main{flex:1;overflow:auto;padding:12px 14px 30px;min-width:0}
+  .card{background:linear-gradient(180deg,rgba(17,28,51,.95),rgba(15,23,42,.95));border:1px solid var(--line);border-radius:10px;padding:11px;margin-bottom:10px}
+  .card h3{margin:0 0 8px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .stat{background:#0a1222;border:1px solid #172541;border-radius:7px;padding:6px 8px}
+  .stat label{display:block;font-size:9px;text-transform:uppercase;color:var(--dim);letter-spacing:.08em}
+  .stat b{font-size:12px}
+  .list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow:auto}
+  .li{padding:6px 8px;border:1px solid transparent;border-radius:6px;background:#0a1222;cursor:pointer;display:flex;justify-content:space-between;gap:6px;font-size:12px}
+  .li:hover{background:#101c33}
+  .li.active{border-color:var(--accent);background:rgba(56,189,248,.1)}
+  .li .meta{color:var(--dim);font-size:10px;flex:none}
+  .welcome{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;color:var(--muted);border:1px dashed #1e3357;border-radius:16px;padding:30px}
+  .welcome h1{margin:0;color:var(--text);font-size:24px}
+  .welcome p{margin:0;max-width:480px;line-height:1.7}
+  .grid{display:grid;gap:8px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g6{grid-template-columns:repeat(6,1fr)}
+  .field{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .field label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .field input,.field select{background:#080f1e;border:1px solid #1d2e4d;color:var(--text);border-radius:6px;padding:5px 7px;outline:none;width:100%;min-width:0}
+  .field input:focus{border-color:var(--accent)}
+  .hint{font-size:10px;color:var(--dim);line-height:1.5}
+  .samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+  .sc{background:#0a1222;border:1px solid #172541;border-radius:8px;padding:8px;cursor:pointer;transition:.14s}
+  .sc:hover{border-color:#2b446b;transform:translateY(-1px)}
+  .sc.active{border-color:var(--accent);background:rgba(56,189,248,.07)}
+  .sc .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px;font-size:12px}
+  .sc .m{display:flex;flex-wrap:wrap;gap:3px}
+  .tag{font-size:9px;padding:1px 4px;border-radius:3px;background:#13213a;color:var(--muted);border:1px solid #1d2e4d}
+  .tag.loop{color:var(--accent);border-color:#1e4a6b}
+  .wave-wrap{position:relative;border:1px solid #1a2b49;border-radius:8px;overflow:hidden;background:#060c17}
+  #waveCanvas{display:block;width:100%;height:200px;cursor:crosshair;touch-action:none}
+  .wave-overlay{position:absolute;left:8px;top:6px;display:flex;gap:4px;pointer-events:none}
+  .wave-overlay span{background:rgba(6,12,23,.72);border:1px solid #1d3050;border-radius:4px;padding:1px 5px;font-size:10px;color:var(--muted)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;align-items:center}
+  .sep{width:1px;background:var(--line);margin:0 3px}
+  .play-row{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:8px}
+  .hold-btn{background:linear-gradient(135deg,#059669,#10b981);border:0;color:#fff;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;user-select:none}
+  .hold-btn:active{transform:scale(.98)}
+  .divider{height:1px;background:var(--line);margin:10px 0}
+  .subhead{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+  .subhead h2{margin:0;font-size:14px}
+  .subhead .spacer{flex:1}
+  .pill{font-size:10px;padding:2px 6px;border-radius:99px;background:#101d34;border:1px solid #1e3253;color:var(--muted)}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px}
+  .check{display:flex;align-items:center;gap:5px;background:#0a1222;border:1px solid #1b2b49;border-radius:5px;padding:4px 7px;font-size:11px;cursor:pointer;user-select:none}
+  .check input{accent-color:var(--accent);width:12px;height:12px}
+  footer{height:24px;display:flex;align-items:center;gap:10px;padding:0 12px;background:#060a12;border-top:1px solid var(--line);color:var(--dim);font-size:11px;flex:none}
+  .midi-box{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--line);padding:4px 6px;border-radius:8px}
+  .midi-box select{background:transparent;border:0;color:var(--text);max-width:140px;font-size:11px;outline:none}
+  .dot{width:7px;height:7px;border-radius:50%;background:#475569}
+  .dot.on{background:var(--ok);box-shadow:0 0 0 3px rgba(52,211,153,.16)}
+  @media(max-width:900px){.g6,.g4{grid-template-columns:repeat(2,1fr)}aside{width:220px}}
+  @media(max-width:720px){.app{flex-direction:column}aside{width:100%;border-right:0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px}aside .card{margin:0}body{overflow:auto}main{overflow:visible}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">G</div>
+    <div><b>GUS Patch Editor</b><span>Gravis Ultrasound .PAT</span></div>
+  </div>
+  <div class="actions">
+    <input type="file" id="patFile" accept=".pat,.PAT,application/octet-stream" hidden>
+    <button class="btn primary" id="btnOpen">📂 Buka .PAT</button>
+    <button class="btn" id="btnDemo">✨ Demo</button>
+    <button class="btn" id="btnSave" disabled>💾 Unduh .PAT</button>
+    <div class="midi-box">
+      <select id="midiSelect" disabled><option>MIDI off</option></select>
+      <button class="btn small" id="btnMidi">Aktifkan</button>
+      <span class="dot" id="midiDot"></span>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside>
+    <div class="card">
+      <h3>Patch <span class="pill" id="patchNameSide" style="float:right">—</span></h3>
+      <div class="stats">
+        <div class="stat"><label>Instrumen</label><b id="statInst">0</b></div>
+        <div class="stat"><label>Sampel</label><b id="statSamples">0</b></div>
+        <div class="stat"><label>Voices</label><b id="statVoices">—</b></div>
+        <div class="stat"><label>Master Vol</label><b id="statVol">—</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Instrumen</h3>
+      <div class="list" id="instrumentList"></div>
+    </div>
+    <div class="card">
+      <h3>MIDI Monitor</h3>
+      <div id="midiMonitor" style="font-size:11px;color:var(--dim);line-height:1.6;font-family:ui-monospace,monospace">Belum ada pesan MIDI.</div>
+    </div>
+  </aside>
+
+  <main>
+    <section class="welcome" id="welcome">
+      <h1>Editor GUS Patch</h1>
+      <p>Muat file <b>.PAT</b> Gravis Ultrasound, edit properti patch, sunting waveform di canvas, ekspor/impor sampel WAV, dan uji suara via keyboard atau MIDI controller. Semua diproses lokal di browser.</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+        <button class="btn primary" id="btnOpen2">Buka .PAT</button>
+        <button class="btn" id="btnDemo2">Muat Demo</button>
+      </div>
+    </section>
+
+    <div id="workspace" hidden>
+      <section class="card">
+        <h3>Properti Patch</h3>
+        <div class="grid g4">
+          <div class="field"><label>Magic</label><input id="pMagic" readonly></div>
+          <div class="field"><label>Gravis ID</label><input id="pGravisId" readonly></div>
+          <div class="field"><label>Voices</label><input id="pVoices" type="number" min="1" max="32"></div>
+          <div class="field"><label>Channels</label><input id="pChannels" type="number" min="0" max="32"></div>
+          <div class="field" style="grid-column:span 2"><label>Deskripsi</label><input id="pDescription" maxlength="60"></div>
+          <div class="field"><label>Master Volume (0–127)</label><input id="pMasterVolume" type="number" min="0" max="127"></div>
+          <div class="field"><label>Data Size</label><input id="pDataSize" readonly></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="subhead">
+          <h2 id="instTitle">Instrumen</h2>
+          <span class="pill" id="instPill">—</span>
+        </div>
+        <div class="grid g3">
+          <div class="field"><label>Nomor Instrumen</label><input id="iNumber" type="number" min="0" max="65535"></div>
+          <div class="field" style="grid-column:span 2"><label>Nama (16 karakter)</label><input id="iName" maxlength="16"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="subhead">
+          <h2>Sampel</h2>
+          <span class="pill" id="sampleCountPill">0</span>
+          <div class="spacer"></div>
+          <span class="hint">Klik kartu untuk mengedit</span>
+        </div>
+        <div class="samples" id="sampleList"></div>
+      </section>
+
+      <section class="card" id="sampleEditor" hidden>
+        <div class="subhead">
+          <h2 id="sampleTitle">Editor Sampel</h2>
+          <span class="pill" id="sampleFormatPill">—</span>
+          <div class="spacer"></div>
+          <button class="btn small danger" id="btnDeleteSample">Hapus</button>
+        </div>
+
+        <div class="wave-wrap">
+          <canvas id="waveCanvas"></canvas>
+          <div class="wave-overlay"><span id="waveInfo">—</span><span id="selInfo">—</span></div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn small" id="toolSelect">🖱️ Seleksi</button>
+          <button class="btn small" id="toolPencil">✏️ Pensil</button>
+          <div class="sep"></div>
+          <button class="btn small" id="btnZoomOut" title="Zoom Out">🔍 -</button>
+          <button class="btn small" id="btnZoomIn" title="Zoom In">🔍 +</button>
+          <button class="btn small" id="btnZoomReset" title="Reset Zoom">Reset</button>
+          <span id="zoomLevelText" class="pill" style="line-height:20px;margin-left:4px">1.0x</span>
+          <div class="sep"></div>
+          <button class="btn small" id="btnSelectAll">Pilih Semua</button>
+          <button class="btn small" id="btnNormalize">Normalize</button>
+          <button class="btn small" id="btnFadeIn">Fade In</button>
+          <button class="btn small" id="btnFadeOut">Fade Out</button>
+          <button class="btn small" id="btnSilence">Silence</button>
+          <button class="btn small" id="btnReverse">Reverse</button>
+          <button class="btn small" id="btnAmplify">Amplify…</button>
+          <button class="btn small" id="btnDc">Hapus DC</button>
+          <div class="sep"></div>
+          <button class="btn small" id="btnUndo">↶ Undo</button>
+          <button class="btn small" id="btnLoopSel">Loop = Seleksi</button>
+          <button class="btn small" id="btnLoopAll">Loop Semua</button>
+        </div>
+
+        <div class="play-row">
+          <button class="hold-btn" id="btnHold">▶ Tahan untuk Main</button>
+          <button class="btn" id="btnPlay">Putar Sekali</button>
+          <button class="btn danger" id="btnStop">■ Stop</button>
+          <span class="hint">Scroll = Zoom, Shift+Scroll / Middle-Click = Pan. Tekan & tahan tombol hijau; lepas = release/tail.</span>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn small" id="btnExportWav">⬇ Unduh WAV</button>
+          <input type="file" id="wavFile" accept=".wav,audio/wav" hidden>
+          <button class="btn small" id="btnImportWav">⬆ Unggah WAV</button>
+          <span class="hint">Mono/stereo 8/16/24/32-bit. Loop dibaca dari chunk <code>smpl</code>.</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3 style="margin:0 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">Properti Sampel</h3>
+        <div class="grid g4">
+          <div class="field"><label>Nama Wave (7)</label><input id="sName" maxlength="7"></div>
+          <div class="field"><label>Sample Rate</label><input id="sRate" type="number" min="1" max="192000"></div>
+          <div class="field"><label>Root Freq</label><input id="sRoot" type="number" min="0"></div>
+          <div class="field"><label>Panning (0–15)</label><input id="sBalance" type="number" min="0" max="15"></div>
+          <div class="field"><label>Low Freq</label><input id="sLow" type="number" min="0"></div>
+          <div class="field"><label>High Freq</label><input id="sHigh" type="number" min="0"></div>
+          <div class="field"><label>Loop Start (sampel)</label><input id="sLoopStart" type="number" min="0"></div>
+          <div class="field"><label>Loop End (sampel)</label><input id="sLoopEnd" type="number" min="0"></div>
+          <div class="field"><label>Fractions</label><input id="sFractions" type="number" min="0" max="255"></div>
+          <div class="field"><label>Tune</label><input id="sTune" type="number" min="0" max="65535"></div>
+          <div class="field"><label>Scale Freq</label><input id="sScaleFreq" type="number" min="0" max="65535"></div>
+          <div class="field"><label>Scale Factor</label><input id="sScaleFactor" type="number" min="0" max="65535"></div>
+        </div>
+
+        <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">Envelope (Rates)</h3>
+        <div class="grid g6" id="envRatesGrid"></div>
+        <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">Envelope (Offsets)</h3>
+        <div class="grid g6" id="envOffsetsGrid"></div>
+
+        <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">Tremolo / Vibrato</h3>
+        <div class="grid g6">
+          <div class="field"><label>Trem Sweep</label><input id="sTremSweep" type="number" min="0" max="255"></div>
+          <div class="field"><label>Trem Rate</label><input id="sTremRate" type="number" min="0" max="255"></div>
+          <div class="field"><label>Trem Depth</label><input id="sTremDepth" type="number" min="0" max="255"></div>
+          <div class="field"><label>Vib Sweep</label><input id="sVibSweep" type="number" min="0" max="255"></div>
+          <div class="field"><label>Vib Rate</label><input id="sVibRate" type="number" min="0" max="255"></div>
+          <div class="field"><label>Vib Depth</label><input id="sVibDepth" type="number" min="0" max="255"></div>
+        </div>
+
+        <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">Mode Sampel</h3>
+        <div class="check-row" id="modesRow"></div>
+
+        <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">Uji Suara (Keyboard)</h3>
+        <div class="hint">Klik tombol atau tekan tombol A W S E D F T G Y H U J K di keyboard. MIDI controller aktif otomatis jika diizinkan.</div>
+        <div class="check-row" id="pianoRow" style="margin-top:6px"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <span id="statusBar">Siap. Buka file .PAT atau muat demo.</span>
+  <span style="margin-left:auto;font-family:ui-monospace,monospace" id="footerInfo"></span>
+</footer>
+
+<script>
+"use strict";
+
+/* ---------- Konstanta ---------- */
+const MAGIC = "GF1PATCH110", GRAVIS_ID = "ID#000002";
+const M16=0x01, MUNS=0x02, MLOOP=0x04, MPING=0x08, MREV=0x10, MSUS=0x20, MENV=0x40, MCLAMP=0x80;
+const MODE_LABELS=[[M16,"16-bit"],[MUNS,"Unsigned"],[MLOOP,"Loop"],[MPING,"Ping-pong"],[MREV,"Reverse"],[MSUS,"Sustain"],[MENV,"Envelope"],[MCLAMP,"Clamped release"]];
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const midiToFreq = n => 440 * Math.pow(2, (n-69)/12);
+
+/* ---------- State ---------- */
+const state = {
+  patch:null, selInst:0, selSample:null, selStart:0, selEnd:0,
+  tool:'select', undo:[], drag:null,
+  audio:{ctx:null, master:null, voices:new Set(), hold:null},
+  midi:{access:null, input:null, enabled:false},
+  keyNote:new Map(),
+  zoom: 1,         // Fitur Zoom
+  offset: 0,       // Fitur Pan
+  panning: null    // Status drag pan
+};
+
+/* ---------- Utilitas ---------- */
+function decodeAscii(b){let s="";for(let i=0;i<b.length;i++){if(b[i]===0)break;s+=String.fromCharCode(b[i]);}return s.replace(/\s+$/,"");}
+function encodeAscii(s,len){const o=new Uint8Array(len);s=String(s??"");for(let i=0;i<len;i++)o[i]=i<s.length?s.charCodeAt(i)&255:0;return o;}
+function status(m,k){$("statusBar").textContent=m;$("statusBar").style.color=k==="bad"?"#f87171":k==="ok"?"#34d399":"";}
+function fmtBytes(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+/* ---------- Parse PAT ---------- */
+function parsePAT(ab){
+  const bytes=new Uint8Array(ab), dv=new DataView(ab); let p=0;
+  const u8=()=>{const v=dv.getUint8(p);p+=1;return v;};
+  const u16=()=>{const v=dv.getUint16(p,true);p+=2;return v;};
+  const u32=()=>{const v=dv.getUint32(p,true);p+=4;return v;};
+  const rB=n=>{const v=bytes.slice(p,p+n);p+=n;return v;};
+  const rS=n=>decodeAscii(rB(n));
+  if(bytes.length<129)throw new Error("File terlalu kecil.");
+  const magic=rS(12); if(!magic.startsWith("GF1PATCH"))throw new Error("Bukan file .PAT (magic tidak cocok).");
+  const gravisId=rS(10), description=rS(60);
+  let ic=u8(); if(ic===0)ic=1;
+  const voices=u8(), channels=u8(), waveForms=u16(), masterVolume=u16(), dataSize=u32();
+  const reserved=rB(36);
+  const instruments=[];
+  for(let i=0;i<ic;i++){
+    if(p+63>bytes.length)throw new Error("Header instrumen terpotong.");
+    const instrument=u16(), name=rS(16), size=u32();
+    let lc=u8(); if(lc===0)lc=1;
+    const rI=rB(40), layers=[];
+    for(let j=0;j<lc;j++){
+      if(p+47>bytes.length)throw new Error("Header layer terpotong.");
+      const duplicate=u8(), layer=u8(), layerSize=u32(), sc=u8(), rL=rB(40);
+      const samples=[];
+      for(let k=0;k<sc;k++){
+        if(p+96>bytes.length)throw new Error("Header sampel terpotong.");
+        const waveName=rS(7), fractions=u8(), ws=u32(), loopStart=u32(), loopEnd=u32();
+        const sampleRate=u16(), lowFreq=u32(), highFreq=u32(), rootFreq=u32();
+        const tune=u16(), balance=u8();
+        const envRates=Array.from(rB(6)), envOffsets=Array.from(rB(6));
+        const tremoloSweep=u8(), tremoloRate=u8(), tremoloDepth=u8();
+        const vibratoSweep=u8(), vibratoRate=u8(), vibratoDepth=u8();
+        const modes=u8(), scaleFreq=u16(), scaleFactor=u16(), rS2=rB(36);
+        if(ws>bytes.length-p)throw new Error("Data sampel melebihi file.");
+        const pcm=bytes.slice(p,p+ws);p+=ws;
+        samples.push({name:waveName,fractions,dataSize:ws,loopStart,loopEnd,sampleRate,lowFreq,highFreq,rootFreq,tune,balance,envRates,envOffsets,tremoloSweep,tremoloRate,tremoloDepth,vibratoSweep,vibratoRate,vibratoDepth,modes,scaleFreq,scaleFactor,reserved:rS2,pcm,_float:null});
+      }
+      layers.push({duplicate,layer,layerSize,samples,reserved:rL});
+    }
+    instruments.push({instrument,name,size,layers,reserved:rI});
+  }
+  return {header:{magic,gravisId,description,voices,channels,waveForms,masterVolume,dataSize,reserved},instruments};
+}
+
+/* ---------- Tulis PAT ---------- */
+function writePAT(patch){
+  let totalData=0, totalSamples=0;
+  for(const inst of patch.instruments){
+    let iSize=63;
+    for(const layer of inst.layers){
+      let lSize=47;
+      for(const s of layer.samples){s.dataSize=s.pcm.length;lSize+=96+s.pcm.length;totalSamples++;}
+      layer.layerSize=lSize; iSize+=lSize;
+    }
+    inst.size=iSize; totalData+=iSize;
+  }
+  patch.header.dataSize=totalData; patch.header.waveForms=totalSamples;
+  const buf=new ArrayBuffer(129+totalData), dv=new DataView(buf), bytes=new Uint8Array(buf);
+  let p=0;
+  const wS=(s,n)=>{bytes.set(encodeAscii(s,n),p);p+=n;};
+  const w8=v=>{dv.setUint8(p,v&255);p+=1;};
+  const w16=v=>{dv.setUint16(p,v&65535,true);p+=2;};
+  const w32=v=>{dv.setUint32(p,v>>>0,true);p+=4;};
+  const wB=(a,n)=>{if(a&&a.length)bytes.set(a.slice(0,n),p);p+=n;};
+  wS(patch.header.magic||MAGIC,12); wS(patch.header.gravisId||GRAVIS_ID,10);
+  wS(patch.header.description||"",60);
+  w8(patch.instruments.length); w8(patch.header.voices??14); w8(patch.header.channels??0);
+  w16(totalSamples); w16(patch.header.masterVolume??127); w32(totalData);
+  wB(patch.header.reserved,36);
+  for(const inst of patch.instruments){
+    w16(inst.instrument); wS(inst.name,16); w32(inst.size); w8(inst.layers.length); wB(inst.reserved,40);
+    for(const layer of inst.layers){
+      w8(layer.duplicate); w8(layer.layer); w32(layer.layerSize); w8(layer.samples.length); wB(layer.reserved,40);
+      for(const s of layer.samples){
+        wS(s.name,7); w8(s.fractions); w32(s.pcm.length); w32(s.loopStart); w32(s.loopEnd);
+        w16(s.sampleRate); w32(s.lowFreq); w32(s.highFreq); w32(s.rootFreq);
+        w16(s.tune); w8(s.balance);
+        for(let i=0;i<6;i++)w8(s.envRates[i]??0);
+        for(let i=0;i<6;i++)w8(s.envOffsets[i]??0);
+        w8(s.tremoloSweep);w8(s.tremoloRate);w8(s.tremoloDepth);
+        w8(s.vibratoSweep);w8(s.vibratoRate);w8(s.vibratoDepth);
+        w8(s.modes); w16(s.scaleFreq); w16(s.scaleFactor); wB(s.reserved,36);
+        bytes.set(s.pcm,p);p+=s.pcm.length;
+      }
+    }
+  }
+  return bytes;
+}
+
+/* ---------- PCM <-> Float ---------- */
+function fmt(s){return{is16:(s.modes&M16)!==0,unsigned:(s.modes&MUNS)!==0,bps:(s.modes&M16)?2:1};}
+function pcmToFloat(s){
+  const {is16,unsigned,bps}=fmt(s), n=Math.floor(s.pcm.length/bps), o=new Float32Array(n);
+  if(is16){
+    for(let i=0;i<n;i++){
+      let v=s.pcm[i*2]|(s.pcm[i*2+1]<<8);
+      if(unsigned)v-=32768; else if(v>=32768)v-=65536;
+      o[i]=v/32768;
+    }
+  }else{
+    for(let i=0;i<n;i++){
+      let v=s.pcm[i];
+      if(unsigned)v-=128; else if(v>=128)v-=256;
+      o[i]=v/128;
+    }
+  }
+  return o;
+}
+function floatToPcm(s,f){
+  const {is16,unsigned}=fmt(s), n=f.length, b=new Uint8Array(n*(is16?2:1));
+  if(is16){
+    for(let i=0;i<n;i++){
+      let v=clamp(f[i],-1,1), iv=Math.round(v*32767);
+      if(unsigned)iv+=32768; else if(iv<0)iv+=65536;
+      b[i*2]=iv&255; b[i*2+1]=(iv>>8)&255;
+    }
+  }else{
+    for(let i=0;i<n;i++){
+      let v=clamp(f[i],-1,1), iv=Math.round(v*127);
+      if(unsigned)iv+=128; else if(iv<0)iv+=256;
+      b[i]=iv&255;
+    }
+  }
+  s.pcm=b; s.dataSize=b.length;
+}
+function ensureFloat(s){ if(!s._float)s._float=pcmToFloat(s); return s._float; }
+function commitFloat(s){ if(s._float)floatToPcm(s,s._float); }
+
+function loopInfo(s){
+  const bps=fmt(s).bps, total=Math.floor(s.pcm.length/bps);
+  const sf=(s.fractions&0x0f)/16, ef=((s.fractions>>4)&0x0f)/16;
+  let a=(s.loopStart+sf)/bps, b=(s.loopEnd+ef)/bps;
+  a=clamp(a,0,total); b=clamp(b,0,total);
+  const enabled=(s.modes&MLOOP)!==0;
+  if(b<=a+1)b=Math.min(total,a+1);
+  return {enabled:enabled&&b>a+1, start:a, end:b, total};
+}
+
+/* ---------- WAV ---------- */
+function encodeWav(s){
+  const f=ensureFloat(s), sr=clamp(s.sampleRate||22050,1,192000), n=f.length;
+  const dataBytes=n*2, loop=loopInfo(s), hasLoop=loop.enabled&&loop.end>loop.start;
+  const smplSize=hasLoop?60:0, total=12+8+16+8+dataBytes+(hasLoop?8+smplSize:0);
+  const buf=new ArrayBuffer(total), dv=new DataView(buf); let p=0;
+  const wS=str=>{for(let i=0;i<str.length;i++)dv.setUint8(p+i,str.charCodeAt(i));p+=str.length;};
+  const w32=v=>{dv.setUint32(p,v>>>0,true);p+=4;};
+  const w16=v=>{dv.setUint16(p,v&65535,true);p+=2;};
+  wS("RIFF");w32(total-8);wS("WAVE");wS("fmt ");w32(16);w16(1);w16(1);w32(sr);w32(sr*2);w16(2);w16(16);
+  wS("data");w32(dataBytes);
+  for(let i=0;i<n;i++){
+    let v=clamp(f[i],-1,1), iv=Math.round(v*32767);
+    if(iv<0)iv+=65536;
+    dv.setUint16(p,iv,true); p+=2;
+  }
+  if(hasLoop){
+    wS("smpl");w32(smplSize);w32(0);w32(0);w32(Math.round(1e9/sr));
+    w32(60);w32(0);w32(0);w32(0);w32(1);w32(0);w32(0);w32(0);
+    w32(Math.max(0,Math.round(loop.start)));w32(Math.max(0,Math.round(loop.end)));
+    w32(0);w32(0);
+  }
+  return new Blob([buf],{type:"audio/wav"});
+}
+
+function decodeWav(ab){
+  const dv=new DataView(ab), bytes=new Uint8Array(ab);
+  const s4=o=>String.fromCharCode(bytes[o],bytes[o+1],bytes[o+2],bytes[o+3]);
+  if(s4(0)!=="RIFF"||s4(8)!=="WAVE")throw new Error("Bukan file WAV.");
+  let p=12, fmtC=null, dataC=null, smplC=null;
+  while(p+8<=bytes.length){
+    const id=s4(p), sz=dv.getUint32(p+4,true); p+=8;
+    if(p+sz>bytes.length)break;
+    const c=bytes.slice(p,p+sz);
+    if(id==="fmt ")fmtC=c; else if(id==="data")dataC=c; else if(id==="smpl")smplC=c;
+    p+=sz+(sz&1);
+  }
+  if(!fmtC||!dataC)throw new Error("WAV tidak lengkap.");
+  const fd=new DataView(fmtC.buffer,fmtC.byteOffset,fmtC.byteLength);
+  const tag=fd.getUint16(0,true), ch=fd.getUint16(2,true), sr=fd.getUint32(4,true), bits=fd.getUint16(14,true);
+  const bps=Math.ceil(bits/8), frameB=bps*ch, frames=Math.floor(dataC.length/frameB);
+  const out=new Float32Array(frames);
+  const rd=(o)=>{
+    if(tag===3){if(bits===32)return dv.getFloat32(o,true);return 0;}
+    if(bits===8)return (dataC[o]-128)/128;
+    if(bits===16){let v=dataC[o]|(dataC[o+1]<<8);if(v>=32768)v-=65536;return v/32768;}
+    if(bits===24){let v=dataC[o]|(dataC[o+1]<<8)|(dataC[o+2]<<16);if(v>=0x800000)v-=0x1000000;return v/8388608;}
+    if(bits===32){let v=(dataC[o]|(dataC[o+1]<<8)|(dataC[o+2]<<16)|(dataC[o+3]<<24))>>>0;if(v>=0x80000000)v-=0x100000000;return v/2147483648;}
+    return 0;
+  };
+  for(let i=0;i<frames;i++){
+    let sum=0, base=i*frameB;
+    for(let c=0;c<ch;c++)sum+=rd(base+c*bps);
+    out[i]=sum/ch;
+  }
+  let ls=0, le=frames, hasLoop=false;
+  if(smplC&&smplC.length>=60){
+    const sd=new DataView(smplC.buffer,smplC.byteOffset,smplC.byteLength);
+    if(sd.getUint32(28,true)>0){
+      const a=sd.getUint32(44,true), b=sd.getUint32(48,true);
+      if(b>a&&b<=frames){ls=a;le=b;hasLoop=true;}
+    }
+  }
+  return {sampleRate:sr, samples:out, loopStart:ls, loopEnd:le, hasLoop};
+}
+
+/* ---------- Audio Engine ---------- */
+function ensureAudio(){
+  if(!state.audio.ctx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)throw new Error("Web Audio tidak didukung.");
+    state.audio.ctx=new AC();
+    state.audio.master=state.audio.ctx.createGain();
+    state.audio.master.gain.value=0.8;
+    state.audio.master.connect(state.audio.ctx.destination);
+  }
+  if(state.audio.ctx.state==="suspended")state.audio.ctx.resume();
+}
+
+function gusEnvMs(rate,start,end){
+  let r=(3-((rate>>6)&3))*3, p=rate&0x3f;
+  if(!p)p=1;
+  let t=Math.abs(end-start);
+  t=13>r?t<<(13-r):t>>(r-13);
+  return (t*10)/(p*441);
+}
+
+function computeEnv(s){
+  if(!(s.modes&MENV))return {attack:0.005,decay:0.001,sustain:1,release:0.03};
+  const r=s.envRates, o=s.envOffsets;
+  const attack=clamp(gusEnvMs(r[0],0,o[0])/1000,0.001,8);
+  const decay=clamp(gusEnvMs(r[1],o[0],o[1])/1000,0.001,8);
+  const sustain=clamp(o[2]/255,0.001,1);
+  let release=clamp(gusEnvMs(r[3],o[2],0)/1000,0.005,8);
+  if(s.modes&MCLAMP)release=Math.min(release,0.06);
+  return {attack,decay,sustain,release};
+}
+
+function rootHz(s){
+  let f=s.rootFreq;
+  if(!f||f<=0)f=s.sampleRate||22050;
+  if(f>100000)f/=1000;
+  return clamp(f,1,200000);
+}
+
+function playSample(s, note=60, velocity=100, hold=false){
+  ensureAudio();
+  const ctx=state.audio.ctx;
+  let floats=ensureFloat(s);
+  const sr=clamp(s.sampleRate||22050,4000,192000);
+  let li=loopInfo(s);
+
+  if(s.modes&MREV){
+    const r=new Float32Array(floats.length);
+    for(let i=0;i<floats.length;i++)r[i]=floats[floats.length-1-i];
+    floats=r;
+    if(li.enabled){
+      const t=floats.length;
+      li={enabled:true,start:t-li.end,end:t-li.start,total:t};
+    }
+  }
+
+  const buf=ctx.createBuffer(1,floats.length,sr);
+  buf.copyToChannel(floats,0);
+  const src=ctx.createBufferSource(); src.buffer=buf;
+  const rate=clamp(midiToFreq(note)/rootHz(s),0.01,32);
+  src.playbackRate.value=rate;
+
+  if(li.enabled){
+    src.loop=true;
+    src.loopStart=clamp(li.start/sr,0,buf.duration);
+    src.loopEnd=clamp(li.end/sr,0.0001,buf.duration);
+  }
+
+  const gain=ctx.createGain(); src.connect(gain).connect(state.audio.master);
+  const env=computeEnv(s);
+  const now=ctx.currentTime+0.005;
+  const patchVol=state.patch?(state.patch.header.masterVolume??127)/127:1;
+  const peak=Math.max(0.0001,(velocity/127)*patchVol);
+  gain.gain.setValueAtTime(0.0001,now);
+  gain.gain.exponentialRampToValueAtTime(peak,now+env.attack);
+  gain.gain.exponentialRampToValueAtTime(Math.max(0.0001,peak*env.sustain),now+env.attack+env.decay);
+
+  const voice={src,gain,sample:s,note,velocity,env,released:false};
+  src.onended=()=>{
+    state.audio.voices.delete(voice);
+    if(state.audio.hold===voice)state.audio.hold=null;
+    try{gain.disconnect();}catch(_){}
+  };
+  src.start(now);
+  state.audio.voices.add(voice);
+  if(hold)state.audio.hold=voice;
+  return voice;
+}
+
+function releaseVoice(v,fast=false){
+  if(!v||v.released)return;
+  v.released=true;
+  const ctx=state.audio.ctx; if(!ctx)return;
+  const now=ctx.currentTime, g=v.gain.gain;
+  let cur=0.0001;
+  try{cur=Math.max(0.0001,g.value);}catch(_){}
+  g.cancelScheduledValues(now);
+  g.setValueAtTime(cur,now);
+  const rel=Math.max(0.005,fast?Math.min(v.env.release,0.04):v.env.release);
+  g.exponentialRampToValueAtTime(0.0001,now+rel);
+  try{v.src.stop(now+rel+0.06);}catch(_){}
+}
+
+function releaseAllVoices(fast=false){ for(const v of Array.from(state.audio.voices))releaseVoice(v,fast); }
+function stopAllVoices(){
+  for(const v of Array.from(state.audio.voices)){
+    try{v.src.stop();}catch(_){}
+    try{v.gain.disconnect();}catch(_){}
+    state.audio.voices.delete(v);
+  }
+  state.audio.hold=null;
+}
+
+/* ---------- Canvas Waveform (ZOOM & PAN) ---------- */
+let cctx=null;
+
+function clampView(n) {
+  if (!n) return;
+  const visible = n / state.zoom;
+  state.offset = clamp(state.offset, 0, n - visible);
+  if (state.zoom === 1) state.offset = 0;
+}
+
+function updateZoomUI() {
+  const el = $("zoomLevelText");
+  if (el) el.textContent = state.zoom.toFixed(1) + "x";
+}
+
+function zoomCanvas(factor, centerX = null) {
+  const s = state.selSample; if (!s) return;
+  const n = ensureFloat(s).length;
+  const oldZoom = state.zoom;
+  state.zoom = clamp(state.zoom * factor, 1, 1000);
+  if (oldZoom === state.zoom) return;
+
+  const w = $("waveCanvas").getBoundingClientRect().width;
+  let mouseRatio = centerX !== null ? centerX / w : 0.5;
+  
+  const oldVisibleCount = n / oldZoom;
+  const newVisibleCount = n / state.zoom;
+  const mouseSmp = state.offset + mouseRatio * oldVisibleCount;
+  
+  state.offset = mouseSmp - mouseRatio * newVisibleCount;
+  clampView(n);
+  updateZoomUI();
+  drawWave();
+}
+
+function smpToX(smp, w, n) {
+  const visibleCount = n / state.zoom;
+  return ((smp - state.offset) / visibleCount) * w;
+}
+
+function xToSmp(x, w, n) {
+  const visibleCount = n / state.zoom;
+  const idx = state.offset + (x / Math.max(1, w)) * visibleCount;
+  return clamp(Math.round(idx), 0, Math.max(0, n - 1));
+}
+
+function drawWave(){
+  const cv=$("waveCanvas");
+  if(!cctx)cctx=cv.getContext("2d");
+  const rect=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  if(cv.width!==Math.floor(rect.width*dpr)||cv.height!==Math.floor(rect.height*dpr)){
+    cv.width=Math.floor(rect.width*dpr); cv.height=Math.floor(rect.height*dpr);
+  }
+  const ctx=cctx; ctx.setTransform(dpr,0,0,dpr,0,0);
+  const w=rect.width, h=rect.height;
+  ctx.clearRect(0,0,w,h);
+
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,"#08101e"); grad.addColorStop(1,"#060b14");
+  ctx.fillStyle=grad; ctx.fillRect(0,0,w,h);
+
+  ctx.strokeStyle="rgba(56,189,248,0.06)";
+  for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(0,h/4*i);ctx.lineTo(w,h/4*i);ctx.stroke();}
+
+  const s=state.selSample; if(!s){$("waveInfo").textContent="—";$("selInfo").textContent="—";return;}
+  const floats=ensureFloat(s), n=floats.length;
+  if(!n)return;
+  
+  clampView(n);
+  const visibleCount = n / state.zoom;
+  const startSmp = state.offset;
+
+  const mid=h/2, amp=h/2*0.92;
+
+  const li=loopInfo(s);
+  if(li.enabled){
+    const x1=smpToX(li.start, w, n), x2=smpToX(li.end, w, n);
+    if(x2>0 && x1<w){
+      const drawX1 = Math.max(0, x1), drawX2 = Math.min(w, x2);
+      ctx.fillStyle="rgba(56,189,248,0.075)";
+      ctx.fillRect(drawX1, 0, Math.max(1, drawX2-drawX1), h);
+      ctx.strokeStyle="rgba(56,189,248,0.55)"; ctx.setLineDash([4,4]);
+      if(x1>=0 && x1<=w) { ctx.beginPath();ctx.moveTo(x1,0);ctx.lineTo(x1,h);ctx.stroke(); }
+      if(x2>=0 && x2<=w) { ctx.beginPath();ctx.moveTo(x2,0);ctx.lineTo(x2,h);ctx.stroke(); }
+      ctx.setLineDash([]);
+    }
+  }
+
+  const selS=Math.min(state.selStart,state.selEnd), selE=Math.max(state.selStart,state.selEnd);
+  if(selE>selS){
+    const sx=smpToX(selS, w, n), ex=smpToX(selE, w, n);
+    if(ex>0 && sx<w){
+      const drawSx = Math.max(0, sx), drawEx = Math.min(w, ex);
+      ctx.fillStyle="rgba(167,139,250,0.14)";
+      ctx.fillRect(drawSx, 0, Math.max(1, drawEx-drawSx), h);
+      ctx.strokeStyle="rgba(167,139,250,0.8)";
+      if(sx>=0 && sx<=w) { ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,h);ctx.stroke(); }
+      if(ex>=0 && ex<=w) { ctx.beginPath();ctx.moveTo(ex,0);ctx.lineTo(ex,h);ctx.stroke(); }
+    }
+  }
+
+  ctx.strokeStyle="#7dd3fc"; ctx.lineWidth=1; ctx.beginPath();
+  for(let x=0;x<w;x++){
+    const s0=Math.floor(startSmp + (x/w)*visibleCount);
+    const s1=Math.floor(startSmp + ((x+1)/w)*visibleCount);
+    let mn=1, mx=-1;
+    for(let i=s0;i<s1;i++){const v=floats[i];if(v<mn)mn=v;if(v>mx)mx=v;}
+    if(mn>mx){mn=0;mx=0;}
+    ctx.moveTo(x+0.5,mid-mx*amp); ctx.lineTo(x+0.5,mid-mn*amp);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle="rgba(148,163,184,0.25)";
+  ctx.beginPath();ctx.moveTo(0,mid);ctx.lineTo(w,mid);ctx.stroke();
+
+  $("waveInfo").textContent=`${n.toLocaleString()} smp · ${(n/(s.sampleRate||1)).toFixed(2)} dtk · ${fmt(s).is16?"16-bit":"8-bit"}`;
+  $("selInfo").textContent=selE>selS?`Sel: ${(selE-selS).toLocaleString()}`:"Sel: —";
+}
+
+function canvasPt(e){
+  const cv=$("waveCanvas"), r=cv.getBoundingClientRect();
+  return {x:clamp(e.clientX-r.left,0,r.width),y:clamp(e.clientY-r.top,0,r.height),w:r.width,h:r.height};
+}
+function yToAmp(y,h){return clamp((h/2-y)/(h/2*0.92),-1,1);}
+
+function pushUndo(s){
+  state.undo.push({ref:{sample:s},floats:ensureFloat(s).slice()});
+  if(state.undo.length>16)state.undo.shift();
+}
+function undo(){
+  const it=state.undo.pop();
+  if(!it){status("Tidak ada undo.","bad");return;}
+  it.ref.sample._float=it.floats;
+  commitFloat(it.ref.sample);
+  state.selStart=state.selEnd=0;
+  renderSampleEditor();
+  status("Undo.","ok");
+}
+
+function editRange(s){
+  const n=ensureFloat(s).length;
+  let a=Math.min(state.selStart,state.selEnd), b=Math.max(state.selStart,state.selEnd);
+  if(b<=a){a=0;b=n;}
+  return {a:clamp(a,0,n),b:clamp(b,0,n)};
+}
+
+function applyEdit(kind,param){
+  const s=state.selSample; if(!s)return;
+  const f=ensureFloat(s), n=f.length; if(!n)return;
+  pushUndo(s);
+  const {a,b}=editRange(s);
+
+  if(kind==="normalize"){
+    let pk=0;
+    for(let i=a;i<b;i++)pk=Math.max(pk,Math.abs(f[i]));
+    if(pk>1e-5){const g=0.98/pk;for(let i=a;i<b;i++)f[i]=clamp(f[i]*g,-1,1);}
+  } else if(kind==="fadeIn"||kind==="fadeOut"){
+    const len=Math.max(1,b-a);
+    for(let i=0;i<len;i++){
+      const idx=a+i, t=i/(len-1||1);
+      f[idx]=clamp(f[idx]*(kind==="fadeIn"?t:1-t),-1,1);
+    }
+  } else if(kind==="silence"){
+    for(let i=a;i<b;i++)f[i]=0;
+  } else if(kind==="reverse"){
+    for(let i=0;i<Math.floor((b-a)/2);i++){
+      const x=a+i, y=b-1-i, t=f[x]; f[x]=f[y]; f[y]=t;
+    }
+    if(a===0&&b===n){
+      const lp=loopInfo(s), bps=fmt(s).bps;
+      const ns=n-lp.end, ne=n-lp.start;
+      s.loopStart=Math.round(ns*bps); s.loopEnd=Math.round(ne*bps);
+    }
+  } else if(kind==="amplify"){
+    const g=Number(param); if(!isFinite(g))return;
+    for(let i=a;i<b;i++)f[i]=clamp(f[i]*g,-1,1);
+  } else if(kind==="dc"){
+    let sum=0;
+    for(let i=a;i<b;i++)sum+=f[i];
+    const avg=sum/Math.max(1,b-a);
+    for(let i=a;i<b;i++)f[i]=clamp(f[i]-avg,-1,1);
+  }
+  commitFloat(s);
+  renderSampleEditor();
+  status("Edit: "+kind,"ok");
+}
+
+function bindCanvas(){
+  const cv=$("waveCanvas");
+  
+  // Wheel Zoom & Pan
+  cv.addEventListener("wheel", e => {
+    if (!state.selSample) return;
+    e.preventDefault();
+    if (e.shiftKey) {
+      // Shift+Wheel = Pan horizontal
+      const n = ensureFloat(state.selSample).length;
+      const visible = n / state.zoom;
+      const delta = (e.deltaY || e.deltaX) / cv.getBoundingClientRect().width;
+      state.offset += delta * visible;
+      clampView(n);
+      drawWave();
+    } else {
+      // Default Wheel = Zoom
+      const rect = cv.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const factor = e.deltaY < 0 ? 1.15 : 1/1.15;
+      zoomCanvas(factor, mouseX);
+    }
+  }, { passive: false });
+
+  // Mousedown: Pan atau Edit
+  cv.addEventListener("mousedown",e=>{
+    const s=state.selSample; if(!s)return;
+    
+    // Middle click atau Alt+Click untuk Pan
+    if (e.button === 1 || (e.button === 0 && e.altKey)) {
+      e.preventDefault();
+      state.panning = { startX: e.clientX, startOffset: state.offset };
+      cv.style.cursor = "grabbing";
+      return;
+    }
+
+    const f=ensureFloat(s), n=f.length; if(!n)return;
+    ensureAudio();
+    const pt=canvasPt(e), idx=xToSmp(pt.x,pt.w,n);
+    
+    if(state.tool==="select"){
+      state.selStart=idx; state.selEnd=idx;
+      state.drag={mode:"sel",s,f,n};
+    }else{
+      pushUndo(s);
+      state.drag={mode:"pen",s,f,n,last:idx};
+      f[idx]=yToAmp(pt.y,pt.h);
+    }
+    drawWave();
+  });
+
+  // Mousemove
+  cv.addEventListener("mousemove",e=>{
+    if(state.panning){
+      const n = ensureFloat(state.selSample).length;
+      const dx = e.clientX - state.panning.startX;
+      const w = cv.getBoundingClientRect().width;
+      const visible = n / state.zoom;
+      state.offset = state.panning.startOffset - (dx / w) * visible;
+      clampView(n);
+      drawWave();
+      return;
+    }
+    if(!state.drag)return;
+    
+    const {mode,s,f,n}=state.drag;
+    const pt=canvasPt(e), idx=xToSmp(pt.x,pt.w,n);
+    
+    if(mode==="sel"){
+      state.selEnd=idx;
+    }else{
+      const amp=yToAmp(pt.y,pt.h);
+      let a=state.drag.last, b=idx;
+      if(a>b)[a,b]=[b,a];
+      const steps=Math.max(1,b-a);
+      for(let i=a;i<=b;i++)f[i]=amp;
+      state.drag.last=idx;
+    }
+    drawWave();
+  });
+
+  // Mouseup
+  cv.addEventListener("mouseup",e=>{
+    if (state.panning) {
+      state.panning = null;
+      cv.style.cursor = "crosshair";
+      return;
+    }
+    if(!state.drag)return;
+    if(state.drag.mode==="pen"){
+      commitFloat(state.drag.s);
+      renderSampleEditor();
+      status("Waveform digambar.","ok");
+    }
+    state.drag=null;
+    drawWave();
+  });
+  
+  cv.addEventListener("mouseleave",e=>{
+    if (state.panning) {
+      state.panning = null;
+      cv.style.cursor = "crosshair";
+    }
+    if(state.drag) {
+       if(state.drag.mode==="pen"){
+         commitFloat(state.drag.s);
+         renderSampleEditor();
+       }
+       state.drag=null;
+       drawWave();
+    }
+  });
+
+  // Touch Events
+  cv.addEventListener("touchstart",e=>{
+    if(e.touches.length===1){
+      const t=e.touches[0];
+      cv.dispatchEvent(new MouseEvent("mousedown",{clientX:t.clientX,clientY:t.clientY,bubbles:true}));
+      e.preventDefault();
+    }
+  },{passive:false});
+  cv.addEventListener("touchmove",e=>{
+    if(e.touches.length===1){
+      const t=e.touches[0];
+      cv.dispatchEvent(new MouseEvent("mousemove",{clientX:t.clientX,clientY:t.clientY,bubbles:true}));
+      e.preventDefault();
+    }
+  },{passive:false});
+  cv.addEventListener("touchend",e=>{
+    cv.dispatchEvent(new MouseEvent("mouseup",{bubbles:true}));
+    e.preventDefault();
+  },{passive:false});
+  
+  window.addEventListener("resize",drawWave);
+}
+
+/* ---------- Rendering ---------- */
+function allSamples(){
+  const o=[];
+  if(!state.patch)return o;
+  for(const inst of state.patch.instruments)
+    for(const layer of inst.layers)
+      for(const s of layer.samples)o.push({inst,layer,sample:s});
+  return o;
+}
+
+function render(){
+  const has=!!state.patch;
+  $("welcome").hidden=has; $("workspace").hidden=!has; $("btnSave").disabled=!has;
+  if(!has)return;
+
+  const p=state.patch, samples=allSamples();
+  $("patchNameSide").textContent=p.header.description||"Tanpa nama";
+  $("statInst").textContent=p.instruments.length;
+  $("statSamples").textContent=samples.length;
+  $("statVoices").textContent=p.header.voices??"—";
+  $("statVol").textContent=p.header.masterVolume??"—";
+
+  $("pMagic").value=p.header.magic;
+  $("pGravisId").value=p.header.gravisId;
+  $("pVoices").value=p.header.voices??14;
+  $("pChannels").value=p.header.channels??0;
+  $("pDescription").value=p.header.description||"";
+  $("pMasterVolume").value=p.header.masterVolume??127;
+  $("pDataSize").value=p.header.dataSize??0;
+
+  const il=$("instrumentList"); il.innerHTML="";
+  p.instruments.forEach((inst,i)=>{
+    const d=document.createElement("div");
+    d.className="li"+(i===state.selInst?" active":"");
+    const count=inst.layers.reduce((a,l)=>a+l.samples.length,0);
+    d.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(inst.name||"(tanpa nama)")}</span><span class="meta">#${inst.instrument} · ${count}</span>`;
+    d.onclick=()=>{state.selInst=i;state.selSample=null;state.selStart=state.selEnd=0;state.zoom=1;state.offset=0;updateZoomUI();render();};
+    il.appendChild(d);
+  });
+
+  const inst=p.instruments[state.selInst];
+  if(inst){
+    $("instTitle").textContent=inst.name||"Instrumen";
+    $("instPill").textContent=`#${inst.instrument} · ${inst.layers.length} layer`;
+    $("iNumber").value=inst.instrument;
+    $("iName").value=inst.name||"";
+  }
+
+  const sl=$("sampleList"); sl.innerHTML="";
+  const instSamples=[];
+  if(inst)for(const layer of inst.layers)for(const s of layer.samples)instSamples.push({inst,layer,sample:s});
+  $("sampleCountPill").textContent=instSamples.length+" sampel";
+
+  instSamples.forEach(ref=>{
+    const s=ref.sample, bps=fmt(s).bps, n=Math.floor(s.pcm.length/bps), li=loopInfo(s);
+    const d=document.createElement("div");
+    d.className="sc"+(state.selSample===s?" active":"");
+    d.innerHTML=`
+      <div class="n">${escapeHtml(s.name||"(tanpa nama)")}</div>
+      <div class="m">
+        <span class="tag">${fmt(s).is16?"16-bit":"8-bit"}</span>
+        <span class="tag">${(s.sampleRate||0).toLocaleString()} Hz</span>
+        <span class="tag">${n.toLocaleString()} smp</span>
+        ${li.enabled?`<span class="tag loop">Loop ${Math.round(li.start)}–${Math.round(li.end)}</span>`:""}
+      </div>`;
+    d.onclick=()=>{
+      state.selSample=s; state.selStart=state.selEnd=0; state.undo=[];
+      state.zoom=1; state.offset=0; updateZoomUI(); // Reset Zoom saat ganti sampel
+      render();
+    };
+    sl.appendChild(d);
+  });
+
+  renderSampleEditor();
+  const totalBytes=p.instruments.reduce((a,i)=>a+i.size,0);
+  $("footerInfo").textContent=`${p.instruments.length} inst · ${samples.length} sampel · ${fmtBytes(totalBytes)}`;
+}
+
+function renderSampleEditor(){
+  const s=state.selSample;
+  if(!s){$("sampleEditor").hidden=true;return;}
+  $("sampleEditor").hidden=false;
+
+  $("sampleTitle").textContent=s.name||"Sampel";
+  $("sampleFormatPill").textContent=`${fmt(s).is16?"16-bit":"8-bit"} ${fmt(s).unsigned?"unsigned":"signed"} · ${(s.sampleRate||0).toLocaleString()} Hz`;
+
+  $("sName").value=s.name||"";
+  $("sRate").value=s.sampleRate||0;
+  $("sRoot").value=s.rootFreq||0;
+  $("sBalance").value=s.balance??7;
+  $("sLow").value=s.lowFreq||0;
+  $("sHigh").value=s.highFreq||0;
+  const bps=fmt(s).bps, total=Math.floor(s.pcm.length/bps);
+  const li=loopInfo(s);
+  $("sLoopStart").value=Math.round(li.start);
+  $("sLoopEnd").value=Math.round(li.end);
+  $("sLoopStart").max=total; $("sLoopEnd").max=total;
+  $("sFractions").value=s.fractions??0;
+  $("sTune").value=s.tune??0;
+  $("sScaleFreq").value=s.scaleFreq??60;
+  $("sScaleFactor").value=s.scaleFactor??1024;
+
+  const names=["Attack","Decay","Sustain","R1","R2","R3"];
+  const rg=$("envRatesGrid"), og=$("envOffsetsGrid");
+  rg.innerHTML=""; og.innerHTML="";
+  for(let i=0;i<6;i++){
+    const rf=document.createElement("div"); rf.className="field";
+    rf.innerHTML=`<label>Rate ${names[i]}</label><input type="number" min="0" max="255" data-er="${i}" value="${s.envRates[i]??0}">`;
+    rg.appendChild(rf);
+    const of=document.createElement("div"); of.className="field";
+    of.innerHTML=`<label>Offset ${names[i]}</label><input type="number" min="0" max="255" data-eo="${i}" value="${s.envOffsets[i]??0}">`;
+    og.appendChild(of);
+  }
+
+  $("sTremSweep").value=s.tremoloSweep??0;
+  $("sTremRate").value=s.tremoloRate??0;
+  $("sTremDepth").value=s.tremoloDepth??0;
+  $("sVibSweep").value=s.vibratoSweep??0;
+  $("sVibRate").value=s.vibratoRate??0;
+  $("sVibDepth").value=s.vibratoDepth??0;
+
+  const mr=$("modesRow"); mr.innerHTML="";
+  for(const [bit,label] of MODE_LABELS){
+    const l=document.createElement("label"); l.className="check";
+    l.innerHTML=`<input type="checkbox" data-mb="${bit}" ${(s.modes&bit)?"checked":""}><span>${label}</span>`;
+    mr.appendChild(l);
+  }
+
+  const pr=$("pianoRow"); pr.innerHTML="";
+  const keys=[["A",57],["W",58],["S",59],["E",60],["D",61],["F",62],["T",63],["G",64],["Y",65],["H",66],["U",67],["J",68],["K",69]];
+  for(const [k,note] of keys){
+    const b=document.createElement("button");
+    b.className="btn small"; b.textContent=k+" ("+note+")";
+    b.onmousedown=()=>{ensureAudio();playSample(s,note,100,false);};
+    b.onmouseup=()=>releaseAllVoices(true);
+    b.onmouseleave=()=>releaseAllVoices(true);
+    pr.appendChild(b);
+  }
+
+  $("toolSelect").classList.toggle("active",state.tool==="select");
+  $("toolPencil").classList.toggle("active",state.tool==="pencil");
+  updateZoomUI();
+  requestAnimationFrame(drawWave);
+}
+
+/* ---------- Demo Patch ---------- */
+function makeDemoPatch(){
+  function makeSamples(rate, count, type){
+    const f=new Float32Array(count);
+    const freq=440;
+    for(let i=0;i<count;i++){
+      const t=i/rate;
+      let v=0;
+      if(type==="sine")v=Math.sin(2*Math.PI*freq*t);
+      else if(type==="saw")v=2*((t*freq)%1)-1;
+      else if(type==="square")v=(t*freq)%1<0.5?1:-1;
+      const env=Math.min(1,i/(rate*0.02));
+      f[i]=v*env*0.6;
+    }
+    return f;
+  }
+
+  function makeSample(name, rate, count, type, rootFreq, loopStart, loopEnd){
+    const floats=makeSamples(rate,count,type);
+    const pcm=new Uint8Array(count);
+    for(let i=0;i<count;i++){
+      const v=clamp(floats[i],-1,1);
+      pcm[i]=Math.round(v*127)+128;
+    }
+    return {
+      name, fractions:0, dataSize:count, loopStart, loopEnd, sampleRate:rate,
+      lowFreq:0, highFreq:rate/2, rootFreq, tune:0, balance:7,
+      envRates:[0,0,0,0,0,0], envOffsets:[255,255,255,0,0,0],
+      tremoloSweep:0, tremoloRate:0, tremoloDepth:0,
+      vibratoSweep:0, vibratoRate:0, vibratoDepth:0,
+      modes:MUNS|MLOOP, scaleFreq:60, scaleFactor:1024,
+      reserved:new Uint8Array(36), pcm, _float:null
+    };
+  }
+
+  const rate=22050;
+  const s1=makeSample("SINE",rate,rate,  "sine",   440, 220, 22000);
+  const s2=makeSample("SAW", rate,rate,  "saw",    440, 220, 22000);
+  const s3=makeSample("SQR", rate,rate/2,"square", 440, 220, 11000);
+
+  return {
+    header:{
+      magic:MAGIC, gravisId:GRAVIS_ID, description:"Demo GUS Patch",
+      voices:14, channels:0, waveForms:3, masterVolume:120,
+      dataSize:0, reserved:new Uint8Array(36)
+    },
+    instruments:[
+      {
+        instrument:0, name:"Sine Lead", size:0, reserved:new Uint8Array(40),
+        layers:[{duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[s1]}]
+      },
+      {
+        instrument:1, name:"Saw Bass", size:0, reserved:new Uint8Array(40),
+        layers:[{duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[s2]}]
+      },
+      {
+        instrument:2, name:"Square Pad", size:0, reserved:new Uint8Array(40),
+        layers:[{duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[s3]}]
+      }
+    ]
+  };
+}
+
+/* ---------- File Handlers ---------- */
+function handleFileOpen(e){
+  const file=e.target.files&&e.target.files[0];
+  if(!file){return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      state.patch=parsePAT(reader.result);
+      state.selInst=0; state.selSample=null; state.selStart=state.selEnd=0; state.undo=[];
+      state.zoom=1; state.offset=0; updateZoomUI();
+      render();
+      const s=allSamples();
+      status(`Berhasil memuat ${file.name} (${s.length} sampel).`,"ok");
+      e.target.value="";
+    }catch(err){
+      console.error(err);
+      status("Gagal parsing: "+err.message,"bad");
+      alert("Gagal memuat .PAT:\n\n"+err.message);
+      e.target.value="";
+    }
+  };
+  reader.onerror=()=>{status("Gagal membaca file.","bad");e.target.value="";};
+  reader.readAsArrayBuffer(file);
+}
+
+/* ---------- Save PAT ---------- */
+function savePAT(){
+  if(!state.patch)return;
+  try{
+    const bytes=writePAT(state.patch);
+    const blob=new Blob([bytes],{type:"application/octet-stream"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    const name=(state.patch.header.description||"patch").replace(/[^\w\-]+/g,"_");
+    a.download=name+".pat";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    status("File .PAT diunduh.","ok");
+  }catch(err){
+    alert("Gagal menyimpan: "+err.message);
+    status("Gagal menyimpan.","bad");
+  }
+}
+
+/* ---------- WAV Handlers ---------- */
+function exportWav(){
+  const s=state.selSample; if(!s)return;
+  const blob=encodeWav(s);
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=(s.name||"sample")+".wav";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  status("WAV diunduh.","ok");
+}
+
+function importWav(e){
+  const file=e.target.files&&e.target.files[0]; if(!file)return;
+  const s=state.selSample; if(!s){alert("Pilih sampel dulu.");e.target.value="";return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const wav=decodeWav(reader.result);
+      pushUndo(s);
+      s._float=wav.samples;
+      commitFloat(s);
+      s.sampleRate=wav.sampleRate;
+      if(wav.hasLoop){
+        const bps=fmt(s).bps;
+        s.loopStart=Math.round(wav.loopStart*bps);
+        s.loopEnd=Math.round(wav.loopEnd*bps);
+        s.modes|=MLOOP;
+      }
+      renderSampleEditor();
+      render();
+      status("WAV diimpor: "+(s._float.length).toLocaleString()+" sampel.","ok");
+    }catch(err){
+      alert("Gagal impor WAV: "+err.message);
+      status("Gagal impor WAV.","bad");
+    }
+    e.target.value="";
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ---------- MIDI ---------- */
+async function enableMidi(){
+  if(state.midi.enabled){disableMidi();return;}
+  if(!navigator.requestMIDIAccess){alert("Browser tidak mendukung Web MIDI.");return;}
+  try{
+    const access=await navigator.requestMIDIAccess();
+    state.midi.access=access;
+    state.midi.enabled=true;
+    refreshMidiInputs();
+    access.onstatechange=refreshMidiInputs;
+    $("midiDot").classList.add("on");
+    $("btnMidi").textContent="Matikan";
+    status("MIDI diaktifkan.","ok");
+  }catch(err){
+    alert("Gagal mengaktifkan MIDI: "+err.message);
+  }
+}
+function disableMidi(){
+  if(state.midi.input)state.midi.input.onmidimessage=null;
+  state.midi.enabled=false;
+  state.midi.input=null;
+  $("midiDot").classList.remove("on");
+  $("btnMidi").textContent="Aktifkan";
+  $("midiSelect").innerHTML='<option>MIDI off</option>';
+  $("midiSelect").disabled=true;
+  status("MIDI dimatikan.");
+  releaseAllVoices(true);
+}
+function refreshMidiInputs(){
+  const access=state.midi.access; if(!access)return;
+  const sel=$("midiSelect");
+  sel.innerHTML="";
+  const inputs=Array.from(access.inputs.values());
+  if(inputs.length===0){
+    sel.innerHTML='<option>Tidak ada input</option>';
+    return;
+  }
+  inputs.forEach(inp=>{
+    const o=document.createElement("option");
+    o.value=inp.id; o.textContent=inp.name||inp.id;
+    sel.appendChild(o);
+  });
+  sel.disabled=false;
+  const first=inputs[0];
+  if(first){state.midi.input=first;first.onmidimessage=handleMidiMessage;}
+}
+function handleMidiMessage(e){
+  const data=e.data, [st,d1,d2]=data;
+  const cmd=st&0xf0;
+  const mon=$("midiMonitor");
+  mon.textContent=`${new Date().toLocaleTimeString()} | ${cmd.toString(16).padStart(2,"0")} ${d1} ${d2??""}`;
+
+  if(cmd===0x90&&d2>0){
+    const s=state.selSample;
+    if(s){ensureAudio();playSample(s,d1,d2,true);}
+  } else if(cmd===0x80||(cmd===0x90&&d2===0)){
+    releaseAllVoices(true);
+  } else if(cmd===0xC0){
+    if(state.patch&&state.patch.instruments[d1]){
+      state.selInst=d1; state.selSample=null;
+      state.zoom=1; state.offset=0; updateZoomUI();
+      render();
+    }
+  } else if(cmd===0xB0&&d1===7){
+    if(state.patch)state.patch.header.masterVolume=clamp(d2,0,127);
+  }
+}
+
+/* ---------- Bind UI ---------- */
+function bind(){
+  // File
+  const patInput=$("patFile");
+  const openButtons=[$("btnOpen"),$("btnOpen2")];
+  openButtons.forEach(b=>{
+    if(b)b.addEventListener("click",()=>{
+      patInput.value="";
+      patInput.click();
+    });
+  });
+  patInput.addEventListener("change",handleFileOpen);
+
+  // Demo
+  const loadDemo=()=>{
+    state.patch=makeDemoPatch();
+    state.selInst=0; state.selSample=null; state.selStart=state.selEnd=0; state.undo=[];
+    state.zoom=1; state.offset=0; updateZoomUI();
+    render();
+    status("Demo patch dimuat.","ok");
+  };
+  $("btnDemo").addEventListener("click",loadDemo);
+  const b2=$("btnDemo2"); if(b2)b2.addEventListener("click",loadDemo);
+
+  // Save
+  $("btnSave").addEventListener("click",savePAT);
+
+  // MIDI
+  $("btnMidi").addEventListener("click",enableMidi);
+  $("midiSelect").addEventListener("change",e=>{
+    const inps=Array.from(state.midi.access.inputs.values());
+    const inp=inps.find(i=>i.id===e.target.value);
+    if(inp){if(state.midi.input)state.midi.input.onmidimessage=null;state.midi.input=inp;inp.onmidimessage=handleMidiMessage;}
+  });
+
+  // Patch properties
+  $("pVoices").addEventListener("change",e=>{
+    if(!state.patch)return;
+    state.patch.header.voices=clamp(parseInt(e.target.value)||14,1,32);
+    e.target.value=state.patch.header.voices;
+  });
+  $("pChannels").addEventListener("change",e=>{
+    if(!state.patch)return;
+    state.patch.header.channels=clamp(parseInt(e.target.value)||0,0,32);
+    e.target.value=state.patch.header.channels;
+  });
+  $("pDescription").addEventListener("input",e=>{
+    if(!state.patch)return;
+    state.patch.header.description=e.target.value.slice(0,60);
+    $("patchNameSide").textContent=state.patch.header.description||"Tanpa nama";
+  });
+  $("pMasterVolume").addEventListener("change",e=>{
+    if(!state.patch)return;
+    state.patch.header.masterVolume=clamp(parseInt(e.target.value)||0,0,127);
+    e.target.value=state.patch.header.masterVolume;
+    $("statVol").textContent=state.patch.header.masterVolume;
+  });
+
+  // Instrument
+  $("iNumber").addEventListener("change",e=>{
+    const inst=state.patch?.instruments[state.selInst]; if(!inst)return;
+    inst.instrument=clamp(parseInt(e.target.value)||0,0,65535);
+    e.target.value=inst.instrument; render();
+  });
+  $("iName").addEventListener("input",e=>{
+    const inst=state.patch?.instruments[state.selInst]; if(!inst)return;
+    inst.name=e.target.value.slice(0,16);
+    $("instTitle").textContent=inst.name||"Instrumen";
+    const items=$("instrumentList").children;
+    if(items[state.selInst])items[state.selInst].querySelector("span").textContent=inst.name||"(tanpa nama)";
+  });
+
+  // Sample props
+  const bindProp=(id,prop,tf)=>{
+    $(id).addEventListener("change",e=>{
+      const s=state.selSample; if(!s)return;
+      s[prop]=tf?tf(e.target.value):e.target.value;
+      renderSampleEditor(); render();
+    });
+  };
+  bindProp("sName","name",v=>String(v).slice(0,7));
+  bindProp("sRate","sampleRate",v=>clamp(parseInt(v)||0,0,192000));
+  bindProp("sRoot","rootFreq",v=>Math.max(0,parseInt(v)||0));
+  bindProp("sBalance","balance",v=>clamp(parseInt(v)||0,0,15));
+  bindProp("sLow","lowFreq",v=>Math.max(0,parseInt(v)||0));
+  bindProp("sHigh","highFreq",v=>Math.max(0,parseInt(v)||0));
+  bindProp("sFractions","fractions",v=>clamp(parseInt(v)||0,0,255));
+  bindProp("sTune","tune",v=>clamp(parseInt(v)||0,0,65535));
+  bindProp("sScaleFreq","scaleFreq",v=>clamp(parseInt(v)||0,0,65535));
+  bindProp("sScaleFactor","scaleFactor",v=>clamp(parseInt(v)||0,0,65535));
+  bindProp("sTremSweep","tremoloSweep",v=>clamp(parseInt(v)||0,0,255));
+  bindProp("sTremRate","tremoloRate",v=>clamp(parseInt(v)||0,0,255));
+  bindProp("sTremDepth","tremoloDepth",v=>clamp(parseInt(v)||0,0,255));
+  bindProp("sVibSweep","vibratoSweep",v=>clamp(parseInt(v)||0,0,255));
+  bindProp("sVibRate","vibratoRate",v=>clamp(parseInt(v)||0,0,255));
+  bindProp("sVibDepth","vibratoDepth",v=>clamp(parseInt(v)||0,0,255));
+
+  // Loop points
+  const updLoop=()=>{
+    const s=state.selSample; if(!s)return;
+    const bps=fmt(s).bps, total=Math.floor(s.pcm.length/bps);
+    let a=clamp(parseInt($("sLoopStart").value)||0,0,total);
+    let b=clamp(parseInt($("sLoopEnd").value)||0,0,total);
+    if(b<=a+1)b=Math.min(total,a+1);
+    s.loopStart=Math.round(a*bps); s.loopEnd=Math.round(b*bps); s.fractions=0;
+    renderSampleEditor(); render();
+  };
+  $("sLoopStart").addEventListener("change",updLoop);
+  $("sLoopEnd").addEventListener("change",updLoop);
+
+  // Envelope inputs
+  document.addEventListener("change",e=>{
+    const s=state.selSample; if(!s)return;
+    const er=e.target.getAttribute("data-er"), eo=e.target.getAttribute("data-eo");
+    if(er!==null)s.envRates[+er]=clamp(parseInt(e.target.value)||0,0,255);
+    if(eo!==null)s.envOffsets[+eo]=clamp(parseInt(e.target.value)||0,0,255);
+  });
+  document.addEventListener("change",e=>{
+    const s=state.selSample; if(!s)return;
+    const mb=e.target.getAttribute("data-mb");
+    if(mb!==null){
+      const bit=+mb;
+      if(e.target.checked)s.modes|=bit; else s.modes&=~bit;
+      renderSampleEditor();
+    }
+  });
+
+  // Tools & Zoom
+  $("toolSelect").addEventListener("click",()=>{state.tool="select";$("toolSelect").classList.add("active");$("toolPencil").classList.remove("active");});
+  $("toolPencil").addEventListener("click",()=>{state.tool="pencil";$("toolPencil").classList.add("active");$("toolSelect").classList.remove("active");});
+  
+  $("btnZoomIn").addEventListener("click", () => zoomCanvas(1.25));
+  $("btnZoomOut").addEventListener("click", () => zoomCanvas(1/1.25));
+  $("btnZoomReset").addEventListener("click", () => { 
+    state.zoom = 1; state.offset = 0; 
+    clampView(ensureFloat(state.selSample).length); 
+    drawWave(); updateZoomUI(); 
+  });
+
+  // Edit buttons
+  $("btnSelectAll").addEventListener("click",()=>{
+    const s=state.selSample; if(!s)return;
+    const n=ensureFloat(s).length;
+    state.selStart=0; state.selEnd=n; drawWave();
+  });
+  const editBtn=(id,kind,param)=>{
+    $(id).addEventListener("click",()=>{
+      if(kind==="amplify"){
+        const g=parseFloat(prompt("Faktor amplifikasi (mis. 1.5):","1.5"));
+        if(isFinite(g))applyEdit("amplify",g);
+      }else applyEdit(kind,param);
+    });
+  };
+  editBtn("btnNormalize","normalize");
+  editBtn("btnFadeIn","fadeIn");
+  editBtn("btnFadeOut","fadeOut");
+  editBtn("btnSilence","silence");
+  editBtn("btnReverse","reverse");
+  editBtn("btnAmplify","amplify");
+  editBtn("btnDc","dc");
+  $("btnUndo").addEventListener("click",undo);
+
+  $("btnLoopSel").addEventListener("click",()=>{
+    const s=state.selSample; if(!s)return;
+    const n=ensureFloat(s).length;
+    const a=Math.min(state.selStart,state.selEnd), b=Math.max(state.selStart,state.selEnd);
+    if(b<=a){status("Pilih rentang dulu.","bad");return;}
+    const bps=fmt(s).bps;
+    s.loopStart=Math.round(a*bps);
+    s.loopEnd=Math.round(b*bps);
+    s.modes|=MLOOP;
+    renderSampleEditor(); render();
+    status("Loop diset ke seleksi.","ok");
+  });
+  $("btnLoopAll").addEventListener("click",()=>{
+    const s=state.selSample; if(!s)return;
+    const n=ensureFloat(s).length, bps=fmt(s).bps;
+    s.loopStart=0; s.loopEnd=n*bps; s.modes|=MLOOP;
+    renderSampleEditor(); render();
+    status("Loop diset ke seluruh sampel.","ok");
+  });
+
+  // Playback
+  $("btnPlay").addEventListener("click",()=>{
+    const s=state.selSample; if(!s)return;
+    ensureAudio(); playSample(s,60,100,false);
+  });
+  const hold=$("btnHold");
+  const startHold=(e)=>{e.preventDefault();const s=state.selSample;if(!s)return;ensureAudio();playSample(s,60,100,true);};
+  const endHold=(e)=>{e.preventDefault();if(state.audio.hold)releaseVoice(state.audio.hold,false);};
+  hold.addEventListener("mousedown",startHold);
+  hold.addEventListener("mouseup",endHold);
+  hold.addEventListener("mouseleave",endHold);
+  hold.addEventListener("touchstart",startHold,{passive:false});
+  hold.addEventListener("touchend",endHold,{passive:false});
+
+  $("btnStop").addEventListener("click",()=>{stopAllVoices();status("Stop.");});
+
+  // WAV
+  $("btnExportWav").addEventListener("click",exportWav);
+  $("btnImportWav").addEventListener("click",()=>{$("wavFile").value="";$("wavFile").click();});
+  $("wavFile").addEventListener("change",importWav);
+
+  // Delete sample
+  $("btnDeleteSample").addEventListener("click",()=>{
+    const s=state.selSample; if(!s)return;
+    if(!confirm("Hapus sampel ini?"))return;
+    for(const inst of state.patch.instruments){
+      for(const layer of inst.layers){
+        const idx=layer.samples.indexOf(s);
+        if(idx>=0){
+          layer.samples.splice(idx,1);
+          if(inst.layers.every(l=>l.samples.length===0)){
+            const iIdx=state.patch.instruments.indexOf(inst);
+            if(iIdx>=0)state.patch.instruments.splice(iIdx,1);
+          }
+          state.selSample=null; state.selStart=state.selEnd=0;
+          state.selInst=clamp(state.selInst,0,Math.max(0,state.patch.instruments.length-1));
+          render();
+          status("Sampel dihapus.","ok");
+          return;
+        }
+      }
+    }
+  });
+
+  // Keyboard for piano test
+  window.addEventListener("keydown",e=>{
+    if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+    if(state.keyNote.has(e.key.toLowerCase()))return;
+    const s=state.selSample; if(!s)return;
+    const map={a:57,w:58,s:59,e:60,d:61,f:62,t:63,g:64,y:65,h:66,u:67,j:68,k:69};
+    const note=map[e.key.toLowerCase()];
+    if(note!==undefined){
+      ensureAudio();
+      const v=playSample(s,note,100,true);
+      state.keyNote.set(e.key.toLowerCase(),v);
+      e.preventDefault();
+    }
+  });
+  window.addEventListener("keyup",e=>{
+    const v=state.keyNote.get(e.key.toLowerCase());
+    if(v){releaseVoice(v,false);state.keyNote.delete(e.key.toLowerCase());}
+  });
+
+  bindCanvas();
+}
+
+/* ---------- Init ---------- */
+bind();
+status("Siap. Klik 'Buka .PAT' atau 'Demo'.","ok");
+</script>
+</body>
+</html>
