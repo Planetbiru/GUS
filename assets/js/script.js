@@ -1157,31 +1157,29 @@ function refreshBankOrder() {
   showStatus(t("bank_order_refreshed"), "ok");
 }
 
-// Perbarui compact banks agar target bank dihitung ulang khusus untuk program yang terfilter
-function compactBanks() {
-  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
-  if (!currentPatch) return;
-
-  const isDrum = (currentPatch.gmBank ?? 0) === 128;
-  const prog = currentPatch.gmProgram ?? -1;
-
-  const entries = getProjectPatchEntries().filter(p =>
-    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
-  );
-
-  const uniq = [...new Set(entries.map(p => p.originalOrder ?? 0))].sort((a, b) => a - b);
-  const map = new Map(uniq.map((v, i) => [v, i]));
-  
-  for (const p of entries) {
-    p.targetBank = map.get(p.originalOrder ?? 0) ?? 0;
-  }
-
-  renderBankManager();
-  saveProjectBankConfig();
-  showStatus(t("bank_compacted"), "ok");
-}
-
 let bankDragSource = null;
+
+let bankConfigSaveTimer = null;
+let pendingBankConfigPatches = new Set();
+
+function scheduleBankConfigSave(patch) {
+  if (patch) pendingBankConfigPatches.add(patch);
+  
+  if (bankConfigSaveTimer) clearTimeout(bankConfigSaveTimer);
+  bankConfigSaveTimer = setTimeout(async () => {
+    const entries = Array.from(pendingBankConfigPatches);
+    pendingBankConfigPatches.clear();
+    
+    if (entries.length === 0) return;
+    
+    try {
+      // Menggunakan dbPutMany langsung ke STORE (patch) tanpa menulis ulang data proyek
+      await dbPutMany(STORE, entries.map(cleanEntryForStorage));
+    } catch (err) {
+      console.error("Save bank config failed:", err);
+    }
+  }, 500); // Tunda 500ms agar UI tidak terblokir saat drag/klik cepat
+}
 
 function bindBankManagerEvents(list) {
   // Avoid duplicate listeners
@@ -1240,13 +1238,15 @@ function bindBankManagerEvents(list) {
     if (e.target.dataset.act === "select") {
       patch.exportSelected = e.target.checked;
       row.classList.toggle("disabled", !patch.exportSelected);
+      scheduleBankConfigSave(patch); // ← Gunakan fungsi debounce
     } else if (e.target.dataset.act === "target") {
       patch.targetBank = clamp(parseInt(e.target.value, 10) || 0, 0, 999);
       e.target.value = patch.targetBank;
       e.target.classList.toggle("changed", patch.targetBank !== (patch.originalOrder ?? 0));
+      scheduleBankConfigSave(patch); // ← Gunakan fungsi debounce
     }
 
-    // UPDATE: Hitung ringkasan berdasarkan item yang SEDANG DIFILTER
+    // Update ringkasan berdasarkan item yang SEDANG DIFILTER
     const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
     if (currentPatch) {
       const isDrum = (currentPatch.gmBank ?? 0) === 128;
@@ -1261,20 +1261,20 @@ function bindBankManagerEvents(list) {
       $("bankSelectAll").checked = selectedCount === visibleEntries.length;
       $("exportSelectedLabel").textContent = t("export_selected_only") + ` (${selectedCount})`;
     }
-
-    saveProjectBankConfig();
   });
 }
 
 function updateUserOrderFromDom(list) {
-  const rows = list.querySelectorAll(".bank-row");
-  rows.forEach((row, i) => {
-    const patch = state.patches.find(p => p.id === row.dataset.id);
-    if (patch) patch.userOrder = i;
-    const orderEl = row.querySelector(".bank-order");
-    if (orderEl) orderEl.textContent = i;
+  const rows = Array.from(list.querySelectorAll(".bank-row"));
+  const visiblePatches = rows.map(r => state.patches.find(p => p.id === r.dataset.id)).filter(Boolean);
+  const orders = visiblePatches.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  visiblePatches.forEach((p, i) => {
+    p.userOrder = orders[i];
+    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+    const orderEl = rows[i].querySelector(".bank-order");
+    if (orderEl) orderEl.textContent = p.userOrder;
   });
-  saveProjectBankConfig();
 }
 
 async function saveProjectBankConfig() {
@@ -1291,21 +1291,45 @@ async function saveProjectBankConfig() {
 }
 
 function refreshBankOrder() {
-  const entries = getProjectPatchEntries();
-  if (entries.length === 0) return;
-  const sorted = [...entries].sort((a, b) => {
-    const aDrum = (a.gmBank ?? 0) === 128 ? 1 : 0;
-    const bDrum = (b.gmBank ?? 0) === 128 ? 1 : 0;
-    if (aDrum !== bDrum) return aDrum - bDrum;
-    const aProg = a.gmProgram ?? -1;
-    const bProg = b.gmProgram ?? -1;
-    if (aProg !== bProg) return aProg - bProg;
-    return (a.originalOrder ?? 0) - (b.originalOrder ?? 0);
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+  if (!currentPatch) return;
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+  const entries = getProjectPatchEntries().filter(p =>
+    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
+  );
+
+  const sorted = [...entries].sort((a, b) => (a.originalOrder ?? 0) - (b.originalOrder ?? 0));
+  const orders = entries.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  sorted.forEach((p, i) => { 
+    p.userOrder = orders[i]; 
+    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
   });
-  sorted.forEach((p, i) => { p.userOrder = i; });
+  
   renderBankManager();
-  saveProjectBankConfig();
   showStatus(t("bank_order_refreshed"), "ok");
+}
+
+function compactBanks() {
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+  if (!currentPatch) return;
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+  const entries = getProjectPatchEntries().filter(p =>
+    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
+  );
+
+  const uniq = [...new Set(entries.map(p => p.originalOrder ?? 0))].sort((a, b) => a - b);
+  const map = new Map(uniq.map((v, i) => [v, i]));
+  
+  for (const p of entries) {
+    p.targetBank = map.get(p.originalOrder ?? 0) ?? 0;
+    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+  }
+
+  renderBankManager();
+  showStatus(t("bank_compacted"), "ok");
 }
 
 function exportBanks(mode) {
@@ -4587,7 +4611,6 @@ function bind(){
   $("btnCompactBanks").addEventListener("click", compactBanks);
   $("btnRefreshBankOrder").addEventListener("click", refreshBankOrder);
   
-  // UPDATE: Hanya centang yang terfilter
   $("bankSelectAll").addEventListener("change", e => {
     const checked = e.target.checked;
     const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
@@ -4600,10 +4623,10 @@ function bind(){
       });
       for (const p of visibleEntries) {
         p.exportSelected = checked;
+        scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
       }
     }
     renderBankManager();
-    saveProjectBankConfig();
   });
 
   // === Export dialog ===
