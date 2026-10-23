@@ -171,6 +171,7 @@ const state = {
   projects: [],
   currentProjectId: null,
   libraryView: "project",
+  libraryBankFilter: "all",
   midiData: null,
   midiFileName: null,
   saveTimer: null,
@@ -2179,7 +2180,148 @@ function resamplePcmTo(pcm, fromRate, toRate, is16) {
   return out;
 }
 
+/* ---------- Validasi Patch untuk TiMidity ---------- */
+function validateAndSanitizePatch(patch) {
+  if (!patch) throw new Error("Invalid patch object");
+  if (!patch.header) {
+    patch.header = { 
+      magic: MAGIC, gravisId: GRAVIS_ID, description: "Recovered", 
+      voices: 14, channels: 0, waveForms: 0, masterVolume: 127, dataSize: 0, 
+      reserved: new Uint8Array(36) 
+    };
+  }
+  
+  // Pastikan voices dan masterVolume valid
+  if (typeof patch.header.voices !== 'number' || patch.header.voices <= 0 || patch.header.voices > 64) {
+    patch.header.voices = 14;
+  }
+  if (typeof patch.header.masterVolume !== 'number' || patch.header.masterVolume < 0 || patch.header.masterVolume > 127) {
+    patch.header.masterVolume = 127;
+  }
+
+  if (!patch.instruments || !Array.isArray(patch.instruments) || patch.instruments.length === 0) {
+    throw new Error("Patch has no instruments");
+  }
+
+  let totalSamples = 0;
+  for (const inst of patch.instruments) {
+    if (!inst.layers || !Array.isArray(inst.layers) || inst.layers.length === 0) {
+      throw new Error("Instrument has no layers");
+    }
+    for (const layer of inst.layers) {
+      if (!layer.samples || !Array.isArray(layer.samples) || layer.samples.length === 0) {
+        throw new Error("Layer has no samples");
+      }
+      for (const s of layer.samples) {
+        if (!s.pcm || !(s.pcm instanceof Uint8Array) || s.pcm.length === 0) {
+          throw new Error("Sample has empty or invalid PCM data");
+        }
+        
+        const bps = (s.modes & M16) ? 2 : 1;
+        const totalFrames = Math.floor(s.pcm.length / bps);
+        if (totalFrames === 0) {
+          throw new Error("Sample PCM data too short");
+        }
+
+        // Perbaiki sampleRate (Cegah pembagian nol / resampling ekstrem)
+        if (typeof s.sampleRate !== 'number' || s.sampleRate <= 0 || s.sampleRate > 192000) {
+          s.sampleRate = 22050;
+        } else if (s.sampleRate < 4000) {
+          s.sampleRate = 4000; 
+        }
+
+        // Perbaiki rootFreq
+        if (typeof s.rootFreq !== 'number' || s.rootFreq <= 0) {
+          s.rootFreq = 440 * 1000;
+        }
+
+        // Perbaiki scaleFactor
+        if (typeof s.scaleFactor !== 'number' || s.scaleFactor <= 0) {
+          s.scaleFactor = 1024;
+        }
+        if (typeof s.scaleFreq !== 'number') {
+          s.scaleFreq = 60;
+        }
+
+        // Perbaiki array envelope
+        if (!Array.isArray(s.envRates) || s.envRates.length !== 6) {
+          s.envRates = [0, 0, 0, 0, 0, 0];
+        }
+        if (!Array.isArray(s.envOffsets) || s.envOffsets.length !== 6) {
+          s.envOffsets = [0, 0, 0, 0, 0, 0];
+        }
+
+        // Validasi loop (cegah infinite loop di TiMidity)
+        if (s.modes & MLOOP) {
+          if (s.loopStart >= s.loopEnd || s.loopEnd > s.pcm.length) {
+            s.modes &= ~MLOOP;
+            s.loopStart = 0;
+            s.loopEnd = 0;
+          } else if (s.loopEnd - s.loopStart < 4 * bps) {
+            s.modes &= ~MLOOP;
+            s.loopStart = 0;
+            s.loopEnd = 0;
+          }
+        }
+        totalSamples++;
+      }
+    }
+  }
+  
+  if (totalSamples > 255) {
+    throw new Error(`Too many samples (${totalSamples}), max is 255`);
+  }
+  
+  return patch;
+}
+
+function isPatchSafeForTimidity(patch) {
+  if (!patch || !patch.instruments || !Array.isArray(patch.instruments) || patch.instruments.length === 0) return false;
+  let totalSamples = 0;
+  for (const inst of patch.instruments) {
+    if (!inst.layers || !Array.isArray(inst.layers) || inst.layers.length === 0) return false;
+    for (const layer of inst.layers) {
+      if (!layer.samples || !Array.isArray(layer.samples) || layer.samples.length === 0) return false;
+      for (const s of layer.samples) {
+        if (!s.pcm || !(s.pcm instanceof Uint8Array) || s.pcm.length === 0) return false;
+        const bps = (s.modes & M16) ? 2 : 1;
+        const totalFrames = Math.floor(s.pcm.length / bps);
+        if (totalFrames === 0) return false;
+        totalSamples++;
+      }
+    }
+  }
+  return totalSamples > 0 && totalSamples <= 255;
+}
+
+function createSilentPatch() {
+  const silentPcm = new Uint8Array(64); // 32 frame hening
+  const sample = {
+    name: "SILENT", fractions: 0, dataSize: silentPcm.length,
+    loopStart: 0, loopEnd: silentPcm.length, sampleRate: 22050,
+    lowFreq: 0, highFreq: 20000000, rootFreq: 440000,
+    tune: 0, balance: 7, envRates: [0,0,0,0,0,0], envOffsets: [255,255,255,0,0,0],
+    tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
+    vibratoSweep: 0, vibratoRate: 0, vibratoDepth: 0,
+    modes: M16, scaleFreq: 60, scaleFactor: 1024,
+    reserved: new Uint8Array(36), pcm: silentPcm
+  };
+  const patch = {
+    header: {
+      magic: MAGIC, gravisId: GRAVIS_ID, description: "Silent Fallback",
+      voices: 14, channels: 0, waveForms: 0, masterVolume: 127, dataSize: 0,
+      reserved: new Uint8Array(36)
+    },
+    instruments: [{
+      instrument: 0, name: "Silent", size: 0, reserved: new Uint8Array(40),
+      layers: [{ duplicate: 0, layer: 0, layerSize: 0, reserved: new Uint8Array(40), samples: [sample] }]
+    }]
+  };
+  return writePAT(patch);
+}
+
 function writeTimidityPatch(patch) {
+  validateAndSanitizePatch(patch);
   const norm = cleanPatchForStorage(patch);
   const inst = norm.instruments[0];
   if (!inst) throw new Error(t("empty_patch"));
@@ -2458,8 +2600,15 @@ function getProjectPatchData(bank, isDrum, program, file) {
     patchBufferCache.set(cacheKey, buffer);
     return buffer;
   } catch (e) {
-    console.error("[TiMidity] writeTimidityPatch failed:", e);
-    return null;
+    console.error(`[TiMidity] Patch "${target.name}" rusak, menggunakan silent:`, e);
+    try {
+      const silentBytes = createSilentPatch();
+      const buffer = silentBytes.buffer;
+      patchBufferCache.set(cacheKey, buffer);
+      return buffer;
+    } catch (silentErr) {
+      return null;
+    }
   }
 }
 
@@ -3078,21 +3227,18 @@ function openBankSelectDialog() {
     // Deteksi patch rusak: Anggap < 1024 byte sebagai file kosong/rusak
     const brokenPatches = patches.filter(p => getPatchSize(p) < 1024);
     const hasBrokenPatch = brokenPatches.length > 0;
+    const icon = hasBrokenPatch ? `⚠️ (${brokenPatches.length} rusak)` : "";
 
     const d = document.createElement("div");
     d.className = "li" + (bank === currentBank ? " active" : "");
     
-    // Paksa warna merah jika rusak
-    const nameStyle = hasBrokenPatch ? "color: #f87171; font-weight: bold;" : "";
-    const icon = hasBrokenPatch ? `⚠️ (${brokenPatches.length} rusak)` : "";
-    
     d.innerHTML = `
-      <div class="bank-item-row" style="${hasBrokenPatch ? 'opacity: 0.7;' : ''}">
-        <span class="name" style="${nameStyle}">Bank ${bank} ${icon}</span>
-        <div style="display:flex; align-items:center;">
+      <div class="bank-item-row ${hasBrokenPatch ? 'bank-item-broken-row' : ''}">
+        <span class="name ${hasBrokenPatch ? 'bank-broken' : ''}">Bank ${bank} ${icon}</span>
+        <div class="bank-item-actions">
           <span class="bank-item-info">${patches.length} patch (${sizeMB} MB)</span>
-          <button class="icon-btn" data-bank="${bank}" title="Lihat Rincian" style="padding:2px; margin-left:4px; color: var(--accent);">
-            <svg class="icon" style="width:16px;height:16px;"><use href="#i-folder"></use></svg>
+          <button class="icon-btn bank-info-btn" data-bank="${bank}" title="Lihat Rincian">
+            <svg class="icon"><use href="#i-folder"></use></svg>
           </button>
         </div>
       </div>
@@ -3103,8 +3249,8 @@ function openBankSelectDialog() {
       if (e.target.closest('button')) return; 
       
       if (hasBrokenPatch) {
+        // Hanya beri peringatan, jangan blokir
         showStatus(t("bank_zero_size_warning"), "bad");
-        return;
       }
       
       currentBank = bank;
@@ -3147,20 +3293,18 @@ function openBankBreakdownDialog(bank, patches) {
     const row = document.createElement("div");
     row.className = "breakdown-row";
     
-    // PAKSA INLINE STYLE AGAR MERAH
     if (isZero) {
-      row.style.border = "1px solid #f87171"; 
-      row.style.backgroundColor = "rgba(248, 113, 113, 0.1)";
+      row.classList.add("broken");
       row.title = t("patch_zero_size_tooltip");
     }
 
     row.innerHTML = `
-      <span class="name" title="${escapeHtml(p.name)}" style="${isZero ? 'color: #f87171; font-weight: bold;' : ''}">
+      <span class="name ${isZero ? 'bank-broken' : ''}" title="${escapeHtml(p.name)}">
         ${p.gmProgram >= 0 ? `#${p.gmProgram} - ` : ''}${escapeHtml(p.name)}
       </span>
-      <div style="display:flex; align-items:center; flex-shrink:0;">
-        <span class="size" style="margin-right:12px; ${isZero ? 'color: #f87171;' : ''}">${sizeMB} MB</span>
-        <button class="btn-delete-patch" data-id="${p.id}" style="padding:4px 10px; font-size:11px; background:var(--bad); color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">${t("delete")}</button>
+      <div class="breakdown-actions">
+        <span class="breakdown-size ${isZero ? 'bank-broken' : ''}">${sizeMB} MB</span>
+        <button class="btn-delete-patch" data-id="${p.id}">${t("delete")}</button>
       </div>
     `;
     
@@ -3249,7 +3393,6 @@ function closeBankBreakdownDialog() {
   $("bankBreakdownDialog").hidden = true;
 }
 
-// FUNGSI BARU: Pre-loading Asinkron untuk mencegah Hang
 async function loadBankAsync(bank, patches, statusEl) {
   if (!timidityPlayer) return;
   
@@ -3259,26 +3402,30 @@ async function loadBankAsync(bank, patches, statusEl) {
   statusEl.style.display = "block";
   statusEl.style.color = "var(--accent)";
   
-  // 1. Tahap Pre-loading (Resampling dilakukan bertahap)
+  let fallbackCount = 0;
+
   for (let i = 0; i < patches.length; i++) {
     const p = patches[i];
     statusEl.textContent = `Memuat patch ${i + 1}/${patches.length}: ${p.name}...`;
-    
-    // Beri jeda 10ms agar browser bisa merender UI (mencegah hang)
     await new Promise(resolve => setTimeout(resolve, 10));
     
     if (!patchBufferCache.has(p.id)) {
       try {
-        // Proses berat dilakukan di sini (tapi browser sudah diberi napas)
         const bytes = writeTimidityPatch(p.patch);
         patchBufferCache.set(p.id, bytes.buffer);
       } catch (e) {
-        console.error("Gagal memuat patch", p.name, e);
+        console.error(`[loadBankAsync] Patch "${p.name}" rusak, menggunakan silent:`, e);
+        try {
+          const silentBytes = createSilentPatch();
+          patchBufferCache.set(p.id, silentBytes.buffer);
+          fallbackCount++;
+        } catch (silentErr) {
+          console.error("[loadBankAsync] Gagal membuat silent patch:", silentErr);
+        }
       }
     }
   }
 
-  // 2. Tahap Penerapan ke Timidity
   statusEl.textContent = `Menerapkan Bank ${bank}...`;
   const ME_TONE_BANK = 15;
   let ch = 0;
@@ -3290,9 +3437,12 @@ async function loadBankAsync(bank, patches, statusEl) {
       statusEl.textContent = `Bank ${bank} berhasil dimuat.`;
       
       const heavyPatches = patches.filter(p => getPatchSize(p) > 1 * 1024 * 1024);
-      if (heavyPatches.length > 0) {
+      if (heavyPatches.length > 0 || fallbackCount > 0) {
         statusEl.style.color = "var(--bad)";
-        statusEl.innerHTML = `<b>Perhatian:</b> Terdapat patch berukuran >1MB. Jika MIDI macet, hapus patch tersebut.`;
+        let msg = `<b>Perhatian:</b> `;
+        if (heavyPatches.length > 0) msg += `Ada patch >1MB. `;
+        if (fallbackCount > 0) msg += `${fallbackCount} patch rusak diganti dengan silent.`;
+        statusEl.innerHTML = msg;
       }
       return;
     }
@@ -3308,7 +3458,6 @@ async function loadBankAsync(bank, patches, statusEl) {
   
   sendNext();
 }
-
 
 function closeBankSelectDialog() {
   $("bankSelectDialog").hidden = true;
@@ -3429,6 +3578,30 @@ function renderLibrary(filterProjectId = undefined) {
       displayPatches = [];
     }
   }
+
+  // === FITUR FILTER BANK ===
+  const bankFilterSelect = $("libraryBankFilter");
+  if (bankFilterSelect) {
+    const availableBanks = [...new Set(displayPatches.map(p => p.targetBank ?? 0))].sort((a, b) => a - b);
+    let optionsHtml = `<option value="all">Semua Bank</option>`;
+    availableBanks.forEach(b => {
+      optionsHtml += `<option value="${b}">Bank ${b}</option>`;
+    });
+    bankFilterSelect.innerHTML = optionsHtml;
+    
+    // Kembalikan pilihan filter jika masih tersedia
+    if (availableBanks.map(String).includes(state.libraryBankFilter)) {
+      bankFilterSelect.value = state.libraryBankFilter;
+    } else {
+      state.libraryBankFilter = "all";
+      bankFilterSelect.value = "all";
+    }
+  }
+
+  if (state.libraryBankFilter !== "all") {
+    displayPatches = displayPatches.filter(p => String(p.targetBank ?? 0) === state.libraryBankFilter);
+  }
+  // ==========================
 
   // === TAMBAHKAN LOGIKA SORTING DI SINI ===
   displayPatches = [...displayPatches].sort((a, b) => {
@@ -5035,6 +5208,19 @@ function bind(){
   $("btnCloseBankBreakdown").addEventListener("click", closeBankBreakdownDialog);
   $("bankBreakdownDialog").addEventListener("click", e => {
     if (e.target === $("bankBreakdownDialog")) closeBankBreakdownDialog();
+  });
+
+  $("btnLibraryScope").addEventListener("click", () => {
+    if (!state.currentProjectId) return;
+    state.libraryView = state.libraryView === "all" ? "project" : "all";
+    state.libraryBankFilter = "all"; // Reset filter saat ganti view
+    renderLibrary();
+  });
+
+  // TAMBAHKAN EVENT LISTENER INI
+  $("libraryBankFilter").addEventListener("change", (e) => {
+    state.libraryBankFilter = e.target.value;
+    renderLibrary();
   });
 
   bindCanvas();

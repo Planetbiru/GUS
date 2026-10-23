@@ -210,6 +210,12 @@
       <div class="card">
         <h3>{{library}} <span class="pill" id="libCount" style="float:right">0</span></h3>
         <button class="btn small" id="btnLibraryScope" style="width:100%;margin:0 0 6px">{{show_all_library}}</button>
+
+        <!-- TAMBAHKAN SELECT INI -->
+        <select id="libraryBankFilter" style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);">
+          <option value="all">Semua Bank</option>
+        </select>
+
         <div class="list" id="patchList" style="max-height:200px"></div>
         <div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn small" id="btnExportAll" style="flex:1"><svg class="icon">
