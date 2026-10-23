@@ -551,6 +551,80 @@
     </section>
   </div>
 
+  <div id="addSampleDialog" class="modal-overlay" hidden>
+    <section class="modal-panel sample-modal-panel" role="dialog" aria-modal="true" aria-labelledby="addSampleTitle">
+      <div class="modal-content">
+        <div class="subhead">
+          <h2 id="addSampleTitle">{{add_sample_title}}</h2>
+          <div class="spacer"></div>
+          <button class="icon-btn" id="btnCloseAddSample" type="button" aria-label="{{close}}" data-i18n-aria-label="close">
+            <svg class="icon"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <div class="sample-source-grid">
+          <section class="sample-source-card">
+            <h3>{{sample_from_file}}</h3>
+            <p class="hint">{{sample_file_hint}}</p>
+            <input id="addSampleFile" type="file" accept=".wav,.mp3,audio/wav,audio/mpeg" hidden>
+            <button class="btn primary" id="btnChooseSampleFile" type="button">{{choose_audio_file}}</button>
+            <div id="addSampleFileName" class="sample-source-status" aria-live="polite"></div>
+          </section>
+          <section class="sample-source-card">
+            <h3>{{sample_from_microphone}}</h3>
+            <p class="hint">{{sample_microphone_hint}}</p>
+            <div class="sample-record-controls">
+              <button class="btn primary" id="btnStartSampleRecording" type="button">{{start_recording}}</button>
+              <button class="btn danger" id="btnStopSampleRecording" type="button" disabled>{{stop_recording}}</button>
+              <span id="addSampleRecordingTimer" class="pill">00:00</span>
+            </div>
+            <div id="addSampleRecordingStatus" class="sample-source-status" aria-live="polite"></div>
+          </section>
+        </div>
+
+        <div id="addSamplePreview" class="sample-preview" hidden>
+          <h3>{{sample_auto_parameters}}</h3>
+          <div class="grid g6">
+            <div class="field"><label for="addSampleName">{{wave_name_7}}</label><input id="addSampleName" maxlength="7"></div>
+            <div class="field"><label for="addSampleRate">{{sample_rate_label}}</label><input id="addSampleRate" type="number" min="1" max="65535"></div>
+            <div class="field"><label>{{sample_duration}}</label><output id="addSampleDuration"></output></div>
+            <div class="field"><label for="addSampleRoot">{{root_frequency_label}}</label><input id="addSampleRoot" type="number" min="0"></div>
+            <div class="field"><label for="addSampleBalance">{{panning_range}}</label><input id="addSampleBalance" type="number" min="0" max="15"></div>
+            <div class="field"><label for="addSampleLow">{{low_frequency_label}}</label><input id="addSampleLow" type="number" min="0"></div>
+            <div class="field"><label for="addSampleHigh">{{high_frequency_label}}</label><input id="addSampleHigh" type="number" min="0"></div>
+            <div class="field"><label for="addSampleLoopStart">{{loop_start_samples}}</label><input id="addSampleLoopStart" type="number" min="0"></div>
+            <div class="field"><label for="addSampleLoopEnd">{{loop_end_samples}}</label><input id="addSampleLoopEnd" type="number" min="0"></div>
+            <div class="field"><label for="addSampleFractions">{{fractions_label}}</label><input id="addSampleFractions" type="number" min="0" max="255"></div>
+            <div class="field"><label for="addSampleTune">{{tune_label}}</label><input id="addSampleTune" type="number" min="0" max="65535"></div>
+            <div class="field"><label for="addSampleScaleFreq">{{scale_frequency_label}}</label><input id="addSampleScaleFreq" type="number" min="0" max="65535"></div>
+            <div class="field"><label for="addSampleScaleFactor">{{scale_factor_label}}</label><input id="addSampleScaleFactor" type="number" min="0" max="65535"></div>
+          </div>
+          <h3>{{envelope_rates}}</h3>
+          <div class="grid g6" id="addSampleRates"></div>
+          <h3>{{envelope_offsets}}</h3>
+          <div class="grid g6" id="addSampleOffsets"></div>
+          <h3>{{tremolo_vibrato}}</h3>
+          <div class="grid g6">
+            <div class="field"><label for="addSampleTremSweep">{{trem_sweep_label}}</label><input id="addSampleTremSweep" type="number" min="0" max="255"></div>
+            <div class="field"><label for="addSampleTremRate">{{trem_rate_label}}</label><input id="addSampleTremRate" type="number" min="0" max="255"></div>
+            <div class="field"><label for="addSampleTremDepth">{{trem_depth_label}}</label><input id="addSampleTremDepth" type="number" min="0" max="255"></div>
+            <div class="field"><label for="addSampleVibSweep">{{vib_sweep_label}}</label><input id="addSampleVibSweep" type="number" min="0" max="255"></div>
+            <div class="field"><label for="addSampleVibRate">{{vib_rate_label}}</label><input id="addSampleVibRate" type="number" min="0" max="255"></div>
+            <div class="field"><label for="addSampleVibDepth">{{vib_depth_label}}</label><input id="addSampleVibDepth" type="number" min="0" max="255"></div>
+          </div>
+          <h3>{{sample_modes}}</h3>
+          <div class="check-row" id="addSampleModes"></div>
+          <p class="hint">{{sample_envelope_estimate_hint}}</p>
+        </div>
+
+        <div id="addSampleError" class="modal-error" role="alert" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button class="btn" id="btnCancelAddSample" type="button">{{cancel}}</button>
+          <button class="btn primary" id="btnConfirmAddSample" type="button" disabled>{{add_sample}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <script src="JSGUS/GUSPatchGenerator.js"></script>
   <script src="assets/js/project-patch-generator.js"></script>
   <script src="assets/js/script.js"></script>

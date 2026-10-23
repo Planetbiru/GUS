@@ -372,8 +372,9 @@ main {
     gap: 12px;
     color: var(--muted);
     border: 1px dashed #1e3357;
-    border-radius: 16px;
-    padding: 30px
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 10px;
 }
 
 .welcome h1 {
@@ -471,6 +472,33 @@ main {
 .sc.active {
     border-color: var(--accent);
     background: rgba(56, 189, 248, .07)
+}
+
+.sc.add-sample-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 72px;
+    color: var(--accent);
+    text-align: center
+}
+
+.sc.add-sample-card:hover {
+    background: rgba(56, 189, 248, .07)
+}
+
+.sc.add-sample-card:disabled {
+    cursor: not-allowed;
+    opacity: .5;
+    transform: none
+}
+
+.add-sample-plus {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1
 }
 
 .sc .n {
@@ -698,8 +726,97 @@ footer {
     box-shadow: 0 24px 80px rgba(0, 0, 0, .55)
 }
 
+.sample-modal-panel {
+    width: min(900px, 100%);
+    max-height: min(90vh, 900px);
+    overflow: auto
+}
+
 .modal-content {
     padding: 18px
+}
+
+.sample-modal-panel .subhead {
+    margin-bottom: 8px
+}
+
+.sample-source-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 18px
+}
+
+.sample-source-card,
+.sample-preview {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #0a1222
+}
+.sample-source-card h3, .sample-source-card p{
+    display: inline;
+}
+.sample-source-card h3 {
+    margin-right: 20px;
+}
+
+.sample-source-card h3,
+.sample-preview h3 {
+    margin: 0 0 8px;
+    font-size: 12px
+}
+
+.sample-source-card .btn {
+    width: 100%;
+    margin-top: 12px
+}
+
+.sample-source-status {
+    min-height: 18px;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    overflow-wrap: anywhere
+}
+
+.sample-record-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px
+}
+
+.sample-record-controls .btn {
+    flex: 1;
+    width: auto;
+    margin-top: 12px
+}
+
+.sample-record-controls .pill {
+    flex: none
+}
+
+.sample-preview {
+    margin-top: 14px
+}
+
+.sample-preview output {
+    min-height: 30px;
+    padding: 7px;
+    border: 1px solid #1d2e4d;
+    border-radius: 6px;
+    background: #080f1e;
+    color: var(--text);
+    font-size: 11px
+}
+
+.sample-preview > h3:not(:first-child) {
+    margin-top: 16px
+}
+
+.sample-modal-panel .modal-actions {
+    margin-top: 14px
 }
 
 .modal-content h2 {
@@ -716,6 +833,16 @@ footer {
 
 .alert-message {
     white-space: pre-wrap
+}
+
+@media (max-width: 640px) {
+    .sample-source-grid {
+        grid-template-columns: 1fr
+    }
+
+    .sample-modal-panel .grid.g6 {
+        grid-template-columns: repeat(3, minmax(0, 1fr))
+    }
 }
 
 .add-patch-choice {

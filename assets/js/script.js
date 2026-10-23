@@ -183,6 +183,10 @@ let pendingConfirmationAction = null;
 let activeAlert = null;
 const queuedAlerts = [];
 let projectPatchGenerator = null;
+let addSampleTarget = null;
+let pendingSampleDraft = null;
+let sampleRecording = null;
+let sampleImportGeneration = 0;
 
 /* ---------- Utilitas ---------- */
 function decodeAscii(b){let s="";for(let i=0;i<b.length;i++){if(b[i]===0)break;s+=String.fromCharCode(b[i]);}return s.replace(/\s+$/,"");}
@@ -2919,6 +2923,15 @@ function render(save=true){
     };
     sl.appendChild(d);
   });
+  const addSampleCard=document.createElement("button");
+  const targetLayer=inst?.layers[0];
+  addSampleCard.type="button";
+  addSampleCard.className="sc add-sample-card";
+  addSampleCard.disabled=!!targetLayer&&targetLayer.samples.length>=255;
+  addSampleCard.setAttribute("aria-label",t("add_sample"));
+  addSampleCard.innerHTML=`<span class="add-sample-plus" aria-hidden="true">+</span><span>${t("add_sample")}</span>`;
+  addSampleCard.addEventListener("click",openAddSampleDialog);
+  sl.appendChild(addSampleCard);
 
   renderSampleEditor(save);
   const totalBytes=p.instruments.reduce((a,i)=>a+i.size,0);
@@ -3001,6 +3014,448 @@ function renderSampleEditor(save=true){
   $("toolPencil").classList.toggle("active",state.tool==="pencil");
   updateZoomUI();
   requestAnimationFrame(drawWave);
+}
+
+function openAddSampleDialog(){
+  const instrument=state.patch?.instruments[state.selInst];
+  if(!state.patch||!instrument)return;
+  sampleImportGeneration++;
+  addSampleTarget={patchId:state.currentPatchId,instrumentIndex:state.selInst};
+  pendingSampleDraft=null;
+  $("addSampleError").textContent="";
+  $("addSampleFileName").textContent="";
+  $("addSampleRecordingStatus").textContent="";
+  $("addSampleRecordingTimer").textContent="00:00";
+  $("addSamplePreview").hidden=true;
+  $("addSampleName").value="";
+  $("btnConfirmAddSample").disabled=true;
+  $("btnChooseSampleFile").disabled=false;
+  $("btnStartSampleRecording").disabled=false;
+  $("btnStopSampleRecording").disabled=true;
+  $("addSampleDialog").hidden=false;
+  $("btnChooseSampleFile").focus();
+}
+
+function clearSampleRecordingTimer(recording=sampleRecording){
+  if(recording?.timer){
+    clearInterval(recording.timer);
+    recording.timer=null;
+  }
+}
+
+function stopSampleRecordingTracks(recording){
+  clearSampleRecordingTimer(recording);
+  for(const track of recording.stream.getTracks())track.stop();
+}
+
+function closeAddSampleDialog(){
+  sampleImportGeneration++;
+  if(sampleRecording){
+    const recording=sampleRecording;
+    recording.cancelled=true;
+    sampleRecording=null;
+    if(recording.recorder.state!=="inactive")recording.recorder.stop();
+    stopSampleRecordingTracks(recording);
+  }
+  $("addSampleDialog").hidden=true;
+  $("addSampleError").textContent="";
+  pendingSampleDraft=null;
+  addSampleTarget=null;
+}
+
+function updateSampleRecordingTimer(recording){
+  if(sampleRecording!==recording)return;
+  const seconds=Math.floor((performance.now()-recording.startedAt)/1000);
+  $("addSampleRecordingTimer").textContent=
+    `${String(Math.floor(seconds/60)).padStart(2,"0")}:${String(seconds%60).padStart(2,"0")}`;
+}
+
+async function decodeSampleBlob(blob){
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+  if(!AudioContextClass)throw new Error(t("web_audio_unsupported"));
+  const context=state.audio.ctx||new AudioContextClass();
+  const closeContext=!state.audio.ctx;
+  try{
+    return await context.decodeAudioData(await blob.arrayBuffer());
+  }catch(err){
+    throw new Error(t("sample_audio_decode_failed"));
+  }finally{
+    if(closeContext)await context.close();
+  }
+}
+
+async function monoSampleBuffer(audioBuffer){
+  const sourceRate=audioBuffer.sampleRate;
+  const targetRate=clamp(Math.min(sourceRate,48000),4000,48000);
+  const mono=new Float32Array(audioBuffer.length);
+  for(let channel=0;channel<audioBuffer.numberOfChannels;channel++){
+    const samples=audioBuffer.getChannelData(channel);
+    for(let i=0;i<samples.length;i++)mono[i]+=samples[i]/audioBuffer.numberOfChannels;
+  }
+  if(targetRate===sourceRate)return {samples:mono,sampleRate:targetRate};
+
+  const OfflineContextClass=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  if(OfflineContextClass){
+    const length=Math.max(1,Math.ceil(mono.length*targetRate/sourceRate));
+    const offline=new OfflineContextClass(1,length,targetRate);
+    const sourceBuffer=offline.createBuffer(1,mono.length,sourceRate);
+    sourceBuffer.copyToChannel(mono,0);
+    const source=offline.createBufferSource();
+    source.buffer=sourceBuffer;
+    source.connect(offline.destination);
+    source.start();
+    const rendered=await offline.startRendering();
+    return {samples:rendered.getChannelData(0).slice(),sampleRate:targetRate};
+  }
+
+  const length=Math.max(1,Math.ceil(mono.length*targetRate/sourceRate));
+  const resampled=new Float32Array(length);
+  for(let i=0;i<length;i++){
+    const position=i*sourceRate/targetRate;
+    const left=Math.min(Math.floor(position),mono.length-1);
+    const right=Math.min(left+1,mono.length-1);
+    const fraction=position-left;
+    resampled[i]=mono[left]*(1-fraction)+mono[right]*fraction;
+  }
+  return {samples:resampled,sampleRate:targetRate};
+}
+
+function estimateEnvelopeOffsets(samples,sampleRate){
+  const windowSize=Math.max(1,Math.round(sampleRate*0.01));
+  const levels=[];
+  for(let start=0;start<samples.length;start+=windowSize){
+    const end=Math.min(samples.length,start+windowSize);
+    let energy=0;
+    for(let i=start;i<end;i++)energy+=samples[i]*samples[i];
+    levels.push(Math.sqrt(energy/(end-start)));
+  }
+  if(levels.length===0)return {offsets:[255,192,160,128,96,0],rates:[0,0,0,0,0,0]};
+
+  let peak=0,peakIndex=0;
+  for(let i=0;i<levels.length;i++){
+    if(levels[i]>peak){peak=levels[i];peakIndex=i;}
+  }
+  if(peak<0.00001)return {offsets:[255,192,160,128,96,0],rates:[0,0,0,0,0,0]};
+  const endIndex=levels.length-1;
+  const attackIndex=levels.findIndex((level,index)=>index<=peakIndex&&level>=peak*0.9);
+  const sustainStart=Math.min(endIndex,Math.max(peakIndex+1,Math.round(peakIndex+(endIndex-peakIndex)*0.35)));
+  const sustainEnd=Math.max(sustainStart,Math.round(endIndex*0.75));
+  const sustainSlice=levels.slice(sustainStart,sustainEnd+1);
+  const sustainLevel=sustainSlice.length
+    ? sustainSlice.reduce((sum,level)=>sum+level,0)/sustainSlice.length
+    : levels[sustainStart];
+  const toOffset=level=>clamp(Math.round(level/peak*255),0,255);
+  const at=position=>levels[clamp(Math.round(endIndex*position),0,endIndex)];
+  const offsets=[
+    255,
+    toOffset(levels[sustainStart]),
+    toOffset(sustainLevel),
+    toOffset(at(0.72)),
+    toOffset(at(0.86)),
+    toOffset(at(0.98))
+  ];
+  const durations=[
+    Math.max(1,(attackIndex<0?peakIndex:attackIndex)*windowSize*1000/sampleRate),
+    Math.max(1,(sustainStart-peakIndex)*windowSize*1000/sampleRate),
+    Math.max(1,(sustainEnd-sustainStart)*windowSize*1000/sampleRate),
+    Math.max(1,(endIndex-sustainEnd)*windowSize*1000/sampleRate),
+    Math.max(1,(endIndex-sustainEnd)*windowSize*500/sampleRate),
+    Math.max(1,(endIndex-sustainEnd)*windowSize*500/sampleRate)
+  ];
+  const rateStarts=[0,offsets[0],offsets[1],offsets[2],offsets[3],offsets[4]];
+  const rateEnds=[offsets[0],offsets[1],offsets[2],0,offsets[4],offsets[5]];
+  const rates=rateEnds.map((end,index)=>{
+    let bestRate=0,bestDifference=Infinity;
+    for(let rate=0;rate<=255;rate++){
+      const difference=Math.abs(gusEnvMs(rate,rateStarts[index],end)-durations[index]);
+      if(difference<bestDifference){bestDifference=difference;bestRate=rate;}
+    }
+    return bestRate;
+  });
+  return {offsets,rates};
+}
+
+function estimateRootFrequency(samples,sampleRate){
+  const stride=Math.max(1,Math.floor(sampleRate/8000));
+  const analyzedRate=sampleRate/stride;
+  const length=Math.min(Math.floor(samples.length/stride),Math.floor(analyzedRate*0.12));
+  if(length<32)return 440;
+  const data=new Float32Array(length);
+  let mean=0;
+  for(let i=0;i<length;i++){data[i]=samples[i*stride];mean+=data[i];}
+  mean/=length;
+  for(let i=0;i<length;i++)data[i]-=mean;
+  let energy=0;
+  for(const value of data)energy+=value*value;
+  if(energy<0.000001)return 440;
+
+  const minLag=Math.max(2,Math.floor(analyzedRate/2000));
+  const maxLag=Math.min(Math.floor(analyzedRate/40),Math.floor(length/2));
+  let bestLag=0,bestCorrelation=0;
+  for(let lag=minLag;lag<=maxLag;lag++){
+    let correlation=0,referenceEnergy=0;
+    for(let i=0;i<length-lag;i++){
+      correlation+=data[i]*data[i+lag];
+      referenceEnergy+=data[i]*data[i];
+    }
+    const normalized=referenceEnergy?correlation/referenceEnergy:0;
+    if(normalized>bestCorrelation){bestCorrelation=normalized;bestLag=lag;}
+  }
+  return bestCorrelation>=0.55&&bestLag?clamp(analyzedRate/bestLag,40,2000):440;
+}
+
+function buildSampleDraft(audioBuffer,name){
+  return monoSampleBuffer(audioBuffer).then(({samples,sampleRate})=>{
+    if(samples.length===0)throw new Error(t("sample_audio_empty"));
+    const envelope=estimateEnvelopeOffsets(samples,sampleRate);
+    const pcm=new Uint8Array(samples.length*2);
+    for(let i=0;i<samples.length;i++){
+      let value=Math.round(clamp(samples[i],-1,1)*32767);
+      if(value<0)value+=65536;
+      pcm[i*2]=value&255;
+      pcm[i*2+1]=(value>>8)&255;
+    }
+    const rootFrequency=estimateRootFrequency(samples,sampleRate);
+    const safeName=String(name||"SAMPLE").replace(/\.[^.]+$/,"").replace(/[^\w-]/g,"").substring(0,7)||"SAMPLE";
+    const sample={
+      name:safeName,fractions:0,dataSize:pcm.length,loopStart:0,loopEnd:pcm.length,sampleRate,
+      lowFreq:8176,highFreq:12543854,rootFreq:Math.round(rootFrequency*1000),
+      tune:0,balance:7,envRates:envelope.rates,envOffsets:envelope.offsets,
+      tremoloSweep:0,tremoloRate:0,tremoloDepth:0,
+      vibratoSweep:0,vibratoRate:0,vibratoDepth:0,
+      modes:M16|MENV,scaleFreq:60,scaleFactor:1024,
+      reserved:new Uint8Array(36),pcm,_float:samples
+    };
+    return {sample,duration:samples.length/sampleRate,sourceName:name||"SAMPLE"};
+  });
+}
+
+function populateAddSampleParameters(sample,duration){
+  const bps=fmt(sample).bps;
+  const fields={
+    addSampleName:sample.name,
+    addSampleRate:sample.sampleRate,
+    addSampleRoot:sample.rootFreq,
+    addSampleBalance:sample.balance,
+    addSampleLow:sample.lowFreq,
+    addSampleHigh:sample.highFreq,
+    addSampleLoopStart:Math.round(sample.loopStart/bps),
+    addSampleLoopEnd:Math.round(sample.loopEnd/bps),
+    addSampleFractions:sample.fractions,
+    addSampleTune:sample.tune,
+    addSampleScaleFreq:sample.scaleFreq,
+    addSampleScaleFactor:sample.scaleFactor,
+    addSampleTremSweep:sample.tremoloSweep,
+    addSampleTremRate:sample.tremoloRate,
+    addSampleTremDepth:sample.tremoloDepth,
+    addSampleVibSweep:sample.vibratoSweep,
+    addSampleVibRate:sample.vibratoRate,
+    addSampleVibDepth:sample.vibratoDepth
+  };
+  for(const [id,value] of Object.entries(fields))$(id).value=value??0;
+  $("addSampleLoopStart").max=Math.floor(sample.pcm.length/bps);
+  $("addSampleLoopEnd").max=Math.floor(sample.pcm.length/bps);
+  $("addSampleDuration").textContent=`${duration.toFixed(2)} s`;
+
+  const names=["env_attack","env_decay","env_sustain","env_rate_1","env_rate_2","env_rate_3"];
+  for(const [kind,values] of [["rate",sample.envRates],["offset",sample.envOffsets]]){
+    const grid=kind==="rate"?$("addSampleRates"):$("addSampleOffsets");
+    const attribute=kind==="rate"?"data-add-sample-rate":"data-add-sample-offset";
+    grid.innerHTML="";
+    values.forEach((value,index)=>{
+      const field=document.createElement("div");
+      field.className="field";
+      field.innerHTML=`<label>${t(`${kind}_label`,{name:t(names[index])})}</label><input type="number" min="0" max="255" ${attribute}="${index}" value="${value}">`;
+      grid.appendChild(field);
+    });
+  }
+
+  const modes=$("addSampleModes");
+  modes.innerHTML="";
+  for(const [bit,label] of MODE_LABELS){
+    const field=document.createElement("label");
+    field.className="check";
+    field.innerHTML=`<input type="checkbox" data-add-sample-mode="${bit}" ${(sample.modes&bit)?"checked":""}><span>${t(label)}</span>`;
+    modes.appendChild(field);
+  }
+}
+
+async function loadSampleDraft(blob,name){
+  const generation=++sampleImportGeneration;
+  $("addSampleError").textContent="";
+  $("btnConfirmAddSample").disabled=true;
+  $("btnChooseSampleFile").disabled=true;
+  $("btnStartSampleRecording").disabled=true;
+  $("addSampleRecordingStatus").textContent=t("sample_processing");
+  try{
+    const audioBuffer=await decodeSampleBlob(blob);
+    const draft=await buildSampleDraft(audioBuffer,name);
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden)return;
+    pendingSampleDraft=draft;
+    populateAddSampleParameters(draft.sample,draft.duration);
+    $("addSamplePreview").hidden=false;
+    $("addSampleRecordingStatus").textContent=t("sample_audio_ready");
+    $("btnChooseSampleFile").disabled=false;
+    $("btnStartSampleRecording").disabled=false;
+    $("btnConfirmAddSample").disabled=false;
+  }catch(err){
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden)return;
+    console.error("Sample audio conversion failed:",err);
+    $("addSampleError").textContent=err.message||t("sample_audio_decode_failed");
+    $("addSampleRecordingStatus").textContent="";
+    $("btnChooseSampleFile").disabled=false;
+    $("btnStartSampleRecording").disabled=false;
+  }
+}
+
+function startSampleRecording(){
+  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){
+    $("addSampleError").textContent=t("sample_microphone_unsupported");
+    return;
+  }
+  pendingSampleDraft=null;
+  $("addSamplePreview").hidden=true;
+  $("addSampleFileName").textContent="";
+  $("btnConfirmAddSample").disabled=true;
+  $("addSampleError").textContent="";
+  $("btnStartSampleRecording").disabled=true;
+  $("btnChooseSampleFile").disabled=true;
+  $("addSampleRecordingStatus").textContent=t("sample_microphone_permission");
+  const generation=sampleImportGeneration;
+  let requestedStream=null;
+  navigator.mediaDevices.getUserMedia({audio:{
+    channelCount:1,echoCancellation:false,noiseSuppression:false,autoGainControl:false
+  }}).then(stream=>{
+    requestedStream=stream;
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden){
+      for(const track of stream.getTracks())track.stop();
+      return;
+    }
+    const mimeType=typeof MediaRecorder.isTypeSupported==="function"
+      ?["audio/webm;codecs=opus","audio/ogg;codecs=opus"].find(type=>MediaRecorder.isTypeSupported(type))
+      :null;
+    const recorder=mimeType?new MediaRecorder(stream,{mimeType}):new MediaRecorder(stream);
+    const recording={stream,recorder,chunks:[],startedAt:performance.now(),timer:null,cancelled:false};
+    sampleRecording=recording;
+    recorder.addEventListener("dataavailable",event=>{
+      if(event.data.size)recording.chunks.push(event.data);
+    });
+    recorder.addEventListener("error",event=>{
+      console.error("Microphone recording failed:",event.error||event);
+      recording.failed=true;
+      $("addSampleError").textContent=event.error?.message||t("sample_recording_failed");
+      if(recorder.state!=="inactive")recorder.stop();
+    });
+    recorder.addEventListener("stop",async()=>{
+      stopSampleRecordingTracks(recording);
+      if(sampleRecording!==recording||recording.cancelled)return;
+      sampleRecording=null;
+      $("btnStartSampleRecording").disabled=false;
+      $("btnStopSampleRecording").disabled=true;
+      $("btnChooseSampleFile").disabled=false;
+      if(recording.failed){
+        $("addSampleRecordingStatus").textContent="";
+        return;
+      }
+      const blob=new Blob(recording.chunks,{type:recorder.mimeType||"audio/webm"});
+      await loadSampleDraft(blob,"RECORDING");
+    });
+    recorder.start(250);
+    $("btnStartSampleRecording").disabled=true;
+    $("btnStopSampleRecording").disabled=false;
+    $("btnChooseSampleFile").disabled=true;
+    $("addSampleRecordingStatus").textContent=t("sample_recording");
+    recording.timer=setInterval(()=>updateSampleRecordingTimer(recording),250);
+  }).catch(err=>{
+    if(requestedStream)for(const track of requestedStream.getTracks())track.stop();
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden)return;
+    console.error("Unable to access microphone:",err);
+    $("addSampleError").textContent=t("sample_microphone_failed",{message:err.message});
+    $("btnStartSampleRecording").disabled=false;
+    $("btnChooseSampleFile").disabled=false;
+    $("addSampleRecordingStatus").textContent="";
+  });
+}
+
+function stopSampleRecording(){
+  if(sampleRecording&&sampleRecording.recorder.state!=="inactive"){
+    $("btnStopSampleRecording").disabled=true;
+    sampleRecording.recorder.stop();
+  }
+}
+
+function addSampleToPatch(){
+  const target=addSampleTarget;
+  const draft=pendingSampleDraft;
+  if(!target||!draft)return;
+  if(target.patchId!==state.currentPatchId||!state.patch?.instruments[target.instrumentIndex]){
+    $("addSampleError").textContent=t("sample_patch_changed");
+    return;
+  }
+  const instrument=state.patch.instruments[target.instrumentIndex];
+  if(instrument.layers.length===0){
+    instrument.layers.push({
+      duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[]
+    });
+  }
+  const layer=instrument.layers[0];
+  if(layer.samples.length>=255){
+    $("addSampleError").textContent=t("sample_layer_limit");
+    return;
+  }
+  const sample=draft.sample;
+  const readNumber=(id,min,max,fallback=0)=>{
+    const parsed=parseInt($(id).value,10);
+    return clamp(Number.isFinite(parsed)?parsed:fallback,min,max);
+  };
+  sample.name=String($("addSampleName").value||"SAMPLE").replace(/[^\w-]/g,"").substring(0,7)||"SAMPLE";
+  sample.sampleRate=readNumber("addSampleRate",1,65535,22050);
+  sample.rootFreq=readNumber("addSampleRoot",0,0xFFFFFFFF);
+  sample.balance=readNumber("addSampleBalance",0,15,7);
+  sample.lowFreq=readNumber("addSampleLow",0,0xFFFFFFFF);
+  sample.highFreq=readNumber("addSampleHigh",0,0xFFFFFFFF);
+  sample.fractions=readNumber("addSampleFractions",0,255);
+  sample.tune=readNumber("addSampleTune",0,65535);
+  sample.scaleFreq=readNumber("addSampleScaleFreq",0,65535,60);
+  sample.scaleFactor=readNumber("addSampleScaleFactor",0,65535,1024);
+  sample.tremoloSweep=readNumber("addSampleTremSweep",0,255);
+  sample.tremoloRate=readNumber("addSampleTremRate",0,255);
+  sample.tremoloDepth=readNumber("addSampleTremDepth",0,255);
+  sample.vibratoSweep=readNumber("addSampleVibSweep",0,255);
+  sample.vibratoRate=readNumber("addSampleVibRate",0,255);
+  sample.vibratoDepth=readNumber("addSampleVibDepth",0,255);
+  sample.envRates=Array.from($("addSampleRates").querySelectorAll("[data-add-sample-rate]"))
+    .map(input=>clamp(parseInt(input.value,10)||0,0,255));
+  sample.envOffsets=Array.from($("addSampleOffsets").querySelectorAll("[data-add-sample-offset]"))
+    .map(input=>clamp(parseInt(input.value,10)||0,0,255));
+  sample.modes=0;
+  for(const input of $("addSampleModes").querySelectorAll("[data-add-sample-mode]")){
+    if(input.checked)sample.modes|=parseInt(input.dataset.addSampleMode,10);
+  }
+  commitFloat(sample);
+  const bps=fmt(sample).bps;
+  const total=Math.floor(sample.pcm.length/bps);
+  const loopStart=clamp(parseInt($("addSampleLoopStart").value,10)||0,0,total);
+  let loopEnd=clamp(parseInt($("addSampleLoopEnd").value,10)||0,0,total);
+  if(loopEnd<=loopStart)loopEnd=Math.min(total,loopStart+1);
+  sample.loopStart=loopStart*bps;
+  sample.loopEnd=loopEnd*bps;
+  sample.dataSize=sample.pcm.length;
+  $("addSampleName").value=sample.name;
+  $("addSampleLoopStart").value=loopStart;
+  $("addSampleLoopEnd").value=loopEnd;
+  layer.samples.push(sample);
+  state.selInst=target.instrumentIndex;
+  state.selSample=sample;
+  state.selStart=state.selEnd=0;
+  state.undo=[];
+  state.zoom=1; state.offset=0;
+  const samples=allSamples();
+  state.patch.header.waveForms=samples.length;
+  state.patch.header.dataSize=samples.reduce((size,ref)=>size+ref.sample.pcm.length,0);
+  closeAddSampleDialog();
+  render();
+  showStatus(t("sample_added"),"ok");
 }
 
 /* ---------- MIDI Demo Project ---------- */
@@ -3485,6 +3940,38 @@ function bind(){
     if (event.key === "Escape" && !$("btnGenerateProjectPatch").disabled) {
       closeAddPatchDialog();
     }
+  });
+  $("btnChooseSampleFile").addEventListener("click",()=>$("addSampleFile").click());
+  $("addSampleFile").addEventListener("change",async event=>{
+    const file=event.target.files&&event.target.files[0];
+    if(!file)return;
+    pendingSampleDraft=null;
+    $("addSamplePreview").hidden=true;
+    $("btnConfirmAddSample").disabled=true;
+    $("addSampleFileName").textContent="";
+    const supported=/\.(wav|mp3)$/i.test(file.name)
+      ||file.type==="audio/wav"||file.type==="audio/x-wav"||file.type==="audio/mpeg";
+    if(!supported){
+      $("addSampleError").textContent=t("sample_file_format");
+      event.target.value="";
+      return;
+    }
+    $("addSampleError").textContent="";
+    $("addSampleFileName").textContent=file.name;
+    await loadSampleDraft(file,file.name);
+    if(pendingSampleDraft)$("addSampleFileName").textContent=t("sample_file_ready",{filename:file.name});
+    event.target.value="";
+  });
+  $("btnStartSampleRecording").addEventListener("click",startSampleRecording);
+  $("btnStopSampleRecording").addEventListener("click",stopSampleRecording);
+  $("btnCancelAddSample").addEventListener("click",closeAddSampleDialog);
+  $("btnCloseAddSample").addEventListener("click",closeAddSampleDialog);
+  $("btnConfirmAddSample").addEventListener("click",addSampleToPatch);
+  $("addSampleDialog").addEventListener("click",event=>{
+    if(event.target===$("addSampleDialog"))closeAddSampleDialog();
+  });
+  $("addSampleDialog").addEventListener("keydown",event=>{
+    if(event.key==="Escape")closeAddSampleDialog();
   });
   $("btnExportProject").addEventListener("click", () => {
     if (state.currentProjectId) exportProject(state.currentProjectId);
