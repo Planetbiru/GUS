@@ -744,7 +744,6 @@ footer {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
-    margin-top: 18px
 }
 
 .sample-source-card,
@@ -815,14 +814,72 @@ footer {
     margin-top: 16px
 }
 
-.sample-modal-panel .modal-actions {
-    margin-top: 14px
+
+/* ===== Modal Layout ===== */
+.modal-panel {
+    width: min(400px, 100%);
+    max-height: calc(100dvh - 48px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .55);
+    overflow: hidden;               /* cegah scrollbar ganda */
 }
 
-.modal-content h2 {
-    margin: 0 0 14px;
-    font-size: 16px
+.sample-modal-panel {
+    width: min(900px, 100%);
+    /* max-height & overflow diwarisi dari .modal-panel */
 }
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;                  /* wajib agar body bisa shrink */
+    padding: 0;
+}
+
+.modal-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-header button.icon-btn{
+    width: 22px;
+    height: 22px;
+    padding: 0 !important;
+}
+
+.modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;               /* scroll di sini saat overflow */
+    padding: 16px 18px;
+}
+
+.modal-footer {
+    flex: none;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--line);
+}
+
 
 .modal-message {
     margin: 0;
@@ -921,4 +978,145 @@ footer {
     main {
         overflow: visible
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ===== Bank Manager ===== */
+#bankManagerCard { margin-bottom: 10px; }
+
+.bank-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.bank-toolbar .hint { flex: 1; min-width: 200px; }
+
+.bank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 6px;
+  background: #060c17;
+}
+
+.bank-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  margin-top: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--accent);
+  border-bottom: 1px solid #1a2b49;
+}
+.bank-group-header:first-child { margin-top: 0; }
+
+.bank-row {
+  display: grid;
+  grid-template-columns: 18px 14px 26px 46px 1fr 50px 46px 70px;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: #0a1222;
+  border: 1px solid transparent;
+  font-size: 11px;
+  cursor: default;
+  transition: background .1s;
+}
+
+.bank-row.dragging { opacity: .4; }
+.bank-row.drag-over { border-color: var(--accent); background: rgba(56,189,248,.08); }
+.bank-row:hover { background: #101c33; }
+.bank-row.disabled { opacity: .45; }
+
+.bank-handle {
+  cursor: grab;
+  color: var(--dim);
+  text-align: center;
+  font-size: 14px;
+  user-select: none;
+  line-height: 1;
+}
+.bank-handle:active { cursor: grabbing; }
+
+.bank-type {
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  padding: 1px 0;
+  border-radius: 3px;
+}
+.bank-type.melodic { color: var(--accent); background: rgba(56,189,248,.15); }
+.bank-type.drum { color: var(--accent2); background: rgba(167,139,250,.15); }
+
+.bank-original, .bank-order {
+  font-family: ui-monospace, monospace;
+  color: var(--muted);
+  text-align: center;
+  font-size: 10px;
+}
+.bank-order { color: var(--accent); font-weight: 600; }
+
+.bank-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.bank-program {
+  font-family: ui-monospace, monospace;
+  color: var(--dim);
+  text-align: center;
+  font-size: 10px;
+}
+
+.bank-target {
+  width: 100%;
+  padding: 3px 5px;
+  background: #080f1e;
+  border: 1px solid #1d2e4d;
+  color: var(--text);
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  text-align: center;
+  outline: none;
+}
+.bank-target:focus { border-color: var(--accent); }
+.bank-target.changed { border-color: var(--accent2); }
+
+.bank-row input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+
+.bank-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--dim);
+  font-size: 11px;
+}
+
+.subhead h2 {
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

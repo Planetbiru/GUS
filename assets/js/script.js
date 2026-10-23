@@ -332,7 +332,11 @@ function cleanEntryForStorage(entry){
     source: entry.source||"pat", 
     gmProgram: entry.gmProgram ?? -1,
     gmBank: entry.gmBank ?? 0,
-    drumSet: entry.drumSet ?? (entry.gmBank === 128 ? 0 : undefined),   // ← TAMBAHKAN
+    drumSet: entry.drumSet ?? (entry.gmBank === 128 ? 0 : undefined),
+    originalOrder: entry.originalOrder ?? 0,
+    userOrder: entry.userOrder ?? 0,
+    targetBank: entry.targetBank ?? 0,
+    exportSelected: entry.exportSelected !== false,
     patch: cleanPatchForStorage(entry.patch) 
   };
 }
@@ -955,6 +959,7 @@ function sf2ToGusPatches(sf2, fileName){
       gmProgram: note,     // ← pakai NOTE sebagai "program" untuk lookup
       gmBank: 128,         // ← tandai sebagai drum
       drumSet: preset.preset,   // ← TAMBAHKAN BARIS INI
+      originalOrder: preset.preset,   // ← tambahkan
       patch: drumPatch
     });
   }
@@ -979,11 +984,342 @@ function sf2ToGusPatches(sf2, fileName){
       source: "sf2:"+fileName,
       gmProgram: preset.preset,
       gmBank: preset.bank,
+      originalOrder: preset.bank,     // ← tambahkan
       patch
     });
   }
 }
   return entries;
+}
+
+/* ---------- Bank Management ---------- */
+function initBankFields(entries, project) {
+  const existing = (project.patchIds || [])
+    .map(id => state.patches.find(p => p.id === id))
+    .filter(Boolean);
+  const all = [...existing, ...entries];
+
+  for (const p of all) {
+    if (typeof p.originalOrder !== "number") {
+      p.originalOrder = (p.gmBank ?? 0) === 128 ? (p.drumSet ?? 0) : (p.gmBank ?? 0);
+    }
+    if (typeof p.targetBank !== "number") p.targetBank = p.originalOrder;
+    if (typeof p.exportSelected !== "boolean") p.exportSelected = true;
+  }
+
+  const withoutOrder = all.filter(p => typeof p.userOrder !== "number");
+  if (withoutOrder.length > 0) {
+    withoutOrder.sort((a, b) => {
+      const aDrum = (a.gmBank ?? 0) === 128 ? 1 : 0;
+      const bDrum = (b.gmBank ?? 0) === 128 ? 1 : 0;
+      if (aDrum !== bDrum) return aDrum - bDrum;
+      const aProg = a.gmProgram ?? -1;
+      const bProg = b.gmProgram ?? -1;
+      if (aProg !== bProg) return aProg - bProg;
+      return (a.originalOrder ?? 0) - (b.originalOrder ?? 0);
+    });
+    const existingOrders = all.filter(p => typeof p.userOrder === "number").map(p => p.userOrder);
+    let next = existingOrders.length > 0 ? Math.max(...existingOrders) + 1 : 0;
+    for (const p of withoutOrder) p.userOrder = next++;
+  }
+}
+
+function getProjectPatchEntries() {
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if (!project) return [];
+  return project.patchIds
+    .map(id => state.patches.find(p => p.id === id))
+    .filter(Boolean)
+    .sort((a, b) => (a.userOrder ?? 0) - (b.userOrder ?? 0));
+}
+
+function renderBankManager() {
+  const card = $("bankManagerCard");
+  if (!card) return;
+  
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+
+  // Sembunyikan jika tidak ada proyek atau tidak ada patch yang dipilih
+  if (!project || !currentPatch) {
+    card.hidden = true;
+    return;
+  }
+
+  // Tentukan filter berdasarkan patch yang sedang dipilih
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+
+  // Ambil semua patch di proyek, lalu filter berdasarkan Program & Tipe
+  let entries = getProjectPatchEntries().filter(p => {
+    const pIsDrum = (p.gmBank ?? 0) === 128;
+    return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+  });
+
+  if (entries.length === 0) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+
+  const selectedCount = entries.filter(p => p.exportSelected !== false).length;
+  $("bankSummaryPill").textContent = t("bank_filtered_summary", {
+    count: entries.length,
+    selected: selectedCount
+  });
+  $("bankSelectAll").checked = selectedCount === entries.length;
+  $("exportSelectedLabel").textContent = t("export_selected_only") + ` (${selectedCount})`;
+
+  // Tampilkan info filter di judul
+  const typeLabel = isDrum ? t("drum") : t("non_drum");
+  const titleEl = card.querySelector("h2");
+  let titleText = t("bank_management");
+  if (currentPatch) {
+    titleText += " - " + t("bank_filter_active", { program: prog, type: typeLabel });
+  }
+  titleEl.textContent = titleText;
+
+  const list = $("bankList");
+  list.innerHTML = "";
+
+  let lastType = null;
+  for (const p of entries) {
+    const rowIsDrum = (p.gmBank ?? 0) === 128;
+    const typeKey = rowIsDrum ? "drum" : "melodic";
+    
+    if (typeKey !== lastType) {
+      const header = document.createElement("div");
+      header.className = "bank-group-header";
+      header.textContent = rowIsDrum ? t("drum") : t("non_drum");
+      list.appendChild(header);
+      lastType = typeKey;
+    }
+
+    const row = document.createElement("div");
+    row.className = "bank-row" + (p.exportSelected === false ? " disabled" : "");
+    row.draggable = true;
+    row.dataset.id = p.id;
+    const targetChanged = (p.targetBank ?? 0) !== (p.originalOrder ?? 0);
+    
+    row.innerHTML = `
+      <input type="checkbox" data-act="select" ${p.exportSelected !== false ? "checked" : ""} aria-label="${t("export_selected_only")}">
+      <span class="bank-handle" title="${t("drag_to_reorder")}">☰</span>
+      <span class="bank-type ${typeKey}">${rowIsDrum ? "D" : "M"}</span>
+      <span class="bank-program">${String(p.gmProgram ?? -1).padStart(3, "0")}</span>
+      <span class="bank-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</span>
+      <span class="bank-original" title="${t("original_order")}">${p.originalOrder ?? 0}</span>
+      <span class="bank-order" title="${t("user_order")}">${p.userOrder ?? 0}</span>
+      <input type="number" class="bank-target${targetChanged ? " changed" : ""}" data-act="target"
+             min="0" max="999" value="${p.targetBank ?? 0}" title="${t("target_bank")}" aria-label="${t("target_bank")}">
+    `;
+    list.appendChild(row);
+  }
+
+  bindBankManagerEvents(list);
+}
+
+// Update Drag & Drop agar hanya menukar urutan antar item yang terlihat (satu program)
+function updateUserOrderFromDom(list) {
+  const rows = Array.from(list.querySelectorAll(".bank-row"));
+  const visiblePatches = rows.map(r => state.patches.find(p => p.id === r.dataset.id)).filter(Boolean);
+
+  // Ekstrak nilai userOrder yang ada, lalu urutkan
+  const orders = visiblePatches.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  // Terapkan kembali ke patch sesuai urutan DOM yang baru
+  visiblePatches.forEach((p, i) => {
+    p.userOrder = orders[i];
+    const orderEl = rows[i].querySelector(".bank-order");
+    if (orderEl) orderEl.textContent = p.userOrder;
+  });
+
+  saveProjectBankConfig();
+}
+
+// Perbarui fungsi refresh agar hanya mereset urutan pada program yang sedang aktif
+function refreshBankOrder() {
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+  if (!currentPatch) return;
+
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+
+  const entries = getProjectPatchEntries().filter(p =>
+    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
+  );
+
+  const sorted = [...entries].sort((a, b) => (a.originalOrder ?? 0) - (b.originalOrder ?? 0));
+  const orders = entries.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  sorted.forEach((p, i) => { p.userOrder = orders[i]; });
+  renderBankManager();
+  saveProjectBankConfig();
+  showStatus(t("bank_order_refreshed"), "ok");
+}
+
+// Perbarui compact banks agar target bank dihitung ulang khusus untuk program yang terfilter
+function compactBanks() {
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+  if (!currentPatch) return;
+
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+
+  const entries = getProjectPatchEntries().filter(p =>
+    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
+  );
+
+  const uniq = [...new Set(entries.map(p => p.originalOrder ?? 0))].sort((a, b) => a - b);
+  const map = new Map(uniq.map((v, i) => [v, i]));
+  
+  for (const p of entries) {
+    p.targetBank = map.get(p.originalOrder ?? 0) ?? 0;
+  }
+
+  renderBankManager();
+  saveProjectBankConfig();
+  showStatus(t("bank_compacted"), "ok");
+}
+
+let bankDragSource = null;
+
+function bindBankManagerEvents(list) {
+  // Avoid duplicate listeners
+  if (list.dataset.bound === "1") return;
+  list.dataset.bound = "1";
+
+  list.addEventListener("dragstart", e => {
+    const row = e.target.closest(".bank-row");
+    if (!row) return;
+    bankDragSource = row;
+    row.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+    try { e.dataTransfer.setData("text/plain", row.dataset.id); } catch (_) {}
+  });
+
+  list.addEventListener("dragend", e => {
+    const row = e.target.closest(".bank-row");
+    if (row) row.classList.remove("dragging");
+    list.querySelectorAll(".bank-row.drag-over").forEach(r => r.classList.remove("drag-over"));
+    bankDragSource = null;
+  });
+
+  list.addEventListener("dragover", e => {
+    e.preventDefault();
+    const row = e.target.closest(".bank-row");
+    if (!row || row === bankDragSource) return;
+    e.dataTransfer.dropEffect = "move";
+    list.querySelectorAll(".bank-row.drag-over").forEach(r => r !== row && r.classList.remove("drag-over"));
+    row.classList.add("drag-over");
+  });
+
+  list.addEventListener("dragleave", e => {
+    const row = e.target.closest(".bank-row");
+    if (row) row.classList.remove("drag-over");
+  });
+
+  list.addEventListener("drop", e => {
+    e.preventDefault();
+    const target = e.target.closest(".bank-row");
+    if (!target || !bankDragSource || target === bankDragSource) return;
+    target.classList.remove("drag-over");
+
+    const rect = target.getBoundingClientRect();
+    const after = e.clientY > rect.top + rect.height / 2;
+    list.insertBefore(bankDragSource, after ? target.nextSibling : target);
+
+    updateUserOrderFromDom(list);
+  });
+
+  list.addEventListener("change", e => {
+    const row = e.target.closest(".bank-row");
+    if (!row) return;
+    const patch = state.patches.find(p => p.id === row.dataset.id);
+    if (!patch) return;
+
+    if (e.target.dataset.act === "select") {
+      patch.exportSelected = e.target.checked;
+      row.classList.toggle("disabled", !patch.exportSelected);
+    } else if (e.target.dataset.act === "target") {
+      patch.targetBank = clamp(parseInt(e.target.value, 10) || 0, 0, 999);
+      e.target.value = patch.targetBank;
+      e.target.classList.toggle("changed", patch.targetBank !== (patch.originalOrder ?? 0));
+    }
+
+    // UPDATE: Hitung ringkasan berdasarkan item yang SEDANG DIFILTER
+    const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+    if (currentPatch) {
+      const isDrum = (currentPatch.gmBank ?? 0) === 128;
+      const prog = currentPatch.gmProgram ?? -1;
+      const visibleEntries = getProjectPatchEntries().filter(p => {
+        const pIsDrum = (p.gmBank ?? 0) === 128;
+        return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+      });
+      const selectedCount = visibleEntries.filter(p => p.exportSelected !== false).length;
+      
+      $("bankSummaryPill").textContent = t("bank_filtered_summary", {count: visibleEntries.length, selected: selectedCount});
+      $("bankSelectAll").checked = selectedCount === visibleEntries.length;
+      $("exportSelectedLabel").textContent = t("export_selected_only") + ` (${selectedCount})`;
+    }
+
+    saveProjectBankConfig();
+  });
+}
+
+function updateUserOrderFromDom(list) {
+  const rows = list.querySelectorAll(".bank-row");
+  rows.forEach((row, i) => {
+    const patch = state.patches.find(p => p.id === row.dataset.id);
+    if (patch) patch.userOrder = i;
+    const orderEl = row.querySelector(".bank-order");
+    if (orderEl) orderEl.textContent = i;
+  });
+  saveProjectBankConfig();
+}
+
+async function saveProjectBankConfig() {
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if (!project) return;
+  const entries = project.patchIds
+    .map(id => state.patches.find(p => p.id === id))
+    .filter(Boolean);
+  try {
+    await dbSaveProjectAndPatches(project, entries);
+  } catch (err) {
+    console.error("Save bank config failed:", err);
+  }
+}
+
+function refreshBankOrder() {
+  const entries = getProjectPatchEntries();
+  if (entries.length === 0) return;
+  const sorted = [...entries].sort((a, b) => {
+    const aDrum = (a.gmBank ?? 0) === 128 ? 1 : 0;
+    const bDrum = (b.gmBank ?? 0) === 128 ? 1 : 0;
+    if (aDrum !== bDrum) return aDrum - bDrum;
+    const aProg = a.gmProgram ?? -1;
+    const bProg = b.gmProgram ?? -1;
+    if (aProg !== bProg) return aProg - bProg;
+    return (a.originalOrder ?? 0) - (b.originalOrder ?? 0);
+  });
+  sorted.forEach((p, i) => { p.userOrder = i; });
+  renderBankManager();
+  saveProjectBankConfig();
+  showStatus(t("bank_order_refreshed"), "ok");
+}
+
+function exportBanks(mode) {
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if (!project) return;
+  let patches = getProjectPatchEntries();
+  if (mode === "selected") {
+    patches = patches.filter(p => p.exportSelected !== false);
+  }
+  if (patches.length === 0) {
+    showStatus(t("export_nothing_selected"), "bad");
+    return;
+  }
+  exportProjectWithConfig(project, patches, mode);
 }
 
 /* ---------- Audio Engine ---------- */
@@ -1342,6 +1678,8 @@ async function addPatchEntries(entries){
     if(!entry.source) entry.source="pat";
   }
 
+  initBankFields(entries, project);   // ← tambahkan
+
   const updatedProject = {...project, patchIds: [...(project.patchIds || [])]};
   for(const entry of entries) {
     if(!updatedProject.patchIds.includes(entry.id)) updatedProject.patchIds.push(entry.id);
@@ -1353,6 +1691,7 @@ async function addPatchEntries(entries){
   if(entries.length>0) selectPatch(entries[0].id);
   else render();
   renderProjects();
+  renderBankManager();   // ← tambahkan
   return true;
 }
 
@@ -1969,7 +2308,7 @@ function generateProjectTimidityCfg(project) {
   return cfg;
 }
 
-function generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankMap) {
+function generateProjectTimidityCfgForZip(project, patchPaths, targetBankMap) {
   const patches = getProjectPatches(project);
   const melodic = patches.filter(p => (p.gmBank ?? 0) !== 128 && (p.gmProgram ?? -1) !== -1);
   const drums   = patches.filter(p => (p.gmBank ?? 0) === 128 && (p.gmProgram ?? -1) !== -1);
@@ -1979,47 +2318,107 @@ function generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankM
 
   const pathFor = (p) => {
     const pp = patchPaths.get(p.id);
-    if (pp) return pp.folderPath + pp.filename;
-    return sanitizeFilename(p.name) + ".pat";
+    return pp ? pp.folderPath + pp.filename : sanitizeFilename(p.name) + ".pat";
   };
 
-  // Melodic (folder: {seqBank}/tone/)
-  const melodicByBank = {};
-  for (const p of melodic) {
-    const b = p.gmBank ?? 0;
-    if (!melodicByBank[b]) melodicByBank[b] = [];
-    melodicByBank[b].push(p);
-  }
-  for (const origBank of Object.keys(melodicByBank).map(Number).sort((a,b)=>a-b)) {
-    const seqBank = bankMap ? (bankMap.get(origBank) ?? origBank) : origBank;
-    cfg += `bank ${seqBank}\n`;
-    for (const p of melodicByBank[origBank]) {
+  const groupByBank = (arr) => {
+    const groups = {};
+    for (const p of arr) {
+      const b = p.targetBank ?? 0;
+      (groups[b] ||= []).push(p);
+    }
+    return groups;
+  };
+
+  const melodicGroups = groupByBank(melodic);
+  for (const bank of Object.keys(melodicGroups).map(Number).sort((a,b) => a-b)) {
+    cfg += `bank ${bank}\n`;
+    for (const p of melodicGroups[bank].sort((a,b) => (a.gmProgram ?? -1) - (b.gmProgram ?? -1))) {
       cfg += `${p.gmProgram} ${pathFor(p)}\n`;
     }
     cfg += "\n";
   }
 
-  // Drums (folder: {seqDrumSet}/drum/)
-  if (drums.length > 0) {
-    const drumGroups = {};
-    for (const p of drums) {
-      const kitId = p.drumSet ?? 0;
-      if (!drumGroups[kitId]) drumGroups[kitId] = [];
-      drumGroups[kitId].push(p);
+  const drumGroups = groupByBank(drums);
+  for (const kit of Object.keys(drumGroups).map(Number).sort((a,b) => a-b)) {
+    cfg += `drumset ${kit}\n`;
+    for (const p of drumGroups[kit].sort((a,b) => (a.gmProgram ?? -1) - (b.gmProgram ?? -1))) {
+      cfg += `${p.gmProgram} ${pathFor(p)}\n`;
     }
-    const kitIds = Object.keys(drumGroups).map(Number).sort((a,b)=>a-b);
-    for (const origKit of kitIds) {
-      const seqKit = drumSetMap ? (drumSetMap.get(origKit) ?? origKit) : origKit;
-      cfg += `drumset ${seqKit}\n`;
-      for (const p of drumGroups[origKit].sort((a,b)=>a.gmProgram - b.gmProgram)) {
-        cfg += `${p.gmProgram} ${pathFor(p)}\n`;
-      }
-      cfg += "\n";
-    }
+    cfg += "\n";
   }
 
   return cfg;
 }
+
+async function exportProjectWithConfig(project, patches, mode) {
+  try {
+    const zipFiles = [];
+    const usedPaths = new Set();
+    const patchPaths = new Map();
+
+    for (const entry of patches) {
+      const clean = cleanPatchForStorage(entry.patch);
+      const bytes = writePAT(clean);
+
+      const isDrum = (entry.gmBank ?? 0) === 128;
+      const groupId = entry.targetBank ?? entry.originalOrder ?? 0;
+      const kind = isDrum ? "drum" : "tone";
+      const folderPath = `${groupId}/${kind}/`;
+
+      let filename = sanitizeFilename(entry.name) + ".pat";
+      let suffix = 1;
+      const original = filename;
+      while (usedPaths.has(folderPath + filename)) {
+        filename = original.replace(".pat", `_${suffix++}.pat`);
+      }
+      usedPaths.add(folderPath + filename);
+
+      patchPaths.set(entry.id, { folderPath, filename });
+      zipFiles.push({ name: folderPath + filename, data: bytes, entry });
+    }
+
+    zipFiles.sort((a, b) => {
+      const bankA = a.entry.targetBank ?? 0;
+      const bankB = b.entry.targetBank ?? 0;
+      if (bankA !== bankB) return bankA - bankB;
+      return (a.entry.gmProgram ?? -1) - (b.entry.gmProgram ?? -1);
+    });
+
+    const manifestData = zipFiles.map(zf => ({
+      filename: zf.name,
+      patchName: zf.entry.name,
+      gmProgram: zf.entry.gmProgram ?? -1,
+      originalOrder: zf.entry.originalOrder ?? 0,
+      userOrder: zf.entry.userOrder ?? 0,
+      targetBank: zf.entry.targetBank ?? 0,
+      description: zf.entry.patch.header.description || ""
+    }));
+    zipFiles.push({
+      name: "manifest.json",
+      data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2))
+    });
+
+    zipFiles.push({
+      name: "timidity.cfg",
+      data: new TextEncoder().encode(generateProjectTimidityCfgForZip(project, patchPaths))
+    });
+
+    const zipBytes = createZip(zipFiles);
+    const blob = new Blob([zipBytes], { type: "application/zip" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.name.replace(/[^\w\-]+/g, "_")}_${mode}.zip`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showStatus(t("export_banks_done", {count: patches.length}), "ok");
+  } catch (err) {
+    console.error(err);
+    showStatus(t("project_export_failed", {message: err.message}), "bad");
+  }
+}
+
 
 function getProjectPatchData(bank, isDrum, program, file) {
   if (!state.currentProjectId) return null;
@@ -2438,99 +2837,25 @@ function exportPatchById(id){
 }
 
 async function exportProject(projectId) {
+  // Legacy: dipanggil dari sidebar — buka dialog
   const project = state.projects.find(p => p.id === projectId);
   if (!project) return;
-  const patches = getProjectPatches(project);
-  if (patches.length === 0) {
+  if (getProjectPatchEntries().length === 0) {
     showStatus(t("empty_project"), "bad");
     return;
   }
+  state.currentProjectId = projectId;
+  openExportBanksDialog();
+}
 
-  try {
-    const zipFiles = [];
-    const usedPaths = new Set();
-    const patchPaths = new Map();
+function openExportBanksDialog() {
+  $("exportBanksError").textContent = "";
+  $("exportBanksDialog").hidden = false;
+  $("btnConfirmExportBanks").focus();
+}
 
-    // === BUAT MAPPING URUTAN (0, 1, 2, ...) ===
-    const drums = patches.filter(p => (p.gmBank ?? 0) === 128);
-    const melodic = patches.filter(p => (p.gmBank ?? 0) !== 128);
-    
-    const uniqueDrumSets = [...new Set(drums.map(p => p.drumSet ?? 0))].sort((a, b) => a - b);
-    const drumSetMap = new Map(uniqueDrumSets.map((id, idx) => [id, idx]));
-    
-    const uniqueBanks = [...new Set(melodic.map(p => p.gmBank ?? 0))].sort((a, b) => a - b);
-    const bankMap = new Map(uniqueBanks.map((id, idx) => [id, idx]));
-    // ==========================================
-
-    for (const entry of patches) {
-      const clean = cleanPatchForStorage(entry.patch);
-      const bytes = writePAT(clean);
-
-      const isDrum = (entry.gmBank ?? 0) === 128;
-      
-      // Gunakan ID berurutan dari mapping
-      const groupId = isDrum 
-        ? drumSetMap.get(entry.drumSet ?? 0) 
-        : bankMap.get(entry.gmBank ?? 0);
-        
-      const kind = isDrum ? "drum" : "tone";
-      const folderPath = `${groupId}/${kind}/`;
-
-      let filename = sanitizeFilename(entry.name) + ".pat";
-      let suffix = 1;
-      let original = filename;
-      while (usedPaths.has(folderPath + filename)) {
-        filename = original.replace(".pat", `_${suffix++}.pat`);
-      }
-      usedPaths.add(folderPath + filename);
-
-      patchPaths.set(entry.id, { folderPath, filename });
-      zipFiles.push({ name: folderPath + filename, data: bytes, entry });
-    }
-
-    zipFiles.sort((a, b) => {
-      const bankA = a.entry.gmBank ?? 0;
-      const bankB = b.entry.gmBank ?? 0;
-      if (bankA !== bankB) return bankA - bankB;
-      const progA = a.entry.gmProgram ?? -1;
-      const progB = b.entry.gmProgram ?? -1;
-      if (progA !== progB) return progA - progB;
-      return a.name.localeCompare(b.name);
-    });
-
-    const manifestData = zipFiles.map(zf => ({
-      filename: zf.name,
-      patchName: zf.entry.name,
-      gmBank: zf.entry.gmBank ?? 0,
-      gmProgram: zf.entry.gmProgram ?? -1,
-      drumSet: zf.entry.drumSet,
-      description: zf.entry.patch.header.description || ""
-    }));
-    zipFiles.push({
-      name: "manifest.json",
-      data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2))
-    });
-
-    // Kirim mapping ke fungsi timidity.cfg
-    zipFiles.push({
-      name: "timidity.cfg",
-      data: new TextEncoder().encode(generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankMap))
-    });
-
-    // ... (sisa kode createZip & download tetap sama)
-    const zipBytes = createZip(zipFiles);
-    const blob = new Blob([zipBytes], { type: "application/zip" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${project.name.replace(/[^\w\-]+/g, "_")}.zip`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showStatus(t("project_exported", {name: project.name}), "ok");
-  } catch (err) {
-    console.error(err);
-    showStatus(t("project_export_failed", {message: err.message}), "bad");
-  }
+function closeExportBanksDialog() {
+  $("exportBanksDialog").hidden = true;
 }
 
 async function exportAllPatches(){
@@ -2799,6 +3124,7 @@ function selectProject(projectId) {
   invalidateTimidityPlayer();
   renderProjects();
   renderLibrary();
+  renderBankManager();   // ← tambahkan
 
   if (state.midiData && (wasPlaying || wasPaused)) {
     setTimeout(() => {
@@ -2865,6 +3191,7 @@ function render(save=true){
   $("btnExportInst").disabled=!has;
   renderLibrary();
   renderProjects();
+  renderBankManager(); // ← TAMBAHKAN BARIS INI
   if(!has)return;
 
   const p=state.patch, samples=allSamples();
@@ -4254,6 +4581,53 @@ function bind(){
     if(v){releaseVoice(v,false);state.keyNote.delete(e.key.toLowerCase());}
   });
 
+  // === Bank Manager ===
+  $("btnExportAllBanks").addEventListener("click", () => exportBanks("all"));
+  $("btnExportSelectedBanks").addEventListener("click", () => exportBanks("selected"));
+  $("btnCompactBanks").addEventListener("click", compactBanks);
+  $("btnRefreshBankOrder").addEventListener("click", refreshBankOrder);
+  
+  // UPDATE: Hanya centang yang terfilter
+  $("bankSelectAll").addEventListener("change", e => {
+    const checked = e.target.checked;
+    const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+    if (currentPatch) {
+      const isDrum = (currentPatch.gmBank ?? 0) === 128;
+      const prog = currentPatch.gmProgram ?? -1;
+      const visibleEntries = getProjectPatchEntries().filter(p => {
+        const pIsDrum = (p.gmBank ?? 0) === 128;
+        return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+      });
+      for (const p of visibleEntries) {
+        p.exportSelected = checked;
+      }
+    }
+    renderBankManager();
+    saveProjectBankConfig();
+  });
+
+  // === Export dialog ===
+  $("btnCancelExportBanks").addEventListener("click", closeExportBanksDialog);
+  $("btnConfirmExportBanks").addEventListener("click", async () => {
+    const mode = document.querySelector('input[name="exportBanksMode"]:checked')?.value || "selected";
+    const project = state.projects.find(p => p.id === state.currentProjectId);
+    if (!project) { closeExportBanksDialog(); return; }
+    let patches = getProjectPatchEntries();
+    if (mode === "selected") patches = patches.filter(p => p.exportSelected !== false);
+    if (patches.length === 0) {
+      $("exportBanksError").textContent = t("export_nothing_selected");
+      return;
+    }
+    closeExportBanksDialog();
+    await exportProjectWithConfig(project, patches, mode);
+  });
+  $("exportBanksDialog").addEventListener("click", e => {
+    if (e.target === $("exportBanksDialog")) closeExportBanksDialog();
+  });
+  $("exportBanksDialog").addEventListener("keydown", e => {
+    if (e.key === "Escape") closeExportBanksDialog();
+  });
+
   bindCanvas();
 }
 
@@ -4280,6 +4654,17 @@ function bind(){
       if(!entry.patch||!entry.patch.instruments) entry.patch={header:{magic:MAGIC,gravisId:GRAVIS_ID,description:entry.name||"",voices:14,channels:0,waveForms:0,masterVolume:127,dataSize:0,reserved:new Uint8Array(36)},instruments:[]};
       if(!entry.id) entry.id=uid("patch");
     }
+
+    for (const entry of entries) {
+      if (typeof entry.originalOrder !== "number") {
+        entry.originalOrder = (entry.gmBank ?? 0) === 128 ? (entry.drumSet ?? 0) : (entry.gmBank ?? 0);
+      }
+      if (typeof entry.targetBank !== "number") entry.targetBank = entry.originalOrder;
+      if (typeof entry.exportSelected !== "boolean") entry.exportSelected = true;
+      // userOrder dibiarkan kosong → akan diisi oleh initBankFields per proyek
+    }
+
+
     state.patches=entries;
     
     let projectMigrationFailed = false;
@@ -4318,6 +4703,14 @@ function bind(){
         console.error("Unable to assign existing patches to a project:", err);
         projectMigrationFailed = true;
       }
+    }
+
+    // Inisialisasi field bank untuk semua proyek
+    for (const proj of state.projects) {
+      const projEntries = (proj.patchIds || [])
+        .map(id => state.patches.find(p => p.id === id))
+        .filter(Boolean);
+      initBankFields(projEntries, proj);
     }
 
     if(entries.length>0){

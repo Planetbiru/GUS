@@ -260,6 +260,27 @@
         </div>
       </section>
 
+
+      <section class="card" id="bankManagerCard" hidden>
+        <div class="subhead">
+          <h2>{{bank_management}}</h2>
+          <span class="pill" id="bankSummaryPill">—</span>
+          <div class="spacer"></div>
+          <button class="btn small" id="btnExportAllBanks"><svg class="icon"><use href="#i-download"></use></svg> {{export_all_banks}}</button>
+          <button class="btn small primary" id="btnExportSelectedBanks"><svg class="icon"><use href="#i-download"></use></svg> {{export_selected_banks}}</button>
+        </div>
+        <p class="hint" style="margin:0 0 8px">{{bank_management_hint}}</p>
+        <div class="bank-toolbar">
+          <button class="btn small" id="btnCompactBanks" title="{{compact_banks_title}}">{{compact_banks}}</button>
+          <button class="btn small" id="btnRefreshBankOrder" title="{{refresh_order_title}}">{{refresh_order}}</button>
+          <label class="check" style="margin-left:auto">
+            <input type="checkbox" id="bankSelectAll">
+            <span>{{select_all}}</span>
+          </label>
+        </div>
+        <div class="bank-list" id="bankList"></div>
+      </section>
+
       <div id="workspace" hidden>
         <section class="card">
           <h3>{{patch_properties}}</h3>
@@ -423,13 +444,17 @@
   <div id="newProjectDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="newProjectTitle">
       <div class="modal-content">
-        <h2 id="newProjectTitle">{{create_project}}</h2>
-        <div class="field">
-          <label for="newProjectName">{{project_name}}</label>
-          <input id="newProjectName" name="name" type="text" maxlength="100" autocomplete="off" placeholder="{{project_name_placeholder}}" data-i18n-placeholder="project_name_placeholder">
+        <div class="modal-header">
+          <h2 id="newProjectTitle">{{create_project}}</h2>
         </div>
-        <div id="newProjectError" class="modal-error" role="alert" aria-live="polite"></div>
-        <div class="modal-actions">
+        <div class="modal-body">
+          <div class="field">
+            <label for="newProjectName">{{project_name}}</label>
+            <input id="newProjectName" name="name" type="text" maxlength="100" autocomplete="off" placeholder="{{project_name_placeholder}}" data-i18n-placeholder="project_name_placeholder">
+          </div>
+          <div id="newProjectError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
           <button class="btn" id="btnCancelNewProject" type="button">{{cancel}}</button>
           <button class="btn primary" id="btnConfirmNewProject" type="button">{{ok_button}}</button>
         </div>
@@ -440,14 +465,18 @@
   <div id="demoProjectDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="demoProjectTitle" aria-describedby="demoProjectDescription">
       <div class="modal-content">
-        <h2 id="demoProjectTitle">{{demo_project_title}}</h2>
-        <p id="demoProjectDescription" class="modal-message">{{demo_project_prompt}}</p>
-        <div class="field" style="margin-top:14px">
-          <label for="demoProjectName">{{project_name}}</label>
-          <input id="demoProjectName" name="demo_project_name" type="text" maxlength="100" autocomplete="off" placeholder="{{project_name_placeholder}}" data-i18n-placeholder="project_name_placeholder">
+        <div class="modal-header">
+          <h2 id="demoProjectTitle">{{demo_project_title}}</h2>
         </div>
-        <div id="demoProjectError" class="modal-error" role="alert" aria-live="polite"></div>
-        <div class="modal-actions">
+        <div class="modal-body">
+          <p id="demoProjectDescription" class="modal-message">{{demo_project_prompt}}</p>
+          <div class="field" style="margin-top:14px">
+            <label for="demoProjectName">{{project_name}}</label>
+            <input id="demoProjectName" name="demo_project_name" type="text" maxlength="100" autocomplete="off" placeholder="{{project_name_placeholder}}" data-i18n-placeholder="project_name_placeholder">
+          </div>
+          <div id="demoProjectError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
           <button class="btn" id="btnCancelDemoProject" type="button">{{cancel}}</button>
           <button class="btn primary" id="btnConfirmDemoProject" type="button">{{ok_button}}</button>
         </div>
@@ -458,10 +487,14 @@
   <div id="deleteProjectDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="deleteProjectTitle" aria-describedby="deleteProjectMessage">
       <div class="modal-content">
-        <h2 id="deleteProjectTitle">{{delete_project_title}}</h2>
-        <p id="deleteProjectMessage" class="modal-message"></p>
-        <div id="deleteProjectError" class="modal-error" role="alert" aria-live="polite"></div>
-        <div class="modal-actions">
+        <div class="modal-header">
+          <h2 id="deleteProjectTitle">{{delete_project_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="deleteProjectMessage" class="modal-message"></p>
+          <div id="deleteProjectError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
           <button class="btn" id="btnCancelDeleteProject" type="button">{{cancel}}</button>
           <button class="btn danger" id="btnConfirmDeleteProject" type="button">{{delete}}</button>
         </div>
@@ -472,10 +505,14 @@
   <div id="clearLibraryDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="clearLibraryTitle" aria-describedby="clearLibraryMessage">
       <div class="modal-content">
-        <h2 id="clearLibraryTitle">{{clear_library_title}}</h2>
-        <p id="clearLibraryMessage" class="modal-message"></p>
-        <div id="clearLibraryError" class="modal-error" role="alert" aria-live="polite"></div>
-        <div class="modal-actions">
+        <div class="modal-header">
+          <h2 id="clearLibraryTitle">{{clear_library_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="clearLibraryMessage" class="modal-message"></p>
+          <div id="clearLibraryError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
           <button class="btn" id="btnCancelClearLibrary" type="button">{{cancel}}</button>
           <button class="btn danger" id="btnConfirmClearLibrary" type="button">{{clear}}</button>
         </div>
@@ -486,10 +523,14 @@
   <div id="confirmActionDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmationTitle" aria-describedby="confirmationMessage">
       <div class="modal-content">
-        <h2 id="confirmationTitle"></h2>
-        <p id="confirmationMessage" class="modal-message"></p>
-        <div id="confirmationError" class="modal-error" role="alert" aria-live="polite"></div>
-        <div class="modal-actions">
+        <div class="modal-header">
+          <h2 id="confirmationTitle"></h2>
+        </div>
+        <div class="modal-body">
+          <p id="confirmationMessage" class="modal-message"></p>
+          <div id="confirmationError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
           <button class="btn" id="btnCancelAction" type="button">{{cancel}}</button>
           <button class="btn danger" id="btnConfirmAction" type="button">{{delete}}</button>
         </div>
@@ -500,9 +541,13 @@
   <div id="alertDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage">
       <div class="modal-content">
-        <h2 id="alertTitle">{{alert_title}}</h2>
-        <p id="alertMessage" class="modal-message alert-message"></p>
-        <div class="modal-actions">
+        <div class="modal-header">
+          <h2 id="alertTitle">{{alert_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="alertMessage" class="modal-message alert-message"></p>
+        </div>
+        <div class="modal-footer">
           <button class="btn primary" id="btnCloseAlert" type="button">{{ok_button}}</button>
         </div>
       </div>
@@ -512,9 +557,13 @@
   <div id="projectRequiredDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="projectRequiredTitle" aria-describedby="projectRequiredMessage">
       <div class="modal-content">
-        <h2 id="projectRequiredTitle">{{project_required_title}}</h2>
-        <p id="projectRequiredMessage" class="modal-message">{{project_required_message}}</p>
-        <div class="modal-actions">
+        <div class="modal-header">
+          <h2 id="projectRequiredTitle">{{project_required_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="projectRequiredMessage" class="modal-message">{{project_required_message}}</p>
+        </div>
+        <div class="modal-footer">
           <button class="btn" id="btnCloseProjectRequired" type="button">{{choose_project}}</button>
           <button class="btn primary" id="btnCreateProjectFromRequired" type="button">{{create_project}}</button>
         </div>
@@ -525,25 +574,29 @@
   <div id="addPatchDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="addPatchTitle">
       <div class="modal-content">
-        <h2 id="addPatchTitle">{{add_patch_title}}</h2>
-        <p class="modal-message">{{add_patch_message}}</p>
-        <div class="field add-patch-choice">
-          <button class="btn" id="btnChooseProjectPatchFile" type="button">{{open_pat_file}}</button>
+        <div class="modal-header">
+          <h2 id="addPatchTitle">{{add_patch_title}}</h2>
         </div>
-        <div class="add-patch-divider">{{or_separator}}</div>
-        <div class="field">
-          <label for="patchGeneratorType">{{instrument_type}}</label>
-          <select id="patchGeneratorType">
-            <option value="melodic">{{non_drum}}</option>
-            <option value="drum">{{drum}}</option>
-          </select>
+        <div class="modal-body">
+          <p class="modal-message">{{add_patch_message}}</p>
+          <div class="field add-patch-choice">
+            <button class="btn" id="btnChooseProjectPatchFile" type="button">{{open_pat_file}}</button>
+          </div>
+          <div class="add-patch-divider">{{or_separator}}</div>
+          <div class="field">
+            <label for="patchGeneratorType">{{instrument_type}}</label>
+            <select id="patchGeneratorType">
+              <option value="melodic">{{non_drum}}</option>
+              <option value="drum">{{drum}}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="patchGeneratorProgram">{{instrument_program}}</label>
+            <select id="patchGeneratorProgram"></select>
+          </div>
+          <div id="addPatchError" class="modal-error" role="alert" aria-live="polite"></div>
         </div>
-        <div class="field">
-          <label for="patchGeneratorProgram">{{instrument_program}}</label>
-          <select id="patchGeneratorProgram"></select>
-        </div>
-        <div id="addPatchError" class="modal-error" role="alert" aria-live="polite"></div>
-        <div class="modal-actions">
+        <div class="modal-footer">
           <button class="btn" id="btnCancelAddPatch" type="button">{{cancel}}</button>
           <button class="btn primary" id="btnGenerateProjectPatch" type="button">{{generate_patch}}</button>
         </div>
@@ -554,72 +607,101 @@
   <div id="addSampleDialog" class="modal-overlay" hidden>
     <section class="modal-panel sample-modal-panel" role="dialog" aria-modal="true" aria-labelledby="addSampleTitle">
       <div class="modal-content">
-        <div class="subhead">
+        <div class="modal-header">
           <h2 id="addSampleTitle">{{add_sample_title}}</h2>
-          <div class="spacer"></div>
           <button class="icon-btn" id="btnCloseAddSample" type="button" aria-label="{{close}}" data-i18n-aria-label="close">
             <svg class="icon"><use href="#i-close"></use></svg>
           </button>
         </div>
-        <div class="sample-source-grid">
-          <section class="sample-source-card">
-            <h3>{{sample_from_file}}</h3>
-            <p class="hint">{{sample_file_hint}}</p>
-            <input id="addSampleFile" type="file" accept=".wav,.mp3,audio/wav,audio/mpeg" hidden>
-            <button class="btn primary" id="btnChooseSampleFile" type="button">{{choose_audio_file}}</button>
-            <div id="addSampleFileName" class="sample-source-status" aria-live="polite"></div>
-          </section>
-          <section class="sample-source-card">
-            <h3>{{sample_from_microphone}}</h3>
-            <p class="hint">{{sample_microphone_hint}}</p>
-            <div class="sample-record-controls">
-              <button class="btn primary" id="btnStartSampleRecording" type="button">{{start_recording}}</button>
-              <button class="btn danger" id="btnStopSampleRecording" type="button" disabled>{{stop_recording}}</button>
-              <span id="addSampleRecordingTimer" class="pill">00:00</span>
+        <div class="modal-body">
+          <div class="sample-source-grid">
+            <section class="sample-source-card">
+              <h3>{{sample_from_file}}</h3>
+              <p class="hint">{{sample_file_hint}}</p>
+              <input id="addSampleFile" type="file" accept=".wav,.mp3,audio/wav,audio/mpeg" hidden>
+              <button class="btn primary" id="btnChooseSampleFile" type="button">{{choose_audio_file}}</button>
+              <div id="addSampleFileName" class="sample-source-status" aria-live="polite"></div>
+            </section>
+            <section class="sample-source-card">
+              <h3>{{sample_from_microphone}}</h3>
+              <p class="hint">{{sample_microphone_hint}}</p>
+              <div class="sample-record-controls">
+                <button class="btn primary" id="btnStartSampleRecording" type="button">{{start_recording}}</button>
+                <button class="btn danger" id="btnStopSampleRecording" type="button" disabled>{{stop_recording}}</button>
+                <span id="addSampleRecordingTimer" class="pill">00:00</span>
+              </div>
+              <div id="addSampleRecordingStatus" class="sample-source-status" aria-live="polite"></div>
+            </section>
+          </div>
+
+          <div id="addSamplePreview" class="sample-preview" hidden>
+            <h3>{{sample_auto_parameters}}</h3>
+            <div class="grid g6">
+              <div class="field"><label for="addSampleName">{{wave_name_7}}</label><input id="addSampleName" maxlength="7"></div>
+              <div class="field"><label for="addSampleRate">{{sample_rate_label}}</label><input id="addSampleRate" type="number" min="1" max="65535"></div>
+              <div class="field"><label>{{sample_duration}}</label><output id="addSampleDuration"></output></div>
+              <div class="field"><label for="addSampleRoot">{{root_frequency_label}}</label><input id="addSampleRoot" type="number" min="0"></div>
+              <div class="field"><label for="addSampleBalance">{{panning_range}}</label><input id="addSampleBalance" type="number" min="0" max="15"></div>
+              <div class="field"><label for="addSampleLow">{{low_frequency_label}}</label><input id="addSampleLow" type="number" min="0"></div>
+              <div class="field"><label for="addSampleHigh">{{high_frequency_label}}</label><input id="addSampleHigh" type="number" min="0"></div>
+              <div class="field"><label for="addSampleLoopStart">{{loop_start_samples}}</label><input id="addSampleLoopStart" type="number" min="0"></div>
+              <div class="field"><label for="addSampleLoopEnd">{{loop_end_samples}}</label><input id="addSampleLoopEnd" type="number" min="0"></div>
+              <div class="field"><label for="addSampleFractions">{{fractions_label}}</label><input id="addSampleFractions" type="number" min="0" max="255"></div>
+              <div class="field"><label for="addSampleTune">{{tune_label}}</label><input id="addSampleTune" type="number" min="0" max="65535"></div>
+              <div class="field"><label for="addSampleScaleFreq">{{scale_frequency_label}}</label><input id="addSampleScaleFreq" type="number" min="0" max="65535"></div>
+              <div class="field"><label for="addSampleScaleFactor">{{scale_factor_label}}</label><input id="addSampleScaleFactor" type="number" min="0" max="65535"></div>
             </div>
-            <div id="addSampleRecordingStatus" class="sample-source-status" aria-live="polite"></div>
-          </section>
-        </div>
-
-        <div id="addSamplePreview" class="sample-preview" hidden>
-          <h3>{{sample_auto_parameters}}</h3>
-          <div class="grid g6">
-            <div class="field"><label for="addSampleName">{{wave_name_7}}</label><input id="addSampleName" maxlength="7"></div>
-            <div class="field"><label for="addSampleRate">{{sample_rate_label}}</label><input id="addSampleRate" type="number" min="1" max="65535"></div>
-            <div class="field"><label>{{sample_duration}}</label><output id="addSampleDuration"></output></div>
-            <div class="field"><label for="addSampleRoot">{{root_frequency_label}}</label><input id="addSampleRoot" type="number" min="0"></div>
-            <div class="field"><label for="addSampleBalance">{{panning_range}}</label><input id="addSampleBalance" type="number" min="0" max="15"></div>
-            <div class="field"><label for="addSampleLow">{{low_frequency_label}}</label><input id="addSampleLow" type="number" min="0"></div>
-            <div class="field"><label for="addSampleHigh">{{high_frequency_label}}</label><input id="addSampleHigh" type="number" min="0"></div>
-            <div class="field"><label for="addSampleLoopStart">{{loop_start_samples}}</label><input id="addSampleLoopStart" type="number" min="0"></div>
-            <div class="field"><label for="addSampleLoopEnd">{{loop_end_samples}}</label><input id="addSampleLoopEnd" type="number" min="0"></div>
-            <div class="field"><label for="addSampleFractions">{{fractions_label}}</label><input id="addSampleFractions" type="number" min="0" max="255"></div>
-            <div class="field"><label for="addSampleTune">{{tune_label}}</label><input id="addSampleTune" type="number" min="0" max="65535"></div>
-            <div class="field"><label for="addSampleScaleFreq">{{scale_frequency_label}}</label><input id="addSampleScaleFreq" type="number" min="0" max="65535"></div>
-            <div class="field"><label for="addSampleScaleFactor">{{scale_factor_label}}</label><input id="addSampleScaleFactor" type="number" min="0" max="65535"></div>
+            <h3>{{envelope_rates}}</h3>
+            <div class="grid g6" id="addSampleRates"></div>
+            <h3>{{envelope_offsets}}</h3>
+            <div class="grid g6" id="addSampleOffsets"></div>
+            <h3>{{tremolo_vibrato}}</h3>
+            <div class="grid g6">
+              <div class="field"><label for="addSampleTremSweep">{{trem_sweep_label}}</label><input id="addSampleTremSweep" type="number" min="0" max="255"></div>
+              <div class="field"><label for="addSampleTremRate">{{trem_rate_label}}</label><input id="addSampleTremRate" type="number" min="0" max="255"></div>
+              <div class="field"><label for="addSampleTremDepth">{{trem_depth_label}}</label><input id="addSampleTremDepth" type="number" min="0" max="255"></div>
+              <div class="field"><label for="addSampleVibSweep">{{vib_sweep_label}}</label><input id="addSampleVibSweep" type="number" min="0" max="255"></div>
+              <div class="field"><label for="addSampleVibRate">{{vib_rate_label}}</label><input id="addSampleVibRate" type="number" min="0" max="255"></div>
+              <div class="field"><label for="addSampleVibDepth">{{vib_depth_label}}</label><input id="addSampleVibDepth" type="number" min="0" max="255"></div>
+            </div>
+            <h3>{{sample_modes}}</h3>
+            <div class="check-row" id="addSampleModes"></div>
+            <p class="hint">{{sample_envelope_estimate_hint}}</p>
           </div>
-          <h3>{{envelope_rates}}</h3>
-          <div class="grid g6" id="addSampleRates"></div>
-          <h3>{{envelope_offsets}}</h3>
-          <div class="grid g6" id="addSampleOffsets"></div>
-          <h3>{{tremolo_vibrato}}</h3>
-          <div class="grid g6">
-            <div class="field"><label for="addSampleTremSweep">{{trem_sweep_label}}</label><input id="addSampleTremSweep" type="number" min="0" max="255"></div>
-            <div class="field"><label for="addSampleTremRate">{{trem_rate_label}}</label><input id="addSampleTremRate" type="number" min="0" max="255"></div>
-            <div class="field"><label for="addSampleTremDepth">{{trem_depth_label}}</label><input id="addSampleTremDepth" type="number" min="0" max="255"></div>
-            <div class="field"><label for="addSampleVibSweep">{{vib_sweep_label}}</label><input id="addSampleVibSweep" type="number" min="0" max="255"></div>
-            <div class="field"><label for="addSampleVibRate">{{vib_rate_label}}</label><input id="addSampleVibRate" type="number" min="0" max="255"></div>
-            <div class="field"><label for="addSampleVibDepth">{{vib_depth_label}}</label><input id="addSampleVibDepth" type="number" min="0" max="255"></div>
-          </div>
-          <h3>{{sample_modes}}</h3>
-          <div class="check-row" id="addSampleModes"></div>
-          <p class="hint">{{sample_envelope_estimate_hint}}</p>
-        </div>
 
-        <div id="addSampleError" class="modal-error" role="alert" aria-live="polite"></div>
-        <div class="modal-actions">
+          <div id="addSampleError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
           <button class="btn" id="btnCancelAddSample" type="button">{{cancel}}</button>
           <button class="btn primary" id="btnConfirmAddSample" type="button" disabled>{{add_sample}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="exportBanksDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="exportBanksTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="exportBanksTitle">{{export_dialog_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p class="modal-message">{{export_dialog_hint}}</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <label class="check" style="justify-content:flex-start">
+              <input type="radio" name="exportBanksMode" value="selected" checked>
+              <span id="exportSelectedLabel">{{export_selected_only}}</span>
+            </label>
+            <label class="check" style="justify-content:flex-start">
+              <input type="radio" name="exportBanksMode" value="all">
+              <span>{{export_all_banks_desc}}</span>
+            </label>
+          </div>
+          <div id="exportBanksError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="btnCancelExportBanks" type="button">{{cancel}}</button>
+          <button class="btn primary" id="btnConfirmExportBanks" type="button">{{export}}</button>
         </div>
       </div>
     </section>
