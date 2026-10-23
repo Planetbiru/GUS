@@ -3089,6 +3089,30 @@ function renderLibrary(filterProjectId = undefined) {
     }
   }
 
+  // === TAMBAHKAN LOGIKA SORTING DI SINI ===
+  displayPatches = [...displayPatches].sort((a, b) => {
+    // 1. Melodi (0) selalu di atas Drum (1)
+    const aIsDrum = (a.gmBank ?? 0) === 128 ? 1 : 0;
+    const bIsDrum = (b.gmBank ?? 0) === 128 ? 1 : 0;
+    if (aIsDrum !== bIsDrum) return aIsDrum - bIsDrum;
+
+    // 2. Jika sama-sama Drum, kelompokkan berdasarkan Drum Set (drumSet)
+    if (aIsDrum === 1) {
+      const aSet = a.drumSet ?? 0;
+      const bSet = b.drumSet ?? 0;
+      if (aSet !== bSet) return aSet - bSet;
+    }
+
+    // 3. Urutkan berdasarkan Nomor Program (atau MIDI Note untuk drum)
+    const aProg = a.gmProgram ?? -1;
+    const bProg = b.gmProgram ?? -1;
+    if (aProg !== bProg) return aProg - bProg;
+
+    // 4. Pengaman jika masih sama, urutkan berdasarkan nama (A-Z)
+    return (a.name || "").localeCompare(b.name || "");
+  });
+  // ========================================
+
   const list = $("patchList");
   list.innerHTML = "";
   $("libCount").textContent = displayPatches.length;
@@ -3106,9 +3130,19 @@ function renderLibrary(filterProjectId = undefined) {
     d.className = "li" + (entry.id === state.currentPatchId ? " active" : "");
     const totalSamples = entry.patch.instruments.reduce((a, i) => a + i.layers.reduce((b, l) => b + l.samples.length, 0), 0);
     
+    // === PERBAIKAN LOGIKA DUPLIKAT ===
     const isDupe = entry.gmProgram !== -1 && entry.gmProgram !== undefined && 
-                   state.patches.filter(p => p.gmProgram === entry.gmProgram && p.gmBank === entry.gmBank).length > 1;
-    
+                   state.patches.filter(p => {
+                     if (p.gmBank !== entry.gmBank) return false;
+                     if (p.gmProgram !== entry.gmProgram) return false;
+                     // Jika ini adalah drum, pastikan ia juga berada di Drum Set yang sama
+                     if ((entry.gmBank ?? 0) === 128) {
+                       return (p.drumSet ?? 0) === (entry.drumSet ?? 0);
+                     }
+                     return true;
+                   }).length > 1;
+    // ==================================
+
     const gmInfo = entry.gmProgram !== -1 && entry.gmProgram !== undefined ? `GM #${entry.gmProgram}` : '';
     const dupeBadge = isDupe ? `<span class="tag" style="color:#f59e0b;border-color:#78350f;margin-right:4px;display:inline-flex;align-items:center;" title="${t("duplicate")}"><svg class="icon" style="width:10px;height:10px;"><use href="#i-warning"></use></svg></span>` : '';
 
