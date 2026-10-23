@@ -183,6 +183,10 @@ let pendingConfirmationAction = null;
 let activeAlert = null;
 const queuedAlerts = [];
 let projectPatchGenerator = null;
+let addSampleTarget = null;
+let pendingSampleDraft = null;
+let sampleRecording = null;
+let sampleImportGeneration = 0;
 
 /* ---------- Utilitas ---------- */
 function decodeAscii(b){let s="";for(let i=0;i<b.length;i++){if(b[i]===0)break;s+=String.fromCharCode(b[i]);}return s.replace(/\s+$/,"");}
@@ -328,7 +332,11 @@ function cleanEntryForStorage(entry){
     source: entry.source||"pat", 
     gmProgram: entry.gmProgram ?? -1,
     gmBank: entry.gmBank ?? 0,
-    drumSet: entry.drumSet ?? (entry.gmBank === 128 ? 0 : undefined),   // ← TAMBAHKAN
+    drumSet: entry.drumSet ?? (entry.gmBank === 128 ? 0 : undefined),
+    originalOrder: entry.originalOrder ?? 0,
+    userOrder: entry.userOrder ?? 0,
+    targetBank: entry.targetBank ?? 0,
+    exportSelected: entry.exportSelected !== false,
     patch: cleanPatchForStorage(entry.patch) 
   };
 }
@@ -951,6 +959,7 @@ function sf2ToGusPatches(sf2, fileName){
       gmProgram: note,     // ← pakai NOTE sebagai "program" untuk lookup
       gmBank: 128,         // ← tandai sebagai drum
       drumSet: preset.preset,   // ← TAMBAHKAN BARIS INI
+      originalOrder: preset.preset,   // ← tambahkan
       patch: drumPatch
     });
   }
@@ -975,11 +984,366 @@ function sf2ToGusPatches(sf2, fileName){
       source: "sf2:"+fileName,
       gmProgram: preset.preset,
       gmBank: preset.bank,
+      originalOrder: preset.bank,     // ← tambahkan
       patch
     });
   }
 }
   return entries;
+}
+
+/* ---------- Bank Management ---------- */
+function initBankFields(entries, project) {
+  const existing = (project.patchIds || [])
+    .map(id => state.patches.find(p => p.id === id))
+    .filter(Boolean);
+  const all = [...existing, ...entries];
+
+  for (const p of all) {
+    if (typeof p.originalOrder !== "number") {
+      p.originalOrder = (p.gmBank ?? 0) === 128 ? (p.drumSet ?? 0) : (p.gmBank ?? 0);
+    }
+    if (typeof p.targetBank !== "number") p.targetBank = p.originalOrder;
+    if (typeof p.exportSelected !== "boolean") p.exportSelected = true;
+  }
+
+  const withoutOrder = all.filter(p => typeof p.userOrder !== "number");
+  if (withoutOrder.length > 0) {
+    withoutOrder.sort((a, b) => {
+      const aDrum = (a.gmBank ?? 0) === 128 ? 1 : 0;
+      const bDrum = (b.gmBank ?? 0) === 128 ? 1 : 0;
+      if (aDrum !== bDrum) return aDrum - bDrum;
+      const aProg = a.gmProgram ?? -1;
+      const bProg = b.gmProgram ?? -1;
+      if (aProg !== bProg) return aProg - bProg;
+      return (a.originalOrder ?? 0) - (b.originalOrder ?? 0);
+    });
+    const existingOrders = all.filter(p => typeof p.userOrder === "number").map(p => p.userOrder);
+    let next = existingOrders.length > 0 ? Math.max(...existingOrders) + 1 : 0;
+    for (const p of withoutOrder) p.userOrder = next++;
+  }
+}
+
+function getProjectPatchEntries() {
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if (!project) return [];
+  return project.patchIds
+    .map(id => state.patches.find(p => p.id === id))
+    .filter(Boolean)
+    .sort((a, b) => (a.userOrder ?? 0) - (b.userOrder ?? 0));
+}
+
+function renderBankManager() {
+  const card = $("bankManagerCard");
+  if (!card) return;
+  
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+
+  // Sembunyikan jika tidak ada proyek atau tidak ada patch yang dipilih
+  if (!project || !currentPatch) {
+    card.hidden = true;
+    return;
+  }
+
+  // Tentukan filter berdasarkan patch yang sedang dipilih
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+
+  // Ambil semua patch di proyek, lalu filter berdasarkan Program & Tipe
+  let entries = getProjectPatchEntries().filter(p => {
+    const pIsDrum = (p.gmBank ?? 0) === 128;
+    return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+  });
+
+  if (entries.length === 0) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+
+  const selectedCount = entries.filter(p => p.exportSelected !== false).length;
+  $("bankSummaryPill").textContent = t("bank_filtered_summary", {
+    count: entries.length,
+    selected: selectedCount
+  });
+  $("bankSelectAll").checked = selectedCount === entries.length;
+  $("exportSelectedLabel").textContent = t("export_selected_only") + ` (${selectedCount})`;
+
+  // Tampilkan info filter di judul
+  const typeLabel = isDrum ? t("drum") : t("non_drum");
+  const titleEl = card.querySelector("h2");
+  let titleText = t("bank_management");
+  if (currentPatch) {
+    titleText += " - " + t("bank_filter_active", { program: prog, type: typeLabel });
+  }
+  titleEl.textContent = titleText;
+
+  const list = $("bankList");
+  list.innerHTML = "";
+
+  let lastType = null;
+  for (const p of entries) {
+    const rowIsDrum = (p.gmBank ?? 0) === 128;
+    const typeKey = rowIsDrum ? "drum" : "melodic";
+    
+    if (typeKey !== lastType) {
+      const header = document.createElement("div");
+      header.className = "bank-group-header";
+      header.textContent = rowIsDrum ? t("drum") : t("non_drum");
+      list.appendChild(header);
+      lastType = typeKey;
+    }
+
+    const row = document.createElement("div");
+    row.className = "bank-row" + (p.exportSelected === false ? " disabled" : "");
+    row.draggable = true;
+    row.dataset.id = p.id;
+    const targetChanged = (p.targetBank ?? 0) !== (p.originalOrder ?? 0);
+    
+    row.innerHTML = `
+      <input type="checkbox" data-act="select" ${p.exportSelected !== false ? "checked" : ""} aria-label="${t("export_selected_only")}">
+      <span class="bank-handle" title="${t("drag_to_reorder")}">☰</span>
+      <span class="bank-type ${typeKey}">${rowIsDrum ? "D" : "M"}</span>
+      <span class="bank-program">${String(p.gmProgram ?? -1).padStart(3, "0")}</span>
+      <span class="bank-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</span>
+      <span class="bank-original" title="${t("original_order")}">${p.originalOrder ?? 0}</span>
+      <span class="bank-order" title="${t("user_order")}">${p.userOrder ?? 0}</span>
+      <input type="number" class="bank-target${targetChanged ? " changed" : ""}" data-act="target"
+             min="0" max="999" value="${p.targetBank ?? 0}" title="${t("target_bank")}" aria-label="${t("target_bank")}">
+    `;
+    list.appendChild(row);
+  }
+
+  bindBankManagerEvents(list);
+}
+
+// Update Drag & Drop agar hanya menukar urutan antar item yang terlihat (satu program)
+function updateUserOrderFromDom(list) {
+  const rows = Array.from(list.querySelectorAll(".bank-row"));
+  const visiblePatches = rows.map(r => state.patches.find(p => p.id === r.dataset.id)).filter(Boolean);
+
+  // Ekstrak nilai userOrder yang ada, lalu urutkan
+  const orders = visiblePatches.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  // Terapkan kembali ke patch sesuai urutan DOM yang baru
+  visiblePatches.forEach((p, i) => {
+    p.userOrder = orders[i];
+    const orderEl = rows[i].querySelector(".bank-order");
+    if (orderEl) orderEl.textContent = p.userOrder;
+  });
+
+  saveProjectBankConfig();
+}
+
+// Perbarui fungsi refresh agar hanya mereset urutan pada program yang sedang aktif
+function refreshBankOrder() {
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+  if (!currentPatch) return;
+
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+
+  const entries = getProjectPatchEntries().filter(p =>
+    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
+  );
+
+  const sorted = [...entries].sort((a, b) => (a.originalOrder ?? 0) - (b.originalOrder ?? 0));
+  const orders = entries.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  sorted.forEach((p, i) => { p.userOrder = orders[i]; });
+  renderBankManager();
+  saveProjectBankConfig();
+  showStatus(t("bank_order_refreshed"), "ok");
+}
+
+let bankDragSource = null;
+
+let bankConfigSaveTimer = null;
+let pendingBankConfigPatches = new Set();
+
+function scheduleBankConfigSave(patch) {
+  if (patch) pendingBankConfigPatches.add(patch);
+  
+  if (bankConfigSaveTimer) clearTimeout(bankConfigSaveTimer);
+  bankConfigSaveTimer = setTimeout(async () => {
+    const entries = Array.from(pendingBankConfigPatches);
+    pendingBankConfigPatches.clear();
+    
+    if (entries.length === 0) return;
+    
+    try {
+      // Menggunakan dbPutMany langsung ke STORE (patch) tanpa menulis ulang data proyek
+      await dbPutMany(STORE, entries.map(cleanEntryForStorage));
+    } catch (err) {
+      console.error("Save bank config failed:", err);
+    }
+  }, 500); // Tunda 500ms agar UI tidak terblokir saat drag/klik cepat
+}
+
+function bindBankManagerEvents(list) {
+  // Avoid duplicate listeners
+  if (list.dataset.bound === "1") return;
+  list.dataset.bound = "1";
+
+  list.addEventListener("dragstart", e => {
+    const row = e.target.closest(".bank-row");
+    if (!row) return;
+    bankDragSource = row;
+    row.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+    try { e.dataTransfer.setData("text/plain", row.dataset.id); } catch (_) {}
+  });
+
+  list.addEventListener("dragend", e => {
+    const row = e.target.closest(".bank-row");
+    if (row) row.classList.remove("dragging");
+    list.querySelectorAll(".bank-row.drag-over").forEach(r => r.classList.remove("drag-over"));
+    bankDragSource = null;
+  });
+
+  list.addEventListener("dragover", e => {
+    e.preventDefault();
+    const row = e.target.closest(".bank-row");
+    if (!row || row === bankDragSource) return;
+    e.dataTransfer.dropEffect = "move";
+    list.querySelectorAll(".bank-row.drag-over").forEach(r => r !== row && r.classList.remove("drag-over"));
+    row.classList.add("drag-over");
+  });
+
+  list.addEventListener("dragleave", e => {
+    const row = e.target.closest(".bank-row");
+    if (row) row.classList.remove("drag-over");
+  });
+
+  list.addEventListener("drop", e => {
+    e.preventDefault();
+    const target = e.target.closest(".bank-row");
+    if (!target || !bankDragSource || target === bankDragSource) return;
+    target.classList.remove("drag-over");
+
+    const rect = target.getBoundingClientRect();
+    const after = e.clientY > rect.top + rect.height / 2;
+    list.insertBefore(bankDragSource, after ? target.nextSibling : target);
+
+    updateUserOrderFromDom(list);
+  });
+
+  list.addEventListener("change", e => {
+    const row = e.target.closest(".bank-row");
+    if (!row) return;
+    const patch = state.patches.find(p => p.id === row.dataset.id);
+    if (!patch) return;
+
+    if (e.target.dataset.act === "select") {
+      patch.exportSelected = e.target.checked;
+      row.classList.toggle("disabled", !patch.exportSelected);
+      scheduleBankConfigSave(patch); // ← Gunakan fungsi debounce
+    } else if (e.target.dataset.act === "target") {
+      patch.targetBank = clamp(parseInt(e.target.value, 10) || 0, 0, 999);
+      e.target.value = patch.targetBank;
+      e.target.classList.toggle("changed", patch.targetBank !== (patch.originalOrder ?? 0));
+      scheduleBankConfigSave(patch); // ← Gunakan fungsi debounce
+    }
+
+    // Update ringkasan berdasarkan item yang SEDANG DIFILTER
+    const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+    if (currentPatch) {
+      const isDrum = (currentPatch.gmBank ?? 0) === 128;
+      const prog = currentPatch.gmProgram ?? -1;
+      const visibleEntries = getProjectPatchEntries().filter(p => {
+        const pIsDrum = (p.gmBank ?? 0) === 128;
+        return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+      });
+      const selectedCount = visibleEntries.filter(p => p.exportSelected !== false).length;
+      
+      $("bankSummaryPill").textContent = t("bank_filtered_summary", {count: visibleEntries.length, selected: selectedCount});
+      $("bankSelectAll").checked = selectedCount === visibleEntries.length;
+      $("exportSelectedLabel").textContent = t("export_selected_only") + ` (${selectedCount})`;
+    }
+  });
+}
+
+function updateUserOrderFromDom(list) {
+  const rows = Array.from(list.querySelectorAll(".bank-row"));
+  const visiblePatches = rows.map(r => state.patches.find(p => p.id === r.dataset.id)).filter(Boolean);
+  const orders = visiblePatches.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  visiblePatches.forEach((p, i) => {
+    p.userOrder = orders[i];
+    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+    const orderEl = rows[i].querySelector(".bank-order");
+    if (orderEl) orderEl.textContent = p.userOrder;
+  });
+}
+
+async function saveProjectBankConfig() {
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if (!project) return;
+  const entries = project.patchIds
+    .map(id => state.patches.find(p => p.id === id))
+    .filter(Boolean);
+  try {
+    await dbSaveProjectAndPatches(project, entries);
+  } catch (err) {
+    console.error("Save bank config failed:", err);
+  }
+}
+
+function refreshBankOrder() {
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+  if (!currentPatch) return;
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+  const entries = getProjectPatchEntries().filter(p =>
+    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
+  );
+
+  const sorted = [...entries].sort((a, b) => (a.originalOrder ?? 0) - (b.originalOrder ?? 0));
+  const orders = entries.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+  sorted.forEach((p, i) => { 
+    p.userOrder = orders[i]; 
+    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+  });
+  
+  renderBankManager();
+  showStatus(t("bank_order_refreshed"), "ok");
+}
+
+function compactBanks() {
+  const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+  if (!currentPatch) return;
+  const isDrum = (currentPatch.gmBank ?? 0) === 128;
+  const prog = currentPatch.gmProgram ?? -1;
+  const entries = getProjectPatchEntries().filter(p =>
+    ((p.gmBank ?? 0) === 128) === isDrum && (p.gmProgram ?? -1) === prog
+  );
+
+  const uniq = [...new Set(entries.map(p => p.originalOrder ?? 0))].sort((a, b) => a - b);
+  const map = new Map(uniq.map((v, i) => [v, i]));
+  
+  for (const p of entries) {
+    p.targetBank = map.get(p.originalOrder ?? 0) ?? 0;
+    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+  }
+
+  renderBankManager();
+  showStatus(t("bank_compacted"), "ok");
+}
+
+function exportBanks(mode) {
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if (!project) return;
+  let patches = getProjectPatchEntries();
+  if (mode === "selected") {
+    patches = patches.filter(p => p.exportSelected !== false);
+  }
+  if (patches.length === 0) {
+    showStatus(t("export_nothing_selected"), "bad");
+    return;
+  }
+  exportProjectWithConfig(project, patches, mode);
 }
 
 /* ---------- Audio Engine ---------- */
@@ -1338,6 +1702,8 @@ async function addPatchEntries(entries){
     if(!entry.source) entry.source="pat";
   }
 
+  initBankFields(entries, project);   // ← tambahkan
+
   const updatedProject = {...project, patchIds: [...(project.patchIds || [])]};
   for(const entry of entries) {
     if(!updatedProject.patchIds.includes(entry.id)) updatedProject.patchIds.push(entry.id);
@@ -1349,6 +1715,7 @@ async function addPatchEntries(entries){
   if(entries.length>0) selectPatch(entries[0].id);
   else render();
   renderProjects();
+  renderBankManager();   // ← tambahkan
   return true;
 }
 
@@ -1965,7 +2332,7 @@ function generateProjectTimidityCfg(project) {
   return cfg;
 }
 
-function generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankMap) {
+function generateProjectTimidityCfgForZip(project, patchPaths, targetBankMap) {
   const patches = getProjectPatches(project);
   const melodic = patches.filter(p => (p.gmBank ?? 0) !== 128 && (p.gmProgram ?? -1) !== -1);
   const drums   = patches.filter(p => (p.gmBank ?? 0) === 128 && (p.gmProgram ?? -1) !== -1);
@@ -1975,47 +2342,107 @@ function generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankM
 
   const pathFor = (p) => {
     const pp = patchPaths.get(p.id);
-    if (pp) return pp.folderPath + pp.filename;
-    return sanitizeFilename(p.name) + ".pat";
+    return pp ? pp.folderPath + pp.filename : sanitizeFilename(p.name) + ".pat";
   };
 
-  // Melodic (folder: {seqBank}/tone/)
-  const melodicByBank = {};
-  for (const p of melodic) {
-    const b = p.gmBank ?? 0;
-    if (!melodicByBank[b]) melodicByBank[b] = [];
-    melodicByBank[b].push(p);
-  }
-  for (const origBank of Object.keys(melodicByBank).map(Number).sort((a,b)=>a-b)) {
-    const seqBank = bankMap ? (bankMap.get(origBank) ?? origBank) : origBank;
-    cfg += `bank ${seqBank}\n`;
-    for (const p of melodicByBank[origBank]) {
+  const groupByBank = (arr) => {
+    const groups = {};
+    for (const p of arr) {
+      const b = p.targetBank ?? 0;
+      (groups[b] ||= []).push(p);
+    }
+    return groups;
+  };
+
+  const melodicGroups = groupByBank(melodic);
+  for (const bank of Object.keys(melodicGroups).map(Number).sort((a,b) => a-b)) {
+    cfg += `bank ${bank}\n`;
+    for (const p of melodicGroups[bank].sort((a,b) => (a.gmProgram ?? -1) - (b.gmProgram ?? -1))) {
       cfg += `${p.gmProgram} ${pathFor(p)}\n`;
     }
     cfg += "\n";
   }
 
-  // Drums (folder: {seqDrumSet}/drum/)
-  if (drums.length > 0) {
-    const drumGroups = {};
-    for (const p of drums) {
-      const kitId = p.drumSet ?? 0;
-      if (!drumGroups[kitId]) drumGroups[kitId] = [];
-      drumGroups[kitId].push(p);
+  const drumGroups = groupByBank(drums);
+  for (const kit of Object.keys(drumGroups).map(Number).sort((a,b) => a-b)) {
+    cfg += `drumset ${kit}\n`;
+    for (const p of drumGroups[kit].sort((a,b) => (a.gmProgram ?? -1) - (b.gmProgram ?? -1))) {
+      cfg += `${p.gmProgram} ${pathFor(p)}\n`;
     }
-    const kitIds = Object.keys(drumGroups).map(Number).sort((a,b)=>a-b);
-    for (const origKit of kitIds) {
-      const seqKit = drumSetMap ? (drumSetMap.get(origKit) ?? origKit) : origKit;
-      cfg += `drumset ${seqKit}\n`;
-      for (const p of drumGroups[origKit].sort((a,b)=>a.gmProgram - b.gmProgram)) {
-        cfg += `${p.gmProgram} ${pathFor(p)}\n`;
-      }
-      cfg += "\n";
-    }
+    cfg += "\n";
   }
 
   return cfg;
 }
+
+async function exportProjectWithConfig(project, patches, mode) {
+  try {
+    const zipFiles = [];
+    const usedPaths = new Set();
+    const patchPaths = new Map();
+
+    for (const entry of patches) {
+      const clean = cleanPatchForStorage(entry.patch);
+      const bytes = writePAT(clean);
+
+      const isDrum = (entry.gmBank ?? 0) === 128;
+      const groupId = entry.targetBank ?? entry.originalOrder ?? 0;
+      const kind = isDrum ? "drum" : "tone";
+      const folderPath = `${groupId}/${kind}/`;
+
+      let filename = sanitizeFilename(entry.name) + ".pat";
+      let suffix = 1;
+      const original = filename;
+      while (usedPaths.has(folderPath + filename)) {
+        filename = original.replace(".pat", `_${suffix++}.pat`);
+      }
+      usedPaths.add(folderPath + filename);
+
+      patchPaths.set(entry.id, { folderPath, filename });
+      zipFiles.push({ name: folderPath + filename, data: bytes, entry });
+    }
+
+    zipFiles.sort((a, b) => {
+      const bankA = a.entry.targetBank ?? 0;
+      const bankB = b.entry.targetBank ?? 0;
+      if (bankA !== bankB) return bankA - bankB;
+      return (a.entry.gmProgram ?? -1) - (b.entry.gmProgram ?? -1);
+    });
+
+    const manifestData = zipFiles.map(zf => ({
+      filename: zf.name,
+      patchName: zf.entry.name,
+      gmProgram: zf.entry.gmProgram ?? -1,
+      originalOrder: zf.entry.originalOrder ?? 0,
+      userOrder: zf.entry.userOrder ?? 0,
+      targetBank: zf.entry.targetBank ?? 0,
+      description: zf.entry.patch.header.description || ""
+    }));
+    zipFiles.push({
+      name: "manifest.json",
+      data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2))
+    });
+
+    zipFiles.push({
+      name: "timidity.cfg",
+      data: new TextEncoder().encode(generateProjectTimidityCfgForZip(project, patchPaths))
+    });
+
+    const zipBytes = createZip(zipFiles);
+    const blob = new Blob([zipBytes], { type: "application/zip" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.name.replace(/[^\w\-]+/g, "_")}_${mode}.zip`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showStatus(t("export_banks_done", {count: patches.length}), "ok");
+  } catch (err) {
+    console.error(err);
+    showStatus(t("project_export_failed", {message: err.message}), "bad");
+  }
+}
+
 
 function getProjectPatchData(bank, isDrum, program, file) {
   if (!state.currentProjectId) return null;
@@ -2434,99 +2861,25 @@ function exportPatchById(id){
 }
 
 async function exportProject(projectId) {
+  // Legacy: dipanggil dari sidebar — buka dialog
   const project = state.projects.find(p => p.id === projectId);
   if (!project) return;
-  const patches = getProjectPatches(project);
-  if (patches.length === 0) {
+  if (getProjectPatchEntries().length === 0) {
     showStatus(t("empty_project"), "bad");
     return;
   }
+  state.currentProjectId = projectId;
+  openExportBanksDialog();
+}
 
-  try {
-    const zipFiles = [];
-    const usedPaths = new Set();
-    const patchPaths = new Map();
+function openExportBanksDialog() {
+  $("exportBanksError").textContent = "";
+  $("exportBanksDialog").hidden = false;
+  $("btnConfirmExportBanks").focus();
+}
 
-    // === BUAT MAPPING URUTAN (0, 1, 2, ...) ===
-    const drums = patches.filter(p => (p.gmBank ?? 0) === 128);
-    const melodic = patches.filter(p => (p.gmBank ?? 0) !== 128);
-    
-    const uniqueDrumSets = [...new Set(drums.map(p => p.drumSet ?? 0))].sort((a, b) => a - b);
-    const drumSetMap = new Map(uniqueDrumSets.map((id, idx) => [id, idx]));
-    
-    const uniqueBanks = [...new Set(melodic.map(p => p.gmBank ?? 0))].sort((a, b) => a - b);
-    const bankMap = new Map(uniqueBanks.map((id, idx) => [id, idx]));
-    // ==========================================
-
-    for (const entry of patches) {
-      const clean = cleanPatchForStorage(entry.patch);
-      const bytes = writePAT(clean);
-
-      const isDrum = (entry.gmBank ?? 0) === 128;
-      
-      // Gunakan ID berurutan dari mapping
-      const groupId = isDrum 
-        ? drumSetMap.get(entry.drumSet ?? 0) 
-        : bankMap.get(entry.gmBank ?? 0);
-        
-      const kind = isDrum ? "drum" : "tone";
-      const folderPath = `${groupId}/${kind}/`;
-
-      let filename = sanitizeFilename(entry.name) + ".pat";
-      let suffix = 1;
-      let original = filename;
-      while (usedPaths.has(folderPath + filename)) {
-        filename = original.replace(".pat", `_${suffix++}.pat`);
-      }
-      usedPaths.add(folderPath + filename);
-
-      patchPaths.set(entry.id, { folderPath, filename });
-      zipFiles.push({ name: folderPath + filename, data: bytes, entry });
-    }
-
-    zipFiles.sort((a, b) => {
-      const bankA = a.entry.gmBank ?? 0;
-      const bankB = b.entry.gmBank ?? 0;
-      if (bankA !== bankB) return bankA - bankB;
-      const progA = a.entry.gmProgram ?? -1;
-      const progB = b.entry.gmProgram ?? -1;
-      if (progA !== progB) return progA - progB;
-      return a.name.localeCompare(b.name);
-    });
-
-    const manifestData = zipFiles.map(zf => ({
-      filename: zf.name,
-      patchName: zf.entry.name,
-      gmBank: zf.entry.gmBank ?? 0,
-      gmProgram: zf.entry.gmProgram ?? -1,
-      drumSet: zf.entry.drumSet,
-      description: zf.entry.patch.header.description || ""
-    }));
-    zipFiles.push({
-      name: "manifest.json",
-      data: new TextEncoder().encode(JSON.stringify(manifestData, null, 2))
-    });
-
-    // Kirim mapping ke fungsi timidity.cfg
-    zipFiles.push({
-      name: "timidity.cfg",
-      data: new TextEncoder().encode(generateProjectTimidityCfgForZip(project, patchPaths, drumSetMap, bankMap))
-    });
-
-    // ... (sisa kode createZip & download tetap sama)
-    const zipBytes = createZip(zipFiles);
-    const blob = new Blob([zipBytes], { type: "application/zip" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${project.name.replace(/[^\w\-]+/g, "_")}.zip`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showStatus(t("project_exported", {name: project.name}), "ok");
-  } catch (err) {
-    console.error(err);
-    showStatus(t("project_export_failed", {message: err.message}), "bad");
-  }
+function closeExportBanksDialog() {
+  $("exportBanksDialog").hidden = true;
 }
 
 async function exportAllPatches(){
@@ -2736,6 +3089,30 @@ function renderLibrary(filterProjectId = undefined) {
     }
   }
 
+  // === TAMBAHKAN LOGIKA SORTING DI SINI ===
+  displayPatches = [...displayPatches].sort((a, b) => {
+    // 1. Melodi (0) selalu di atas Drum (1)
+    const aIsDrum = (a.gmBank ?? 0) === 128 ? 1 : 0;
+    const bIsDrum = (b.gmBank ?? 0) === 128 ? 1 : 0;
+    if (aIsDrum !== bIsDrum) return aIsDrum - bIsDrum;
+
+    // 2. Jika sama-sama Drum, kelompokkan berdasarkan Drum Set (drumSet)
+    if (aIsDrum === 1) {
+      const aSet = a.drumSet ?? 0;
+      const bSet = b.drumSet ?? 0;
+      if (aSet !== bSet) return aSet - bSet;
+    }
+
+    // 3. Urutkan berdasarkan Nomor Program (atau MIDI Note untuk drum)
+    const aProg = a.gmProgram ?? -1;
+    const bProg = b.gmProgram ?? -1;
+    if (aProg !== bProg) return aProg - bProg;
+
+    // 4. Pengaman jika masih sama, urutkan berdasarkan nama (A-Z)
+    return (a.name || "").localeCompare(b.name || "");
+  });
+  // ========================================
+
   const list = $("patchList");
   list.innerHTML = "";
   $("libCount").textContent = displayPatches.length;
@@ -2753,9 +3130,19 @@ function renderLibrary(filterProjectId = undefined) {
     d.className = "li" + (entry.id === state.currentPatchId ? " active" : "");
     const totalSamples = entry.patch.instruments.reduce((a, i) => a + i.layers.reduce((b, l) => b + l.samples.length, 0), 0);
     
+    // === PERBAIKAN LOGIKA DUPLIKAT ===
     const isDupe = entry.gmProgram !== -1 && entry.gmProgram !== undefined && 
-                   state.patches.filter(p => p.gmProgram === entry.gmProgram && p.gmBank === entry.gmBank).length > 1;
-    
+                   state.patches.filter(p => {
+                     if (p.gmBank !== entry.gmBank) return false;
+                     if (p.gmProgram !== entry.gmProgram) return false;
+                     // Jika ini adalah drum, pastikan ia juga berada di Drum Set yang sama
+                     if ((entry.gmBank ?? 0) === 128) {
+                       return (p.drumSet ?? 0) === (entry.drumSet ?? 0);
+                     }
+                     return true;
+                   }).length > 1;
+    // ==================================
+
     const gmInfo = entry.gmProgram !== -1 && entry.gmProgram !== undefined ? `GM #${entry.gmProgram}` : '';
     const dupeBadge = isDupe ? `<span class="tag" style="color:#f59e0b;border-color:#78350f;margin-right:4px;display:inline-flex;align-items:center;" title="${t("duplicate")}"><svg class="icon" style="width:10px;height:10px;"><use href="#i-warning"></use></svg></span>` : '';
 
@@ -2795,6 +3182,7 @@ function selectProject(projectId) {
   invalidateTimidityPlayer();
   renderProjects();
   renderLibrary();
+  renderBankManager();   // ← tambahkan
 
   if (state.midiData && (wasPlaying || wasPaused)) {
     setTimeout(() => {
@@ -2861,6 +3249,7 @@ function render(save=true){
   $("btnExportInst").disabled=!has;
   renderLibrary();
   renderProjects();
+  renderBankManager(); // ← TAMBAHKAN BARIS INI
   if(!has)return;
 
   const p=state.patch, samples=allSamples();
@@ -2919,6 +3308,15 @@ function render(save=true){
     };
     sl.appendChild(d);
   });
+  const addSampleCard=document.createElement("button");
+  const targetLayer=inst?.layers[0];
+  addSampleCard.type="button";
+  addSampleCard.className="sc add-sample-card";
+  addSampleCard.disabled=!!targetLayer&&targetLayer.samples.length>=255;
+  addSampleCard.setAttribute("aria-label",t("add_sample"));
+  addSampleCard.innerHTML=`<span class="add-sample-plus" aria-hidden="true">+</span><span>${t("add_sample")}</span>`;
+  addSampleCard.addEventListener("click",openAddSampleDialog);
+  sl.appendChild(addSampleCard);
 
   renderSampleEditor(save);
   const totalBytes=p.instruments.reduce((a,i)=>a+i.size,0);
@@ -3001,6 +3399,448 @@ function renderSampleEditor(save=true){
   $("toolPencil").classList.toggle("active",state.tool==="pencil");
   updateZoomUI();
   requestAnimationFrame(drawWave);
+}
+
+function openAddSampleDialog(){
+  const instrument=state.patch?.instruments[state.selInst];
+  if(!state.patch||!instrument)return;
+  sampleImportGeneration++;
+  addSampleTarget={patchId:state.currentPatchId,instrumentIndex:state.selInst};
+  pendingSampleDraft=null;
+  $("addSampleError").textContent="";
+  $("addSampleFileName").textContent="";
+  $("addSampleRecordingStatus").textContent="";
+  $("addSampleRecordingTimer").textContent="00:00";
+  $("addSamplePreview").hidden=true;
+  $("addSampleName").value="";
+  $("btnConfirmAddSample").disabled=true;
+  $("btnChooseSampleFile").disabled=false;
+  $("btnStartSampleRecording").disabled=false;
+  $("btnStopSampleRecording").disabled=true;
+  $("addSampleDialog").hidden=false;
+  $("btnChooseSampleFile").focus();
+}
+
+function clearSampleRecordingTimer(recording=sampleRecording){
+  if(recording?.timer){
+    clearInterval(recording.timer);
+    recording.timer=null;
+  }
+}
+
+function stopSampleRecordingTracks(recording){
+  clearSampleRecordingTimer(recording);
+  for(const track of recording.stream.getTracks())track.stop();
+}
+
+function closeAddSampleDialog(){
+  sampleImportGeneration++;
+  if(sampleRecording){
+    const recording=sampleRecording;
+    recording.cancelled=true;
+    sampleRecording=null;
+    if(recording.recorder.state!=="inactive")recording.recorder.stop();
+    stopSampleRecordingTracks(recording);
+  }
+  $("addSampleDialog").hidden=true;
+  $("addSampleError").textContent="";
+  pendingSampleDraft=null;
+  addSampleTarget=null;
+}
+
+function updateSampleRecordingTimer(recording){
+  if(sampleRecording!==recording)return;
+  const seconds=Math.floor((performance.now()-recording.startedAt)/1000);
+  $("addSampleRecordingTimer").textContent=
+    `${String(Math.floor(seconds/60)).padStart(2,"0")}:${String(seconds%60).padStart(2,"0")}`;
+}
+
+async function decodeSampleBlob(blob){
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+  if(!AudioContextClass)throw new Error(t("web_audio_unsupported"));
+  const context=state.audio.ctx||new AudioContextClass();
+  const closeContext=!state.audio.ctx;
+  try{
+    return await context.decodeAudioData(await blob.arrayBuffer());
+  }catch(err){
+    throw new Error(t("sample_audio_decode_failed"));
+  }finally{
+    if(closeContext)await context.close();
+  }
+}
+
+async function monoSampleBuffer(audioBuffer){
+  const sourceRate=audioBuffer.sampleRate;
+  const targetRate=clamp(Math.min(sourceRate,48000),4000,48000);
+  const mono=new Float32Array(audioBuffer.length);
+  for(let channel=0;channel<audioBuffer.numberOfChannels;channel++){
+    const samples=audioBuffer.getChannelData(channel);
+    for(let i=0;i<samples.length;i++)mono[i]+=samples[i]/audioBuffer.numberOfChannels;
+  }
+  if(targetRate===sourceRate)return {samples:mono,sampleRate:targetRate};
+
+  const OfflineContextClass=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  if(OfflineContextClass){
+    const length=Math.max(1,Math.ceil(mono.length*targetRate/sourceRate));
+    const offline=new OfflineContextClass(1,length,targetRate);
+    const sourceBuffer=offline.createBuffer(1,mono.length,sourceRate);
+    sourceBuffer.copyToChannel(mono,0);
+    const source=offline.createBufferSource();
+    source.buffer=sourceBuffer;
+    source.connect(offline.destination);
+    source.start();
+    const rendered=await offline.startRendering();
+    return {samples:rendered.getChannelData(0).slice(),sampleRate:targetRate};
+  }
+
+  const length=Math.max(1,Math.ceil(mono.length*targetRate/sourceRate));
+  const resampled=new Float32Array(length);
+  for(let i=0;i<length;i++){
+    const position=i*sourceRate/targetRate;
+    const left=Math.min(Math.floor(position),mono.length-1);
+    const right=Math.min(left+1,mono.length-1);
+    const fraction=position-left;
+    resampled[i]=mono[left]*(1-fraction)+mono[right]*fraction;
+  }
+  return {samples:resampled,sampleRate:targetRate};
+}
+
+function estimateEnvelopeOffsets(samples,sampleRate){
+  const windowSize=Math.max(1,Math.round(sampleRate*0.01));
+  const levels=[];
+  for(let start=0;start<samples.length;start+=windowSize){
+    const end=Math.min(samples.length,start+windowSize);
+    let energy=0;
+    for(let i=start;i<end;i++)energy+=samples[i]*samples[i];
+    levels.push(Math.sqrt(energy/(end-start)));
+  }
+  if(levels.length===0)return {offsets:[255,192,160,128,96,0],rates:[0,0,0,0,0,0]};
+
+  let peak=0,peakIndex=0;
+  for(let i=0;i<levels.length;i++){
+    if(levels[i]>peak){peak=levels[i];peakIndex=i;}
+  }
+  if(peak<0.00001)return {offsets:[255,192,160,128,96,0],rates:[0,0,0,0,0,0]};
+  const endIndex=levels.length-1;
+  const attackIndex=levels.findIndex((level,index)=>index<=peakIndex&&level>=peak*0.9);
+  const sustainStart=Math.min(endIndex,Math.max(peakIndex+1,Math.round(peakIndex+(endIndex-peakIndex)*0.35)));
+  const sustainEnd=Math.max(sustainStart,Math.round(endIndex*0.75));
+  const sustainSlice=levels.slice(sustainStart,sustainEnd+1);
+  const sustainLevel=sustainSlice.length
+    ? sustainSlice.reduce((sum,level)=>sum+level,0)/sustainSlice.length
+    : levels[sustainStart];
+  const toOffset=level=>clamp(Math.round(level/peak*255),0,255);
+  const at=position=>levels[clamp(Math.round(endIndex*position),0,endIndex)];
+  const offsets=[
+    255,
+    toOffset(levels[sustainStart]),
+    toOffset(sustainLevel),
+    toOffset(at(0.72)),
+    toOffset(at(0.86)),
+    toOffset(at(0.98))
+  ];
+  const durations=[
+    Math.max(1,(attackIndex<0?peakIndex:attackIndex)*windowSize*1000/sampleRate),
+    Math.max(1,(sustainStart-peakIndex)*windowSize*1000/sampleRate),
+    Math.max(1,(sustainEnd-sustainStart)*windowSize*1000/sampleRate),
+    Math.max(1,(endIndex-sustainEnd)*windowSize*1000/sampleRate),
+    Math.max(1,(endIndex-sustainEnd)*windowSize*500/sampleRate),
+    Math.max(1,(endIndex-sustainEnd)*windowSize*500/sampleRate)
+  ];
+  const rateStarts=[0,offsets[0],offsets[1],offsets[2],offsets[3],offsets[4]];
+  const rateEnds=[offsets[0],offsets[1],offsets[2],0,offsets[4],offsets[5]];
+  const rates=rateEnds.map((end,index)=>{
+    let bestRate=0,bestDifference=Infinity;
+    for(let rate=0;rate<=255;rate++){
+      const difference=Math.abs(gusEnvMs(rate,rateStarts[index],end)-durations[index]);
+      if(difference<bestDifference){bestDifference=difference;bestRate=rate;}
+    }
+    return bestRate;
+  });
+  return {offsets,rates};
+}
+
+function estimateRootFrequency(samples,sampleRate){
+  const stride=Math.max(1,Math.floor(sampleRate/8000));
+  const analyzedRate=sampleRate/stride;
+  const length=Math.min(Math.floor(samples.length/stride),Math.floor(analyzedRate*0.12));
+  if(length<32)return 440;
+  const data=new Float32Array(length);
+  let mean=0;
+  for(let i=0;i<length;i++){data[i]=samples[i*stride];mean+=data[i];}
+  mean/=length;
+  for(let i=0;i<length;i++)data[i]-=mean;
+  let energy=0;
+  for(const value of data)energy+=value*value;
+  if(energy<0.000001)return 440;
+
+  const minLag=Math.max(2,Math.floor(analyzedRate/2000));
+  const maxLag=Math.min(Math.floor(analyzedRate/40),Math.floor(length/2));
+  let bestLag=0,bestCorrelation=0;
+  for(let lag=minLag;lag<=maxLag;lag++){
+    let correlation=0,referenceEnergy=0;
+    for(let i=0;i<length-lag;i++){
+      correlation+=data[i]*data[i+lag];
+      referenceEnergy+=data[i]*data[i];
+    }
+    const normalized=referenceEnergy?correlation/referenceEnergy:0;
+    if(normalized>bestCorrelation){bestCorrelation=normalized;bestLag=lag;}
+  }
+  return bestCorrelation>=0.55&&bestLag?clamp(analyzedRate/bestLag,40,2000):440;
+}
+
+function buildSampleDraft(audioBuffer,name){
+  return monoSampleBuffer(audioBuffer).then(({samples,sampleRate})=>{
+    if(samples.length===0)throw new Error(t("sample_audio_empty"));
+    const envelope=estimateEnvelopeOffsets(samples,sampleRate);
+    const pcm=new Uint8Array(samples.length*2);
+    for(let i=0;i<samples.length;i++){
+      let value=Math.round(clamp(samples[i],-1,1)*32767);
+      if(value<0)value+=65536;
+      pcm[i*2]=value&255;
+      pcm[i*2+1]=(value>>8)&255;
+    }
+    const rootFrequency=estimateRootFrequency(samples,sampleRate);
+    const safeName=String(name||"SAMPLE").replace(/\.[^.]+$/,"").replace(/[^\w-]/g,"").substring(0,7)||"SAMPLE";
+    const sample={
+      name:safeName,fractions:0,dataSize:pcm.length,loopStart:0,loopEnd:pcm.length,sampleRate,
+      lowFreq:8176,highFreq:12543854,rootFreq:Math.round(rootFrequency*1000),
+      tune:0,balance:7,envRates:envelope.rates,envOffsets:envelope.offsets,
+      tremoloSweep:0,tremoloRate:0,tremoloDepth:0,
+      vibratoSweep:0,vibratoRate:0,vibratoDepth:0,
+      modes:M16|MENV,scaleFreq:60,scaleFactor:1024,
+      reserved:new Uint8Array(36),pcm,_float:samples
+    };
+    return {sample,duration:samples.length/sampleRate,sourceName:name||"SAMPLE"};
+  });
+}
+
+function populateAddSampleParameters(sample,duration){
+  const bps=fmt(sample).bps;
+  const fields={
+    addSampleName:sample.name,
+    addSampleRate:sample.sampleRate,
+    addSampleRoot:sample.rootFreq,
+    addSampleBalance:sample.balance,
+    addSampleLow:sample.lowFreq,
+    addSampleHigh:sample.highFreq,
+    addSampleLoopStart:Math.round(sample.loopStart/bps),
+    addSampleLoopEnd:Math.round(sample.loopEnd/bps),
+    addSampleFractions:sample.fractions,
+    addSampleTune:sample.tune,
+    addSampleScaleFreq:sample.scaleFreq,
+    addSampleScaleFactor:sample.scaleFactor,
+    addSampleTremSweep:sample.tremoloSweep,
+    addSampleTremRate:sample.tremoloRate,
+    addSampleTremDepth:sample.tremoloDepth,
+    addSampleVibSweep:sample.vibratoSweep,
+    addSampleVibRate:sample.vibratoRate,
+    addSampleVibDepth:sample.vibratoDepth
+  };
+  for(const [id,value] of Object.entries(fields))$(id).value=value??0;
+  $("addSampleLoopStart").max=Math.floor(sample.pcm.length/bps);
+  $("addSampleLoopEnd").max=Math.floor(sample.pcm.length/bps);
+  $("addSampleDuration").textContent=`${duration.toFixed(2)} s`;
+
+  const names=["env_attack","env_decay","env_sustain","env_rate_1","env_rate_2","env_rate_3"];
+  for(const [kind,values] of [["rate",sample.envRates],["offset",sample.envOffsets]]){
+    const grid=kind==="rate"?$("addSampleRates"):$("addSampleOffsets");
+    const attribute=kind==="rate"?"data-add-sample-rate":"data-add-sample-offset";
+    grid.innerHTML="";
+    values.forEach((value,index)=>{
+      const field=document.createElement("div");
+      field.className="field";
+      field.innerHTML=`<label>${t(`${kind}_label`,{name:t(names[index])})}</label><input type="number" min="0" max="255" ${attribute}="${index}" value="${value}">`;
+      grid.appendChild(field);
+    });
+  }
+
+  const modes=$("addSampleModes");
+  modes.innerHTML="";
+  for(const [bit,label] of MODE_LABELS){
+    const field=document.createElement("label");
+    field.className="check";
+    field.innerHTML=`<input type="checkbox" data-add-sample-mode="${bit}" ${(sample.modes&bit)?"checked":""}><span>${t(label)}</span>`;
+    modes.appendChild(field);
+  }
+}
+
+async function loadSampleDraft(blob,name){
+  const generation=++sampleImportGeneration;
+  $("addSampleError").textContent="";
+  $("btnConfirmAddSample").disabled=true;
+  $("btnChooseSampleFile").disabled=true;
+  $("btnStartSampleRecording").disabled=true;
+  $("addSampleRecordingStatus").textContent=t("sample_processing");
+  try{
+    const audioBuffer=await decodeSampleBlob(blob);
+    const draft=await buildSampleDraft(audioBuffer,name);
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden)return;
+    pendingSampleDraft=draft;
+    populateAddSampleParameters(draft.sample,draft.duration);
+    $("addSamplePreview").hidden=false;
+    $("addSampleRecordingStatus").textContent=t("sample_audio_ready");
+    $("btnChooseSampleFile").disabled=false;
+    $("btnStartSampleRecording").disabled=false;
+    $("btnConfirmAddSample").disabled=false;
+  }catch(err){
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden)return;
+    console.error("Sample audio conversion failed:",err);
+    $("addSampleError").textContent=err.message||t("sample_audio_decode_failed");
+    $("addSampleRecordingStatus").textContent="";
+    $("btnChooseSampleFile").disabled=false;
+    $("btnStartSampleRecording").disabled=false;
+  }
+}
+
+function startSampleRecording(){
+  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){
+    $("addSampleError").textContent=t("sample_microphone_unsupported");
+    return;
+  }
+  pendingSampleDraft=null;
+  $("addSamplePreview").hidden=true;
+  $("addSampleFileName").textContent="";
+  $("btnConfirmAddSample").disabled=true;
+  $("addSampleError").textContent="";
+  $("btnStartSampleRecording").disabled=true;
+  $("btnChooseSampleFile").disabled=true;
+  $("addSampleRecordingStatus").textContent=t("sample_microphone_permission");
+  const generation=sampleImportGeneration;
+  let requestedStream=null;
+  navigator.mediaDevices.getUserMedia({audio:{
+    channelCount:1,echoCancellation:false,noiseSuppression:false,autoGainControl:false
+  }}).then(stream=>{
+    requestedStream=stream;
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden){
+      for(const track of stream.getTracks())track.stop();
+      return;
+    }
+    const mimeType=typeof MediaRecorder.isTypeSupported==="function"
+      ?["audio/webm;codecs=opus","audio/ogg;codecs=opus"].find(type=>MediaRecorder.isTypeSupported(type))
+      :null;
+    const recorder=mimeType?new MediaRecorder(stream,{mimeType}):new MediaRecorder(stream);
+    const recording={stream,recorder,chunks:[],startedAt:performance.now(),timer:null,cancelled:false};
+    sampleRecording=recording;
+    recorder.addEventListener("dataavailable",event=>{
+      if(event.data.size)recording.chunks.push(event.data);
+    });
+    recorder.addEventListener("error",event=>{
+      console.error("Microphone recording failed:",event.error||event);
+      recording.failed=true;
+      $("addSampleError").textContent=event.error?.message||t("sample_recording_failed");
+      if(recorder.state!=="inactive")recorder.stop();
+    });
+    recorder.addEventListener("stop",async()=>{
+      stopSampleRecordingTracks(recording);
+      if(sampleRecording!==recording||recording.cancelled)return;
+      sampleRecording=null;
+      $("btnStartSampleRecording").disabled=false;
+      $("btnStopSampleRecording").disabled=true;
+      $("btnChooseSampleFile").disabled=false;
+      if(recording.failed){
+        $("addSampleRecordingStatus").textContent="";
+        return;
+      }
+      const blob=new Blob(recording.chunks,{type:recorder.mimeType||"audio/webm"});
+      await loadSampleDraft(blob,"RECORDING");
+    });
+    recorder.start(250);
+    $("btnStartSampleRecording").disabled=true;
+    $("btnStopSampleRecording").disabled=false;
+    $("btnChooseSampleFile").disabled=true;
+    $("addSampleRecordingStatus").textContent=t("sample_recording");
+    recording.timer=setInterval(()=>updateSampleRecordingTimer(recording),250);
+  }).catch(err=>{
+    if(requestedStream)for(const track of requestedStream.getTracks())track.stop();
+    if(generation!==sampleImportGeneration||$("addSampleDialog").hidden)return;
+    console.error("Unable to access microphone:",err);
+    $("addSampleError").textContent=t("sample_microphone_failed",{message:err.message});
+    $("btnStartSampleRecording").disabled=false;
+    $("btnChooseSampleFile").disabled=false;
+    $("addSampleRecordingStatus").textContent="";
+  });
+}
+
+function stopSampleRecording(){
+  if(sampleRecording&&sampleRecording.recorder.state!=="inactive"){
+    $("btnStopSampleRecording").disabled=true;
+    sampleRecording.recorder.stop();
+  }
+}
+
+function addSampleToPatch(){
+  const target=addSampleTarget;
+  const draft=pendingSampleDraft;
+  if(!target||!draft)return;
+  if(target.patchId!==state.currentPatchId||!state.patch?.instruments[target.instrumentIndex]){
+    $("addSampleError").textContent=t("sample_patch_changed");
+    return;
+  }
+  const instrument=state.patch.instruments[target.instrumentIndex];
+  if(instrument.layers.length===0){
+    instrument.layers.push({
+      duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[]
+    });
+  }
+  const layer=instrument.layers[0];
+  if(layer.samples.length>=255){
+    $("addSampleError").textContent=t("sample_layer_limit");
+    return;
+  }
+  const sample=draft.sample;
+  const readNumber=(id,min,max,fallback=0)=>{
+    const parsed=parseInt($(id).value,10);
+    return clamp(Number.isFinite(parsed)?parsed:fallback,min,max);
+  };
+  sample.name=String($("addSampleName").value||"SAMPLE").replace(/[^\w-]/g,"").substring(0,7)||"SAMPLE";
+  sample.sampleRate=readNumber("addSampleRate",1,65535,22050);
+  sample.rootFreq=readNumber("addSampleRoot",0,0xFFFFFFFF);
+  sample.balance=readNumber("addSampleBalance",0,15,7);
+  sample.lowFreq=readNumber("addSampleLow",0,0xFFFFFFFF);
+  sample.highFreq=readNumber("addSampleHigh",0,0xFFFFFFFF);
+  sample.fractions=readNumber("addSampleFractions",0,255);
+  sample.tune=readNumber("addSampleTune",0,65535);
+  sample.scaleFreq=readNumber("addSampleScaleFreq",0,65535,60);
+  sample.scaleFactor=readNumber("addSampleScaleFactor",0,65535,1024);
+  sample.tremoloSweep=readNumber("addSampleTremSweep",0,255);
+  sample.tremoloRate=readNumber("addSampleTremRate",0,255);
+  sample.tremoloDepth=readNumber("addSampleTremDepth",0,255);
+  sample.vibratoSweep=readNumber("addSampleVibSweep",0,255);
+  sample.vibratoRate=readNumber("addSampleVibRate",0,255);
+  sample.vibratoDepth=readNumber("addSampleVibDepth",0,255);
+  sample.envRates=Array.from($("addSampleRates").querySelectorAll("[data-add-sample-rate]"))
+    .map(input=>clamp(parseInt(input.value,10)||0,0,255));
+  sample.envOffsets=Array.from($("addSampleOffsets").querySelectorAll("[data-add-sample-offset]"))
+    .map(input=>clamp(parseInt(input.value,10)||0,0,255));
+  sample.modes=0;
+  for(const input of $("addSampleModes").querySelectorAll("[data-add-sample-mode]")){
+    if(input.checked)sample.modes|=parseInt(input.dataset.addSampleMode,10);
+  }
+  commitFloat(sample);
+  const bps=fmt(sample).bps;
+  const total=Math.floor(sample.pcm.length/bps);
+  const loopStart=clamp(parseInt($("addSampleLoopStart").value,10)||0,0,total);
+  let loopEnd=clamp(parseInt($("addSampleLoopEnd").value,10)||0,0,total);
+  if(loopEnd<=loopStart)loopEnd=Math.min(total,loopStart+1);
+  sample.loopStart=loopStart*bps;
+  sample.loopEnd=loopEnd*bps;
+  sample.dataSize=sample.pcm.length;
+  $("addSampleName").value=sample.name;
+  $("addSampleLoopStart").value=loopStart;
+  $("addSampleLoopEnd").value=loopEnd;
+  layer.samples.push(sample);
+  state.selInst=target.instrumentIndex;
+  state.selSample=sample;
+  state.selStart=state.selEnd=0;
+  state.undo=[];
+  state.zoom=1; state.offset=0;
+  const samples=allSamples();
+  state.patch.header.waveForms=samples.length;
+  state.patch.header.dataSize=samples.reduce((size,ref)=>size+ref.sample.pcm.length,0);
+  closeAddSampleDialog();
+  render();
+  showStatus(t("sample_added"),"ok");
 }
 
 /* ---------- MIDI Demo Project ---------- */
@@ -3486,6 +4326,38 @@ function bind(){
       closeAddPatchDialog();
     }
   });
+  $("btnChooseSampleFile").addEventListener("click",()=>$("addSampleFile").click());
+  $("addSampleFile").addEventListener("change",async event=>{
+    const file=event.target.files&&event.target.files[0];
+    if(!file)return;
+    pendingSampleDraft=null;
+    $("addSamplePreview").hidden=true;
+    $("btnConfirmAddSample").disabled=true;
+    $("addSampleFileName").textContent="";
+    const supported=/\.(wav|mp3)$/i.test(file.name)
+      ||file.type==="audio/wav"||file.type==="audio/x-wav"||file.type==="audio/mpeg";
+    if(!supported){
+      $("addSampleError").textContent=t("sample_file_format");
+      event.target.value="";
+      return;
+    }
+    $("addSampleError").textContent="";
+    $("addSampleFileName").textContent=file.name;
+    await loadSampleDraft(file,file.name);
+    if(pendingSampleDraft)$("addSampleFileName").textContent=t("sample_file_ready",{filename:file.name});
+    event.target.value="";
+  });
+  $("btnStartSampleRecording").addEventListener("click",startSampleRecording);
+  $("btnStopSampleRecording").addEventListener("click",stopSampleRecording);
+  $("btnCancelAddSample").addEventListener("click",closeAddSampleDialog);
+  $("btnCloseAddSample").addEventListener("click",closeAddSampleDialog);
+  $("btnConfirmAddSample").addEventListener("click",addSampleToPatch);
+  $("addSampleDialog").addEventListener("click",event=>{
+    if(event.target===$("addSampleDialog"))closeAddSampleDialog();
+  });
+  $("addSampleDialog").addEventListener("keydown",event=>{
+    if(event.key==="Escape")closeAddSampleDialog();
+  });
   $("btnExportProject").addEventListener("click", () => {
     if (state.currentProjectId) exportProject(state.currentProjectId);
   });
@@ -3767,6 +4639,52 @@ function bind(){
     if(v){releaseVoice(v,false);state.keyNote.delete(e.key.toLowerCase());}
   });
 
+  // === Bank Manager ===
+  $("btnExportAllBanks").addEventListener("click", () => exportBanks("all"));
+  $("btnExportSelectedBanks").addEventListener("click", () => exportBanks("selected"));
+  $("btnCompactBanks").addEventListener("click", compactBanks);
+  $("btnRefreshBankOrder").addEventListener("click", refreshBankOrder);
+  
+  $("bankSelectAll").addEventListener("change", e => {
+    const checked = e.target.checked;
+    const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
+    if (currentPatch) {
+      const isDrum = (currentPatch.gmBank ?? 0) === 128;
+      const prog = currentPatch.gmProgram ?? -1;
+      const visibleEntries = getProjectPatchEntries().filter(p => {
+        const pIsDrum = (p.gmBank ?? 0) === 128;
+        return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+      });
+      for (const p of visibleEntries) {
+        p.exportSelected = checked;
+        scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+      }
+    }
+    renderBankManager();
+  });
+
+  // === Export dialog ===
+  $("btnCancelExportBanks").addEventListener("click", closeExportBanksDialog);
+  $("btnConfirmExportBanks").addEventListener("click", async () => {
+    const mode = document.querySelector('input[name="exportBanksMode"]:checked')?.value || "selected";
+    const project = state.projects.find(p => p.id === state.currentProjectId);
+    if (!project) { closeExportBanksDialog(); return; }
+    let patches = getProjectPatchEntries();
+    if (mode === "selected") patches = patches.filter(p => p.exportSelected !== false);
+    if (patches.length === 0) {
+      $("exportBanksError").textContent = t("export_nothing_selected");
+      return;
+    }
+    closeExportBanksDialog();
+    await exportProjectWithConfig(project, patches, mode);
+  });
+  $("exportBanksDialog").addEventListener("click", e => {
+    if (e.target === $("exportBanksDialog")) closeExportBanksDialog();
+  });
+  $("exportBanksDialog").addEventListener("keydown", e => {
+    if (e.key === "Escape") closeExportBanksDialog();
+  });
+
   bindCanvas();
 }
 
@@ -3793,6 +4711,17 @@ function bind(){
       if(!entry.patch||!entry.patch.instruments) entry.patch={header:{magic:MAGIC,gravisId:GRAVIS_ID,description:entry.name||"",voices:14,channels:0,waveForms:0,masterVolume:127,dataSize:0,reserved:new Uint8Array(36)},instruments:[]};
       if(!entry.id) entry.id=uid("patch");
     }
+
+    for (const entry of entries) {
+      if (typeof entry.originalOrder !== "number") {
+        entry.originalOrder = (entry.gmBank ?? 0) === 128 ? (entry.drumSet ?? 0) : (entry.gmBank ?? 0);
+      }
+      if (typeof entry.targetBank !== "number") entry.targetBank = entry.originalOrder;
+      if (typeof entry.exportSelected !== "boolean") entry.exportSelected = true;
+      // userOrder dibiarkan kosong → akan diisi oleh initBankFields per proyek
+    }
+
+
     state.patches=entries;
     
     let projectMigrationFailed = false;
@@ -3831,6 +4760,14 @@ function bind(){
         console.error("Unable to assign existing patches to a project:", err);
         projectMigrationFailed = true;
       }
+    }
+
+    // Inisialisasi field bank untuk semua proyek
+    for (const proj of state.projects) {
+      const projEntries = (proj.patchIds || [])
+        .map(id => state.patches.find(p => p.id === id))
+        .filter(Boolean);
+      initBankFields(projEntries, proj);
     }
 
     if(entries.length>0){
