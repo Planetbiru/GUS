@@ -108,6 +108,13 @@ function setLanguage(nextLocale) {
   const defaultProjectName = t("create_project_default", {number: state.projects.length + 1});
   locale = nextLocale;
   translations = localePacks[locale];
+
+  for (const proj of state.projects) {
+    if (proj.locale) {
+      proj.name = t("recovered_library_project");
+    }
+  }
+
   let preferenceSaved = true;
   try {
     localStorage.setItem("gus-patch-editor-locale", locale);
@@ -126,7 +133,7 @@ function setLanguage(nextLocale) {
   $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
   $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   if (currentStatusTranslation) {
-    status(t(currentStatusTranslation.key, currentStatusTranslation.values), currentStatusTranslation.kind);
+    showStatus(t(currentStatusTranslation.key, currentStatusTranslation.values), currentStatusTranslation.kind);
   }
   if (currentMidiStatusTranslation) {
     $("midiStatus").textContent = t(currentMidiStatusTranslation.key, currentMidiStatusTranslation.values);
@@ -135,8 +142,12 @@ function setLanguage(nextLocale) {
     const project = state.projects.find(entry => entry.id === pendingProjectDeletionId);
     if (project) $("deleteProjectMessage").textContent = t("confirm_delete_project", {name: project.name});
   }
+  if (activeAlert) {
+    $("alertTitle").textContent = t("alert_title");
+    $("alertMessage").textContent = t(activeAlert.key, activeAlert.values);
+  }
   if (!preferenceSaved) {
-    status(t("language_preference_save_failed"), "bad");
+    showStatus(t("language_preference_save_failed"), "bad");
   }
   if (previousLocale !== locale) $("languageSelect").value = locale;
 }
@@ -153,6 +164,7 @@ const state = {
   currentPatchId: null,
   projects: [],
   currentProjectId: null,
+  libraryView: "project",
   midiData: null,
   midiFileName: null,
   saveTimer: null,
@@ -162,11 +174,15 @@ const state = {
 let timidityPlayer = null;
 let isMidiRendering = false;
 let pendingProjectDeletionId = null;
+let pendingConfirmationAction = null;
+let activeAlert = null;
+const queuedAlerts = [];
+let projectPatchGenerator = null;
 
 /* ---------- Utilitas ---------- */
 function decodeAscii(b){let s="";for(let i=0;i<b.length;i++){if(b[i]===0)break;s+=String.fromCharCode(b[i]);}return s.replace(/\s+$/,"");}
 function encodeAscii(s,len){const o=new Uint8Array(len);s=String(s??"");for(let i=0;i<len;i++)o[i]=i<s.length?s.charCodeAt(i)&255:0;return o;}
-function status(m,k){
+function showStatus(m,k){
   const translated = lastTranslation && lastTranslation.text === m ? lastTranslation : null;
   currentStatusTranslation = translated ? {...translated, kind:k} : null;
   $("statusBar").textContent=m;
@@ -216,15 +232,6 @@ async function dbGetAll(store){
     req.onerror=e=>reject(e.target.error);
   });
 }
-async function dbDelete(store, id){
-  const db=await openDB();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(store,"readwrite");
-    tx.objectStore(store).delete(id);
-    tx.oncomplete=()=>resolve();
-    tx.onerror=e=>reject(e.target.error);
-  });
-}
 async function dbDeleteProjectAndPatches(projectId, patchIds){
   const db=await openDB();
   return new Promise((resolve,reject)=>{
@@ -237,13 +244,40 @@ async function dbDeleteProjectAndPatches(projectId, patchIds){
     tx.onabort=()=>reject(tx.error || new Error("Project deletion transaction was aborted."));
   });
 }
-async function dbClear(store){
+async function dbDeletePatchAndUpdateProjects(patchId, projects){
   const db=await openDB();
   return new Promise((resolve,reject)=>{
-    const tx=db.transaction(store,"readwrite");
-    tx.objectStore(store).clear();
+    const tx=db.transaction([STORE,STORE_PROJECTS],"readwrite");
+    tx.objectStore(STORE).delete(patchId);
+    const projectStore=tx.objectStore(STORE_PROJECTS);
+    for(const project of projects) projectStore.put(project);
     tx.oncomplete=()=>resolve();
-    tx.onerror=e=>reject(e.target.error);
+    tx.onerror=()=>reject(tx.error || new Error("Unable to delete patch data."));
+    tx.onabort=()=>reject(tx.error || new Error("Patch deletion transaction was aborted."));
+  });
+}
+async function dbSaveProjectAndPatches(project, entries){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction([STORE_PROJECTS,STORE],"readwrite");
+    tx.objectStore(STORE_PROJECTS).put(project);
+    const patches=tx.objectStore(STORE);
+    for(const entry of entries) patches.put(cleanEntryForStorage(entry));
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error || new Error("Unable to save project patches."));
+    tx.onabort=()=>reject(tx.error || new Error("Saving project patches was aborted."));
+  });
+}
+async function dbClearLibraryAndProjects(projects){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction([STORE,STORE_PROJECTS],"readwrite");
+    tx.objectStore(STORE).clear();
+    const projectStore=tx.objectStore(STORE_PROJECTS);
+    for(const project of projects) projectStore.put(project);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error || new Error("Unable to clear library data."));
+    tx.onabort=()=>reject(tx.error || new Error("Clearing library data was aborted."));
   });
 }
 
@@ -1154,12 +1188,12 @@ function pushUndo(s){
 }
 function undo(){
   const it=state.undo.pop();
-  if(!it){status(t("no_undo"),"bad");return;}
+  if(!it){showStatus(t("no_undo"),"bad");return;}
   it.ref.sample._float=it.floats;
   commitFloat(it.ref.sample);
   state.selStart=state.selEnd=0;
   renderSampleEditor(); render();
-  status(t("undo_done"),"ok");
+  showStatus(t("undo_done"),"ok");
 }
 function editRange(s){
   const n=ensureFloat(s).length;
@@ -1202,7 +1236,7 @@ function applyEdit(kind,param){
   commitFloat(s);
   renderSampleEditor(); render();
   const operationKey = {fadeIn: "fade_in", fadeOut: "fade_out", dc: "remove_dc"}[kind] || kind;
-  status(t("edit_done", {operation: t(operationKey)}),"ok");
+  showStatus(t("edit_done", {operation: t(operationKey)}),"ok");
 }
 
 function bindCanvas(){
@@ -1269,7 +1303,7 @@ function bindCanvas(){
   cv.addEventListener("mouseup",e=>{
     if(state.panning){state.panning=null; cv.style.cursor="crosshair"; return;}
     if(!state.drag)return;
-    if(state.drag.mode==="pen"){ commitFloat(state.drag.s); renderSampleEditor(); status(t("waveform_drawn"),"ok"); }
+    if(state.drag.mode==="pen"){ commitFloat(state.drag.s); renderSampleEditor(); showStatus(t("waveform_drawn"),"ok"); }
     state.drag=null; drawWave();
   });
   cv.addEventListener("mouseleave",e=>{
@@ -1287,34 +1321,30 @@ function bindCanvas(){
 }
 
 /* ---------- Library ---------- */
-async function addPatchEntries(entries, autoAddToProject = false){
+async function addPatchEntries(entries){
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if(!project) {
+    requestProjectForImport();
+    return false;
+  }
+
   for(const entry of entries){
     if(!entry.id) entry.id=uid(entry.source&&entry.source.startsWith("sf2")?"sf2":"pat");
     if(!entry.source) entry.source="pat";
-    state.patches.push(entry);
-  }
-  
-  if(autoAddToProject && state.currentProjectId) {
-    const project = state.projects.find(p => p.id === state.currentProjectId);
-    if(project) {
-      for(const entry of entries) {
-        if(!project.patchIds.includes(entry.id)) project.patchIds.push(entry.id);
-      }
-      saveProject(project);
-    }
   }
 
+  const updatedProject = {...project, patchIds: [...(project.patchIds || [])]};
+  for(const entry of entries) {
+    if(!updatedProject.patchIds.includes(entry.id)) updatedProject.patchIds.push(entry.id);
+  }
+
+  await dbSaveProjectAndPatches(updatedProject, entries);
+  project.patchIds = updatedProject.patchIds;
+  state.patches.push(...entries);
   if(entries.length>0) selectPatch(entries[0].id);
   else render();
-
-  setTimeout(async () => {
-    try{
-      await dbPutMany(STORE, entries.map(cleanEntryForStorage));
-    }catch(err){
-      console.error("DB save error:",err);
-      status(t("database_save_warning"),"bad");
-    }
-  }, 500);
+  renderProjects();
+  return true;
 }
 
 function selectPatch(id){
@@ -1330,20 +1360,22 @@ function selectPatch(id){
   render();
 }
 
-async function deletePatchById(id){
+function deletePatchById(id){
   const entry=state.patches.find(p=>p.id===id);
   if(!entry)return;
-  if(!confirm(t("confirm_delete_patch", {name: entry.name})))return;
+  openConfirmationDialog(t("delete_patch_title"),t("confirm_delete_patch", {name: entry.name}),t("delete"),()=>removePatchById(id));
+}
+
+async function removePatchById(id){
+  const entry=state.patches.find(p=>p.id===id);
+  if(!entry)return;
+  const projects=state.projects.map(project=>({
+    ...project,
+    patchIds:(project.patchIds || []).filter(patchId=>patchId!==id)
+  }));
+  await dbDeletePatchAndUpdateProjects(id,projects);
   state.patches=state.patches.filter(p=>p.id!==id);
-  try{ await dbDelete(STORE, id); }catch(e){console.error(e);}
-  
-  for(const proj of state.projects){
-    if(proj.patchIds.includes(id)){
-      proj.patchIds = proj.patchIds.filter(pid => pid !== id);
-      await dbPutMany(STORE_PROJECTS, [proj]);
-    }
-  }
-  
+  state.projects=projects;
   if(state.currentPatchId===id){
     if(state.patches.length>0) selectPatch(state.patches[0].id);
     else { state.currentPatchId=null; state.patch=null; render(); }
@@ -1353,17 +1385,104 @@ async function deletePatchById(id){
   renderProjects();
 }
 
+function openConfirmationDialog(title,message,confirmLabel,action){
+  pendingConfirmationAction=action;
+  $("confirmationTitle").textContent=title;
+  $("confirmationMessage").textContent=message;
+  $("confirmationError").textContent="";
+  $("btnConfirmAction").textContent=confirmLabel;
+  $("confirmActionDialog").hidden=false;
+  $("btnCancelAction").focus();
+}
+
+function closeConfirmationDialog(force=false){
+  if(!force && $("btnConfirmAction").disabled)return;
+  pendingConfirmationAction=null;
+  $("confirmActionDialog").hidden=true;
+}
+
+function showAlert(key,values={}){
+  queuedAlerts.push({key,values});
+  if(!activeAlert)openNextAlert();
+}
+
+function openNextAlert(){
+  activeAlert=queuedAlerts.shift() || null;
+  if(!activeAlert){
+    $("alertDialog").hidden=true;
+    return;
+  }
+  $("alertTitle").textContent=t("alert_title");
+  $("alertMessage").textContent=t(activeAlert.key,activeAlert.values);
+  $("alertDialog").hidden=false;
+  $("btnCloseAlert").focus();
+}
+
+function closeAlert(){
+  activeAlert=null;
+  openNextAlert();
+}
+
+async function runConfirmationAction(){
+  if(!pendingConfirmationAction || $("btnConfirmAction").disabled)return;
+  const confirmButton=$("btnConfirmAction");
+  const cancelButton=$("btnCancelAction");
+  confirmButton.disabled=true;
+  cancelButton.disabled=true;
+  $("confirmationError").textContent="";
+  try{
+    await pendingConfirmationAction();
+    closeConfirmationDialog(true);
+  }catch(err){
+    console.error("Confirmation action failed:",err);
+    $("confirmationError").textContent=t("confirmation_action_failed");
+  }finally{
+    confirmButton.disabled=false;
+    cancelButton.disabled=false;
+  }
+}
+
 async function clearLibrary(){
   if(state.patches.length===0)return;
-  if(!confirm(t("confirm_clear_library", {count: state.patches.length})))return;
-  state.patches=[]; state.currentPatchId=null; state.patch=null;
-  for(const proj of state.projects){
-    proj.patchIds = [];
-    await dbPutMany(STORE_PROJECTS, [proj]);
+  $("clearLibraryMessage").textContent = t("confirm_clear_library", {count: state.patches.length});
+  $("clearLibraryError").textContent = "";
+  $("clearLibraryDialog").hidden = false;
+  $("btnCancelClearLibrary").focus();
+}
+
+function closeClearLibraryDialog(force = false){
+  if(!force && $("btnConfirmClearLibrary").disabled)return;
+  $("clearLibraryDialog").hidden = true;
+}
+
+async function confirmClearLibrary(){
+  if(state.patches.length===0){
+    closeClearLibraryDialog(true);
+    return;
   }
-  try{ await dbClear(STORE); }catch(e){console.error(e);}
-  render();
-  renderProjects();
+  const confirmButton=$("btnConfirmClearLibrary");
+  const cancelButton=$("btnCancelClearLibrary");
+  confirmButton.disabled=true;
+  cancelButton.disabled=true;
+  $("clearLibraryError").textContent="";
+  try{
+    const projects=state.projects.map(project=>({...project,patchIds:[]}));
+    await dbClearLibraryAndProjects(projects);
+    state.projects=projects;
+    state.patches=[];
+    state.currentPatchId=null;
+    state.patch=null;
+    closeClearLibraryDialog(true);
+    render();
+    renderProjects();
+    showStatus(t("library_cleared"),"ok");
+  }catch(err){
+    console.error("Clear library error:",err);
+    $("clearLibraryError").textContent=t("library_clear_failed");
+  }finally{
+    confirmButton.disabled=false;
+    cancelButton.disabled=false;
+  }
 }
 
 function scheduleSave(){
@@ -1400,9 +1519,11 @@ async function createProject(name) {
   await saveProject(project);
   state.projects.push(project);
   state.currentProjectId = project.id;
+  state.libraryView = "project";
   invalidateTimidityPlayer();
   renderProjects();
-  status(t("project_created", {name: project.name}), "ok");
+  renderLibrary();
+  showStatus(t("project_created", {name: project.name}), "ok");
 }
 
 async function confirmNewProject() {
@@ -1452,6 +1573,7 @@ async function deleteProject(id) {
   state.patches = state.patches.filter(patch => !exclusivePatchIds.includes(patch.id));
   if (state.currentProjectId === id) {
     state.currentProjectId = state.projects.length > 0 ? state.projects[0].id : null;
+    state.libraryView = "project";
     invalidateTimidityPlayer();
   }
 
@@ -1467,7 +1589,7 @@ async function deleteProject(id) {
     renderLibrary();
   }
   renderProjects();
-  status(t("project_deleted"), "ok");
+  showStatus(t("project_deleted"), "ok");
 }
 
 function requestDeleteProject(id) {
@@ -1507,18 +1629,136 @@ async function confirmDeleteProject() {
 }
 
 function addCurrentPatchToProject() {
-  if (!state.currentProjectId || !state.currentPatchId) return;
-  const project = state.projects.find(p => p.id === state.currentProjectId);
-  if (!project) return;
-  if (project.patchIds.includes(state.currentPatchId)) {
-    status(t("patch_already_in_project"), "bad");
+  if (!state.projects.some(project => project.id === state.currentProjectId)) {
+    requestProjectForImport();
     return;
   }
-  project.patchIds.push(state.currentPatchId);
-  saveProject(project);
-  renderProjects();
-renderLibrary();
-  status(t("patch_added_to_project"), "ok");
+  openAddPatchDialog();
+}
+
+function populateGeneratedProgramOptions() {
+  if (!projectPatchGenerator) projectPatchGenerator = new ProjectPatchGenerator();
+  const isDrum = $("patchGeneratorType").value === "drum";
+  const select = $("patchGeneratorProgram");
+  const previousValue = select.value;
+  select.replaceChildren();
+  for (const program of projectPatchGenerator.getPrograms(isDrum)) {
+    const option = document.createElement("option");
+    option.value = String(program.id);
+    option.textContent = `${String(program.id).padStart(isDrum ? 2 : 3, "0")} - ${program.name}`;
+    select.appendChild(option);
+  }
+  if ([...select.options].some(option => option.value === previousValue)) {
+    select.value = previousValue;
+  }
+}
+
+function openAddPatchDialog() {
+  $("addPatchError").textContent = "";
+  populateGeneratedProgramOptions();
+  $("addPatchDialog").hidden = false;
+  $("btnChooseProjectPatchFile").focus();
+}
+
+function closeAddPatchDialog() {
+  if ($("btnGenerateProjectPatch").disabled) return;
+  $("addPatchDialog").hidden = true;
+}
+
+async function generateProjectPatch() {
+  if ($("btnGenerateProjectPatch").disabled) return;
+  const project = state.projects.find(entry => entry.id === state.currentProjectId);
+  if (!project) {
+    closeAddPatchDialog();
+    requestProjectForImport();
+    return;
+  }
+
+  const generateButton = $("btnGenerateProjectPatch");
+  generateButton.disabled = true;
+  $("addPatchError").textContent = "";
+  try {
+    if (!projectPatchGenerator) projectPatchGenerator = new ProjectPatchGenerator();
+    const isDrum = $("patchGeneratorType").value === "drum";
+    const generated = projectPatchGenerator.generate({
+      isDrum,
+      program: $("patchGeneratorProgram").value
+    });
+    const entry = {
+      id: uid("generated"),
+      name: generated.name,
+      source: "generated",
+      gmProgram: generated.program,
+      gmBank: isDrum ? 128 : 0,
+      ...(isDrum ? {drumSet: 0} : {}),
+      patch: generated.patch
+    };
+    if (await addPatchEntries([entry])) {
+      $("addPatchDialog").hidden = true;
+      showStatus(t("patch_generated", {name: generated.name}), "ok");
+    }
+  } catch(err) {
+    console.error("Generated patch error:", err);
+    $("addPatchError").textContent = t("patch_generation_failed", {message: err.message});
+  } finally {
+    generateButton.disabled = false;
+  }
+}
+
+async function handleProjectPatchFile(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
+  if (!state.projects.some(project => project.id === state.currentProjectId)) {
+    closeAddPatchDialog();
+    requestProjectForImport();
+    return;
+  }
+
+  try {
+    const bytes = await file.arrayBuffer();
+    if (detectFileType(bytes) !== "pat") {
+      throw new Error(t("pat_file_required"));
+    }
+    const patch = parsePAT(bytes);
+    const entry = {
+      id: uid("pat"),
+      name: (patch.header.description || file.name.replace(/\.pat$/i, "")).substring(0, 64),
+      source: "pat",
+      gmProgram: -1,
+      gmBank: 0,
+      patch
+    };
+    if (await addPatchEntries([entry])) {
+      $("addPatchDialog").hidden = true;
+      const count = allSamples().length;
+      showStatus(t("file_loading", {
+        filename: file.name,
+        samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count})
+      }), "ok");
+    }
+  } catch(err) {
+    console.error("Project PAT import error:", err);
+    $("addPatchError").textContent = t("patch_import_failed", {message: err.message});
+  }
+}
+
+function requestProjectForImport() {
+  $("projectRequiredDialog").hidden = false;
+  $("btnCreateProjectFromRequired").focus();
+}
+
+function closeProjectRequiredDialog() {
+  $("projectRequiredDialog").hidden = true;
+}
+
+function openNewProjectDialog() {
+  const newProjectName = $("newProjectName");
+  $("newProjectError").textContent = "";
+  newProjectName.value = t("create_project_default", {number: state.projects.length + 1});
+  $("newProjectDialog").hidden = false;
+  newProjectName.focus();
+  newProjectName.select();
 }
 
 function removePatchFromProject(projectId, patchId) {
@@ -1835,7 +2075,7 @@ async function ensureTimidityPlayer() {
   timidityPlayer.onError((err) => {
     console.error("TiMidity Error:", err);
     setMidiStatus("midi_error", {message: err});
-    status(t("timidity_error", {message: err}), "bad");
+    showStatus(t("timidity_error", {message: err}), "bad");
   });
   timidityPlayer.onInstrumentLoading((loaded, total, filename) => {
     setMidiStatus("loading_patch", {loaded, total});
@@ -2174,10 +2414,10 @@ function exportPatchById(id){
     a.download=(entry.name||"patch").replace(/[^\w\-]+/g,"_")+".pat";
     a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status(t("patch_exported", {name: entry.name}),"ok");
+    showStatus(t("patch_exported", {name: entry.name}),"ok");
   }catch(err){
     console.error(err);
-    status(t("export_failed", {message: err.message}),"bad");
+    showStatus(t("export_failed", {message: err.message}),"bad");
   }
 }
 
@@ -2186,7 +2426,7 @@ async function exportProject(projectId) {
   if (!project) return;
   const patches = getProjectPatches(project);
   if (patches.length === 0) {
-    status(t("empty_project"), "bad");
+    showStatus(t("empty_project"), "bad");
     return;
   }
 
@@ -2270,15 +2510,15 @@ async function exportProject(projectId) {
     a.download = `${project.name.replace(/[^\w\-]+/g, "_")}.zip`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status(t("project_exported", {name: project.name}), "ok");
+    showStatus(t("project_exported", {name: project.name}), "ok");
   } catch (err) {
     console.error(err);
-    status(t("project_export_failed", {message: err.message}), "bad");
+    showStatus(t("project_export_failed", {message: err.message}), "bad");
   }
 }
 
 async function exportAllPatches(){
-  if(state.patches.length===0){status(t("empty_library"),"bad");return;}
+  if(state.patches.length===0){showStatus(t("empty_library"),"bad");return;}
   try {
     const zipFiles = [];
     const usedPaths = new Set();
@@ -2356,17 +2596,17 @@ async function exportAllPatches(){
     a.download = "gus_patches.zip";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status(t("zip_exported", {count: zipFiles.length}), "ok");
+    showStatus(t("zip_exported", {count: zipFiles.length}), "ok");
   } catch (err) {
     console.error(err);
-    status(t("zip_failed", {message: err.message}), "bad");
+    showStatus(t("zip_failed", {message: err.message}), "bad");
   }
 }
 
 function exportInstrument(instIdx){
   if(!state.patch)return;
   const inst=state.patch.instruments[instIdx];
-  if(!inst){status(t("instrument_not_found"),"bad");return;}
+  if(!inst){showStatus(t("instrument_not_found"),"bad");return;}
   try{
     const newPatch={
       header: cleanPatchForStorage(state.patch).header,
@@ -2380,10 +2620,10 @@ function exportInstrument(instIdx){
     a.download=(inst.name||("instrument_"+inst.instrument)).replace(/[^\w\-]+/g,"_")+".pat";
     a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status(t("instrument_exported"),"ok");
+    showStatus(t("instrument_exported"),"ok");
   }catch(err){
     console.error(err);
-    status(t("instrument_export_failed"),"bad");
+    showStatus(t("instrument_export_failed"),"bad");
   }
 }
 
@@ -2472,15 +2712,13 @@ function allSamples(){
 }
 
 function renderLibrary(filterProjectId = undefined) {
-  // Gunakan currentProjectId jika parameter tidak diberikan
   const projectId = filterProjectId !== undefined ? filterProjectId : state.currentProjectId;
   let displayPatches = state.patches;
 
-  // Jika ada proyek yang dipilih/difilter, ambil patch dari proyek tersebut saja
-  if (projectId) {
+  if (state.libraryView === "project" && projectId) {
     const project = state.projects.find(p => p.id === projectId);
     if (project) {
-      displayPatches = state.patches.filter(p => project.patchIds.includes(p.id));
+      displayPatches = state.patches.filter(p => (project.patchIds || []).includes(p.id));
     } else {
       displayPatches = [];
     }
@@ -2488,9 +2726,10 @@ function renderLibrary(filterProjectId = undefined) {
 
   const list = $("patchList");
   list.innerHTML = "";
-  
-  // PERBAIKAN: Update libCount secara eksplisit berdasarkan patch yang difilter
   $("libCount").textContent = displayPatches.length;
+  const showAll = state.libraryView === "all";
+  $("btnLibraryScope").textContent = t(showAll ? "show_project_library" : "show_all_library");
+  $("btnLibraryScope").disabled = !state.currentProjectId;
 
   if (displayPatches.length === 0) {
     list.innerHTML = `<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_patch")}</div>`;
@@ -2546,7 +2785,7 @@ function renderProjects() {
     d.className = "li" + (proj.id === state.currentProjectId ? " active" : "");
     const patchCount = proj.patchIds.length;
     d.innerHTML = `
-      <span class="name" title="${escapeHtml(proj.name)}">${escapeHtml(proj.name)}</span>
+      <span class="name"${proj.locale ? ` data-i18n-content="recovered_library_project"` : ""} title="${proj.locale ? t("recovered_library_project") : escapeHtml(proj.name)}">${proj.locale ? t("recovered_library_project") : escapeHtml(proj.name)}</span>
       <span class="meta">${t(patchCount === 1 ? "patch_count_one" : "patch_count_many", {count: patchCount})}</span>
       <span class="tools">
   <button class="icon-btn" data-act="export" title="${t("export_project_zip")}"><svg class="icon"><use href="#i-download"></use></svg></button>
@@ -2569,6 +2808,7 @@ function renderProjects() {
 
       // Ganti proyek aktif
       state.currentProjectId = proj.id;
+      state.libraryView = "project";
       
       // Hancurkan player lama (jika ada)
       invalidateTimidityPlayer(); 
@@ -2601,7 +2841,7 @@ function renderProjects() {
     list.appendChild(d);
   });
   const hasActive = !!state.currentProjectId;
-  $("btnAddToProject").disabled = !hasActive || !state.currentPatchId;
+  $("btnAddToProject").disabled = !hasActive;
   $("btnDeleteProject").disabled = !hasActive;
   $("btnExportProject").disabled = !hasActive;
 }
@@ -2811,6 +3051,11 @@ function detectFileType(ab){
 function handleFileOpen(e){
   const file=e.target.files&&e.target.files[0];
   if(!file)return;
+  if(!state.projects.some(project => project.id === state.currentProjectId)) {
+    e.target.value="";
+    requestProjectForImport();
+    return;
+  }
   const reader=new FileReader();
   reader.onload=()=>{
     try{
@@ -2826,29 +3071,37 @@ function handleFileOpen(e){
           gmBank: 0,
           patch
         };
-        addPatchEntries([entry], false).then(()=>{
+        addPatchEntries([entry]).then(added=>{
+          if(!added)return;
           const count = allSamples().length;
-          status(t("file_loading", {filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count})}),"ok");
+          showStatus(t("file_loading", {filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count})}),"ok");
+        }).catch(err=>{
+          console.error("PAT import error:", err);
+          showStatus(t("patch_add_failed", {message: err.message}), "bad");
         });
       } else if(type==="sf2"){
-        status(t("converting_sf2"));
+        showStatus(t("converting_sf2"));
         setTimeout(() => {
           try {
             const sf2=parseSF2(ab);
             const entries=sf2ToGusPatches(sf2,file.name);
             if(entries.length===0){
-              status(t("sf2_no_preset"),"bad");
-              alert(t("sf2_no_samples_alert"));
+              showStatus(t("sf2_no_preset"),"bad");
+              showAlert("sf2_no_samples_alert");
             } else {
-              addPatchEntries(entries, true).then(()=>{
+              addPatchEntries(entries).then(added=>{
+                if(!added)return;
                 const count = entries.length;
-                status(t("sf2_added_to_project", {filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", {count})}),"ok");
+                showStatus(t("sf2_added_to_project", {filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", {count})}),"ok");
+              }).catch(err=>{
+                console.error("SF2 import error:", err);
+                showStatus(t("patch_add_failed", {message: err.message}), "bad");
               });
             }
           } catch(err) {
             console.error(err);
-            status(t("sf2_conversion_failed", {message: err.message}), "bad");
-            alert(t("sf2_conversion_alert", {message: err.message}));
+            showStatus(t("sf2_conversion_failed", {message: err.message}), "bad");
+            showAlert("sf2_conversion_alert", {message: err.message});
           }
           e.target.value="";
         }, 100);
@@ -2859,12 +3112,12 @@ function handleFileOpen(e){
       e.target.value="";
     }catch(err){
       console.error(err);
-      status(t("file_parse_failed", {message: err.message}),"bad");
-      alert(t("file_load_alert", {message: err.message}));
+      showStatus(t("file_parse_failed", {message: err.message}),"bad");
+      showAlert("file_load_alert", {message: err.message});
       e.target.value="";
     }
   };
-  reader.onerror=()=>{status(t("file_read_failed"),"bad");e.target.value="";};
+  reader.onerror=()=>{showStatus(t("file_read_failed"),"bad");e.target.value="";};
   reader.readAsArrayBuffer(file);
 }
 
@@ -2882,10 +3135,10 @@ function savePAT(){
     a.download=name+".pat";
     a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status(t("pat_downloaded"),"ok");
+    showStatus(t("pat_downloaded"),"ok");
   }catch(err){
-    alert(t("save_alert", {message: err.message}));
-    status(t("save_failed_short"),"bad");
+    showAlert("save_alert", {message: err.message});
+    showStatus(t("save_failed_short"),"bad");
   }
 }
 
@@ -2899,12 +3152,12 @@ function exportWav(){
   a.download=(s.name||"sample")+".wav";
   a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
-  status(t("wav_downloaded"),"ok");
+  showStatus(t("wav_downloaded"),"ok");
 }
 
 function importWav(e){
   const file=e.target.files&&e.target.files[0]; if(!file)return;
-  const s=state.selSample; if(!s){alert(t("select_sample_first"));e.target.value="";return;}
+  const s=state.selSample; if(!s){showAlert("select_sample_first");e.target.value="";return;}
   const reader=new FileReader();
   reader.onload=()=>{
     try{
@@ -2921,10 +3174,10 @@ function importWav(e){
       }
       renderSampleEditor(); render();
       const count = s._float.length;
-      status(t("wav_imported", {samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count: count.toLocaleString()})}),"ok");
+      showStatus(t("wav_imported", {samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count: count.toLocaleString()})}),"ok");
     }catch(err){
-      alert(t("wav_import_alert", {message: err.message}));
-      status(t("wav_import_failed"),"bad");
+      showAlert("wav_import_alert", {message: err.message});
+      showStatus(t("wav_import_failed"),"bad");
     }
     e.target.value="";
   };
@@ -2934,7 +3187,7 @@ function importWav(e){
 /* ---------- MIDI ---------- */
 async function enableMidi(){
   if(state.midi.enabled){disableMidi();return;}
-  if(!navigator.requestMIDIAccess){alert(t("midi_not_supported"));return;}
+  if(!navigator.requestMIDIAccess){showAlert("midi_not_supported");return;}
   try{
     const access=await navigator.requestMIDIAccess();
     state.midi.access=access;
@@ -2943,8 +3196,8 @@ async function enableMidi(){
     access.onstatechange=refreshMidiInputs;
     $("midiDot").classList.add("on");
     $("btnMidi").textContent=t("disable");
-    status(t("midi_enabled"),"ok");
-  }catch(err){ alert(t("midi_enable_failed", {message: err.message})); }
+    showStatus(t("midi_enabled"),"ok");
+  }catch(err){ showAlert("midi_enable_failed", {message: err.message}); }
 }
 function disableMidi(){
   if(state.midi.input)state.midi.input.onmidimessage=null;
@@ -2953,7 +3206,7 @@ function disableMidi(){
   $("btnMidi").textContent=t("enable");
   $("midiSelect").innerHTML=`<option>${t("midi_off")}</option>`;
   $("midiSelect").disabled=true;
-  status(t("midi_disabled"));
+  showStatus(t("midi_disabled"));
   releaseAllVoices(true);
 }
 function refreshMidiInputs(){
@@ -2994,15 +3247,31 @@ function handleMidiMessage(e){
 function bind(){
   const patInput=$("patFile");
   [$("btnOpen"),$("btnOpen2")].forEach(b=>{
-    if(b) b.addEventListener("click",()=>{ patInput.value=""; patInput.click(); });
+    if(b) b.addEventListener("click",()=>{
+      if(!state.projects.some(project => project.id === state.currentProjectId)) {
+        requestProjectForImport();
+        return;
+      }
+      patInput.value="";
+      patInput.click();
+    });
   });
   patInput.addEventListener("change",handleFileOpen);
+  $("projectPatchFile").addEventListener("change", handleProjectPatchFile);
 
   const loadDemo=async()=>{
+    if(!state.projects.some(project => project.id === state.currentProjectId)) {
+      requestProjectForImport();
+      return;
+    }
     const patch=makeDemoPatch();
     const entry={ id:uid("demo"), name:"Demo Patch", source:"demo", gmProgram:0, gmBank:0, patch };
-    await addPatchEntries([entry], false);
-    status(t("demo_loaded"),"ok");
+    try {
+      if(await addPatchEntries([entry])) showStatus(t("demo_loaded"),"ok");
+    } catch(err) {
+      console.error("Demo patch error:", err);
+      showStatus(t("patch_add_failed", {message: err.message}), "bad");
+    }
   };
   $("btnDemo").addEventListener("click",loadDemo);
   const b2=$("btnDemo2"); if(b2)b2.addEventListener("click",loadDemo);
@@ -3024,11 +3293,7 @@ function bind(){
   const newProjectName = $("newProjectName");
   const newProjectError = $("newProjectError");
   $("btnNewProject").addEventListener("click", () => {
-    newProjectName.value = t("create_project_default", {number: state.projects.length + 1});
-    newProjectError.textContent = "";
-    newProjectDialog.hidden = false;
-    newProjectName.focus();
-    newProjectName.select();
+    openNewProjectDialog();
   });
   $("btnCancelNewProject").addEventListener("click", () => {
     newProjectDialog.hidden = true;
@@ -3052,6 +3317,36 @@ function bind(){
       closeDeleteProjectDialog();
     }
   });
+  $("btnCancelAction").addEventListener("click",closeConfirmationDialog);
+  $("btnConfirmAction").addEventListener("click",runConfirmationAction);
+  $("confirmActionDialog").addEventListener("click",event=>{
+    if(event.target===$("confirmActionDialog"))closeConfirmationDialog();
+  });
+  $("confirmActionDialog").addEventListener("keydown",event=>{
+    if(event.key==="Escape" && !$("btnConfirmAction").disabled)closeConfirmationDialog();
+  });
+  $("btnCloseAlert").addEventListener("click",closeAlert);
+  $("alertDialog").addEventListener("click",event=>{
+    if(event.target===$("alertDialog"))closeAlert();
+  });
+  $("alertDialog").addEventListener("keydown",event=>{
+    if(event.key==="Escape")closeAlert();
+  });
+  $("btnCancelClearLibrary").addEventListener("click", closeClearLibraryDialog);
+  $("btnConfirmClearLibrary").addEventListener("click", confirmClearLibrary);
+  $("clearLibraryDialog").addEventListener("click", event => {
+    if (event.target === $("clearLibraryDialog")) closeClearLibraryDialog();
+  });
+  $("clearLibraryDialog").addEventListener("keydown", event => {
+    if (event.key === "Escape" && !$("btnConfirmClearLibrary").disabled) {
+      closeClearLibraryDialog();
+    }
+  });
+  $("btnCloseProjectRequired").addEventListener("click", closeProjectRequiredDialog);
+  $("btnCreateProjectFromRequired").addEventListener("click", () => {
+    closeProjectRequiredDialog();
+    openNewProjectDialog();
+  });
   newProjectName.addEventListener("input", () => {
     newProjectError.textContent = "";
   });
@@ -3060,6 +3355,27 @@ function bind(){
   });
   $("btnDeleteProject").addEventListener("click", () => {
     if (state.currentProjectId) requestDeleteProject(state.currentProjectId);
+  });
+  $("btnLibraryScope").addEventListener("click", () => {
+    if (!state.currentProjectId) return;
+    state.libraryView = state.libraryView === "all" ? "project" : "all";
+    renderLibrary();
+  });
+  $("btnChooseProjectPatchFile").addEventListener("click", () => {
+    const input = $("projectPatchFile");
+    input.value = "";
+    input.click();
+  });
+  $("patchGeneratorType").addEventListener("change", populateGeneratedProgramOptions);
+  $("btnGenerateProjectPatch").addEventListener("click", generateProjectPatch);
+  $("btnCancelAddPatch").addEventListener("click", closeAddPatchDialog);
+  $("addPatchDialog").addEventListener("click", event => {
+    if (event.target === $("addPatchDialog")) closeAddPatchDialog();
+  });
+  $("addPatchDialog").addEventListener("keydown", event => {
+    if (event.key === "Escape" && !$("btnGenerateProjectPatch").disabled) {
+      closeAddPatchDialog();
+    }
   });
   $("btnExportProject").addEventListener("click", () => {
     if (state.currentProjectId) exportProject(state.currentProjectId);
@@ -3257,19 +3573,19 @@ $("midiSeek").addEventListener("change", (e) => {
   $("btnLoopSel").addEventListener("click",()=>{
     const s=state.selSample; if(!s)return;
     const a=Math.min(state.selStart,state.selEnd), b=Math.max(state.selStart,state.selEnd);
-    if(b<=a){status(t("select_range_first"),"bad");return;}
+    if(b<=a){showStatus(t("select_range_first"),"bad");return;}
     const bps=fmt(s).bps;
     s.loopStart=Math.round(a*bps); s.loopEnd=Math.round(b*bps);
     s.modes|=MLOOP;
     renderSampleEditor(); render();
-    status(t("loop_set_selection"),"ok");
+    showStatus(t("loop_set_selection"),"ok");
   });
   $("btnLoopAll").addEventListener("click",()=>{
     const s=state.selSample; if(!s)return;
     const n=ensureFloat(s).length, bps=fmt(s).bps;
     s.loopStart=0; s.loopEnd=n*bps; s.modes|=MLOOP;
     renderSampleEditor(); render();
-    status(t("loop_set_all"),"ok");
+    showStatus(t("loop_set_all"),"ok");
   });
 
   $("btnPlay").addEventListener("click",()=>{
@@ -3284,7 +3600,7 @@ $("midiSeek").addEventListener("change", (e) => {
   hold.addEventListener("mouseleave",endHold);
   hold.addEventListener("touchstart",startHold,{passive:false});
   hold.addEventListener("touchend",endHold,{passive:false});
-  $("btnStop").addEventListener("click",()=>{stopAllVoices();status(t("status_stopped"));});
+  $("btnStop").addEventListener("click",()=>{stopAllVoices();showStatus(t("status_stopped"));});
 
   $("btnExportWav").addEventListener("click",exportWav);
   $("btnImportWav").addEventListener("click",()=>{$("wavFile").value="";$("wavFile").click();});
@@ -3292,23 +3608,24 @@ $("midiSeek").addEventListener("change", (e) => {
 
   $("btnDeleteSample").addEventListener("click",()=>{
     const s=state.selSample; if(!s)return;
-    if(!confirm(t("delete_sample_confirm")))return;
-    for(const inst of state.patch.instruments){
-      for(const layer of inst.layers){
-        const idx=layer.samples.indexOf(s);
-        if(idx>=0){
-          layer.samples.splice(idx,1);
-          if(inst.layers.every(l=>l.samples.length===0)){
-            const iIdx=state.patch.instruments.indexOf(inst);
-            if(iIdx>=0)state.patch.instruments.splice(iIdx,1);
+    openConfirmationDialog(t("delete_sample_title"),t("delete_sample_confirm"),t("delete"),()=>{
+      for(const inst of state.patch.instruments){
+        for(const layer of inst.layers){
+          const idx=layer.samples.indexOf(s);
+          if(idx>=0){
+            layer.samples.splice(idx,1);
+            if(inst.layers.every(l=>l.samples.length===0)){
+              const iIdx=state.patch.instruments.indexOf(inst);
+              if(iIdx>=0)state.patch.instruments.splice(iIdx,1);
+            }
+            state.selSample=null; state.selStart=state.selEnd=0;
+            state.selInst=clamp(state.selInst,0,Math.max(0,state.patch.instruments.length-1));
+            render(); showStatus(t("sample_deleted"),"ok");
+            return;
           }
-          state.selSample=null; state.selStart=state.selEnd=0;
-          state.selInst=clamp(state.selInst,0,Math.max(0,state.patch.instruments.length-1));
-          render(); status(t("sample_deleted"),"ok");
-          return;
         }
       }
-    }
+    });
   });
 
   window.addEventListener("keydown",e=>{
@@ -3344,7 +3661,7 @@ $("midiSeek").addEventListener("change", (e) => {
     return;
   }
   bind();
-  status(t("library_loading"));
+  showStatus(t("library_loading"));
   try{
     const [entries, projects] = await Promise.all([
       dbGetAll(STORE),
@@ -3357,23 +3674,56 @@ $("midiSeek").addEventListener("change", (e) => {
     }
     state.patches=entries;
     
+    let projectMigrationFailed = false;
+    const projectsNeedingSave = [];
     for(const proj of projects){
-      if(!proj.patchIds) proj.patchIds = [];
+      if(!Array.isArray(proj.patchIds)) proj.patchIds = [];
+      if(proj.locale || proj.name === "{{recovered_library_project}}") {
+        proj.locale = true;
+        proj.name = t("recovered_library_project");
+        projectsNeedingSave.push(proj);
+      }
     }
     state.projects = projects;
-    
+
+    if(projectsNeedingSave.length > 0) {
+      try {
+        await dbPutMany(STORE_PROJECTS, projectsNeedingSave);
+      } catch(err) {
+        console.error("Unable to repair recovered project name:", err);
+        projectMigrationFailed = true;
+      }
+    }
+    const assignedPatchIds = new Set(projects.flatMap(project => project.patchIds));
+    const unassignedEntries = entries.filter(entry => !assignedPatchIds.has(entry.id));
+    if(unassignedEntries.length > 0) {
+      const recoveredProject = {
+        id: uid("proj"),
+        name: t("recovered_library_project"),
+        locale: true,
+        patchIds: unassignedEntries.map(entry => entry.id)
+      };
+      try {
+        await dbSaveProjectAndPatches(recoveredProject, unassignedEntries);
+        state.projects.push(recoveredProject);
+      } catch(err) {
+        console.error("Unable to assign existing patches to a project:", err);
+        projectMigrationFailed = true;
+      }
+    }
+
     if(entries.length>0){
       selectPatch(entries[0].id);
     } else {
       render();
     }
     renderProjects();
-    status(t("library_loaded", {
+    showStatus(projectMigrationFailed ? t("library_project_migration_failed") : t("library_loaded", {
       patches: t(entries.length === 1 ? "patch_count_one" : "patch_count_many", {count: entries.length}),
-      projects: t(projects.length === 1 ? "project_count_one" : "project_count_many", {count: projects.length})
-    }),"ok");
+      projects: t(state.projects.length === 1 ? "project_count_one" : "project_count_many", {count: state.projects.length})
+    }), projectMigrationFailed ? "bad" : "ok");
   }catch(err){
     console.error("Load DB error:",err);
-    status(t("library_load_failed"),"bad");
+    showStatus(t("library_load_failed"),"bad");
   }
 })();

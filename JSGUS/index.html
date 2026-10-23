@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="GUS Patch Generator — 128 GM instruments from pure JavaScript oscillators — preview & download .pat">
+    <meta name="keywords"
+        content="GUS, Gravis Ultrasound, patch generator, GM instruments, JavaScript oscillators, preview, download, .pat">
+    <meta name="author" content="Kamshory">
+    <title>GUS Patch Generator — 128 GM Instruments</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>🎛️ GUS Patch Generator</h1>
+            <div class="sub">128 GM instruments from pure JavaScript oscillators — preview & download .pat</div>
+        </div>
+        <div class="controls">
+            <button id="btnPreview" class="primary">▶ Preview</button>
+            <button id="btnDownload">⬇ Download .pat</button>
+            <button id="btnZip" class="success">📦 Download All (ZIP)</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside id="instrumentList"></aside>
+
+        <main>
+            <div class="card">
+                <h2 id="title">— Select an instrument —</h2>
+                <div class="meta" id="familyLabel">Click an instrument on the left to get started</div>
+
+                <div class="grid">
+                    <div class="field">
+                        <label>Base Waveform</label>
+                        <select id="wave">
+                            <option value="preset">— From GM preset —</option>
+                            <option value="sine">Sine</option>
+                            <option value="square">Square</option>
+                            <option value="saw">Saw</option>
+                            <option value="triangle">Triangle</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Sample Rate</label>
+                        <select id="sr">
+                            <option value="22050">22050 Hz</option>
+                            <option value="44100">44100 Hz</option>
+                            <option value="11025">11025 Hz</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Root Frequency</label>
+                        <input id="root" type="number" value="441" min="20" max="4000">
+                    </div>
+                    <div class="field">
+                        <label>Duration (seconds)</label>
+                        <input id="dur" type="number" value="0.25" min="0.05" max="3" step="0.05">
+                    </div>
+                </div>
+
+                <canvas id="waveCanvas" width="800" height="140"></canvas>
+
+                <div class="actions">
+                    <button id="btnPlayNote" class="primary">🎹 Play C4</button>
+                    <button id="btnPlayScale">🎼 Scale</button>
+                    <button id="btnStop">⏹ Stop</button>
+                </div>
+
+                <div class="stats">
+                    <div>Samples: <b id="statLen">—</b></div>
+                    <div>Loop: <b id="statLoop">—</b></div>
+                    <div>Bytes: <b id="statBytes">—</b></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Log</h2>
+                <div class="log" id="log">Ready.</div>
+                <div class="progress" id="progressWrap">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="GUSPatchGenerator.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // =================================================================
+            //                          SECTION 2
+            //                       IMPLEMENTATION
+            // =================================================================
+
+            const library = new InstrumentLibrary();
+            const app = new GusPatchApp(library);
+            app.init();
+        });
+
+
+    </script>
+</body>
+
+</html>

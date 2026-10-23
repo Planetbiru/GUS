@@ -714,6 +714,35 @@ footer {
     line-height: 1.5
 }
 
+.alert-message {
+    white-space: pre-wrap
+}
+
+.add-patch-choice {
+    margin: 14px 0 0
+}
+
+.add-patch-choice button {
+    width: 100%
+}
+
+.add-patch-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+    color: var(--dim);
+    font-size: 11px
+}
+
+.add-patch-divider::before,
+.add-patch-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line)
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;

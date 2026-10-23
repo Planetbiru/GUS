@@ -114,6 +114,7 @@
       </select>
       <input type="file" id="patFile"
         accept=".pat,.PAT,.sf2,.SF2,application/octet-stream,audio/soundfont,application/x-soundfont" hidden>
+      <input type="file" id="projectPatchFile" accept=".pat,.PAT" hidden>
       <button class="btn primary" id="btnOpen"><svg class="icon">
           <use href="#i-folder"></use>
         </svg> {{open_pat_sf2}}</button>
@@ -139,15 +140,15 @@
       <div class="card">
         <h3>{{projects}} <span class="pill" id="projCount">0</span></h3>
         <div class="list" id="projectList" style="max-height:160px"></div>
-        <div style="display:flex;gap:4px;margin-top:6px">
-          <button class="btn small" id="btnNewProject" style="flex:1">{{new_project}}</button>
+        <div style="display:flex;gap:4px;margin-top:4px">
+          <button class="btn small" id="btnAddToProject" style="flex:1" disabled>{{add_patch}}</button>
           <button class="btn small" id="btnExportProject" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
             </svg> {{zip_format}}</button>
         </div>
-        <div style="display:flex;gap:4px;margin-top:4px">
-          <button class="btn small" id="btnAddToProject" style="flex:1" disabled>{{add_patch}}</button>
-          <button class="btn small danger" id="btnDeleteProject" disabled>{{delete}}</button>
+        <div style="display:flex;gap:4px;margin-top:6px">
+          <button class="btn small" id="btnNewProject" style="flex:1">{{new_project}}</button>
+          <button class="btn small danger" id="btnDeleteProject" style="flex:1" disabled>{{delete}}</button>
         </div>
       </div>
 
@@ -204,6 +205,7 @@
 
       <div class="card">
         <h3>{{library}} <span class="pill" id="libCount" style="float:right">0</span></h3>
+        <button class="btn small" id="btnLibraryScope" style="width:100%;margin:0 0 6px">{{show_all_library}}</button>
         <div class="list" id="patchList" style="max-height:200px"></div>
         <div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn small" id="btnExportAll" style="flex:1"><svg class="icon">
@@ -447,6 +449,90 @@
     </section>
   </div>
 
+  <div id="clearLibraryDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="clearLibraryTitle" aria-describedby="clearLibraryMessage">
+      <div class="modal-content">
+        <h2 id="clearLibraryTitle">{{clear_library_title}}</h2>
+        <p id="clearLibraryMessage" class="modal-message"></p>
+        <div id="clearLibraryError" class="modal-error" role="alert" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button class="btn" id="btnCancelClearLibrary" type="button">{{cancel}}</button>
+          <button class="btn danger" id="btnConfirmClearLibrary" type="button">{{clear}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="confirmActionDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmationTitle" aria-describedby="confirmationMessage">
+      <div class="modal-content">
+        <h2 id="confirmationTitle"></h2>
+        <p id="confirmationMessage" class="modal-message"></p>
+        <div id="confirmationError" class="modal-error" role="alert" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button class="btn" id="btnCancelAction" type="button">{{cancel}}</button>
+          <button class="btn danger" id="btnConfirmAction" type="button">{{delete}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="alertDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage">
+      <div class="modal-content">
+        <h2 id="alertTitle">{{alert_title}}</h2>
+        <p id="alertMessage" class="modal-message alert-message"></p>
+        <div class="modal-actions">
+          <button class="btn primary" id="btnCloseAlert" type="button">{{ok_button}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="projectRequiredDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="projectRequiredTitle" aria-describedby="projectRequiredMessage">
+      <div class="modal-content">
+        <h2 id="projectRequiredTitle">{{project_required_title}}</h2>
+        <p id="projectRequiredMessage" class="modal-message">{{project_required_message}}</p>
+        <div class="modal-actions">
+          <button class="btn" id="btnCloseProjectRequired" type="button">{{choose_project}}</button>
+          <button class="btn primary" id="btnCreateProjectFromRequired" type="button">{{create_project}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="addPatchDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="addPatchTitle">
+      <div class="modal-content">
+        <h2 id="addPatchTitle">{{add_patch_title}}</h2>
+        <p class="modal-message">{{add_patch_message}}</p>
+        <div class="field add-patch-choice">
+          <button class="btn" id="btnChooseProjectPatchFile" type="button">{{open_pat_file}}</button>
+        </div>
+        <div class="add-patch-divider">{{or_separator}}</div>
+        <div class="field">
+          <label for="patchGeneratorType">{{instrument_type}}</label>
+          <select id="patchGeneratorType">
+            <option value="melodic">{{non_drum}}</option>
+            <option value="drum">{{drum}}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="patchGeneratorProgram">{{instrument_program}}</label>
+          <select id="patchGeneratorProgram"></select>
+        </div>
+        <div id="addPatchError" class="modal-error" role="alert" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button class="btn" id="btnCancelAddPatch" type="button">{{cancel}}</button>
+          <button class="btn primary" id="btnGenerateProjectPatch" type="button">{{generate_patch}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="JSGUS/GUSPatchGenerator.js"></script>
+  <script src="assets/js/project-patch-generator.js"></script>
   <script src="assets/js/script.js"></script>
 </body>
 

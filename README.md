@@ -8,3 +8,7 @@ The editor supports Indonesian and English. Language strings are stored in `asse
 In `index.html`, use `{{key}}` for translatable content. Translatable attributes use an explicit `data-i18n-<attribute>` marker, such as `data-i18n-placeholder="project_name_placeholder"`. Runtime-generated messages use the `t()` helper in `assets/js/script.js`.
 
 Run the editor from a local web server so the browser can fetch the locale JSON files.
+
+## Generating patches
+
+The **Add Patch** dialog can import a `.PAT` file or generate a melodic/drum patch. The reusable `ProjectPatchGenerator` class is in `assets/js/project-patch-generator.js`; it exposes `getPrograms(isDrum)` and `generate({isDrum, program})`. Its reference instrument library and renderers must be loaded from `JSGUS/GUSPatchGenerator.js` first.
