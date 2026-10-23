@@ -12,3 +12,5 @@ Run the editor from a local web server so the browser can fetch the locale JSON 
 ## Generating patches
 
 The **Add Patch** dialog can import a `.PAT` file or generate a melodic/drum patch. The reusable `ProjectPatchGenerator` class is in `assets/js/project-patch-generator.js`; it exposes `getPrograms(isDrum)` and `generate({isDrum, program})`. Its reference instrument library and renderers must be loaded from `JSGUS/GUSPatchGenerator.js` first.
+
+The **Demo** action asks for a project name, then prepares a dedicated MIDI demo project with all 128 melodic programs and every drum instrument supported by the patch generator.

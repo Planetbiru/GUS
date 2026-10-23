@@ -106,6 +106,7 @@ function setLanguage(nextLocale) {
   if (!localePacks[nextLocale] || nextLocale === locale) return;
   const previousLocale = locale;
   const defaultProjectName = t("create_project_default", {number: state.projects.length + 1});
+  const defaultDemoProjectName = t("demo_project_name");
   locale = nextLocale;
   translations = localePacks[locale];
 
@@ -127,6 +128,9 @@ function setLanguage(nextLocale) {
     .forEach(localizeElement);
   if ($("newProjectDialog") && !$("newProjectDialog").hidden && $("newProjectName").value === defaultProjectName) {
     $("newProjectName").value = t("create_project_default", {number: state.projects.length + 1});
+  }
+  if ($("demoProjectDialog") && !$("demoProjectDialog").hidden && $("demoProjectName").value === defaultDemoProjectName) {
+    $("demoProjectName").value = t("demo_project_name");
   }
   render(false);
   $("btnMidi").textContent = t(state.midi.enabled ? "disable" : "enable");
@@ -173,6 +177,7 @@ const state = {
 
 let timidityPlayer = null;
 let isMidiRendering = false;
+let isDemoGenerating = false;
 let pendingProjectDeletionId = null;
 let pendingConfirmationAction = null;
 let activeAlert = null;
@@ -2115,6 +2120,7 @@ async function loadMidiFile(e) {
   midiProgress.current = 0;
   midiProgress.playing = false;
   midiProgress.paused = false;
+  midiProgress.seeking = false;
   
   setMidiStatus("midi_ready", {filename: file.name});
   $("btnPlayMidi").disabled = false;
@@ -2190,7 +2196,8 @@ const midiProgress = {
   startTime: 0,
   current: 0,
   duration: 0,
-  raf: null
+  raf: null,
+  seeking: false
 };
 
 // Parser durasi MIDI (menghitung tempo, tick, dan waktu secara akurat)
@@ -2282,16 +2289,20 @@ function formatTime(sec) {
 
 function updateMidiUI() {
   if (!state.midiData) return;
-  const cur = midiProgress.current;
   const dur = midiProgress.duration;
+  const cur = midiProgress.seeking
+    ? (parseInt($("midiSeek").value, 10) / 1000) * dur
+    : midiProgress.current;
   
   $("midiTimeCur").textContent = formatTime(cur);
   $("midiTimeTotal").textContent = formatTime(dur);
   
-  if (!midiProgress.playing && !midiProgress.paused) {
-    $("midiSeek").value = 0;
-  } else {
-    $("midiSeek").value = Math.floor((cur / dur) * 1000);
+  if (!midiProgress.seeking) {
+    if (!midiProgress.playing && !midiProgress.paused) {
+      $("midiSeek").value = 0;
+    } else {
+      $("midiSeek").value = Math.floor((cur / dur) * 1000);
+    }
   }
 }
 
@@ -2384,6 +2395,7 @@ async function playMidi(fromTime = 0) {
 function stopMidi() {
   midiProgress.playing = false;
   midiProgress.paused = false;
+  midiProgress.seeking = false;
   midiProgress.current = 0;
   cancelAnimationFrame(midiProgress.raf);
   
@@ -2769,6 +2781,37 @@ function renderLibrary(filterProjectId = undefined) {
   });
 }
 
+function selectProject(projectId) {
+  if (isMidiRendering) return;
+  const project = state.projects.find(entry => entry.id === projectId);
+  if (!project) return;
+
+  const wasPlaying = midiProgress.playing;
+  const wasPaused = midiProgress.paused;
+  const resumeTime = midiProgress.current;
+
+  state.currentProjectId = project.id;
+  state.libraryView = "project";
+  invalidateTimidityPlayer();
+  renderProjects();
+  renderLibrary();
+
+  if (state.midiData && (wasPlaying || wasPaused)) {
+    setTimeout(() => {
+      if (wasPaused) {
+        midiProgress.playing = false;
+        midiProgress.paused = true;
+        midiProgress.current = resumeTime;
+        midiProgress.startTime = performance.now() - (resumeTime * 1000);
+        updateMidiUI();
+        setMidiStatus("midi_paused_at", {time: formatTime(resumeTime)});
+      } else {
+        playMidi(resumeTime);
+      }
+    }, 50);
+  }
+}
+
 function renderProjects() {
   const list = $("projectList");
   list.innerHTML = "";
@@ -2776,6 +2819,7 @@ function renderProjects() {
   if (state.projects.length === 0) {
     list.innerHTML = `<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_project")}</div>`;
     $("btnAddToProject").disabled = true;
+    $("btnImportSoundfont").disabled = true;
     $("btnDeleteProject").disabled = true;
     $("btnExportProject").disabled = true;
     return;
@@ -2794,54 +2838,19 @@ function renderProjects() {
     d.addEventListener("click", ev => {
   if (isMidiRendering) return;
   const btn = ev.target.closest("button");
-      if (btn) {
+  if (btn) {
         ev.stopPropagation();
         if (btn.dataset.act === "export") exportProject(proj.id);
         else if (btn.dataset.act === "delete") requestDeleteProject(proj.id);
         return;
       }
-
-      // Simpan state MIDI saat ini
-      const wasPlaying = midiProgress.playing;
-      const wasPaused = midiProgress.paused;
-      const resumeTime = midiProgress.current;
-
-      // Ganti proyek aktif
-      state.currentProjectId = proj.id;
-      state.libraryView = "project";
-      
-      // Hancurkan player lama (jika ada)
-      invalidateTimidityPlayer(); 
-      
-      // Update UI Proyek
-      renderProjects();
-      renderLibrary();
-      $("btnAddToProject").disabled = false;
-      $("btnDeleteProject").disabled = false;
-      $("btnExportProject").disabled = false;
-
-      // Jika user sedang memutar atau pause lagu, lanjutkan secara transparan dengan instrumen baru
-      if (state.midiData && (wasPlaying || wasPaused)) {
-        setTimeout(() => {
-          if (wasPaused) {
-            // Tetap dalam keadaan pause, tapi diam-diam muat instrumen baru
-            midiProgress.playing = false;
-            midiProgress.paused = true;
-            midiProgress.current = resumeTime;
-            midiProgress.startTime = performance.now() - (resumeTime * 1000);
-            updateMidiUI();
-            setMidiStatus("midi_paused_at", {time: formatTime(resumeTime)});
-          } else {
-            // Mulai putar dari detik terakhir dengan instrumen baru
-            playMidi(resumeTime);
-          }
-        }, 50); // Beri jeda sedikit agar UI tidak freeze
-      }
+      selectProject(proj.id);
     });
     list.appendChild(d);
   });
   const hasActive = !!state.currentProjectId;
   $("btnAddToProject").disabled = !hasActive;
+  $("btnImportSoundfont").disabled = !hasActive;
   $("btnDeleteProject").disabled = !hasActive;
   $("btnExportProject").disabled = !hasActive;
 }
@@ -2994,47 +3003,134 @@ function renderSampleEditor(save=true){
   requestAnimationFrame(drawWave);
 }
 
-/* ---------- Demo Patch ---------- */
-function makeDemoPatch(){
-  function makeSamples(rate,count,type){
-    const f=new Float32Array(count), freq=440;
-    for(let i=0;i<count;i++){
-      const t=i/rate;
-      let v=0;
-      if(type==="sine")v=Math.sin(2*Math.PI*freq*t);
-      else if(type==="saw")v=2*((t*freq)%1)-1;
-      else if(type==="square")v=(t*freq)%1<0.5?1:-1;
-      const env=Math.min(1,i/(rate*0.02));
-      f[i]=v*env*0.6;
+/* ---------- MIDI Demo Project ---------- */
+function requestMidiDemoProject(buttons){
+  if(isDemoGenerating)return;
+  if(state.projects.some(entry=>entry.demoGenerated===true)){
+    createMidiDemoProject(buttons);
+    return;
+  }
+  $("demoProjectError").textContent="";
+  $("demoProjectName").value=t("demo_project_name");
+  $("demoProjectDialog").hidden=false;
+  $("demoProjectName").focus();
+  $("demoProjectName").select();
+}
+
+function closeDemoProjectDialog(){
+  if($("btnConfirmDemoProject").disabled)return;
+  $("demoProjectDialog").hidden=true;
+  $("demoProjectError").textContent="";
+}
+
+async function confirmDemoProject(buttons){
+  if($("btnConfirmDemoProject").disabled)return;
+  const name=$("demoProjectName").value.trim();
+  if(!name){
+    $("demoProjectError").textContent=t("project_name_required");
+    $("demoProjectName").focus();
+    return;
+  }
+  const confirmButton=$("btnConfirmDemoProject");
+  const cancelButton=$("btnCancelDemoProject");
+  confirmButton.disabled=true;
+  cancelButton.disabled=true;
+  $("demoProjectError").textContent="";
+  $("demoProjectDialog").hidden=true;
+  try{
+    await createMidiDemoProject(buttons,name);
+  }finally{
+    confirmButton.disabled=false;
+    cancelButton.disabled=false;
+  }
+}
+
+async function createMidiDemoProject(buttons,projectName){
+  if(isDemoGenerating)return;
+  isDemoGenerating=true;
+  buttons.forEach(button=>button.disabled=true);
+  try{
+    if(!projectPatchGenerator)projectPatchGenerator=new ProjectPatchGenerator();
+    const melodic=projectPatchGenerator.getPrograms(false);
+    const drums=projectPatchGenerator.getPrograms(true);
+    if(melodic.length!==128 || drums.length===0){
+      throw new Error("The demo instrument library is incomplete.");
     }
-    return f;
-  }
-  function makeSample(name,rate,count,type,rootFreq,loopStart,loopEnd){
-    const floats=makeSamples(rate,count,type);
-    const pcm=new Uint8Array(count);
-    for(let i=0;i<count;i++){const v=clamp(floats[i],-1,1); pcm[i]=Math.round(v*127)+128;}
-    return {
-      name, fractions:0, dataSize:count, loopStart, loopEnd, sampleRate:rate,
-      lowFreq:0, highFreq:rate/2, rootFreq, tune:0, balance:7,
-      envRates:[0,0,0,0,0,0], envOffsets:[255,255,255,0,0,0],
-      tremoloSweep:0, tremoloRate:0, tremoloDepth:0,
-      vibratoSweep:0, vibratoRate:0, vibratoDepth:0,
-      modes:MUNS|MLOOP, scaleFreq:60, scaleFactor:1024,
-      reserved:new Uint8Array(36), pcm, _float:null
+
+    let project=state.projects.find(entry=>entry.demoGenerated===true);
+    const isNewProject=!project;
+    if(!project){
+      project={
+        id:uid("demo-project"),
+        name:projectName || t("demo_project_name"),
+        patchIds:[],
+        demoGenerated:true
+      };
+    }
+
+    const existingPatches=getProjectPatches(project);
+    const existingPrograms=new Set(existingPatches
+      .filter(entry=>entry.gmProgram!==undefined && entry.gmProgram!==-1)
+      .map(entry=>`${entry.gmBank===128 ? 128 : 0}:${entry.gmProgram}`));
+    const tasks=[
+      ...melodic.map(instrument=>({instrument,isDrum:false,bank:0})),
+      ...drums.map(instrument=>({instrument,isDrum:true,bank:128}))
+    ];
+    const missingTasks=tasks.filter(({instrument,bank})=>
+      !existingPrograms.has(`${bank}:${instrument.id}`)
+    );
+
+    if(missingTasks.length===0){
+      if(isNewProject)throw new Error("No demo instruments were generated.");
+      selectProject(project.id);
+      showStatus(t("demo_project_ready",{count:tasks.length}),"ok");
+      return;
+    }
+
+    const entries=[];
+    let completed=tasks.length-missingTasks.length;
+    showStatus(t("demo_generation_progress",{completed,total:tasks.length}));
+    for(let index=0;index<missingTasks.length;index++){
+      const {instrument,isDrum,bank}=missingTasks[index];
+      const generated=projectPatchGenerator.generate({isDrum,program:instrument.id});
+      entries.push({
+        id:uid("demo-patch"),
+        name:generated.name,
+        source:"demo-generated",
+        gmProgram:generated.program,
+        gmBank:bank,
+        ...(isDrum ? {drumSet:0} : {}),
+        patch:generated.patch
+      });
+      completed++;
+      if((index+1)%8===0 || index===missingTasks.length-1){
+        showStatus(t("demo_generation_progress",{
+          completed,
+          total:tasks.length
+        }));
+        await new Promise(resolve=>setTimeout(resolve,0));
+      }
+    }
+
+    const updatedProject={
+      ...project,
+      patchIds:[...(project.patchIds||[]),...entries.map(entry=>entry.id)],
+      demoGenerated:true
     };
+    await dbSaveProjectAndPatches(updatedProject,entries);
+    if(isNewProject)state.projects.push(updatedProject);
+    else state.projects=state.projects.map(entry=>entry.id===updatedProject.id ? updatedProject : entry);
+    state.patches.push(...entries);
+    selectProject(updatedProject.id);
+    if(entries.length>0)selectPatch(entries[0].id);
+    showStatus(t("demo_project_ready",{count:tasks.length}),"ok");
+  }catch(err){
+    console.error("Demo project generation failed:",err);
+    showStatus(t("demo_generation_failed",{message:err.message}),"bad");
+  }finally{
+    isDemoGenerating=false;
+    buttons.forEach(button=>button.disabled=false);
   }
-  const rate=22050;
-  const s1=makeSample("SINE",rate,rate,"sine",440,220,22000);
-  const s2=makeSample("SAW",rate,rate,"saw",440,220,22000);
-  const s3=makeSample("SQR",rate,rate/2,"square",440,220,11000);
-  return {
-    header:{magic:MAGIC,gravisId:GRAVIS_ID,description:"Demo GUS Patch",voices:14,channels:0,waveForms:3,masterVolume:120,dataSize:0,reserved:new Uint8Array(36)},
-    instruments:[
-      {instrument:0,name:"Sine Lead",size:0,reserved:new Uint8Array(40),layers:[{duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[s1]}]},
-      {instrument:1,name:"Saw Bass",size:0,reserved:new Uint8Array(40),layers:[{duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[s2]}]},
-      {instrument:2,name:"Square Pad",size:0,reserved:new Uint8Array(40),layers:[{duplicate:0,layer:0,layerSize:0,reserved:new Uint8Array(40),samples:[s3]}]}
-    ]
-  };
 }
 
 /* ---------- File Detection & Handler ---------- */
@@ -3246,6 +3342,7 @@ function handleMidiMessage(e){
 /* ---------- Bind UI ---------- */
 function bind(){
   const patInput=$("patFile");
+  const sf2Input=$("sf2File");
   [$("btnOpen"),$("btnOpen2")].forEach(b=>{
     if(b) b.addEventListener("click",()=>{
       if(!state.projects.some(project => project.id === state.currentProjectId)) {
@@ -3257,24 +3354,36 @@ function bind(){
     });
   });
   patInput.addEventListener("change",handleFileOpen);
-  $("projectPatchFile").addEventListener("change", handleProjectPatchFile);
-
-  const loadDemo=async()=>{
-    if(!state.projects.some(project => project.id === state.currentProjectId)) {
+  $("btnImportSoundfont").addEventListener("click",()=>{
+    if(!state.projects.some(project=>project.id===state.currentProjectId)){
       requestProjectForImport();
       return;
     }
-    const patch=makeDemoPatch();
-    const entry={ id:uid("demo"), name:"Demo Patch", source:"demo", gmProgram:0, gmBank:0, patch };
-    try {
-      if(await addPatchEntries([entry])) showStatus(t("demo_loaded"),"ok");
-    } catch(err) {
-      console.error("Demo patch error:", err);
-      showStatus(t("patch_add_failed", {message: err.message}), "bad");
+    sf2Input.value="";
+    sf2Input.click();
+  });
+  sf2Input.addEventListener("change",handleFileOpen);
+  $("projectPatchFile").addEventListener("change", handleProjectPatchFile);
+
+  const demoButtons=[$("btnDemo"),$("btnDemo2")].filter(Boolean);
+  demoButtons.forEach(button=>button.addEventListener("click",()=>requestMidiDemoProject(demoButtons)));
+  $("btnCancelDemoProject").addEventListener("click",closeDemoProjectDialog);
+  $("btnConfirmDemoProject").addEventListener("click",()=>confirmDemoProject(demoButtons));
+  $("demoProjectName").addEventListener("input",()=>$("demoProjectError").textContent="");
+  $("demoProjectName").addEventListener("keydown",event=>{
+    if(event.key==="Enter"){
+      event.preventDefault();
+      confirmDemoProject(demoButtons);
+    }else if(event.key==="Escape"){
+      closeDemoProjectDialog();
     }
-  };
-  $("btnDemo").addEventListener("click",loadDemo);
-  const b2=$("btnDemo2"); if(b2)b2.addEventListener("click",loadDemo);
+  });
+  $("demoProjectDialog").addEventListener("click",event=>{
+    if(event.target===$("demoProjectDialog"))closeDemoProjectDialog();
+  });
+  $("demoProjectDialog").addEventListener("keydown",event=>{
+    if(event.key==="Escape")closeDemoProjectDialog();
+  });
 
   $("btnSave").addEventListener("click",savePAT);
 
@@ -3399,21 +3508,33 @@ function bind(){
   $("btnStopMidi").addEventListener("click", stopMidi);
   $("btnRenderMidi").addEventListener("click", renderMidiToWav);
 
-$("midiSeek").addEventListener("change", (e) => {
+  $("midiSeek").addEventListener("input", e => {
     if (!state.midiData) return;
-    const pct = parseInt(e.target.value) / 1000;
+    midiProgress.seeking = true;
+    const targetTime = (parseInt(e.target.value, 10) / 1000) * midiProgress.duration;
+    $("midiTimeCur").textContent = formatTime(targetTime);
+  });
+
+  $("midiSeek").addEventListener("change", (e) => {
+    if (!state.midiData) return;
+    const pct = parseInt(e.target.value, 10) / 1000;
     const targetTime = pct * midiProgress.duration;
+    const wasPaused = midiProgress.paused;
     
-    // Tambahkan if (timidityPlayer)
-    if (timidityPlayer) timidityPlayer.stop(); 
-    
+    midiProgress.seeking = false;
+    cancelAnimationFrame(midiProgress.raf);
+    if (timidityPlayer) timidityPlayer.stop();
     midiProgress.current = targetTime;
     midiProgress.startTime = performance.now() - (targetTime * 1000);
     
-    if (midiProgress.paused) {
+    if (wasPaused) {
+      midiProgress.playing = false;
+      midiProgress.paused = true;
       updateMidiUI();
       setMidiStatus("midi_paused_at", {time: formatTime(targetTime)});
     } else {
+      midiProgress.playing = false;
+      midiProgress.paused = false;
       playMidi(targetTime);
     }
   });
