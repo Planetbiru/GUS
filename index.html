@@ -437,6 +437,24 @@
     </section>
   </div>
 
+  <div id="demoProjectDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="demoProjectTitle" aria-describedby="demoProjectDescription">
+      <div class="modal-content">
+        <h2 id="demoProjectTitle">{{demo_project_title}}</h2>
+        <p id="demoProjectDescription" class="modal-message">{{demo_project_prompt}}</p>
+        <div class="field" style="margin-top:14px">
+          <label for="demoProjectName">{{project_name}}</label>
+          <input id="demoProjectName" name="demo_project_name" type="text" maxlength="100" autocomplete="off" placeholder="{{project_name_placeholder}}" data-i18n-placeholder="project_name_placeholder">
+        </div>
+        <div id="demoProjectError" class="modal-error" role="alert" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button class="btn" id="btnCancelDemoProject" type="button">{{cancel}}</button>
+          <button class="btn primary" id="btnConfirmDemoProject" type="button">{{ok_button}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div id="deleteProjectDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="deleteProjectTitle" aria-describedby="deleteProjectMessage">
       <div class="modal-content">
