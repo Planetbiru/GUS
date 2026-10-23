@@ -114,6 +114,7 @@
       </select>
       <input type="file" id="patFile"
         accept=".pat,.PAT,.sf2,.SF2,application/octet-stream,audio/soundfont,application/x-soundfont" hidden>
+      <input type="file" id="sf2File" accept=".sf2,.SF2,audio/soundfont,application/x-soundfont" hidden>
       <input type="file" id="projectPatchFile" accept=".pat,.PAT" hidden>
       <button class="btn primary" id="btnOpen"><svg class="icon">
           <use href="#i-folder"></use>
@@ -142,6 +143,7 @@
         <div class="list" id="projectList" style="max-height:160px"></div>
         <div style="display:flex;gap:4px;margin-top:4px">
           <button class="btn small" id="btnAddToProject" style="flex:1" disabled>{{add_patch}}</button>
+          <button class="btn small" id="btnImportSoundfont" style="flex:1" title="{{import_soundfont_title}}" data-i18n-title="import_soundfont_title" disabled>{{import_sf2}}</button>
           <button class="btn small" id="btnExportProject" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
             </svg> {{zip_format}}</button>

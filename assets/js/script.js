@@ -2776,6 +2776,7 @@ function renderProjects() {
   if (state.projects.length === 0) {
     list.innerHTML = `<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_project")}</div>`;
     $("btnAddToProject").disabled = true;
+    $("btnImportSoundfont").disabled = true;
     $("btnDeleteProject").disabled = true;
     $("btnExportProject").disabled = true;
     return;
@@ -2817,6 +2818,7 @@ function renderProjects() {
       renderProjects();
       renderLibrary();
       $("btnAddToProject").disabled = false;
+      $("btnImportSoundfont").disabled = false;
       $("btnDeleteProject").disabled = false;
       $("btnExportProject").disabled = false;
 
@@ -2842,6 +2844,7 @@ function renderProjects() {
   });
   const hasActive = !!state.currentProjectId;
   $("btnAddToProject").disabled = !hasActive;
+  $("btnImportSoundfont").disabled = !hasActive;
   $("btnDeleteProject").disabled = !hasActive;
   $("btnExportProject").disabled = !hasActive;
 }
@@ -3246,6 +3249,7 @@ function handleMidiMessage(e){
 /* ---------- Bind UI ---------- */
 function bind(){
   const patInput=$("patFile");
+  const sf2Input=$("sf2File");
   [$("btnOpen"),$("btnOpen2")].forEach(b=>{
     if(b) b.addEventListener("click",()=>{
       if(!state.projects.some(project => project.id === state.currentProjectId)) {
@@ -3257,6 +3261,15 @@ function bind(){
     });
   });
   patInput.addEventListener("change",handleFileOpen);
+  $("btnImportSoundfont").addEventListener("click",()=>{
+    if(!state.projects.some(project=>project.id===state.currentProjectId)){
+      requestProjectForImport();
+      return;
+    }
+    sf2Input.value="";
+    sf2Input.click();
+  });
+  sf2Input.addEventListener("change",handleFileOpen);
   $("projectPatchFile").addEventListener("change", handleProjectPatchFile);
 
   const loadDemo=async()=>{
