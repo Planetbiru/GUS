@@ -264,7 +264,6 @@
   "sample_count_many": "{count} samples",
   "sample_selection_count": "{count} samples",
   "loop_range": "Loop {start}–{end}",
-  "sample_duration": "{duration} sec",
   "sample_bit_depth": "{bit_depth}",
   "format_unsigned": "unsigned",
   "format_signed": "signed",
