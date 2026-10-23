@@ -2115,6 +2115,7 @@ async function loadMidiFile(e) {
   midiProgress.current = 0;
   midiProgress.playing = false;
   midiProgress.paused = false;
+  midiProgress.seeking = false;
   
   setMidiStatus("midi_ready", {filename: file.name});
   $("btnPlayMidi").disabled = false;
@@ -2190,7 +2191,8 @@ const midiProgress = {
   startTime: 0,
   current: 0,
   duration: 0,
-  raf: null
+  raf: null,
+  seeking: false
 };
 
 // Parser durasi MIDI (menghitung tempo, tick, dan waktu secara akurat)
@@ -2282,16 +2284,20 @@ function formatTime(sec) {
 
 function updateMidiUI() {
   if (!state.midiData) return;
-  const cur = midiProgress.current;
   const dur = midiProgress.duration;
+  const cur = midiProgress.seeking
+    ? (parseInt($("midiSeek").value, 10) / 1000) * dur
+    : midiProgress.current;
   
   $("midiTimeCur").textContent = formatTime(cur);
   $("midiTimeTotal").textContent = formatTime(dur);
   
-  if (!midiProgress.playing && !midiProgress.paused) {
-    $("midiSeek").value = 0;
-  } else {
-    $("midiSeek").value = Math.floor((cur / dur) * 1000);
+  if (!midiProgress.seeking) {
+    if (!midiProgress.playing && !midiProgress.paused) {
+      $("midiSeek").value = 0;
+    } else {
+      $("midiSeek").value = Math.floor((cur / dur) * 1000);
+    }
   }
 }
 
@@ -2384,6 +2390,7 @@ async function playMidi(fromTime = 0) {
 function stopMidi() {
   midiProgress.playing = false;
   midiProgress.paused = false;
+  midiProgress.seeking = false;
   midiProgress.current = 0;
   cancelAnimationFrame(midiProgress.raf);
   
@@ -3412,21 +3419,33 @@ function bind(){
   $("btnStopMidi").addEventListener("click", stopMidi);
   $("btnRenderMidi").addEventListener("click", renderMidiToWav);
 
-$("midiSeek").addEventListener("change", (e) => {
+  $("midiSeek").addEventListener("input", e => {
     if (!state.midiData) return;
-    const pct = parseInt(e.target.value) / 1000;
+    midiProgress.seeking = true;
+    const targetTime = (parseInt(e.target.value, 10) / 1000) * midiProgress.duration;
+    $("midiTimeCur").textContent = formatTime(targetTime);
+  });
+
+  $("midiSeek").addEventListener("change", (e) => {
+    if (!state.midiData) return;
+    const pct = parseInt(e.target.value, 10) / 1000;
     const targetTime = pct * midiProgress.duration;
+    const wasPaused = midiProgress.paused;
     
-    // Tambahkan if (timidityPlayer)
-    if (timidityPlayer) timidityPlayer.stop(); 
-    
+    midiProgress.seeking = false;
+    cancelAnimationFrame(midiProgress.raf);
+    if (timidityPlayer) timidityPlayer.stop();
     midiProgress.current = targetTime;
     midiProgress.startTime = performance.now() - (targetTime * 1000);
     
-    if (midiProgress.paused) {
+    if (wasPaused) {
+      midiProgress.playing = false;
+      midiProgress.paused = true;
       updateMidiUI();
       setMidiStatus("midi_paused_at", {time: formatTime(targetTime)});
     } else {
+      midiProgress.playing = false;
+      midiProgress.paused = false;
       playMidi(targetTime);
     }
   });
