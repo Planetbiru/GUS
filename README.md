@@ -301,11 +301,11 @@ gus-patch-editor/
 
 ```
     ┌────────────┐     ┌───────────────┐     ┌──────────────┐
-    │  Import    │────▶│  state.patch  │────▶│   Rendering  │
+    │  Import    │────>│  state.patch  │────>│   Rendering  │
     │  .PAT/.SF2 │     │  (in memory)  │     │   (DOM/Canvas)│
     │  .ZIP/.JS  │     └───────────────┘     └──────────────┘
     └────────────┘             │                      │
-                               ▼                      ▼
+                               v                      v
                         ┌─────────────┐       ┌──────────────┐
                         │ IndexedDB   │       │  Export      │
                         │ (persistent)│       │  .PAT/.ZIP   │
