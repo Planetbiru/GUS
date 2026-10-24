@@ -3567,7 +3567,7 @@ function allSamples(){
 }
 
 function renderLibrary(filterProjectId = undefined) {
-  const projectId = filterProjectId !== undefined ? filterProjectId : state.currentProjectId;
+    const projectId = filterProjectId !== undefined ? filterProjectId : state.currentProjectId;
   let displayPatches = state.patches;
 
   if (state.libraryView === "project" && projectId) {
@@ -3603,7 +3603,7 @@ function renderLibrary(filterProjectId = undefined) {
   }
   // ==========================
 
-  // === TAMBAHKAN LOGIKA SORTING DI SINI ===
+  // === URUTAN YANG BENAR ===
   displayPatches = [...displayPatches].sort((a, b) => {
     // 1. Melodi (0) selalu di atas Drum (1)
     const aIsDrum = (a.gmBank ?? 0) === 128 ? 1 : 0;
@@ -3622,7 +3622,12 @@ function renderLibrary(filterProjectId = undefined) {
     const bProg = b.gmProgram ?? -1;
     if (aProg !== bProg) return aProg - bProg;
 
-    // 4. Pengaman jika masih sama, urutkan berdasarkan nama (A-Z)
+    // 4. Urutkan berdasarkan userOrder (urutan buatan pengguna)
+    const aOrder = a.userOrder ?? 0;
+    const bOrder = b.userOrder ?? 0;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+
+    // 5. Pengaman terakhir jika masih sama, urutkan berdasarkan nama (A-Z)
     return (a.name || "").localeCompare(b.name || "");
   });
   // ========================================
