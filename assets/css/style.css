@@ -278,6 +278,9 @@ main {
     padding: 11px;
     margin-bottom: 10px
 }
+.card:last-child {
+    margin-bottom: 0px;
+}
 
 .card h3 {
     margin: 0 0 8px;
