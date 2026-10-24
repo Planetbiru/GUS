@@ -5817,12 +5817,12 @@ async function handleMidiJsImport(text, fileName) {
  * Impor dari URL (mis. CDN jsDelivr). Dipicu oleh tombol #btnMidiJsUrl.
  */
 async function importMidiJsFromUrl() {
-  const example = "https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@master/FluidR3_GM/acoustic_grand_piano-ogg.js";
+  const example = "";
   const url = await customPrompt({
     title: t("midijs_url_button"),
     label: t("midijs_url_prompt"),
     defaultValue: example,
-    placeholder: "https://…",
+    placeholder: "",
     inputType: "text",
     inputMode: "url",
     validate: (v) => {
