@@ -51,6 +51,7 @@ function localizeElement(element) {
     if (key) element.setAttribute(attribute, t(key));
   }
 }
+
 function applyLocalization() {
   document.documentElement.lang = locale;
   document.title = t("app_title");
@@ -403,7 +404,6 @@ function parsePAT(ab){
   return {header:{magic,gravisId,description,voices,channels,waveForms,masterVolume,dataSize,reserved},instruments};
 }
 
-// TAMBAH helper di dekat sanitizeFilename
 function hzToPeriod(hz){
   hz = clamp(hz|0, 1, 65535);
   return clamp(Math.round(1e9 / hz), 1, 65535);
@@ -413,7 +413,7 @@ function periodToHz(p){
   return p > 0 ? Math.round(1e9 / p) : 22050;
 }
 
-const TIMIDITY_TARGET_RATE = 22050;   // harus ≥ 15258 (jangan 11025)
+const TIMIDITY_TARGET_RATE = 22050;
 
 function writeTimidityPatch(patch) {
   const norm = cleanPatchForStorage(patch);
@@ -1159,6 +1159,7 @@ function renderBankManager() {
     row.dataset.id = p.id;
     const targetChanged = (p.targetBank ?? 0) !== (p.originalOrder ?? 0);
     
+    // TODO: Ganti ☰ dengan SVG
     row.innerHTML = `
       <input type="checkbox" data-act="select" ${p.exportSelected !== false ? "checked" : ""} aria-label="${t("export_selected_only")}">
       <span class="bank-handle" title="${t("drag_to_reorder")}">☰</span>
@@ -3512,6 +3513,7 @@ function createZip(files) {
   return zip;
 }
 
+
 function getAvailableBanks() {
   const project = state.projects.find(p => p.id === state.currentProjectId);
   if (!project) return [0];
@@ -5242,11 +5244,9 @@ async function handleFileOpen(e) {
       const type = detectFileType(ab);
 
       if (type === "zip") {
-        // Menangani file ZIP (Timidity Package)
         await handleZipOpen(ab);
         
       } else if (type === "pat") {
-        // Menangani file PAT tunggal
         const patch = parsePAT(ab);
         const entry = {
           id: uid("pat"),
@@ -6444,15 +6444,11 @@ function bind(){
     renderLibrary();
   });
 
-  // TAMBAHKAN EVENT LISTENER INI
   $("libraryBankFilter").addEventListener("change", (e) => {
     state.libraryBankFilter = e.target.value;
     renderLibrary();
   });
 
-  
-
-  // Di dalam fungsi bind(), dekat event listener lainnya
   $("btnShowFreqMap").addEventListener("click", openFreqMapDialog);
   $("btnCloseFreqMap").addEventListener("click", () => { $("freqMapDialog").hidden = true; });
   $("freqMapDialog").addEventListener("click", e => {
