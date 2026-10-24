@@ -20,7 +20,7 @@ let localePacks = {};
 let lastTranslation = null;
 let currentStatusTranslation = null;
 let currentMidiStatusTranslation = null;
-let currentBank = 0; // ← TAMBAHKAN BARIS INI
+let currentBank = 0;
 
 function t(key, values = {}) {
   const template = translations[key];
@@ -788,7 +788,7 @@ function sf2ToGusPatches(sf2, fileName){
         envRates:[0,0,0,0,0,0], envOffsets:[255,255,255,0,0,0],
         tremoloSweep:0,tremoloRate:0,tremoloDepth:0,
         vibratoSweep:0,vibratoRate:0,vibratoDepth:0,
-        modes, scaleFreq: rootNote, scaleFactor:1024,   // ← pakai rootNote
+        modes, scaleFreq: rootNote, scaleFactor:1024,
         reserved:new Uint8Array(36), pcm, _float:null
       };
       sampleCache.set(cacheKey, cached);
@@ -958,10 +958,10 @@ function sf2ToGusPatches(sf2, fileName){
       id: uid("sf2drum"),
       name: `drum_${String(note).padStart(2, "0")}_${preset.name||"Kit"}`.substring(0, 48),
       source: "sf2:" + fileName,
-      gmProgram: note,     // ← pakai NOTE sebagai "program" untuk lookup
-      gmBank: 128,         // ← tandai sebagai drum
-      drumSet: preset.preset,   // ← TAMBAHKAN BARIS INI
-      originalOrder: preset.preset,   // ← tambahkan
+      gmProgram: note,
+      gmBank: 128,
+      drumSet: preset.preset,  
+      originalOrder: preset.preset,
       patch: drumPatch
     });
   }
@@ -986,7 +986,7 @@ function sf2ToGusPatches(sf2, fileName){
       source: "sf2:"+fileName,
       gmProgram: preset.preset,
       gmBank: preset.bank,
-      originalOrder: preset.bank,     // ← tambahkan
+      originalOrder: preset.bank,
       patch
     });
   }
@@ -1296,12 +1296,12 @@ function bindBankManagerEvents(list) {
     if (e.target.dataset.act === "select") {
       patch.exportSelected = e.target.checked;
       row.classList.toggle("disabled", !patch.exportSelected);
-      scheduleBankConfigSave(patch); // ← Gunakan fungsi debounce
+      scheduleBankConfigSave(patch);
     } else if (e.target.dataset.act === "target") {
       patch.targetBank = clamp(parseInt(e.target.value, 10) || 0, 0, 999);
       e.target.value = patch.targetBank;
       e.target.classList.toggle("changed", patch.targetBank !== (patch.originalOrder ?? 0));
-      scheduleBankConfigSave(patch); // ← Gunakan fungsi debounce
+      scheduleBankConfigSave(patch);
     }
 
     // Update ringkasan berdasarkan item yang SEDANG DIFILTER
@@ -1329,7 +1329,7 @@ function updateUserOrderFromDom(list) {
 
   visiblePatches.forEach((p, i) => {
     p.userOrder = orders[i];
-    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+    scheduleBankConfigSave(p);
     const orderEl = rows[i].querySelector(".bank-order");
     if (orderEl) orderEl.textContent = p.userOrder;
   });
@@ -1362,7 +1362,7 @@ function refreshBankOrder() {
 
   sorted.forEach((p, i) => { 
     p.userOrder = orders[i]; 
-    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+    scheduleBankConfigSave(p);
   });
   
   renderBankManager();
@@ -1383,7 +1383,7 @@ function compactBanks() {
   
   for (const p of entries) {
     p.targetBank = map.get(p.originalOrder ?? 0) ?? 0;
-    scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+    scheduleBankConfigSave(p);
   }
 
   renderBankManager();
@@ -1818,7 +1818,7 @@ async function addPatchEntries(entries){
     if(!entry.source) entry.source="pat";
   }
 
-  initBankFields(entries, project);   // ← tambahkan
+  initBankFields(entries, project);
 
   const updatedProject = {...project, patchIds: [...(project.patchIds || [])]};
   for(const entry of entries) {
@@ -1831,7 +1831,7 @@ async function addPatchEntries(entries){
   if(entries.length>0) selectPatch(entries[0].id);
   else render();
   renderProjects();
-  renderBankManager();   // ← tambahkan
+  renderBankManager();
   return true;
 }
 
@@ -4017,7 +4017,7 @@ function selectProject(projectId) {
   invalidateTimidityPlayer();
   renderProjects();
   renderLibrary();
-  renderBankManager();   // ← tambahkan
+  renderBankManager();
 
   if (state.midiData && (wasPlaying || wasPaused)) {
     setTimeout(() => {
@@ -4084,12 +4084,8 @@ function render(save=true){
   $("btnExportInst").disabled=!has;
   renderLibrary();
   renderProjects();
-  renderBankManager(); // ← TAMBAHKAN BARIS INI
+  renderBankManager();
   
-  /* ============================================================
-     TAMBAHKAN BLOK INI: bersihkan UI saat tidak ada patch.
-     Terutama #instrumentList yang ada di sidebar dan selalu terlihat.
-     ============================================================ */
   if(!has){
     state.selInst = 0;
     state.selSample = null;
@@ -6399,7 +6395,7 @@ function bind(){
       });
       for (const p of visibleEntries) {
         p.exportSelected = checked;
-        scheduleBankConfigSave(p); // ← Gunakan fungsi debounce
+        scheduleBankConfigSave(p);
       }
     }
     renderBankManager();
