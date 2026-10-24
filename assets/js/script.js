@@ -6441,6 +6441,140 @@ function bind(){
   bindCanvas();
 }
 
+/* ---------- Draggable Modals (header + footer only) ---------- */
+function makeModalDraggable(panel) {
+  const header = panel.querySelector(".modal-header");
+  const footer = panel.querySelector(".modal-footer");
+  if (!header && !footer) return;
+
+  let drag = null;
+
+  // Elemen interaktif tidak boleh memulai drag
+  const isInteractive = (el) => !!el.closest(
+    "button, input, select, textarea, a, label, [contenteditable='true'], [data-no-drag]"
+  );
+
+  const beginDrag = (e) => {
+    if (e.type === "mousedown" && e.button !== 0) return;
+    const target = e.target;
+
+    // Harus dari header atau footer
+    const inHeader = header && header.contains(target);
+    const inFooter = footer && footer.contains(target);
+    if (!inHeader && !inFooter) return;
+
+    // Bukan dari tombol / input / dsb.
+    if (isInteractive(target)) return;
+
+    const point = e.touches ? (e.touches[0] || e.changedTouches[0]) : e;
+    if (!point) return;
+
+    // Baca translate saat ini (dalam px)
+    const cs = window.getComputedStyle(panel);
+    let originX = 0, originY = 0;
+    if (cs.transform && cs.transform !== "none") {
+      try {
+        const m = new DOMMatrixReadOnly(cs.transform);
+        originX = m.m41;
+        originY = m.m42;
+      } catch (_) {}
+    }
+
+    const rect = panel.getBoundingClientRect();
+    drag = {
+      startX: point.clientX,
+      startY: point.clientY,
+      originX, originY,
+      baseLeft: rect.left - originX,
+      baseTop:  rect.top  - originY,
+      savedTransition: panel.style.transition
+    };
+
+    panel.style.transition = "none";
+    panel.style.userSelect = "none";
+
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onEnd);
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onEnd);
+    document.addEventListener("touchcancel", onEnd);
+
+    e.preventDefault();
+  };
+
+  const onMove = (e) => {
+    if (!drag) return;
+    const point = e.touches ? (e.touches[0] || e.changedTouches[0]) : e;
+    if (!point) return;
+
+    const dx = point.clientX - drag.startX;
+    const dy = point.clientY - drag.startY;
+    let nx = drag.originX + dx;
+    let ny = drag.originY + dy;
+
+    // Batasi agar tetap terlihat di viewport (margin 32 px)
+    const rect = panel.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    const m = 32;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const minX = m - drag.baseLeft;
+    const maxX = vw - w - m - drag.baseLeft;
+    const minY = m - drag.baseTop;
+    const maxY = vh - h - m - drag.baseTop;
+
+    if (maxX >= minX) nx = Math.max(minX, Math.min(maxX, nx));
+    if (maxY >= minY) ny = Math.max(minY, Math.min(maxY, ny));
+
+    panel.style.transform = `translate(${nx}px, ${ny}px)`;
+    if (e.cancelable) e.preventDefault();
+  };
+
+  const onEnd = () => {
+    if (!drag) return;
+    panel.style.transition = drag.savedTransition || "";
+    panel.style.userSelect = "";
+    drag = null;
+
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onEnd);
+    document.removeEventListener("touchmove", onMove);
+    document.removeEventListener("touchend", onEnd);
+    document.removeEventListener("touchcancel", onEnd);
+  };
+
+  panel.addEventListener("mousedown", beginDrag);
+  panel.addEventListener("touchstart", beginDrag, { passive: false });
+
+  panel._resetDragPosition = () => { panel.style.transform = ""; };
+}
+
+function initModalDragging() {
+  document.querySelectorAll(".modal-overlay").forEach(overlay => {
+    const panel = overlay.querySelector(".modal-panel");
+    if (!panel) return;
+
+    makeModalDraggable(panel);
+
+    // Reset posisi setiap kali modal dibuka
+    const observer = new MutationObserver(mutations => {
+      for (const mut of mutations) {
+        if (mut.attributeName === "hidden" && !overlay.hidden) {
+          panel._resetDragPosition?.();
+        }
+      }
+    });
+    observer.observe(overlay, { attributes: true, attributeFilter: ["hidden"] });
+  });
+}
+
+function hideAppLoadingOverlay() {
+  const overlay = document.getElementById("appLoadingOverlay");
+  if (!overlay) return;
+  overlay.setAttribute("aria-hidden", "true");
+  setTimeout(() => overlay.remove(), 400);
+}
+
 /* ---------- Init ---------- */
 (async function init(){
   try {
@@ -6453,6 +6587,8 @@ function bind(){
     return;
   }
   bind();
+  initModalDragging(); 
+  hideAppLoadingOverlay();
   showStatus(t("library_loading"));
   try{
     const [entries, projects] = await Promise.all([
