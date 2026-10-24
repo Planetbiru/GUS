@@ -335,19 +335,19 @@
       <div id="workspace" hidden>
         <section class="card">
           <h3>{{patch_properties}}</h3>
-          <div class="grid g4">
+          <div class="grid g6">
             <div class="field"><label>{{magic_label}}</label><input id="pMagic" readonly></div>
             <div class="field"><label>{{gravis_id}}</label><input id="pGravisId" readonly></div>
             <div class="field"><label>{{voices}}</label><input id="pVoices" type="number" min="1" max="32"></div>
             <div class="field"><label>{{channels}}</label><input id="pChannels" type="number" min="0" max="32"></div>
-            <div class="field" style="grid-column:span 2"><label>{{description}}</label><input id="pDescription"
-                maxlength="60"></div>
             <div class="field"><label>{{master_volume}}</label><input id="pMasterVolume" type="number" min="0"
                 max="127"></div>
             <div class="field"><label>{{data_size}}</label><input id="pDataSize" readonly></div>
             <div class="field"><label>{{gm_program}}</label><input id="pGMProgram" type="number" min="-1"
                 max="127"></div>
             <div class="field"><label>{{gm_bank}}</label><input id="pGMBank" type="number" min="0" max="127"></div>
+            <div class="field" style="grid-column:span 4"><label>{{description}}</label><input id="pDescription"
+                maxlength="60"></div>
           </div>
         </section>
 
@@ -460,7 +460,7 @@
           <div class="divider"></div>
 
           <h3 style="margin:0 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">{{sample_properties}}</h3>
-          <div class="grid g4">
+          <div class="grid g6">
             <div class="field"><label>{{wave_name_7}}</label><input id="sName" maxlength="7"></div>
             <div class="field"><label>{{sample_rate_label}}</label><input id="sRate" type="number" min="1" max="192000"></div>
             <div class="field"><label>{{root_frequency_label}}</label><input id="sRoot" type="number" min="0"></div>
