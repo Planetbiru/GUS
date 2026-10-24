@@ -4085,7 +4085,44 @@ function render(save=true){
   renderLibrary();
   renderProjects();
   renderBankManager(); // ← TAMBAHKAN BARIS INI
-  if(!has)return;
+  
+  /* ============================================================
+     TAMBAHKAN BLOK INI: bersihkan UI saat tidak ada patch.
+     Terutama #instrumentList yang ada di sidebar dan selalu terlihat.
+     ============================================================ */
+  if(!has){
+    state.selInst = 0;
+    state.selSample = null;
+    state.selStart = state.selEnd = 0;
+    state.undo = [];
+
+    const il = $("instrumentList");
+    if (il) il.innerHTML = "";
+
+    const sl = $("sampleList");
+    if (sl) sl.innerHTML = "";
+
+    const se = $("sampleEditor");
+    if (se) se.hidden = true;
+
+    // Info patch di sidebar
+    $("patchNameSide").textContent = "—";
+    $("statInst").textContent = "0";
+    $("statSamples").textContent = "0";
+    $("statVoices").textContent = "—";
+    $("statVol").textContent = "—";
+
+    // Judul section instrument & pill
+    const instTitle = $("instTitle");
+    if (instTitle) instTitle.textContent = t("instruments");
+    const instPill = $("instPill");
+    if (instPill) instPill.textContent = "—";
+    const scp = $("sampleCountPill");
+    if (scp) scp.textContent = "0";
+
+    $("footerInfo").textContent = "";
+    return;
+  }
 
   const p=state.patch, samples=allSamples();
   $("patchNameSide").textContent=p.header.description||t("unnamed");
