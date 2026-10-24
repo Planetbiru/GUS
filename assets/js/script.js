@@ -413,61 +413,6 @@ function periodToHz(p){
   return p > 0 ? Math.round(1e9 / p) : 22050;
 }
 
-const TIMIDITY_TARGET_RATE = 22050;
-
-function writeTimidityPatch(patch) {
-  const norm = cleanPatchForStorage(patch);
-  const inst = norm.instruments[0];
-  if (!inst) throw new Error(t("empty_patch"));
-
-  const samples = norm.instruments.flatMap(i =>
-    i.layers.flatMap(l => l.samples)
-  );
-  if (samples.length === 0) throw new Error(t("no_samples"));
-  if (samples.length > 255) {
-    throw new Error(t("too_many_samples", {count: samples.length}));
-  }
-
-  // === RESAMPLE ke TARGET (fix pitch) ===
-  for (const s of samples) {
-    if (!s.sampleRate || s.sampleRate === TIMIDITY_TARGET_RATE) continue;
-    const is16 = (s.modes & 0x01) !== 0;
-    const ratio = TIMIDITY_TARGET_RATE / s.sampleRate;
-    s.pcm = resamplePcmTo(s.pcm, s.sampleRate, TIMIDITY_TARGET_RATE, is16);
-    s.dataSize  = s.pcm.length;
-    s.loopStart = Math.round(s.loopStart * ratio);
-    s.loopEnd   = Math.round(s.loopEnd   * ratio);
-    s.sampleRate = TIMIDITY_TARGET_RATE;
-    s._float = null;
-  }
-  // ======================================
-
-  // === Opsional: kalau masih ada error pitch sistematis, kalibrasi manual ===
-  // (mis. jika playback C4 kedengaran D4 → set PITCH_TUNING = 9/8 = 1.125)
-  const PITCH_TUNING = 1.0;
-  if (PITCH_TUNING !== 1.0) {
-    for (const s of samples) {
-      if (s.rootFreq > 0) s.rootFreq = Math.round(s.rootFreq * PITCH_TUNING);
-    }
-  }
-  // ==========================================================================
-
-  return writePAT({
-    header: norm.header,
-    instruments: [{
-      instrument: 0,
-      name: inst.name || "Inst",
-      size: 0,
-      reserved: new Uint8Array(40),
-      layers: [{
-        duplicate: 0, layer: 0, layerSize: 0,
-        reserved: new Uint8Array(40),
-        samples
-      }]
-    }]
-  });
-}
-
 /* ---------- Write PAT ---------- */
 function writePAT(patch){
   let totalData=0, totalSamples=0;
@@ -2574,12 +2519,14 @@ function writeTimidityPatch(patch) {
   for (const s of samples) {
     if (!s.sampleRate || s.sampleRate === OUT_RATE) continue;
     const is16 = (s.modes & M16) !== 0;
+    const bps = is16 ? 2 : 1;
     const ratio = OUT_RATE / s.sampleRate;
     const wasLoop = (s.modes & MLOOP) !== 0;
-    const oldStart = s.loopStart, oldEnd = s.loopEnd;
-
+    const oldStart = s.loopStart;
+    const oldEnd = s.loopEnd;
     const resampled = resamplePcmTo(s.pcm, s.sampleRate, OUT_RATE, is16);
-    if (!resampled) continue;    // tidak bisa resample, biarkan apa adanya
+    
+    if (!resampled) continue;
 
     s.pcm = resampled;
     s.dataSize = s.pcm.length;
@@ -2587,15 +2534,19 @@ function writeTimidityPatch(patch) {
     s._float = null;
 
     if (wasLoop) {
-      const bps = is16 ? 2 : 1;
-      const totalN = Math.floor(s.pcm.length / bps);
-      const ns = Math.round(oldStart * ratio);
-      const ne = Math.round(oldEnd * ratio);
-      if (ne - ns >= 4 && ne <= totalN) {
+      const totalBytes = s.pcm.length; // penting: byte, bukan frame
+      let ns = Math.round(oldStart * ratio);
+      let ne = Math.round(oldEnd * ratio);
+
+      ns = clamp(ns, 0, totalBytes);
+      ne = clamp(ne, 0, totalBytes);
+
+      // loopStart/loopEnd pada PAT adalah byte offset.
+      // Panjang loop minimal 4 byte, sama seperti validateAndSanitizePatch.
+      if (ne > ns && (ne - ns) >= 4 * bps) {
         s.loopStart = ns;
         s.loopEnd = ne;
       } else {
-        // Loop collapse → matikan agar tidak hang
         s.modes &= ~MLOOP;
         s.loopStart = 0;
         s.loopEnd = 0;
