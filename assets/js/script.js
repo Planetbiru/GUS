@@ -1595,18 +1595,71 @@ function drawWave(){
       if(ex>=0&&ex<=w){ctx.beginPath();ctx.moveTo(ex,0);ctx.lineTo(ex,h);ctx.stroke();}
     }
   }
-  ctx.strokeStyle="#7dd3fc"; ctx.lineWidth=1; ctx.beginPath();
-  for(let x=0;x<w;x++){
-    const s0=Math.floor(startSmp+(x/w)*visibleCount);
-    const s1=Math.floor(startSmp+((x+1)/w)*visibleCount);
-    let mn=1, mx=-1;
-    for(let i=s0;i<s1;i++){const v=floats[i];if(v<mn)mn=v;if(v>mx)mx=v;}
-    if(mn>mx){mn=0;mx=0;}
-    ctx.moveTo(x+0.5,mid-mx*amp); ctx.lineTo(x+0.5,mid-mn*amp);
+
+  // =====================================================================
+  // PERBAIKAN DI SINI: Sesuaikan lineWidth berdasarkan zoom & cegah gap
+  // =====================================================================
+  let lineWidth = 1;
+  if (state.zoom >= 2) lineWidth = 1.2;
+  if (state.zoom >= 4) lineWidth = 1.5;
+  if (state.zoom >= 8) lineWidth = 2.0;
+  if (state.zoom >= 16) lineWidth = 2.5;
+  if (state.zoom >= 32) lineWidth = 3.0;
+
+  // =====================================================================
+  // PERBAIKAN FINAL: lineWidth = 1 + Logika Penyambung Horizontal
+  // =====================================================================
+  ctx.strokeStyle = "#7dd3fc"; 
+  ctx.lineWidth = 1; 
+  ctx.lineJoin = "round"; // Mencegah sudut tajam yang patah
+  ctx.lineCap = "round";  // Mencegah ujung garis yang patah/titik hilang
+  ctx.beginPath();
+
+  let prevX = -1;
+  let prevTopY = 0;
+  let prevBotY = 0;
+
+  for(let x=0; x<w; x++){
+    const s0 = Math.floor(startSmp + (x / w) * visibleCount);
+    let s1 = Math.floor(startSmp + ((x + 1) / w) * visibleCount);
+    
+    // Pastikan minimal membaca 1 sampel
+    if (s1 <= s0) s1 = s0 + 1;
+    if (s0 >= n) break;
+
+    let mn = 1, mx = -1;
+    for(let i = s0; i < s1; i++){
+      const v = floats[i];
+      if(v < mn) mn = v;
+      if(v > mx) mx = v;
+    }
+    if(mn > mx){ mn = 0; mx = 0; }
+    
+    // Konversi nilai amplitudo ke koordinat Y layar
+    const yTop = mid - mx * amp;
+    const yBot = mid - mn * amp;
+
+    // 1. Gambar batang vertikal (badan gelombang di kolom ini)
+    ctx.moveTo(x + 0.5, yTop); 
+    ctx.lineTo(x + 0.5, yBot);
+
+    // 2. Gambar garis penyambung ke kolom sebelumnya (agar tidak putus)
+    if (prevX !== -1) {
+      // Sambungkan bagian atas (puncak)
+      ctx.moveTo(prevX + 0.5, prevTopY);
+      ctx.lineTo(x + 0.5, yTop);
+      // Sambungkan bagian bawah (lembah)
+      ctx.moveTo(prevX + 0.5, prevBotY);
+      ctx.lineTo(x + 0.5, yBot);
+    }
+
+    // Simpan posisi saat ini untuk iterasi kolom berikutnya
+    prevX = x;
+    prevTopY = yTop;
+    prevBotY = yBot;
   }
   ctx.stroke();
-  ctx.strokeStyle="rgba(148,163,184,0.25)";
-  ctx.beginPath();ctx.moveTo(0,mid);ctx.lineTo(w,mid);ctx.stroke();
+  // =====================================================================
 
   $("waveInfo").textContent=t("wave_info", {count: n.toLocaleString(), duration: (n/(s.sampleRate||1)).toFixed(2), bit_depth: fmt(s).is16?"16-bit":"8-bit"});
   $("selInfo").textContent=selE>selS?t("selection_count", {count: (selE-selS).toLocaleString()}):t("selection_empty");
@@ -3376,7 +3429,7 @@ function openBankSelectDialog() {
     const sizeMB = (totalSize / (1024 * 1024)).toFixed(2);
     
     // Deteksi patch rusak: Anggap < 1024 byte sebagai file kosong/rusak
-    const brokenPatches = patches.filter(p => getPatchSize(p) < 1024);
+    const brokenPatches = patches.filter(p => getPatchSize(p) < MIN_PAT_SIZE);
     const hasBrokenPatch = brokenPatches.length > 0;
     const icon = hasBrokenPatch ? `⚠️ (${brokenPatches.length} rusak)` : "";
 
@@ -3422,14 +3475,16 @@ function openBankSelectDialog() {
   $("bankSelectDialog").hidden = false;
 }
 
+const MIN_PAT_SIZE = 100;
+
 function openBankBreakdownDialog(bank, patches) {
   const list = $("bankBreakdownList");
   list.innerHTML = "";
   
   // Urutkan: Patch rusak (paling atas), lalu sisanya berdasarkan ukuran terbesar
   const sorted = [...patches].sort((a, b) => {
-    const aBroken = getPatchSize(a) < 1024;
-    const bBroken = getPatchSize(b) < 1024;
+    const aBroken = getPatchSize(a) < MIN_PAT_SIZE;
+    const bBroken = getPatchSize(b) < MIN_PAT_SIZE;
     if (aBroken !== bBroken) return aBroken ? -1 : 1; 
     return getPatchSize(b) - getPatchSize(a);
   });
@@ -3473,8 +3528,7 @@ function openBankBreakdownDialog(bank, patches) {
 
 function isPatchBroken(p) {
   if (!p || !p.patch || !p.patch.instruments) return true;
-  // Anggap rusak jika ukurannya di bawah 1 KB (karena header saja 129 byte)
-  return getPatchSize(p) < 1024;
+  return getPatchSize(p) < MIN_PAT_SIZE;
 }
 
 // Fungsi baru untuk menghapus patch dari Rincian Bank
@@ -3961,6 +4015,10 @@ function render(save=true){
   $("sampleCountPill").textContent=t(instSamples.length === 1 ? "sample_count_one" : "sample_count_many", {count: instSamples.length});
   instSamples.forEach(ref=>{
     const s=ref.sample, bps=fmt(s).bps, n=Math.floor(s.pcm.length/bps), li=loopInfo(s);
+    
+    // Tambahkan baris ini untuk mendapatkan nama pitch
+    const pitchRangeText = `${freqToNoteName(s.lowFreq)} - ${freqToNoteName(s.highFreq)}`;
+
     const d=document.createElement("div");
     d.className="sc"+(state.selSample===s?" active":"");
     d.innerHTML=`
@@ -3969,6 +4027,7 @@ function render(save=true){
         <span class="tag">${fmt(s).is16?"16-bit":"8-bit"}</span>
         <span class="tag">${(s.sampleRate||0).toLocaleString()} Hz</span>
         <span class="tag">${t(n === 1 ? "sample_count_one" : "sample_count_many", {count: n.toLocaleString()})}</span>
+        <span class="tag" style="color: var(--accent2); border-color: rgba(167,139,250,0.4);">${pitchRangeText}</span>
         ${li.enabled?`<span class="tag loop">${t("loop_range", {start: Math.round(li.start), end: Math.round(li.end)})}</span>`:""}
       </div>`;
     d.onclick=()=>{
@@ -4002,6 +4061,109 @@ function render(save=true){
     $("pGMProgram").value = entry.gmProgram ?? -1;
     $("pGMBank").value = entry.gmBank ?? 0;
   }
+}
+
+function freqToNoteName(freq) {
+  if (!freq || freq <= 0) return "—";
+  const hz = freq / 1000;
+  // Konversi Hz ke MIDI Note Number (A4 = 69 = 440Hz)
+  const midiNote = Math.round(69 + 12 * Math.log2(hz / 440));
+  
+  // Batasi note antara 0-127 (standar MIDI)
+  const safeNote = Math.max(0, Math.min(127, midiNote));
+  
+  const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  const noteName = noteNames[safeNote % 12];
+  const octave = Math.floor(safeNote / 12) - 1;
+  
+  return `${noteName}${octave}`;
+}
+
+function openFreqMapDialog() {
+  if (!state.patch || !state.patch.instruments[state.selInst]) return;
+  
+  const inst = state.patch.instruments[state.selInst];
+  const samples = [];
+  inst.layers.forEach(layer => layer.samples.forEach(s => samples.push(s)));
+  
+  if (samples.length === 0) return;
+
+  let minFreq = Infinity;
+  let maxFreq = -Infinity;
+
+  samples.forEach(s => {
+    const lo = s.lowFreq > 0 ? s.lowFreq : 1000; 
+    const hi = s.highFreq > 0 ? s.highFreq : 20000000;
+    
+    if (lo < minFreq) minFreq = lo;
+    if (hi > maxFreq) maxFreq = hi;
+  });
+
+  const logMin = Math.log2(Math.max(1, minFreq));
+  const logMax = Math.log2(Math.max(logMin + 1, maxFreq));
+  const range = logMax - logMin;
+
+  const container = $("freqMapContainer");
+  container.innerHTML = "";
+
+  samples.forEach(s => {
+    const row = document.createElement("div");
+    row.className = "freq-map-row";
+    row.style.cursor = "pointer";
+
+    const lo = s.lowFreq > 0 ? s.lowFreq : 1000;
+    const hi = s.highFreq > 0 ? s.highFreq : 20000000;
+    
+    const logLo = Math.log2(Math.max(1, lo));
+    const logHi = Math.log2(Math.max(logLo + 1, hi));
+
+    const leftPercent = ((logLo - logMin) / range) * 100;
+    const widthPercent = ((logHi - logLo) / range) * 100;
+
+    const pitchRange = document.createElement("span");
+    pitchRange.className = "freq-label";
+    pitchRange.textContent = `${freqToNoteName(lo)} - ${freqToNoteName(hi)}`;
+
+    const barWrapper = document.createElement("div");
+    barWrapper.className = "freq-bar-wrapper";
+
+    const bar = document.createElement("div");
+    bar.className = "freq-map-bar";
+    bar.style.left = Math.max(0, leftPercent) + "%";
+    bar.style.width = Math.max(1, widthPercent) + "%";
+    
+    bar.textContent = s.name || "SMP";
+    
+    // --- LOKALISASI TOOLTIP ---
+    bar.title = `${t("freq_map_sample")}: ${s.name}\n${t("freq_map_low_freq")}: ${lo.toLocaleString()} mHz\n${t("freq_map_high_freq")}: ${hi.toLocaleString()} mHz\n${t("freq_map_root_freq")}: ${s.rootFreq.toLocaleString()} mHz\n\n${t("freq_map_click_to_select")}`;
+    // ---------------------------
+
+    // --- EVENT CLICK UNTUK MEMILIH SAMPEL ---
+    row.onclick = () => {
+      $("freqMapDialog").hidden = true;
+      
+      state.selSample = s; 
+      state.selStart = state.selEnd = 0; 
+      state.undo = [];
+      state.zoom = 1; 
+      state.offset = 0; 
+      updateZoomUI();
+      
+      render();
+
+      setTimeout(() => {
+        const activeCard = document.querySelector('.sc.active');
+        if (activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    };
+
+    barWrapper.appendChild(bar);
+    row.appendChild(pitchRange);
+    row.appendChild(barWrapper);
+    container.appendChild(row);
+  });
+
+  $("freqMapDialog").hidden = false;
 }
 
 function renderSampleEditor(save=true){
@@ -4643,87 +4805,379 @@ async function createMidiDemoProject(buttons,projectName){
   }
 }
 
+/* ---------- ZIP Reader & TiMidity CFG Parser ---------- */
+
+async function readZip(arrayBuffer) {
+  const view = new DataView(arrayBuffer);
+  const bytes = new Uint8Array(arrayBuffer);
+  let eocdOffset = -1;
+  
+  // Cari End of Central Directory (EOCD)
+  for (let i = bytes.length - 22; i >= 0; i--) {
+    if (view.getUint32(i, true) === 0x06054b50) {
+      eocdOffset = i; break;
+    }
+  }
+  if (eocdOffset === -1) throw new Error("Format ZIP tidak valid");
+
+  const cdEntries = view.getUint16(eocdOffset + 10, true);
+  let cdOffset = view.getUint32(eocdOffset + 16, true);
+  const files = new Map();
+
+  for (let i = 0; i < cdEntries; i++) {
+    if (view.getUint32(cdOffset, true) !== 0x02014b50) break;
+    const method = view.getUint16(cdOffset + 10, true);
+    const compSize = view.getUint32(cdOffset + 20, true);
+    const uncompSize = view.getUint32(cdOffset + 24, true);
+    const nameLen = view.getUint16(cdOffset + 28, true);
+    const extraLen = view.getUint16(cdOffset + 30, true);
+    const commentLen = view.getUint16(cdOffset + 32, true);
+    const localOffset = view.getUint32(cdOffset + 42, true);
+
+    const nameBytes = bytes.slice(cdOffset + 46, cdOffset + 46 + nameLen);
+    const name = new TextDecoder().decode(nameBytes);
+
+    files.set(name, { method, compSize, uncompSize, localOffset, name });
+    cdOffset += 46 + nameLen + extraLen + commentLen;
+  }
+  return { files, bytes, view };
+}
+
+async function extractFile(zip, file) {
+  const { bytes, view } = zip;
+  const off = file.localOffset;
+  if (view.getUint32(off, true) !== 0x04034b50) throw new Error("Header lokal ZIP tidak valid");
+  const nameLen = view.getUint16(off + 26, true);
+  const extraLen = view.getUint16(off + 28, true);
+  const dataOffset = off + 30 + nameLen + extraLen;
+
+  const compData = bytes.slice(dataOffset, dataOffset + file.compSize);
+
+  if (file.method === 0) {
+    return compData.buffer;
+  } else if (file.method === 8) {
+    if (typeof DecompressionStream === 'undefined') {
+      throw new Error("Browser Anda tidak mendukung DecompressionStream (Deflate). Gunakan browser modern.");
+    }
+    const ds = new DecompressionStream('deflate-raw');
+    const stream = new Blob([compData]).stream().pipeThrough(ds);
+    return await new Response(stream).arrayBuffer();
+  }
+  throw new Error("Metode kompresi ZIP tidak didukung: " + file.method);
+}
+
+function normalizePath(p) {
+  return p.replace(/^\/+/, '').replace(/\\/g, '/').replace(/\/+/g, '/').replace(/^\.\//, '');
+}
+
+function parseTimidityCfg(text) {
+  const patches = [];
+  let currentBank = null;
+  let currentDrumSet = null;
+  let currentDir = "";
+
+  const lines = text.split('\n');
+  for (let line of lines) {
+    line = line.trim();
+    if (!line || line.startsWith('#')) continue;
+
+    const dirMatch = line.match(/^dir\s+(.+)$/i);
+    if (dirMatch) {
+      currentDir = normalizePath(dirMatch[1]);
+      if (currentDir && !currentDir.endsWith('/')) currentDir += '/';
+      continue;
+    }
+
+    const bankMatch = line.match(/^bank\s+(\d+)$/i);
+    if (bankMatch) {
+      currentBank = parseInt(bankMatch[1], 10);
+      currentDrumSet = null;
+      continue;
+    }
+
+    const drumMatch = line.match(/^drumset\s+(\d+)$/i);
+    if (drumMatch) {
+      currentDrumSet = parseInt(drumMatch[1], 10);
+      currentBank = null;
+      continue;
+    }
+
+    const progMatch = line.match(/^(\d+)\s+(.+)$/);
+    if (progMatch && (currentBank !== null || currentDrumSet !== null)) {
+      const program = parseInt(progMatch[1], 10);
+      let filename = progMatch[2].trim();
+      
+      let fullPath = normalizePath(filename);
+      if (currentDir && !filename.startsWith('/')) {
+        // PERBAIKAN: Bersihkan kembali path setelah digabung
+        fullPath = normalizePath(currentDir + fullPath);
+      }
+
+      patches.push({
+        program,
+        filename: fullPath,
+        isDrum: currentDrumSet !== null,
+        targetBank: currentDrumSet !== null ? currentDrumSet : currentBank
+      });
+    }
+  }
+  return patches;
+}
+
+async function handleZipOpen(ab) {
+  showStatus(t("reading_zip"));
+  const zip = await readZip(ab);
+
+  let cfgName = null;
+  for (const name of zip.files.keys()) {
+    if (name.endsWith('timidity.cfg') || name === 'timidity.cfg') {
+      cfgName = name;
+      break;
+    }
+  }
+  if (!cfgName) throw new Error(t("zip_no_cfg"));
+
+  const cfgData = await extractFile(zip, zip.files.get(cfgName));
+  const cfgText = new TextDecoder().decode(cfgData);
+  const parsed = parseTimidityCfg(cfgText);
+
+  if (parsed.length === 0) throw new Error(t("zip_no_patches"));
+
+  const entries = [];
+  let processed = 0;
+
+  for (const item of parsed) {
+    const targetPath = normalizePath(item.filename);
+    let zipFileEntry = null;
+
+    // Cari file di dalam ZIP (Exact match atau EndsWith)
+    for (const [name, entry] of zip.files) {
+      const normName = normalizePath(name);
+      if (normName === targetPath || normName.endsWith('/' + targetPath) || normName === targetPath.split('/').pop()) {
+        zipFileEntry = entry;
+        break;
+      }
+    }
+
+    if (!zipFileEntry) {
+      console.warn(`File tidak ditemukan di ZIP: ${targetPath}`);
+      continue;
+    }
+
+    try {
+      const patData = await extractFile(zip, zipFileEntry);
+      const patch = parsePAT(patData);
+      const entry = {
+        id: uid("pat"),
+        name: (patch.header.description || item.filename.split('/').pop().replace(/\.pat$/i, "")).substring(0, 64),
+        source: "zip:" + cfgName,
+        gmProgram: item.program,
+        gmBank: item.isDrum ? 128 : 0,
+        ...(item.isDrum ? { drumSet: item.targetBank } : {}),
+        originalOrder: item.targetBank,
+        targetBank: item.targetBank,
+        patch
+      };
+      entries.push(entry);
+      processed++;
+      if (processed % 10 === 0) {
+        showStatus(t("importing_zip", { current: processed, total: parsed.length }));
+        await new Promise(r => setTimeout(r, 0));
+      }
+    } catch (e) {
+      console.warn(`Gagal memproses ${targetPath}:`, e);
+    }
+  }
+
+  if (entries.length === 0) throw new Error(t("zip_no_valid_patches"));
+
+  await addPatchEntries(entries);
+  showStatus(t("zip_import_success", { count: entries.length }), "ok");
+}
+
 /* ---------- File Detection & Handler ---------- */
-function detectFileType(ab){
-  if(ab.byteLength<12)return null;
-  const b=new Uint8Array(ab,0,12);
-  let s="";
-  for(let i=0;i<12;i++)s+=String.fromCharCode(b[i]);
-  if(s.startsWith("GF1PATCH"))return "pat";
-  if(s.startsWith("RIFF")&&s.substring(8,12)==="sfbk")return "sf2";
+function detectFileType(ab) {
+  if (!ab || ab.byteLength < 12) return null;
+  const b = new Uint8Array(ab, 0, 12);
+  let s = "";
+  for (let i = 0; i < 12; i++) s += String.fromCharCode(b[i]);
+  if (s.startsWith("GF1PATCH")) return "pat";
+  if (s.startsWith("RIFF") && s.substring(8, 12) === "sfbk") return "sf2";
+  if (b[0] === 0x50 && b[1] === 0x4B) return "zip"; // ZIP signature 'PK'
+
+  // MIDI.js Soundfont: file teks yang mengandung "MIDI.Soundfont"
+  const probeLen = Math.min(512, ab.byteLength);
+  const head = new TextDecoder("utf-8").decode(new Uint8Array(ab, 0, probeLen));
+  if (head.includes("MIDI.Soundfont") || head.includes("MIDI.SoundFont")) return "midijs";
+
   return null;
 }
 
-function handleFileOpen(e){
-  const file=e.target.files&&e.target.files[0];
-  if(!file)return;
-  if(!state.projects.some(project => project.id === state.currentProjectId)) {
-    e.target.value="";
+function handleFileOpen(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!state.projects.some(project => project.id === state.currentProjectId)) {
+    e.target.value = "";
     requestProjectForImport();
     return;
   }
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      const ab=reader.result;
-      const type=detectFileType(ab);
-      if(type==="pat"){
-        const patch=parsePAT(ab);
-        const entry={
+
+  // Gunakan FileReader untuk membaca ArrayBuffer
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const ab = reader.result;
+      const type = detectFileType(ab);
+      
+      if (type === "zip") {
+        await handleZipOpen(ab);
+      } else if (type === "pat") {
+        const patch = parsePAT(ab);
+        const entry = {
           id: uid("pat"),
-          name: (patch.header.description||file.name.replace(/\.pat$/i,"")).substring(0,64),
+          name: (patch.header.description || file.name.replace(/\.pat$/i, "")).substring(0, 64),
           source: "pat",
           gmProgram: -1,
           gmBank: 0,
           patch
         };
-        addPatchEntries([entry]).then(added=>{
-          if(!added)return;
+        if (await addPatchEntries([entry])) {
           const count = allSamples().length;
-          showStatus(t("file_loading", {filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", {count})}),"ok");
-        }).catch(err=>{
-          console.error("PAT import error:", err);
-          showStatus(t("patch_add_failed", {message: err.message}), "bad");
-        });
-      } else if(type==="sf2"){
+          showStatus(t("file_loading", { filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", { count }) }), "ok");
+        }
+      } else if (type === "sf2") {
         showStatus(t("converting_sf2"));
-        setTimeout(() => {
+        setTimeout(async () => {
           try {
-            const sf2=parseSF2(ab);
-            const entries=sf2ToGusPatches(sf2,file.name);
-            if(entries.length===0){
-              showStatus(t("sf2_no_preset"),"bad");
+            const sf2 = parseSF2(ab);
+            const entries = sf2ToGusPatches(sf2, file.name);
+            if (entries.length === 0) {
+              showStatus(t("sf2_no_preset"), "bad");
               showAlert("sf2_no_samples_alert");
             } else {
-              addPatchEntries(entries).then(added=>{
-                if(!added)return;
+              if (await addPatchEntries(entries)) {
                 const count = entries.length;
-                showStatus(t("sf2_added_to_project", {filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", {count})}),"ok");
-              }).catch(err=>{
-                console.error("SF2 import error:", err);
-                showStatus(t("patch_add_failed", {message: err.message}), "bad");
-              });
+                showStatus(t("sf2_added_to_project", { filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count }) }), "ok");
+              }
             }
-          } catch(err) {
+          } catch (err) {
             console.error(err);
-            showStatus(t("sf2_conversion_failed", {message: err.message}), "bad");
-            showAlert("sf2_conversion_alert", {message: err.message});
+            showStatus(t("sf2_conversion_failed", { message: err.message }), "bad");
+            showAlert("sf2_conversion_alert", { message: err.message });
           }
-          e.target.value="";
         }, 100);
-        return;
       } else {
         throw new Error(t("unknown_file_format"));
       }
-      e.target.value="";
-    }catch(err){
+      e.target.value = "";
+    } catch (err) {
       console.error(err);
-      showStatus(t("file_parse_failed", {message: err.message}),"bad");
-      showAlert("file_load_alert", {message: err.message});
-      e.target.value="";
+      showStatus(t("file_parse_failed", { message: err.message }), "bad");
+      showAlert("file_load_alert", { message: err.message });
+      e.target.value = "";
     }
   };
-  reader.onerror=()=>{showStatus(t("file_read_failed"),"bad");e.target.value="";};
+  reader.onerror = () => { showStatus(t("file_read_failed"), "bad"); e.target.value = ""; };
+  reader.readAsArrayBuffer(file);
+}
+
+async function handleFileOpen(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  
+  if (!state.projects.some(project => project.id === state.currentProjectId)) {
+    e.target.value = "";
+    requestProjectForImport();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const ab = reader.result;
+      const type = detectFileType(ab);
+
+      if (type === "zip") {
+        // Menangani file ZIP (Timidity Package)
+        await handleZipOpen(ab);
+        
+      } else if (type === "pat") {
+        // Menangani file PAT tunggal
+        const patch = parsePAT(ab);
+        const entry = {
+          id: uid("pat"),
+          name: (patch.header.description || file.name.replace(/\.pat$/i, "")).substring(0, 64),
+          source: "pat",
+          gmProgram: -1,
+          gmBank: 0,
+          patch
+        };
+        
+        const added = await addPatchEntries([entry]);
+        if (added) {
+          const count = allSamples().length;
+          showStatus(t("file_loading", {
+            filename: file.name,
+            samples: t(count === 1 ? "sample_count_one" : "sample_count_many", { count })
+          }), "ok");
+        }
+        
+      } else if (type === "sf2") {
+        // Menangani file SF2 (SoundFont)
+        showStatus(t("converting_sf2"));
+        await new Promise(resolve => setTimeout(resolve, 50));
+        try {
+          const sf2 = parseSF2(ab);
+          const entries = sf2ToGusPatches(sf2, file.name);
+          if (entries.length === 0) {
+            showStatus(t("sf2_no_preset"), "bad");
+            showAlert("sf2_no_samples_alert");
+          } else {
+            const added = await addPatchEntries(entries);
+            if (added) {
+              const count = entries.length;
+              showStatus(t("sf2_added_to_project", {
+                filename: file.name,
+                patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count })
+              }), "ok");
+            }
+          }
+        } catch (err) {
+          console.error("SF2 conversion error:", err);
+          showStatus(t("sf2_conversion_failed", { message: err.message }), "bad");
+          showAlert("sf2_conversion_alert", { message: err.message });
+        }
+
+      } else if (type === "midijs") {
+        // MIDI.js Soundfont (.js dengan base64 OGG/MP3)
+        try {
+          const text = new TextDecoder("utf-8").decode(ab);
+          await handleMidiJsImport(text, file.name);
+        } catch (err) {
+          console.error("MIDI.js import error:", err);
+          showStatus(t("midijs_failed", { message: err.message }), "bad");
+          showAlert("midijs_alert", { message: err.message });
+        }
+
+      } else {
+        throw new Error(t("unknown_file_format"));
+      }
+      
+      e.target.value = ""; // Reset input
+      
+    } catch (err) {
+      console.error("File Open Error:", err);
+      showStatus(t("file_parse_failed", { message: err.message }), "bad");
+      showAlert("file_load_alert", { message: err.message });
+      e.target.value = "";
+    }
+  };
+  
+  reader.onerror = () => {
+    showStatus(t("file_read_failed"), "bad");
+    e.target.value = "";
+  };
+  
   reader.readAsArrayBuffer(file);
 }
 
@@ -4849,6 +5303,432 @@ function handleMidiMessage(e){
   }
 }
 
+/* ---------- Sample JSON (Base64 PCM) ---------- */
+function bytesToBase64(u8) {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < u8.length; i += chunkSize) {
+    const chunk = u8.subarray(i, Math.min(i + chunkSize, u8.length));
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
+}
+
+function base64ToBytes(b64) {
+  const binary = atob(b64);
+  const u8 = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) u8[i] = binary.charCodeAt(i);
+  return u8;
+}
+
+function exportSampleToJson(sample) {
+  const clean = cleanSampleForStorage(sample);
+  return JSON.stringify({
+    format: "gus-sample-json",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    sample: {
+      ...clean,
+      reserved: bytesToBase64(clean.reserved),
+      pcm: bytesToBase64(clean.pcm)
+    }
+  }, null, 2);
+}
+
+function parseSampleJsonText(text) {
+  let obj;
+  try { obj = JSON.parse(text); }
+  catch (e) { throw new Error(t("sample_json_invalid")); }
+
+  if (!obj || obj.format !== "gus-sample-json" || !obj.sample) {
+    throw new Error(t("sample_json_invalid"));
+  }
+  const s = obj.sample;
+  if (typeof s.pcm !== "string" || s.pcm.length === 0) {
+    throw new Error(t("sample_json_invalid"));
+  }
+
+  let pcm, reserved;
+  try {
+    pcm = base64ToBytes(s.pcm);
+    reserved = typeof s.reserved === "string" ? base64ToBytes(s.reserved) : new Uint8Array(36);
+  } catch (e) {
+    throw new Error(t("sample_json_invalid"));
+  }
+  if (pcm.length === 0) throw new Error(t("sample_json_invalid"));
+
+  const num = (v, def, min, max) => {
+    const n = Number(v);
+    if (!isFinite(n)) return def;
+    return clamp(n, min, max);
+  };
+  const safeReserved = new Uint8Array(36);
+  safeReserved.set(reserved.subarray(0, 36));
+
+  return {
+    name: String(s.name || "SAMPLE").replace(/[^\w-]/g, "").slice(0, 7) || "SAMPLE",
+    fractions: num(s.fractions, 0, 0, 255) | 0,
+    dataSize: pcm.length,
+    loopStart: Math.max(0, num(s.loopStart, 0, 0, pcm.length)),
+    loopEnd: Math.max(0, num(s.loopEnd, 0, 0, pcm.length)),
+    sampleRate: num(s.sampleRate, 22050, 1, 192000),
+    lowFreq: Math.max(0, num(s.lowFreq, 0, 0, 0xFFFFFFFF)),
+    highFreq: Math.max(0, num(s.highFreq, 0, 0, 0xFFFFFFFF)),
+    rootFreq: Math.max(0, num(s.rootFreq, 0, 0, 0xFFFFFFFF)),
+    tune: num(s.tune, 0, 0, 65535) | 0,
+    balance: num(s.balance, 7, 0, 15) | 0,
+    envRates: Array.isArray(s.envRates)
+      ? Array.from({ length: 6 }, (_, i) => num(s.envRates[i], 0, 0, 255) | 0)
+      : [0, 0, 0, 0, 0, 0],
+    envOffsets: Array.isArray(s.envOffsets)
+      ? Array.from({ length: 6 }, (_, i) => num(s.envOffsets[i], 0, 0, 255) | 0)
+      : [0, 0, 0, 0, 0, 0],
+    tremoloSweep: num(s.tremoloSweep, 0, 0, 255) | 0,
+    tremoloRate: num(s.tremoloRate, 0, 0, 255) | 0,
+    tremoloDepth: num(s.tremoloDepth, 0, 0, 255) | 0,
+    vibratoSweep: num(s.vibratoSweep, 0, 0, 255) | 0,
+    vibratoRate: num(s.vibratoRate, 0, 0, 255) | 0,
+    vibratoDepth: num(s.vibratoDepth, 0, 0, 255) | 0,
+    modes: num(s.modes, 0, 0, 65535) | 0,
+    scaleFreq: num(s.scaleFreq, 60, 0, 65535) | 0,
+    scaleFactor: num(s.scaleFactor, 1024, 0, 65535) | 0,
+    reserved: safeReserved,
+    pcm,
+    _float: null
+  };
+}
+
+function exportCurrentSampleJson() {
+  const s = state.selSample;
+  if (!s) return;
+  try {
+    const json = exportSampleToJson(s);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (sanitizeFilename(s.name || "sample")) + ".sample.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showStatus(t("sample_json_exported", { name: s.name }), "ok");
+  } catch (err) {
+    console.error("Export sample JSON error:", err);
+    showStatus(t("sample_json_export_failed", { message: err.message }), "bad");
+  }
+}
+
+function addImportedSampleToPatch(sample) {
+  const patch = state.patch;
+  if (!patch) throw new Error(t("sample_json_no_patch"));
+  const inst = patch.instruments[state.selInst];
+  if (!inst) throw new Error(t("sample_json_no_instrument"));
+
+  if (inst.layers.length === 0) {
+    inst.layers.push({ duplicate: 0, layer: 0, layerSize: 0, reserved: new Uint8Array(40), samples: [] });
+  }
+  const layer = inst.layers[0];
+  if (layer.samples.length >= 255) throw new Error(t("sample_json_layer_limit"));
+
+  layer.samples.push(sample);
+
+  state.selSample = sample;
+  state.selStart = state.selEnd = 0;
+  state.undo = [];
+  state.zoom = 1;
+  state.offset = 0;
+  updateZoomUI();
+
+  const samples = allSamples();
+  patch.header.waveForms = samples.length;
+  patch.header.dataSize = samples.reduce((sum, ref) => sum + ref.sample.pcm.length, 0);
+
+  render();
+}
+
+function importSampleFromJsonFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const sample = parseSampleJsonText(String(reader.result || ""));
+      addImportedSampleToPatch(sample);
+      showStatus(t("sample_json_imported", { name: sample.name }), "ok");
+    } catch (err) {
+      console.error("Import sample JSON error:", err);
+      showStatus(t("sample_json_import_failed", { message: err.message }), "bad");
+      showAlert("sample_json_import_alert", { message: err.message });
+    }
+  };
+  reader.onerror = () => {
+    showStatus(t("sample_json_import_failed", { message: t("file_read_failed") }), "bad");
+  };
+  reader.readAsText(file);
+}
+
+
+/* ---------- MIDI.js Soundfont Import ---------- */
+function midiJsNoteToNumber(name) {
+  const m = String(name).match(/^([A-G])([#b]?)(-?\d+)$/);
+  if (!m) return null;
+  const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]];
+  let semi = base;
+  if (m[2] === "#") semi += 1;
+  else if (m[2] === "b") semi -= 1;
+  const octave = parseInt(m[3], 10);
+  const n = (octave + 1) * 12 + semi;
+  return n >= 0 && n <= 127 ? n : null;
+}
+
+function midiJsSampleName(noteName) {
+  return String(noteName).replace(/#/g, "s").replace(/b/g, "f").replace(/[^\w-]/g, "").slice(0, 7) || "SMP";
+}
+
+/**
+ * Parse file .js MIDI.js secara aman (tanpa eval).
+ * Mengembalikan array { instrumentName, notes: { "A0": "<base64>", ... } }.
+ */
+/**
+ * Cari posisi '}' pasangan dari '{' pada index openBrace,
+ * dengan menghormati string literal (tanda kutip) dan escape.
+ */
+function findMatchingBrace(text, openBrace) {
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = openBrace; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escaped) { escaped = false; continue; }
+      if (ch === "\\") { escaped = true; continue; }
+      if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') { inString = true; continue; }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+function parseMidiJsSoundfont(text) {
+  const results = [];
+  // Dot notation:  MIDI.Soundfont.acoustic_grand_piano = {
+  // Bracket notation (jaga-jaga): MIDI.Soundfont["acoustic_grand_piano"] = {
+  const assignRe = /MIDI\.Soundfont\s*(?:\.([A-Za-z0-9_]+)|\[\s*["']([^"']+)["']\s*\])\s*=\s*\{/g;
+  let m;
+  while ((m = assignRe.exec(text))) {
+    const instrumentName = m[1] || m[2];
+    const openBrace = m.index + m[0].length - 1;        // posisi '{'
+    const closeBrace = findMatchingBrace(text, openBrace);
+    if (closeBrace < 0) continue;
+
+    const body = text.slice(openBrace + 1, closeBrace);
+    const notes = {};
+    const noteRe = /"([A-G][#b]?-?\d+)"\s*:\s*"data:audio\/[^;"]+;base64,([A-Za-z0-9+/=]+)"/g;
+    let nm;
+    while ((nm = noteRe.exec(body))) notes[nm[1]] = nm[2];
+    if (Object.keys(notes).length > 0) results.push({ instrumentName, notes });
+  }
+  if (results.length === 0) throw new Error(t("midijs_invalid"));
+  return results;
+}
+
+function createDecodeContext(targetRate = 22050) {
+  const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  if (OfflineCtx) {
+    try { return new OfflineCtx(1, 1, targetRate); } catch (_) {}
+  }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) throw new Error(t("web_audio_unsupported"));
+  try { return new AC({ sampleRate: targetRate }); } catch (_) { return new AC(); }
+}
+
+async function decodeBase64AudioToMono16(base64, decodeCtx) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+  const audioBuf = await decodeCtx.decodeAudioData(bytes.buffer);
+  const ch = audioBuf.numberOfChannels;
+  const n = audioBuf.length;
+  const mono = new Float32Array(n);
+  for (let c = 0; c < ch; c++) {
+    const data = audioBuf.getChannelData(c);
+    for (let i = 0; i < n; i++) mono[i] += data[i] / ch;
+  }
+  const pcm = new Uint8Array(n * 2);
+  for (let i = 0; i < n; i++) {
+    let v = Math.round(clamp(mono[i], -1, 1) * 32767);
+    if (v < 0) v += 65536;
+    pcm[i * 2] = v & 255;
+    pcm[i * 2 + 1] = (v >> 8) & 255;
+  }
+  return { pcm, sampleRate: audioBuf.sampleRate, frames: n };
+}
+
+/**
+ * Konversi satu instrumen MIDI.js menjadi entry patch GUS.
+ */
+async function midiJsInstrumentToEntry(parsed, fileName, decodeCtx, onProgress) {
+  const noteList = Object.entries(parsed.notes)
+    .map(([name, b64]) => ({ name, note: midiJsNoteToNumber(name), b64 }))
+    .filter(x => x.note !== null)
+    .sort((a, b) => a.note - b.note);
+
+  if (noteList.length === 0) throw new Error(t("midijs_no_notes"));
+
+  const samples = [];
+  for (let i = 0; i < noteList.length; i++) {
+    const { name, note, b64 } = noteList[i];
+    onProgress?.(i + 1, noteList.length, name);
+    let decoded;
+    try {
+      decoded = await decodeBase64AudioToMono16(b64, decodeCtx);
+    } catch (err) {
+      console.warn(`[MIDI.js] Gagal decode note ${name}:`, err);
+      continue;
+    }
+    // Beri napas ke UI setiap beberapa note
+    if (i % 8 === 7) await new Promise(r => setTimeout(r, 0));
+
+    const rootFreq = Math.round(midiToFreq(note) * 1000);
+    samples.push({
+      name: midiJsSampleName(name),
+      fractions: 0,
+      dataSize: decoded.pcm.length,
+      loopStart: 0,
+      loopEnd: 0,
+      sampleRate: decoded.sampleRate,
+      lowFreq: 0,
+      highFreq: 0,
+      rootFreq,
+      tune: 0,
+      balance: 7,
+      envRates: [0, 0, 0, 0, 0, 0],
+      envOffsets: [255, 255, 255, 0, 0, 0],
+      tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
+      vibratoSweep: 0, vibratoRate: 0, vibratoDepth: 0,
+      modes: M16,                       // 16-bit signed, tanpa loop, tanpa envelope
+      scaleFreq: 60,
+      scaleFactor: 1024,
+      reserved: new Uint8Array(36),
+      pcm: decoded.pcm,
+      _float: null,
+      _midiNote: note
+    });
+  }
+
+  if (samples.length === 0) throw new Error(t("midijs_no_notes"));
+
+  // Rentang frekuensi: batas antar-note = rata-rata geometrik root frequency tetangga
+  for (let i = 0; i < samples.length; i++) {
+    const f = samples[i].rootFreq;
+    const prev = i > 0 ? samples[i - 1].rootFreq : null;
+    const next = i < samples.length - 1 ? samples[i + 1].rootFreq : null;
+    samples[i].lowFreq = prev ? Math.floor(Math.sqrt(prev * f)) : Math.max(1, Math.floor(f / 2));
+    samples[i].highFreq = next ? Math.ceil(Math.sqrt(f * next)) : Math.min(20000000, Math.ceil(f * 2));
+  }
+
+  const instrumentName = parsed.instrumentName;
+  const totalBytes = samples.reduce((s, x) => s + x.pcm.length, 0);
+
+  const patch = {
+    header: {
+      magic: MAGIC, gravisId: GRAVIS_ID,
+      description: `MIDI.js ${instrumentName}`.substring(0, 60),
+      voices: 14, channels: 0, waveForms: samples.length,
+      masterVolume: 127, dataSize: totalBytes,
+      reserved: new Uint8Array(36)
+    },
+    instruments: [{
+      instrument: 0,
+      name: instrumentName.substring(0, 16),
+      size: 0,
+      reserved: new Uint8Array(40),
+      layers: [{
+        duplicate: 0, layer: 0, layerSize: 0,
+        reserved: new Uint8Array(40),
+        samples
+      }]
+    }]
+  };
+
+  return {
+    id: uid("midijs"),
+    name: instrumentName.substring(0, 48),
+    source: "midijs:" + fileName,
+    gmProgram: -1,
+    gmBank: 0,
+    patch
+  };
+}
+
+/**
+ * Handler utama: parse teks MIDI.js, decode semua note, lalu tambahkan ke proyek.
+ */
+async function handleMidiJsImport(text, fileName) {
+  if (!state.projects.some(p => p.id === state.currentProjectId)) {
+    requestProjectForImport();
+    return;
+  }
+
+  const parsedList = parseMidiJsSoundfont(text);
+  const decodeCtx = createDecodeContext(22050);
+  const entries = [];
+
+  try {
+    for (const parsed of parsedList) {
+      const entry = await midiJsInstrumentToEntry(parsed, fileName, decodeCtx, (cur, total, note) => {
+        showStatus(t("midijs_converting", { current: cur, total, note }));
+      });
+      entries.push(entry);
+    }
+  } finally {
+    if (typeof decodeCtx.close === "function") {
+      try { decodeCtx.close(); } catch (_) {}
+    }
+  }
+
+  if (entries.length === 0) throw new Error(t("midijs_no_notes"));
+
+  const added = await addPatchEntries(entries);
+  if (added) {
+    const first = entries[0];
+    const sampleCount = first.patch.instruments[0].layers[0].samples.length;
+    showStatus(t("midijs_done", { name: first.name, count: sampleCount }), "ok");
+  }
+}
+
+/**
+ * Impor dari URL (mis. CDN jsDelivr). Dipicu oleh tombol #btnMidiJsUrl.
+ */
+async function importMidiJsFromUrl() {
+  const example = "https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@master/FluidR3_GM/acoustic_grand_piano-ogg.js";
+  const url = prompt(t("midijs_url_prompt"), example);
+  if (!url) return;
+
+  if (!state.projects.some(p => p.id === state.currentProjectId)) {
+    requestProjectForImport();
+    return;
+  }
+
+  try {
+    showStatus(t("midijs_fetching", { url }));
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const fileName = (url.split("/").pop() || "soundfont.js").split("?")[0];
+    await handleMidiJsImport(text, fileName);
+  } catch (err) {
+    console.error("MIDI.js URL import error:", err);
+    showStatus(t("midijs_failed", { message: err.message }), "bad");
+    showAlert("midijs_alert", { message: err.message });
+  }
+}
+
 /* ---------- Bind UI ---------- */
 function bind(){
   const patInput=$("patFile");
@@ -4863,6 +5743,10 @@ function bind(){
       patInput.click();
     });
   });
+
+  const midiJsUrlBtn = $("btnMidiJsUrl");
+  midiJsUrlBtn.addEventListener("click", importMidiJsFromUrl);
+
   patInput.addEventListener("change",handleFileOpen);
   $("btnImportSoundfont").addEventListener("click",()=>{
     if(!state.projects.some(project=>project.id===state.currentProjectId)){
@@ -5388,6 +6272,27 @@ function bind(){
     state.libraryBankFilter = e.target.value;
     renderLibrary();
   });
+
+  
+
+  // Di dalam fungsi bind(), dekat event listener lainnya
+  $("btnShowFreqMap").addEventListener("click", openFreqMapDialog);
+  $("btnCloseFreqMap").addEventListener("click", () => { $("freqMapDialog").hidden = true; });
+  $("freqMapDialog").addEventListener("click", e => {
+    if (e.target === $("freqMapDialog")) $("freqMapDialog").hidden = true;
+  });
+
+  $("btnExportSampleJson").addEventListener("click", exportCurrentSampleJson);
+  $("btnImportSampleJson").addEventListener("click", () => {
+    $("sampleJsonFile").value = "";
+    $("sampleJsonFile").click();
+  });
+  $("sampleJsonFile").addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) importSampleFromJsonFile(file);
+    e.target.value = "";
+  });
+  
 
   bindCanvas();
 }
