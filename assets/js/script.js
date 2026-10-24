@@ -1911,6 +1911,117 @@ function closeAlert(){
   openNextAlert();
 }
 
+/* ---------- Custom Prompt (replaces window.prompt) ---------- */
+let activeCustomPrompt = null;
+
+function customPrompt(options = {}) {
+  return new Promise(resolve => {
+    const {
+      title = "",
+      message = "",
+      label = "",
+      defaultValue = "",
+      placeholder = "",
+      inputType = "text",
+      inputMode = "",
+      min,
+      max,
+      okLabel = t("ok_button"),
+      cancelLabel = t("cancel"),
+      validate = null
+    } = options;
+
+    // Batalkan prompt sebelumnya jika masih terbuka
+    if (activeCustomPrompt) {
+      const prev = activeCustomPrompt;
+      activeCustomPrompt = null;
+      prev.resolve(null);
+    }
+
+    const dialog = $("customPromptDialog");
+    const titleEl = $("customPromptTitle");
+    const messageEl = $("customPromptMessage");
+    const fieldEl = $("customPromptField");
+    const labelEl = $("customPromptLabel");
+    const inputEl = $("customPromptInput");
+    const errorEl = $("customPromptError");
+    const okBtn = $("btnCustomPromptOk");
+    const cancelBtn = $("btnCustomPromptCancel");
+
+    titleEl.textContent = title || t("prompt_title");
+    messageEl.textContent = message || "";
+    messageEl.style.display = message ? "" : "none";
+
+    fieldEl.style.display = "";
+    labelEl.textContent = label || "";
+    labelEl.style.display = label ? "" : "none";
+    errorEl.textContent = "";
+
+    inputEl.type = inputType;
+    if (inputMode) inputEl.setAttribute("inputmode", inputMode);
+    else inputEl.removeAttribute("inputmode");
+    if (inputType === "number") {
+      if (typeof min === "number") inputEl.min = String(min);
+      else inputEl.removeAttribute("min");
+      if (typeof max === "number") inputEl.max = String(max);
+      else inputEl.removeAttribute("max");
+    } else {
+      inputEl.removeAttribute("min");
+      inputEl.removeAttribute("max");
+    }
+    inputEl.value = String(defaultValue ?? "");
+    inputEl.placeholder = placeholder || "";
+
+    okBtn.textContent = okLabel;
+    cancelBtn.textContent = cancelLabel;
+
+    const finish = (value) => {
+      if (!activeCustomPrompt || activeCustomPrompt.resolve !== resolve) return;
+      activeCustomPrompt = null;
+      okBtn.onclick = null;
+      cancelBtn.onclick = null;
+      inputEl.onkeydown = null;
+      dialog.onclick = null;
+      dialog.hidden = true;
+      resolve(value);
+    };
+
+    const tryConfirm = () => {
+      const value = inputEl.value;
+      if (typeof validate === "function") {
+        let result;
+        try { result = validate(value); }
+        catch (err) { result = String(err?.message || err); }
+        if (result !== true && result !== undefined && result !== null) {
+          errorEl.textContent = String(result);
+          inputEl.focus();
+          return;
+        }
+      }
+      errorEl.textContent = "";
+      finish(value);
+    };
+
+    okBtn.onclick = tryConfirm;
+    cancelBtn.onclick = () => finish(null);
+    inputEl.onkeydown = (e) => {
+      if (e.key === "Enter") { e.preventDefault(); tryConfirm(); }
+      else if (e.key === "Escape") { e.preventDefault(); finish(null); }
+      else { errorEl.textContent = ""; }
+    };
+    dialog.onclick = (e) => { if (e.target === dialog) finish(null); };
+
+    activeCustomPrompt = { resolve };
+
+    dialog.hidden = false;
+    requestAnimationFrame(() => {
+      if (!activeCustomPrompt || activeCustomPrompt.resolve !== resolve) return;
+      inputEl.focus();
+      if (inputEl.value) inputEl.select();
+    });
+  });
+}
+
 async function runConfirmationAction(){
   if(!pendingConfirmationAction || $("btnConfirmAction").disabled)return;
   const confirmButton=$("btnConfirmAction");
@@ -5707,8 +5818,23 @@ async function handleMidiJsImport(text, fileName) {
  */
 async function importMidiJsFromUrl() {
   const example = "https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@master/FluidR3_GM/acoustic_grand_piano-ogg.js";
-  const url = prompt(t("midijs_url_prompt"), example);
-  if (!url) return;
+  const url = await customPrompt({
+    title: t("midijs_url_button"),
+    label: t("midijs_url_prompt"),
+    defaultValue: example,
+    placeholder: "https://…",
+    inputType: "text",
+    inputMode: "url",
+    validate: (v) => {
+      const trimmed = String(v || "").trim();
+      if (!trimmed) return t("custom_prompt_required");
+      try { new URL(trimmed); return true; }
+      catch (_) { return t("custom_prompt_invalid_url"); }
+    }
+  });
+  if (url === null || url === undefined) return;
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) return;
 
   if (!state.projects.some(p => p.id === state.currentProjectId)) {
     requestProjectForImport();
@@ -6108,11 +6234,29 @@ function bind(){
     state.selStart=0; state.selEnd=ensureFloat(s).length; drawWave();
   });
   const editBtn=(id,kind,param)=>{
-    $(id).addEventListener("click",()=>{
+    $(id).addEventListener("click", async () => {
       if(kind==="amplify"){
-        const g=parseFloat(prompt(t("amplify_factor_prompt"),"1.5"));
-        if(isFinite(g))applyEdit("amplify",g);
-      } else applyEdit(kind,param);
+        const titleText = t("amplify_factor_prompt").replace(/[:\s]+$/, "");
+        const input = await customPrompt({
+          title: titleText,
+          label: t("amplify_factor_label"),
+          defaultValue: "1.5",
+          inputType: "number",
+          inputMode: "decimal",
+          min: 0.01,
+          max: 100,
+          validate: (v) => {
+            const n = parseFloat(v);
+            if (!isFinite(n) || n <= 0) return t("custom_prompt_invalid_number");
+            return true;
+          }
+        });
+        if (input === null) return;
+        const g = parseFloat(input);
+        if (isFinite(g)) applyEdit("amplify", g);
+      } else {
+        applyEdit(kind,param);
+      }
     });
   };
   editBtn("btnNormalize","normalize");

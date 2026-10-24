@@ -350,7 +350,7 @@
   "select_bank": "Select Bank",
   "select_bank_hint": "Select a bank for preview. Bank 0 is default. Melodic channels will use the selected bank, and the drum channel will use the drum set corresponding to the selected bank.",
   "bank_breakdown_title": "Bank Breakdown",
-    "bank_breakdown_desc": "List of libraries in this bank. Patches highlighted in red have a size of 0 bytes (broken/empty) and will produce no sound. It is recommended to check these patches in the sidebar or delete them directly from this list.",
+  "bank_breakdown_desc": "List of libraries in this bank. Patches highlighted in red have a size of 0 bytes (broken/empty) and will produce no sound. It is recommended to check these patches in the sidebar or delete them directly from this list.",
   "bank_loading_patch": "Loading patch {current}/{total}: {name}...",
   "bank_applying": "Applying Bank {bank}...",
   "bank_loaded_success": "Bank {bank} loaded successfully.",
@@ -405,5 +405,10 @@
   "midijs_alert": "MIDI.js Import Failed: {message}",
   "midijs_url_button": "MIDI.js URL",
   "midijs_url_title": "Import MIDI.js soundfont from URL (jsDelivr, etc.)",
-  "midijs_url_prompt": "Enter the URL of a MIDI.js Soundfont .js file:"
+  "midijs_url_prompt": "Enter the URL of a MIDI.js Soundfont .js file:",
+  "prompt_title": "Input",
+  "amplify_factor_label": "Faktor amplifikasi",
+  "custom_prompt_required": "Silakan isi kolom ini.",
+  "custom_prompt_invalid_number": "Masukkan angka yang valid dan lebih besar dari 0.",
+  "custom_prompt_invalid_url": "Masukkan URL yang valid."
 }

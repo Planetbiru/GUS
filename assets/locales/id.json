@@ -57,7 +57,7 @@
   "midi_monitor": "Pemantau MIDI",
   "no_midi_messages": "Belum ada pesan MIDI.",
   "editor_heading": "Editor GUS Patch",
-  "welcome_description": "Muat file .PAT Gravis Ultrasound atau .SF2 SoundFont (dikonversi otomatis menjadi banyak patch GUS). Edit properti patch, sunting waveform, ekspor/impor WAV, uji suara via keyboard/MIDI. Semua data tersimpan di IndexedDB browser Anda. Peringatan: file SoundFont umumnya berukuran besar dan ukurannya dapat membengkak setelah dikonversi menjadi GUS Patch. Pastikan komputer memiliki RAM minimal 16 GB dan ruang penyimpanan kosong minimal 15 GB.",
+  "welcome_description": "Load a Gravis Ultrasound .PAT, a SoundFont .SF2, a Timidity .ZIP package, or a MIDI.js soundfont .JS file. Edit patch properties and waveforms, import/export WAV and JSON samples, and test sounds via keyboard or MIDI. All data is stored in your browser's IndexedDB. Note: SoundFont files can be very large — conversion to GUS patches may require substantial memory and free storage space.",
   "welcome_tip": "<b>Tips:</b> Anda dapat menguji patch suara dengan memuat file MIDI dan memutarnya melalui panel <b>Preview MIDI</b> di sidebar sebelah kiri.",
   "open_file": "Buka File",
   "load_demo": "Muat Demo",
@@ -405,5 +405,9 @@
   "midijs_alert": "Impor MIDI.js Gagal: {message}",
   "midijs_url_button": "MIDI.js URL",
   "midijs_url_title": "Impor soundfont MIDI.js dari URL (jsDelivr, dll.)",
-  "midijs_url_prompt": "Masukkan URL file .js MIDI.js Soundfont:"
+  "midijs_url_prompt": "Masukkan URL file .js MIDI.js Soundfont:",
+  "amplify_factor_label": "Amplification factor",
+  "custom_prompt_required": "Please fill in this field.",
+  "custom_prompt_invalid_number": "Please enter a valid number greater than 0.",
+  "custom_prompt_invalid_url": "Please enter a valid URL."
 }

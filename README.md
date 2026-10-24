@@ -1,16 +1,425 @@
-# GUS
-GUS Patch Editor
+# GUS Patch Editor
 
-## Languages
+A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patch files**, with support for importing SoundFonts (`.sf2`), Timidity ZIP packages, and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, and patch export.
 
-The editor supports Indonesian and English. Language strings are stored in `assets/locales/id.json` and `assets/locales/en.json`; add matching snake_case keys to both files when introducing translatable UI text.
+Built with vanilla JavaScript and no build step. Runs entirely in the browser. All data is stored locally in IndexedDB.
 
-In `index.html`, use `{{key}}` for translatable content. Translatable attributes use an explicit `data-i18n-<attribute>` marker, such as `data-i18n-placeholder="project_name_placeholder"`. Runtime-generated messages use the `t()` helper in `assets/js/script.js`.
+---
 
-Run the editor from a local web server so the browser can fetch the locale JSON files.
+## Table of Contents
 
-## Generating patches
+- [Features](#features)
+- [File Format Support](#file-format-support)
+- [Screenshots](#screenshots)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Browser Requirements](#browser-requirements)
+- [Architecture](#architecture)
+- [Localization](#localization)
+- [Known Limitations](#known-limitations)
+- [Contributing](#contributing)
+- [License](#license)
+- [Credits](#credits)
 
-The **Add Patch** dialog can import a `.PAT` file or generate a melodic/drum patch. The reusable `ProjectPatchGenerator` class is in `assets/js/project-patch-generator.js`; it exposes `getPrograms(isDrum)` and `generate({isDrum, program})`. Its reference instrument library and renderers must be loaded from `JSGUS/GUSPatchGenerator.js` first.
+---
 
-The **Demo** action asks for a project name, then prepares a dedicated MIDI demo project with all 128 melodic programs and every drum instrument supported by the patch generator.
+## Features
+
+### Patch Editing
+- **Full GUS `.PAT` support** — parse, inspect, edit, and export Gravis Ultrasound patches
+- **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
+- **Instrument management** — add, rename, reorder, and export individual instruments
+- **Sample bank management** — per-sample rate, root frequency, low/high frequency range, tune, balance, scale factor, envelope rates/offsets, tremolo/vibrato, and 8 sample mode flags
+
+### Sample Editor
+- **Waveform canvas** with zoom (up to 1000×), pan, and per-sample rendering
+- **Selection tool** and **pencil tool** for drawing waveform data
+- **DSP operations**: normalize, fade in/out, silence, reverse, amplify, remove DC offset
+- **Loop editing**: set loop from selection or entire sample, fractions support
+- **Undo history** (last 16 operations)
+- **WAV import/export** — reads 8/16/24/32-bit mono/stereo, respects `smpl` loop chunks on both import and export
+- **Sample JSON import/export** — lossless base64-encoded PCM snapshot for transferring samples between patches
+- **Keyboard and MIDI testing** — play the current sample from your keyboard (A W S E D F T G Y H U J K) or a connected MIDI controller
+- **Microphone recording** — record audio directly via MediaRecorder and convert to 16-bit mono PCM
+- **Auto-parameter estimation** on import — root frequency via autocorrelation, envelope via RMS analysis
+- **Frequency range map** — visualize sample coverage across the keyboard to detect overlaps
+
+### File Import
+| Format | Extension | Description |
+|---|---|---|
+| GUS Patch | `.pat` | Native Gravis Ultrasound patch format |
+| SoundFont | `.sf2` | Extracts all presets, including drum kits (split per MIDI note) |
+| Timidity package | `.zip` | Timidity distribution packages containing `timidity.cfg` |
+| MIDI.js soundfont | `.js` | FluidR3_GM-style OGG/MP3 soundfonts from jsDelivr and similar CDNs |
+| MIDI.js from URL | — | Fetch soundfont directly from a URL |
+
+### MIDI Playback & Rendering
+- **In-browser MIDI playback** via LibTiMidityPlayer (WASM)
+- **Bank selection** — switch which target bank each channel uses
+- **Volume control** — safe API-based volume, no crash-prone MIDI CC injection
+- **Seek / pause / resume** — precise tempo-map-aware duration calculation
+- **Offline render to WAV** — full mixdown with all loaded patches
+- **Per-instrument loading status** — see which patch is currently decoding
+
+### Project Management
+- Multiple projects, each with its own patch list
+- Patches are automatically shared between projects if referenced by multiple projects
+- **Recovered Library** — patches whose project assignment was lost are recovered automatically
+- **Clearing library** — wipes all patches while preserving projects
+- **Deleting projects** — cleans up exclusive patches; shared patches are preserved
+
+### Bank / Drum Set Management
+- **Target bank assignment** — renumber banks and drum sets independently of original order
+- **Per-row reordering** via drag and drop
+- **Filtered views** — filter by GM program, drum vs melodic, and target bank
+- **Selective export** — checkbox each patch to control what gets included in the ZIP
+- **Compact banks** — collapse sparse target banks to sequential 0, 1, 2, …
+- **Bank health check** — flags broken or zero-byte patches before exporting
+
+### Export
+- **Single patch** export to `.pat`
+- **Single instrument** export to `.pat`
+- **Whole library** export to ZIP with `manifest.json` and `timidity.cfg`
+- **Selected banks** export with configurable target banks
+- **Rendered MIDI** export to `.wav`
+
+### Localization
+- Full English and Indonesian UI
+- Language preference persists across sessions
+- All strings live in `assets/locales/{id,en}.json`
+
+---
+
+## File Format Support
+
+### `.PAT` (Gravis Ultrasound Patch)
+
+The editor implements the full GF1PATCH110 binary format:
+
+- Header (129 bytes): magic, Gravis ID, description, voices, channels, wave count, master volume, data size
+- Instrument headers (63 bytes each)
+- Layer headers (47 bytes each)
+- Sample headers (96 bytes each)
+- Raw PCM data (8 or 16-bit, signed or unsigned)
+- Envelope tables, loop points, modes, scale factors
+
+Both direct sample-rate values and legacy period-based values (nanoseconds) are auto-detected and normalized.
+
+### Timidity ZIP Packages
+
+Exported ZIPs contain:
+
+```
+manifest.json              # All patch metadata
+timidity.cfg               # Bank / drumset / program mapping
+<bank>/tone/<name>.pat     # Melodic patches
+<bank>/drum/<name>.pat     # Drum kit patches
+```
+
+The `timidity.cfg` follows standard Timidity syntax:
+
+```
+dir .
+bank 0
+0 acoustic_grand_piano.pat
+24 acoustic_guitar_nylon.pat
+
+drumset 0
+35 kick_1.pat
+38 snare_1.pat
+```
+
+---
+
+## Screenshots
+
+> Add screenshots to `docs/` and update these image paths before publishing.
+
+| Welcome | Sample editor |
+|---|---|
+| ![Welcome](docs/screenshot-welcome.png) | ![Editor](docs/screenshot-editor.png) |
+
+| Bank manager | Frequency map |
+|---|---|
+| ![Bank manager](docs/screenshot-bank-manager.png) | ![Frequency map](docs/screenshot-freq-map.png) |
+
+---
+
+## Getting Started
+
+### Requirements
+
+- A modern browser (see [Browser Requirements](#browser-requirements))
+- A local web server — the app uses `fetch()` for locale files, so `file://` URLs won't work
+
+### Running Locally
+
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/gus-patch-editor.git
+cd gus-patch-editor
+
+# Start a simple HTTP server (any of these work)
+python3 -m http.server 8000
+# or
+npx serve .
+# or
+php -S localhost:8000
+```
+
+Then open **http://localhost:8000** in your browser.
+
+### First Run
+
+1. Click **Load Demo** to generate a full 128-program GM demo bank (requires ~10–30 seconds on first run)
+2. Or click **Add Project** → **Open a .PAT file** to import your own patch
+3. Once patches exist, use the **MIDI Preview** panel to load a `.mid` file and hear your patches
+
+---
+
+## Usage
+
+### Loading a Patch
+
+**From a GUS `.PAT` file:**
+```
+Projects sidebar → Add Patch → Open a .PAT file
+```
+
+**From a SoundFont:**
+```
+Projects sidebar → Import Package → select .sf2
+```
+Each preset becomes a separate GUS patch. Drum kits (`bank 128`) are split into one patch per MIDI note.
+
+**From a Timidity ZIP:**
+```
+Header → Open .PAT / .SF2 → select a ZIP produced by this editor or a compatible Timidity package
+```
+
+**From a MIDI.js soundfont:**
+```
+Header → Open .PAT / .SF2 → select an .js file
+# or
+Header → MIDI.js URL → paste a jsDelivr URL
+```
+
+### Editing a Sample
+
+1. Click any sample card in the **Samples** section
+2. Use the waveform canvas:
+   - **Scroll** = zoom
+   - **Shift + Scroll**, **Middle-Click**, or **Alt + Drag** = pan
+   - **Select tool** = drag to select a range
+   - **Pencil tool** = draw the waveform directly
+3. Apply DSP operations from the toolbar
+4. Set loop points, mode flags, envelope values, or click a key on the test keyboard
+
+### Playing MIDI
+
+1. Select a project
+2. Click **Load MIDI** in the **MIDI Preview** panel
+3. Choose a bank with **Select Bank**
+4. Click **Play** — the loaded project patches will be used
+
+### Exporting
+
+| Button | Result |
+|---|---|
+| **Download .PAT** (header) | Current patch as a single `.pat` file |
+| **Export This Instrument** | Only the selected instrument |
+| **Export ZIP** (library) | All patches in the current library view |
+| **Export Selected** (bank manager) | Patches checked in the bank table |
+| **Render WAV** (MIDI preview) | Offline-rendered mixdown |
+| **Download WAV** (sample editor) | Current sample as a `.wav` file |
+| **Export JSON** (sample editor) | Sample with PCM as base64 JSON |
+
+### Sharing Samples Between Patches
+
+1. Open the source patch → select the sample → **Export JSON**
+2. Open the target patch → select the target instrument → **Import JSON**
+3. The sample is added to the first layer of that instrument
+
+---
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|---|---|
+| `A` `W` `S` `E` `D` `F` `T` `G` `Y` `H` `U` `J` `K` | Play notes C3–C4 (when a sample is selected) |
+| `Scroll` | Zoom waveform in / out |
+| `Shift` + `Scroll` | Pan waveform |
+| `Alt` + `Drag` | Pan waveform |
+| `Escape` | Close modal / cancel selection |
+| `Enter` | Confirm modal |
+
+---
+
+## Browser Requirements
+
+| Feature | Minimum |
+|---|---|
+| ES2020 (`?.`, `??`) | Chrome 80, Firefox 74, Safari 13.1 |
+| IndexedDB | All modern browsers |
+| Web Audio API | All modern browsers |
+| Web MIDI API | Chrome / Edge / Opera (Firefox and Safari have limited support) |
+| `DecompressionStream` (ZIP import) | Chrome 80, Safari 16.4, Firefox 113 |
+| `MediaRecorder` (microphone) | Chrome / Firefox / Edge |
+| WASM (LibTiMidityPlayer) | All modern browsers |
+| WebGL / Canvas2D | All modern browsers |
+
+Tested on:
+- Chrome 120+ (desktop + Android)
+- Firefox 120+ (desktop)
+- Edge 120+ (desktop)
+
+---
+
+## Architecture
+
+```
+gus-patch-editor/
+├── index.html                       # Single-page app shell
+├── assets/
+│   ├── css/
+│   │   └── style.css                # All styling
+│   ├── js/
+│   │   ├── script.js                # Main application (single ~7000-line file)
+│   │   └── project-patch-generator.js  # Generator for demo project patches
+│   └── locales/
+│       ├── id.json                  # Indonesian strings
+│       └── en.json                  # English strings
+├── JSGUS/
+│   └── GUSPatchGenerator.js         # Procedural GUS patch generator
+└── timidity-player/
+    ├── timidity-player.js           # LibTiMidityPlayer wrapper
+    └── libtimidity.js               # LibTiMidity WASM loader
+```
+
+### Data Flow
+
+```
+    ┌────────────┐     ┌───────────────┐     ┌──────────────┐
+    │  Import    │────▶│  state.patch  │────▶│   Rendering  │
+    │  .PAT/.SF2 │     │  (in memory)  │     │   (DOM/Canvas)│
+    │  .ZIP/.JS  │     └───────────────┘     └──────────────┘
+    └────────────┘             │                      │
+                               ▼                      ▼
+                        ┌─────────────┐       ┌──────────────┐
+                        │ IndexedDB   │       │  Export      │
+                        │ (persistent)│       │  .PAT/.ZIP   │
+                        └─────────────┘       └──────────────┘
+```
+
+### Storage
+
+All data lives in **IndexedDB**, database name `gus-patch-editor-2`:
+
+| Object store | Key | Contents |
+|---|---|---|
+| `patches` | `id` | Patch entries with full instrument/sample tree |
+| `projects` | `id` | Project metadata with ordered patch ID list |
+
+No server communication. No cloud sync. No telemetry.
+
+### PCM Handling
+
+Samples are stored internally as `Uint8Array` PCM plus a cached `Float32Array` (`_float`) for fast canvas rendering. Sample modes (`M16`, `MUNS`) determine bit depth and sign convention:
+
+- `M16` set → 16-bit PCM (2 bytes per sample), otherwise 8-bit (1 byte per sample)
+- `MUNS` set → unsigned PCM, otherwise signed
+
+Conversion happens once per sample and is cached.
+
+---
+
+## Localization
+
+All strings live in `assets/locales/id.json` and `assets/locales/en.json`.
+
+To add a new language:
+
+1. Copy `assets/locales/en.json` to `assets/locales/xx.json` and translate the values
+2. Update `initLocalization()` in `script.js` to accept the new locale code
+3. Add an `<option>` to `#languageSelect` in `index.html`
+
+Placeholders use `{name}` syntax and are substituted from the `values` argument passed to `t()`.
+
+---
+
+## Known Limitations
+
+- **Browsers only** — no desktop build; a modern browser is required
+- **RAM usage** — converting a large SoundFont can hold hundreds of megabytes in memory during conversion; browsers may crash on low-RAM devices
+- **Storage limits** — IndexedDB quotas vary by browser (usually 10% of disk); large libraries may hit the quota
+- **SF2 import** — parsed in the main thread; the UI may freeze during conversion of large files
+- **MIDI.js import** — decoding ~88 notes at 22050 Hz takes 20–60 seconds depending on the file and device
+- **Web MIDI** — Firefox and Safari only partially support `navigator.requestMIDIAccess`
+- **Loop points** — GUS loop points reference 16-bit sample positions; fractional loop points (`.fractions`) are only partially honored on export
+- **Envelope timing** — playback approximates the GUS envelope using a Web Audio `GainNode`; it won't be bit-exact against real hardware
+
+---
+
+## Contributing
+
+Contributions are welcome. To keep things maintainable:
+
+1. **Fork** the repository and create a feature branch:
+   ```bash
+   git checkout -b feature/my-new-feature
+   ```
+2. **Test** in at least one Chromium-based browser and one other (Firefox or Safari)
+3. **Localize** — add any new user-facing strings to both `id.json` and `en.json`; missing keys are logged as `Missing localization key: …` in the console
+4. **Submit a pull request** describing what changed and why
+
+### Reporting Bugs
+
+When opening an issue, include:
+
+- Browser and version
+- Console output (open DevTools → Console)
+- File that triggered the issue (or a minimal reproduction)
+- Steps to reproduce
+
+### Code Style
+
+- Vanilla ES2020+ JavaScript, no bundler, no transpiler
+- Prefer small, focused functions
+- Keep the localization layer intact — never hard-code user-facing English
+- Match the surrounding code style (no semicolon-stripping, brace placement, etc.)
+
+---
+
+## License
+
+This project is released under the **MIT License**. See [LICENSE](LICENSE) for the full text.
+
+Bundled third-party components retain their own licenses:
+
+- **LibTiMidityPlayer** — WASM port of TiMidity++; see `timidity-player/` for details
+- **GUSPatchGenerator.js** — see `JSGUS/` for details
+- **MIDI.js soundfonts** (when imported) — FluidR3_GM by Frank Wen, MIT licensed
+
+---
+
+## Credits
+
+- **Gravis Ultrasound** — original hardware by Advanced Gravis Computer Technology
+- **TiMidity++** — the reference implementation of GUS patch playback
+- **FluidR3_GM** — General MIDI soundfont by Frank Wen
+- **gleitz/midi-js-soundfonts** — pre-rendered MIDI.js soundfonts used for direct import
+- **LibTiMidityPlayer** — WASM-based MIDI player used for preview and offline rendering
+- All contributors who have tested and reported bugs
+
+---
+
+## Related Projects
+
+- [TiMidity++](https://timidity.sourceforge.net/) — the original GUS patch player
+- [midi-js-soundfonts](https://github.com/gleitz/midi-js-soundfonts) — pre-rendered soundfonts
+- [FluidSynth](https://www.fluidsynth.org/) — modern SF2 synthesizer
+
+---
+
+*If this project helped you preserve or create GUS patches, consider giving it a ⭐ on GitHub.*
