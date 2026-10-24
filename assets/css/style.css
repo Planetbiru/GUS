@@ -1243,3 +1243,115 @@ footer {
   background: #ef4444; /* Sedikit lebih gelap saat di-hover */
 }
 
+/* ===== Export Banks Dialog ===== */
+.export-banks-panel {
+  width: min(800px, 100%);
+}
+
+.export-header-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.export-select-all-label {
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ===== Export Banks Dialog ===== */
+.export-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.export-table {
+  width: 100%;
+  /* 1. Wajib separate agar z-index sticky bekerja sempurna */
+  border-collapse: separate; 
+  border-spacing: 0; 
+  font-size: 12px;
+  text-align: left;
+}
+
+.export-table th {
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  /* 2. Paksa warna background yang solid (sesuai warna panel/card Anda) */
+  background-color: #0f172a !important; 
+  z-index: 10;
+  /* 3. Gunakan box-shadow inset sebagai border agar tidak bocor saat di-scroll */
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+
+.export-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  /* 4. Beri background pada td agar tidak transparan menimpa header */
+  background-color: var(--bg); 
+}
+
+.export-col-check {
+  width: 50px;
+  text-align: center;
+}
+
+.export-col-target {
+  width: 120px;
+}
+
+/* Sisa CSS lainnya tetap sama */
+.export-header-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.export-select-all-label {
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
+
+.export-banks-error {
+  margin-top: 8px;
+}
+
+.export-table td.text-center {
+  text-align: center;
+}
+
+.export-table td.text-dim {
+  color: var(--dim);
+}
+
+.export-type-tag {
+  font-size: 10px;
+}
+
+.export-target-input {
+  width: 80px;
+  padding: 4px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.export-table td.text-center {
+  text-align: center;
+}
+
+/* Warna teks yang agak redup untuk Bank Asli dan Jumlah Patch */
+.export-table td.text-dim {
+  color: var(--muted);
+}

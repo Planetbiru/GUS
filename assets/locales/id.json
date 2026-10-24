@@ -358,5 +358,12 @@
   "patch_zero_size_tooltip": "Patch ini berukuran 0 byte (kosong/rusak). Sebaiknya dihapus.",
   "patch_heavy_tooltip": "Patch ini sangat besar (>1MB) dan bisa menyebabkan lag.",
   "patch_deleted": "Patch berhasil dihapus.",
-  "bank_zero_size_warning": "Bank ini memiliki patch rusak (0 byte). Silakan klik ikon folder untuk menghapus patch yang rusak."
+  "bank_zero_size_warning": "Bank ini memiliki patch rusak (0 byte). Silakan klik ikon folder untuk menghapus patch yang rusak.",
+  "select_all_banks": "Pilih Semua Bank / Drum Set",
+  "col_select": "Pilih",
+  "col_type": "Tipe",
+  "col_original_bank": "Bank Asli",
+  "col_patch_count": "Jumlah Patch",
+  "col_target_bank": "Target Bank",
+  "melodic": "Melodi"
 }

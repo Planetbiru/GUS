@@ -358,5 +358,12 @@
   "patch_zero_size_tooltip": "This patch is 0 bytes (empty/broken). It is recommended to delete it.",
   "patch_heavy_tooltip": "This patch is very large (>1MB) and may cause lag.",
   "patch_deleted": "Patch deleted successfully.",
-  "bank_zero_size_warning": "This bank contains broken patches (0 bytes). Please click the folder icon to delete them."
+  "bank_zero_size_warning": "This bank contains broken patches (0 bytes). Please click the folder icon to delete them.",
+  "select_all_banks": "Select All Banks / Drum Sets",
+  "col_select": "Select",
+  "col_type": "Type",
+  "col_original_bank": "Original Bank",
+  "col_patch_count": "Patch Count",
+  "col_target_bank": "Target Bank",
+  "melodic": "Melodic"
 }

@@ -654,24 +654,36 @@
   </div>
 
   <div id="exportBanksDialog" class="modal-overlay" hidden>
-    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="exportBanksTitle">
+    <section class="modal-panel export-banks-panel" role="dialog" aria-modal="true" aria-labelledby="exportBanksTitle">
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="exportBanksTitle">{{export_dialog_title}}</h2>
         </div>
         <div class="modal-body">
           <p class="modal-message">{{export_dialog_hint}}</p>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-            <label class="check" style="justify-content:flex-start">
-              <input type="radio" name="exportBanksMode" value="selected" checked>
-              <span id="exportSelectedLabel">{{export_selected_only}}</span>
-            </label>
-            <label class="check" style="justify-content:flex-start">
-              <input type="radio" name="exportBanksMode" value="all">
-              <span>{{export_all_banks_desc}}</span>
+          
+          <div class="export-header-action">
+            <label class="check export-select-all-label">
+              <input type="checkbox" id="exportSelectAll">
+              <span>{{select_all_banks}}</span>
             </label>
           </div>
-          <div id="exportBanksError" class="modal-error" role="alert" aria-live="polite"></div>
+
+          <div class="export-table-container">
+            <table class="export-table">
+              <thead>
+                <tr>
+                  <th class="export-col-check">{{col_select}}</th>
+                  <th>{{col_original_bank}}</th>
+                  <th>{{col_patch_count}}</th>
+                  <th class="export-col-target">{{col_target_bank}}</th>
+                </tr>
+              </thead>
+              <tbody id="exportBanksList"></tbody>
+            </table>
+          </div>
+          
+          <div id="exportBanksError" class="modal-error export-banks-error" role="alert" aria-live="polite"></div>
         </div>
         <div class="modal-footer">
           <button class="btn" id="btnCancelExportBanks" type="button">{{cancel}}</button>
