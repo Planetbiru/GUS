@@ -179,19 +179,16 @@
             <button class="btn small primary" id="btnPlayMidi" disabled style="flex:1"><svg class="icon">
                 <use href="#i-play"></use>
               </svg> {{play}}</button>
-            <button class="btn small" id="btnPauseMidi" disabled style="flex:1"><svg class="icon">
-                <use href="#i-pause"></use>
-              </svg> {{pause}}</button>
+              
+            <!-- TOMBOL PILIH BANK DIPINDAHKAN KE SINI -->
+            <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
+            
             <button class="btn small danger" id="btnStopMidi" disabled><svg class="icon">
                 <use href="#i-stop"></use>
               </svg> {{stop}}</button>
           </div>
 
-          <button class="btn small" id="btnRenderMidi" disabled><svg class="icon">
-              <use href="#i-download"></use>
-            </svg> {{render_midi_wav}}</button>
-
-          <button class="btn small" id="btnSelectBank"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
+          <!-- Tombol Pilih Bank yang lama di sini sudah dihapus -->
 
           <!-- Volume -->
           <div style="display:flex;align-items:center;gap:6px;font-size:10px;margin-top:2px">
@@ -202,6 +199,11 @@
               style="flex:1; height:12px; accent-color:var(--accent)">
             <span id="midiVolVal" style="color:var(--accent);min-width:24px;text-align:right">100%</span>
           </div>
+
+          <button class="btn small" id="btnRenderMidi" disabled><svg class="icon">
+              <use href="#i-download"></use>
+            </svg> {{render_midi_wav}}
+          </button>
 
           <div id="midiStatus" style="font-size:10px;color:var(--dim);text-align:center;margin-top:4px">{{select_project_load_midi}}</div>
         </div>

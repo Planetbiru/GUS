@@ -137,7 +137,6 @@ function setLanguage(nextLocale) {
   render(false);
   $("btnMidi").textContent = t(state.midi.enabled ? "disable" : "enable");
   $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
-  $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   if (currentStatusTranslation) {
     showStatus(t(currentStatusTranslation.key, currentStatusTranslation.values), currentStatusTranslation.kind);
   }
@@ -2719,7 +2718,6 @@ async function ensureTimidityPlayer() {
     midiProgress.current = midiProgress.duration;
     cancelAnimationFrame(midiProgress.raf);
     $("btnPlayMidi").disabled = false;
-    $("btnPauseMidi").disabled = true;
     $("btnStopMidi").disabled = true;
     setMidiStatus("midi_finished");
     updateMidiUI();
@@ -2745,8 +2743,6 @@ async function loadMidiFile(e) {
   setMidiStatus("midi_ready", {filename: file.name});
   $("btnPlayMidi").disabled = false;
   $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
-  $("btnPauseMidi").disabled = true;
-  $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   $("btnStopMidi").disabled = true;
   $("btnRenderMidi").disabled = false;
   $("midiSeek").disabled = false;
@@ -2765,7 +2761,6 @@ async function renderMidiToWav() {
   $("btnRenderMidi").disabled = true;
   $("btnLoadMidi").disabled = true;
   $("btnPlayMidi").disabled = true;
-  $("btnPauseMidi").disabled = true;
   $("btnStopMidi").disabled = true;
   $("midiSeek").disabled = true;
   try {
@@ -2800,7 +2795,6 @@ async function renderMidiToWav() {
     isMidiRendering = false;
     $("btnLoadMidi").disabled = false;
     $("btnPlayMidi").disabled = !state.midiData;
-    $("btnPauseMidi").disabled = true;
     $("btnStopMidi").disabled = true;
     $("midiSeek").disabled = !state.midiData;
     $("btnRenderMidi").disabled = !state.midiData;
@@ -2951,13 +2945,14 @@ function togglePauseMidi() {
     timidityPlayer.stop();
     cancelAnimationFrame(midiProgress.raf);
     
-    $("btnPlayMidi").disabled = false;
-    $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("resume")}`;
+    const btn = $("btnPlayMidi");
+    btn.innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("resume")}`;
+    btn.classList.remove("danger"); // Keep primary class
+    btn.classList.add("primary");
     setMidiStatus("midi_paused");
   } else if (midiProgress.paused) {
     // Aksi Resume
     playMidi(midiProgress.current);
-    $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   }
 }
 
@@ -2982,8 +2977,6 @@ async function playMidi(fromTime = 0) {
     setMidiStatus("midi_playing");
     $("btnPlayMidi").disabled = true;
     $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
-    $("btnPauseMidi").disabled = false;
-    $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
     $("btnStopMidi").disabled = false;
     $("midiSeek").disabled = false;
 
@@ -3024,8 +3017,6 @@ function stopMidi() {
   }
   
   $("btnPlayMidi").disabled = false;
-  $("btnPauseMidi").disabled = true;
-  $("btnPauseMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
   $("btnStopMidi").disabled = true;
   setMidiStatus("midi_stopped");
   updateMidiUI();
@@ -5048,14 +5039,15 @@ function bind(){
   $("midiFile").addEventListener("change", loadMidiFile);
   
   $("btnPlayMidi").addEventListener("click", () => {
-    if (midiProgress.paused) {
-      togglePauseMidi(); // Jika sedang pause, tombol Play berfungsi sebagai Resume
+    if (midiProgress.playing) {
+      togglePauseMidi(); // Will act as Pause
+    } else if (midiProgress.paused) {
+      togglePauseMidi(); // Will act as Resume
     } else {
       playMidi(0);
     }
   });
 
-  $("btnPauseMidi").addEventListener("click", togglePauseMidi);
   $("btnStopMidi").addEventListener("click", stopMidi);
   $("btnRenderMidi").addEventListener("click", renderMidiToWav);
 
