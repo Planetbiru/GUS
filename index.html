@@ -99,6 +99,16 @@
       <line x1="18" y1="6" x2="6" y2="18"></line>
       <line x1="6" y1="6" x2="18" y2="18"></line>
     </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"></line>
+      <line x1="12" y1="20" x2="12" y2="4"></line>
+      <line x1="6" y1="20" x2="6" y2="14"></line>
+    </symbol>
+    <symbol id="i-range" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="6" x2="16" y2="6" stroke-width="3"></line>
+      <line x1="8" y1="12" x2="20" y2="12" stroke-width="3"></line>
+      <line x1="2" y1="18" x2="14" y2="18" stroke-width="3"></line>
+    </symbol>
   </svg>
 
   <header>
@@ -113,12 +123,16 @@
         <option value="en">{{language_english}}</option>
       </select>
       <input type="file" id="patFile"
-        accept=".pat,.PAT,.sf2,.SF2,application/octet-stream,audio/soundfont,application/x-soundfont" hidden>
-      <input type="file" id="sf2File" accept=".sf2,.SF2,audio/soundfont,application/x-soundfont" hidden>
+        accept=".pat,.PAT,.sf2,.SF2,.zip,.ZIP,.js,.JS,application/octet-stream,audio/soundfont,application/x-soundfont,text/javascript" hidden>
+      <input type="file" id="sf2File"
+        accept=".sf2,.SF2,.zip,.ZIP,.js,.JS,audio/soundfont,application/x-soundfont,text/javascript" hidden>
       <input type="file" id="projectPatchFile" accept=".pat,.PAT" hidden>
       <button class="btn primary" id="btnOpen"><svg class="icon">
           <use href="#i-folder"></use>
         </svg> {{open_pat_sf2}}</button>
+      <button class="btn" id="btnMidiJsUrl" title="{{midijs_url_title}}" data-i18n-title="midijs_url_title">
+        <svg class="icon"><use href="#i-upload"></use></svg> {{midijs_url_button}}
+      </button>
       <button class="btn" id="btnDemo"><svg class="icon">
           <use href="#i-sparkles"></use>
         </svg> {{demo}}</button>
@@ -143,7 +157,7 @@
         <div class="list" id="projectList" style="max-height:160px"></div>
         <div style="display:flex;gap:4px;margin-top:4px">
           <button class="btn small" id="btnAddToProject" style="flex:1" disabled>{{add_patch}}</button>
-          <button class="btn small" id="btnImportSoundfont" style="flex:1" title="{{import_soundfont_title}}" data-i18n-title="import_soundfont_title" disabled>{{import_sf2}}</button>
+          <button class="btn small" id="btnImportSoundfont" style="flex:1" title="{{import_soundfont_title}}" data-i18n-title="import_soundfont_title" disabled>{{import_package}}</button>
           <button class="btn small" id="btnExportProject" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
             </svg> {{zip_format}}</button>
@@ -179,17 +193,16 @@
             <button class="btn small primary" id="btnPlayMidi" disabled style="flex:1"><svg class="icon">
                 <use href="#i-play"></use>
               </svg> {{play}}</button>
-            <button class="btn small" id="btnPauseMidi" disabled style="flex:1"><svg class="icon">
-                <use href="#i-pause"></use>
-              </svg> {{pause}}</button>
+              
+            <!-- TOMBOL PILIH BANK DIPINDAHKAN KE SINI -->
+            <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
+            
             <button class="btn small danger" id="btnStopMidi" disabled><svg class="icon">
                 <use href="#i-stop"></use>
               </svg> {{stop}}</button>
           </div>
 
-          <button class="btn small" id="btnRenderMidi" disabled><svg class="icon">
-              <use href="#i-download"></use>
-            </svg> {{render_midi_wav}}</button>
+          <!-- Tombol Pilih Bank yang lama di sini sudah dihapus -->
 
           <!-- Volume -->
           <div style="display:flex;align-items:center;gap:6px;font-size:10px;margin-top:2px">
@@ -201,6 +214,11 @@
             <span id="midiVolVal" style="color:var(--accent);min-width:24px;text-align:right">100%</span>
           </div>
 
+          <button class="btn small" id="btnRenderMidi" disabled><svg class="icon">
+              <use href="#i-download"></use>
+            </svg> {{render_midi_wav}}
+          </button>
+
           <div id="midiStatus" style="font-size:10px;color:var(--dim);text-align:center;margin-top:4px">{{select_project_load_midi}}</div>
         </div>
       </div>
@@ -208,6 +226,12 @@
       <div class="card">
         <h3>{{library}} <span class="pill" id="libCount" style="float:right">0</span></h3>
         <button class="btn small" id="btnLibraryScope" style="width:100%;margin:0 0 6px">{{show_all_library}}</button>
+
+        <!-- TAMBAHKAN SELECT INI -->
+        <select id="libraryBankFilter" style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);">
+          <option value="all">Semua Bank</option>
+        </select>
+
         <div class="list" id="patchList" style="max-height:200px"></div>
         <div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn small" id="btnExportAll" style="flex:1"><svg class="icon">
@@ -318,6 +342,17 @@
             <h2>{{samples}}</h2>
             <span class="pill" id="sampleCountPill">0</span>
             <div class="spacer"></div>
+
+            <!-- IMPORT JSON -->
+            <input type="file" id="sampleJsonFile" accept=".json,application/json" hidden>
+            <button class="btn small" id="btnImportSampleJson" style="margin-right: 8px;"
+                    title="{{sample_json_import_title}}" data-i18n-title="sample_json_import_title">
+              <svg class="icon"><use href="#i-upload"></use></svg> {{import_sample_json}}
+            </button>
+
+            <button class="btn small" id="btnShowFreqMap" style="margin-right: 8px;">
+              <svg class="icon"><use href="#i-range"></use></svg> {{freq_map_btn}}
+            </button>
             <span class="hint">{{click_sample_to_edit}}</span>
           </div>
           <div class="samples" id="sampleList"></div>
@@ -388,6 +423,10 @@
             <button class="btn small" id="btnImportWav"><svg class="icon">
                 <use href="#i-upload"></use>
               </svg> {{upload_wav}}</button>
+            <div class="sep"></div>
+            <button class="btn small" id="btnExportSampleJson" title="{{sample_json_export_title}}">
+              <svg class="icon"><use href="#i-download"></use></svg> {{export_sample_json}}
+            </button>
             <span class="hint">{{wav_format_hint}}</span>
           </div>
 
@@ -440,6 +479,23 @@
     <span id="statusBar">{{ready_status}}</span>
     <span style="margin-left:auto;font-family:ui-monospace,monospace" id="footerInfo"></span>
   </footer>
+
+  <div id="freqMapDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" style="width: min(900px, 100%);" role="dialog" aria-modal="true" aria-labelledby="freqMapTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="freqMapTitle">{{freq_map_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p class="modal-message">{{freq_map_desc}}</p>
+          <div class="freq-map-container" id="freqMapContainer"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btnCloseFreqMap" type="button">{{close}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
 
   <div id="newProjectDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="newProjectTitle">
@@ -515,40 +571,6 @@
         <div class="modal-footer">
           <button class="btn" id="btnCancelClearLibrary" type="button">{{cancel}}</button>
           <button class="btn danger" id="btnConfirmClearLibrary" type="button">{{clear}}</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <div id="confirmActionDialog" class="modal-overlay" hidden>
-    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmationTitle" aria-describedby="confirmationMessage">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="confirmationTitle"></h2>
-        </div>
-        <div class="modal-body">
-          <p id="confirmationMessage" class="modal-message"></p>
-          <div id="confirmationError" class="modal-error" role="alert" aria-live="polite"></div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" id="btnCancelAction" type="button">{{cancel}}</button>
-          <button class="btn danger" id="btnConfirmAction" type="button">{{delete}}</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <div id="alertDialog" class="modal-overlay" hidden>
-    <section class="modal-panel" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="alertTitle">{{alert_title}}</h2>
-        </div>
-        <div class="modal-body">
-          <p id="alertMessage" class="modal-message alert-message"></p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn primary" id="btnCloseAlert" type="button">{{ok_button}}</button>
         </div>
       </div>
     </section>
@@ -680,28 +702,136 @@
   </div>
 
   <div id="exportBanksDialog" class="modal-overlay" hidden>
-    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="exportBanksTitle">
+    <section class="modal-panel export-banks-panel" role="dialog" aria-modal="true" aria-labelledby="exportBanksTitle">
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="exportBanksTitle">{{export_dialog_title}}</h2>
         </div>
         <div class="modal-body">
           <p class="modal-message">{{export_dialog_hint}}</p>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-            <label class="check" style="justify-content:flex-start">
-              <input type="radio" name="exportBanksMode" value="selected" checked>
-              <span id="exportSelectedLabel">{{export_selected_only}}</span>
-            </label>
-            <label class="check" style="justify-content:flex-start">
-              <input type="radio" name="exportBanksMode" value="all">
-              <span>{{export_all_banks_desc}}</span>
+          
+          <div class="export-header-action">
+            <label class="check export-select-all-label">
+              <input type="checkbox" id="exportSelectAll">
+              <span>{{select_all_banks}}</span>
             </label>
           </div>
-          <div id="exportBanksError" class="modal-error" role="alert" aria-live="polite"></div>
+
+          <div class="export-table-container">
+            <table class="export-table">
+              <thead>
+                <tr>
+                  <th class="export-col-check">{{col_select}}</th>
+                  <th>{{col_original_bank}}</th>
+                  <th>{{col_patch_count}}</th>
+                  <th class="export-col-target">{{col_target_bank}}</th>
+                </tr>
+              </thead>
+              <tbody id="exportBanksList"></tbody>
+            </table>
+          </div>
+          
+          <div id="exportBanksError" class="modal-error export-banks-error" role="alert" aria-live="polite"></div>
         </div>
         <div class="modal-footer">
           <button class="btn" id="btnCancelExportBanks" type="button">{{cancel}}</button>
           <button class="btn primary" id="btnConfirmExportBanks" type="button">{{export}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="bankSelectDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="bankSelectTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="bankSelectTitle">{{select_bank}}</h2>
+        </div>
+        <div class="modal-body">
+          <p class="modal-message">{{select_bank_hint}}</p>
+          <div class="list" id="bankSelectList" style="max-height:300px;overflow:auto;"></div>
+          
+          <!-- TAMBAHKAN BARIS INI -->
+          <div id="bankLoadingStatus" style="margin-top:12px; font-size:12px; display:none; font-weight:500;"></div>
+          
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="btnCancelBankSelect" type="button">{{cancel}}</button>
+          <button class="btn primary" id="btnConfirmBankSelect" type="button">{{ok_button}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="bankBreakdownDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" style="width: min(500px, 100%);" role="dialog" aria-modal="true" aria-labelledby="bankBreakdownTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="bankBreakdownTitle">{{bank_breakdown_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p class="modal-message">{{bank_breakdown_desc}}</p>
+          <div class="breakdown-list" id="bankBreakdownList"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btnCloseBankBreakdown" type="button">{{close}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="customPromptDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true"
+            aria-labelledby="customPromptTitle" aria-describedby="customPromptMessage">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="customPromptTitle">{{prompt_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="customPromptMessage" class="modal-message"></p>
+          <div class="field" id="customPromptField" style="margin-top:14px">
+            <label id="customPromptLabel" for="customPromptInput"></label>
+            <input id="customPromptInput" name="custom_prompt" type="text" autocomplete="off">
+          </div>
+          <div id="customPromptError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="btnCustomPromptCancel" type="button">{{cancel}}</button>
+          <button class="btn primary" id="btnCustomPromptOk" type="button">{{ok_button}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="confirmActionDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmationTitle" aria-describedby="confirmationMessage">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="confirmationTitle"></h2>
+        </div>
+        <div class="modal-body">
+          <p id="confirmationMessage" class="modal-message"></p>
+          <div id="confirmationError" class="modal-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="btnCancelAction" type="button">{{cancel}}</button>
+          <button class="btn danger" id="btnConfirmAction" type="button">{{delete}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="alertDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="alertTitle">{{alert_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="alertMessage" class="modal-message alert-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btnCloseAlert" type="button">{{ok_button}}</button>
         </div>
       </div>
     </section>

@@ -709,8 +709,8 @@ footer {
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(2, 6, 23, .72);
-    backdrop-filter: blur(3px)
+    background: rgba(2, 6, 23, .3);
+    backdrop-filter: blur(1px)
 }
 
 .modal-overlay[hidden] {
@@ -882,7 +882,7 @@ footer {
 
 
 .modal-message {
-    margin: 0;
+    margin: 0 0 6px 0;
     color: var(--dim);
     font-size: 12px;
     line-height: 1.5
@@ -1120,3 +1120,306 @@ footer {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.bank-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.bank-item-info {
+  font-size: 11px;
+  color: var(--dim);
+  margin-right: 8px;
+}
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #0a1222;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 12px;
+}
+.breakdown-row.heavy {
+  border-color: var(--bad);
+  background: rgba(248, 113, 113, 0.1);
+}
+.breakdown-row .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.breakdown-row .size { font-family: ui-monospace, monospace; color: var(--accent); }
+
+/* Penanda bank yang berisi patch rusak (0 byte) */
+.bank-item-row.disabled .name {
+  color: var(--bad);
+  font-weight: bold;
+}
+.bank-item-row.disabled {
+  opacity: 0.7;
+}
+
+/* Tombol hapus di dalam Rincian Bank */
+.breakdown-row .btn-delete-patch {
+  padding: 2px 8px;
+  height: 22px;
+  font-size: 10px;
+  background: transparent;
+  border: 1px solid var(--bad);
+  color: var(--bad);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.15s;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.breakdown-row .btn-delete-patch:hover {
+  background: var(--bad);
+  color: #fff;
+}
+/* --- Bank Select Dialog & Breakdown Styles --- */
+
+.bank-item-broken-row {
+  opacity: 0.7;
+}
+
+.bank-broken {
+  color: #f87171 !important; /* Warna merah untuk item rusak */
+  font-weight: bold;
+}
+
+.bank-item-actions {
+  display: flex;
+  align-items: center;
+}
+
+.bank-info-btn {
+  padding: 2px;
+  margin-left: 4px;
+  color: var(--accent);
+}
+
+.bank-info-btn .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Gaya untuk baris di dalam dialog rincian bank */
+.breakdown-row.broken {
+  border: 1px solid #f87171;
+  background-color: rgba(248, 113, 113, 0.1);
+}
+
+.breakdown-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.breakdown-size {
+  margin-right: 12px;
+}
+
+/* Tombol hapus spesifik di dalam rincian bank */
+.btn-delete-patch {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: var(--bad);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.btn-delete-patch:hover {
+  background: #ef4444; /* Sedikit lebih gelap saat di-hover */
+}
+
+/* ===== Export Banks Dialog ===== */
+.export-banks-panel {
+  width: min(800px, 100%);
+}
+
+.export-header-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.export-select-all-label {
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ===== Export Banks Dialog ===== */
+.export-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.export-table {
+  width: 100%;
+  /* 1. Wajib separate agar z-index sticky bekerja sempurna */
+  border-collapse: separate; 
+  border-spacing: 0; 
+  font-size: 12px;
+  text-align: left;
+}
+
+.export-table th {
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  /* 2. Paksa warna background yang solid (sesuai warna panel/card Anda) */
+  background-color: #0f172a !important; 
+  z-index: 10;
+  /* 3. Gunakan box-shadow inset sebagai border agar tidak bocor saat di-scroll */
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+
+.export-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  /* 4. Beri background pada td agar tidak transparan menimpa header */
+  background-color: var(--bg); 
+}
+
+.export-col-check {
+  width: 50px;
+  text-align: center;
+}
+
+.export-col-target {
+  width: 120px;
+}
+
+/* Sisa CSS lainnya tetap sama */
+.export-header-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.export-select-all-label {
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
+
+.export-banks-error {
+  margin-top: 8px;
+}
+
+.export-table td.text-center {
+  text-align: center;
+}
+
+.export-table td.text-dim {
+  color: var(--dim);
+}
+
+.export-type-tag {
+  font-size: 10px;
+}
+
+.export-target-input {
+  width: 80px;
+  padding: 4px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.export-table td.text-center {
+  text-align: center;
+}
+
+/* Warna teks yang agak redup untuk Bank Asli dan Jumlah Patch */
+.export-table td.text-dim {
+  color: var(--muted);
+}
+
+/* ===== Frequency Map Modal ===== */
+.freq-map-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.freq-map-row {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  width: 100%;
+}
+
+/* Label Pitch di Sebelah Kiri */
+.freq-label {
+  flex: 0 0 80px; /* Lebar tetap agar sejajar */
+  text-align: right;
+  padding-right: 12px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+/* Wadah Relatif untuk Bar */
+.freq-bar-wrapper {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.freq-map-bar {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 4px;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+  font-size: 10px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  transition: opacity 0.2s;
+}
+
+.freq-map-bar:hover {
+  opacity: 1;
+  z-index: 10;
+}
+
+
+
