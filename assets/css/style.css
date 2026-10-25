@@ -1436,3 +1436,221 @@ footer {
   max-width: 75%;
 }
 
+.svg-sprite {
+    display: none;
+}
+
+.inline-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.project-actions {
+    margin-top: 4px;
+}
+
+.project-secondary-actions,
+.library-actions {
+    margin-top: 6px;
+}
+
+.project-list {
+    max-height: 160px;
+}
+
+.midi-preview-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.midi-seek-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.midi-seek,
+.midi-volume-slider {
+    height: 12px;
+    accent-color: var(--accent);
+}
+
+.midi-seek {
+    width: 100%;
+    cursor: pointer;
+}
+
+.midi-time-labels {
+    display: flex;
+    justify-content: space-between;
+    color: var(--dim);
+    font-size: 9px;
+    font-family: ui-monospace, monospace;
+}
+
+.midi-volume-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 10px;
+}
+
+.midi-volume-label {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--dim);
+}
+
+.midi-volume-value {
+    min-width: 24px;
+    color: var(--accent);
+    text-align: right;
+}
+
+#midiStatus {
+    margin-top: 4px;
+    color: var(--dim);
+    font-size: 10px;
+    text-align: center;
+}
+
+#libCount,
+#patchNameSide {
+    float: right;
+}
+
+#btnLibraryScope,
+#btnExportInst {
+    width: 100%;
+}
+
+#btnLibraryScope {
+    margin: 0 0 6px;
+}
+
+.library-filter {
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--panel);
+    color: var(--text);
+    font-size: 11px;
+}
+
+.patch-list {
+    max-height: 200px;
+}
+
+#btnExportInst {
+    margin-top: 6px;
+}
+
+.midi-monitor {
+    color: var(--dim);
+    font: 11px/1.6 ui-monospace, monospace;
+}
+
+.welcome-tip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    padding: 8px 12px;
+    border: 1px solid rgba(56, 189, 248, .3);
+    border-radius: 8px;
+    background: rgba(56, 189, 248, .1);
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.welcome-tip .icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+}
+
+.welcome-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+.bank-management-hint {
+    margin: 0 0 8px;
+}
+
+.bank-select-all {
+    margin-left: auto;
+}
+
+.grid-span-2 {
+    grid-column: span 2;
+}
+
+.grid-span-4 {
+    grid-column: span 4;
+}
+
+.sample-action {
+    margin-right: 8px;
+}
+
+.zoom-level {
+    margin-left: 4px;
+    line-height: 20px;
+}
+
+.card h3.editor-subsection-heading {
+    margin: 12px 0 6px;
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.card h3.editor-subsection-heading-compact {
+    margin: 0 0 6px;
+}
+
+.piano-row {
+    margin-top: 6px;
+}
+
+#footerInfo {
+    margin-left: auto;
+    font-family: ui-monospace, monospace;
+}
+
+.freq-map-modal {
+    width: min(900px, 100%);
+}
+
+.bank-select-list {
+    max-height: 300px;
+    overflow: auto;
+}
+
+#bankLoadingStatus {
+    display: none;
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.bank-breakdown-modal {
+    width: min(500px, 100%);
+}
+
+.midi-used-patches-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-field-spaced {
+    margin-top: 14px;
+}
