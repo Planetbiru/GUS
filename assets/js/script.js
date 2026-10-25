@@ -395,16 +395,13 @@ function parsePAT(ab){
         let srRaw = u16();
         const stdRates = [8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 96000];
         if (!stdRates.includes(srRaw)) {
-        // Heuristic: jika bukan rate standar, kemungkinan file lama (period ns)
-        const converted = Math.round(1e9 / srRaw);
-        if (stdRates.includes(converted) || (converted > 8000 && converted < 192000)) {
-            srRaw = converted;
-        }
+          // Heuristic: jika bukan rate standar, kemungkinan file lama (period ns)
+          const converted = Math.round(1e9 / srRaw);
+          if (stdRates.includes(converted) || (converted > 8000 && converted < 192000)) {
+              srRaw = converted;
+          }
         }
         const sampleRate = srRaw;
-
-
-
         const lowFreq=u32();
         const highFreq=u32();
         const rootFreq=u32();
