@@ -430,8 +430,8 @@ main {
     text-overflow: ellipsis
 }
 
-.field input,
-.field select {
+.card input,
+.card select {
     background: #080f1e;
     border: 1px solid #1d2e4d;
     color: var(--text);
@@ -442,7 +442,7 @@ main {
     min-width: 0
 }
 
-.field input:focus {
+.card input:focus {
     border-color: var(--accent)
 }
 

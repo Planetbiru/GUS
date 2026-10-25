@@ -2861,7 +2861,11 @@ async function ensureTimidityPlayer() {
     midiProgress.paused = false;
     midiProgress.current = midiProgress.duration;
     cancelAnimationFrame(midiProgress.raf);
+    
     $("btnPlayMidi").disabled = false;
+    // PERBAIKAN: Kembalikan ikon play
+    $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
+    
     $("btnStopMidi").disabled = true;
     setMidiStatus("midi_finished");
     updateMidiUI();
@@ -3289,7 +3293,7 @@ function togglePauseMidi() {
 
 async function playMidi(fromTime = 0) {
   if (!state.midiData) return;
-  if (typeof fromTime !== 'number') fromTime = 0; // <-- TAMBAHKAN BARIS INI (Pencegah Error)
+  if (typeof fromTime !== 'number') fromTime = 0;
 
   try {
     await ensureTimidityPlayer();
@@ -3300,18 +3304,17 @@ async function playMidi(fromTime = 0) {
     midiProgress.startTime = performance.now() - (fromTime * 1000);
     midiProgress.current = fromTime;
 
-    // Pemindaian MIDI: tangkap patch yang akan dipakai, terlepas dari
-    // preload/lazy-load/timing instrumentLoader.
     populateMidiUsedPatchesFromScan();
     
     if (timidityPlayer) timidityPlayer.stop();
     await timidityPlayer.loadAndPlay(state.midiData, fromTime);
     
-    // Terapkan volume saat mulai play
-
     setMidiStatus("midi_playing");
-    $("btnPlayMidi").disabled = true;
-    $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
+    
+    // PERBAIKAN: Jangan disable tombol, ubah ikon menjadi pause
+    $("btnPlayMidi").disabled = false;
+    $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
+    
     $("btnStopMidi").disabled = false;
     $("midiSeek").disabled = false;
 
@@ -3352,6 +3355,8 @@ function stopMidi() {
   }
   
   $("btnPlayMidi").disabled = false;
+  // PERBAIKAN: Kembalikan ikon play
+  $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
   $("btnStopMidi").disabled = true;
   setMidiStatus("midi_stopped");
   updateMidiUI();
