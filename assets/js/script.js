@@ -5243,7 +5243,7 @@ async function readZip(arrayBuffer) {
       eocdOffset = i; break;
     }
   }
-  if (eocdOffset === -1) throw new Error("Format ZIP tidak valid");
+  if (eocdOffset === -1) throw new Error("Invalid zip format");
 
   const cdEntries = view.getUint16(eocdOffset + 10, true);
   let cdOffset = view.getUint32(eocdOffset + 16, true);
@@ -5271,7 +5271,7 @@ async function readZip(arrayBuffer) {
 async function extractFile(zip, file) {
   const { bytes, view } = zip;
   const off = file.localOffset;
-  if (view.getUint32(off, true) !== 0x04034b50) throw new Error("Header lokal ZIP tidak valid");
+  if (view.getUint32(off, true) !== 0x04034b50) throw new Error("Invalid zip header");
   const nameLen = view.getUint16(off + 26, true);
   const extraLen = view.getUint16(off + 28, true);
   const dataOffset = off + 30 + nameLen + extraLen;
@@ -5282,13 +5282,13 @@ async function extractFile(zip, file) {
     return compData.buffer;
   } else if (file.method === 8) {
     if (typeof DecompressionStream === 'undefined') {
-      throw new Error("Browser Anda tidak mendukung DecompressionStream (Deflate). Gunakan browser modern.");
+      throw new Error("Your browser does not support DecompressionStream (Deflate). Please use a modern browser.");
     }
     const ds = new DecompressionStream('deflate-raw');
     const stream = new Blob([compData]).stream().pipeThrough(ds);
     return await new Response(stream).arrayBuffer();
   }
-  throw new Error("Metode kompresi ZIP tidak didukung: " + file.method);
+  throw new Error("Unsupported ZIP compression method: " + file.method);
 }
 
 function normalizePath(p) {
@@ -6022,7 +6022,7 @@ async function midiJsInstrumentToEntry(parsed, fileName, decodeCtx, onProgress) 
     try {
       decoded = await decodeBase64AudioToMono16(b64, decodeCtx);
     } catch (err) {
-      console.warn(`[MIDI.js] Gagal decode note ${name}:`, err);
+      console.warn(`[MIDI.js] Failed to decode note ${name}:`, err);
       continue;
     }
     // Beri napas ke UI setiap beberapa note
