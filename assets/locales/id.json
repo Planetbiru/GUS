@@ -407,8 +407,12 @@
   "midijs_url_title": "Impor soundfont MIDI.js dari URL (jsDelivr, dll.)",
   "midijs_url_prompt": "Masukkan URL file .js MIDI.js Soundfont:",
   "prompt_title": "Input",
-  "amplify_factor_label": "Amplification factor",
-  "custom_prompt_required": "Please fill in this field.",
-  "custom_prompt_invalid_number": "Please enter a valid number greater than 0.",
-  "custom_prompt_invalid_url": "Please enter a valid URL."
+  "amplify_factor_label": "Faktor amplifikasi",
+  "custom_prompt_required": "Silakan isi kolom ini.",
+  "custom_prompt_invalid_number": "Masukkan angka yang valid dan lebih besar dari 0.",
+  "custom_prompt_invalid_url": "Masukkan URL yang valid.",
+  "midi_used_patches_title": "Library MIDI yang Dipakai",
+  "midi_used_patches_btn": "Daftar Library",
+  "midi_used_patches_desc": "Patch yang dimuat saat memutar MIDI ini:",
+  "midi_used_patches_empty": "Belum ada library yang dipakai. Tekan Putar untuk mengisi daftar."
 }

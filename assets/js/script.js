@@ -174,6 +174,7 @@ const state = {
   libraryBankFilter: "all",
   midiData: null,
   midiFileName: null,
+  midiUsedPatches: new Map(),
   saveTimer: null,
   db: null
 };
@@ -1816,6 +1817,7 @@ async function removePatchById(id){
   } else {
     renderLibrary();
   }
+  state.midiUsedPatches.delete(id);
   renderProjects();
 }
 
@@ -2017,6 +2019,7 @@ async function confirmClearLibrary(){
     state.patches=[];
     state.currentPatchId=null;
     state.patch=null;
+    state.midiUsedPatches.clear();
     closeClearLibraryDialog(true);
     render();
     renderProjects();
@@ -2721,12 +2724,14 @@ async function exportProjectWithConfig(project, patches) {
 
 const patchBufferCache = new Map(); // Tambahkan di dekat deklarasi state
 
-function invalidateTimidityPlayer() {
+function invalidateTimidityPlayer(clearPatchCache = true) {
   if (timidityPlayer) {
-    try { timidityPlayer.shutdown(); } catch(e) {}
+    try { timidityPlayer.shutdown(); } catch (e) {}
     timidityPlayer = null;
   }
-  patchBufferCache.clear(); // Bersihkan cache saat player di-reset
+  if (clearPatchCache) {
+    patchBufferCache.clear();
+  }
 }
 
 function getProjectPatchData(bank, isDrum, program, file) {
@@ -2765,7 +2770,21 @@ function getProjectPatchData(bank, isDrum, program, file) {
 
   if (!target) return null;
 
-  // --- LOGIKA CACHE DIMULAI DI SINI ---
+  // Catat pemakaian saat playback (bukan saat offline render)
+  if (typeof midiProgress !== "undefined"
+      && midiProgress.playing
+      && !isMidiRendering) {
+    state.midiUsedPatches.set(target.id, target);
+    scheduleMidiUsedPatchesRerender();
+  }
+
+  // di getProjectPatchData, sebelum cek cache
+  if (typeof midiProgress !== "undefined" && !isMidiRendering) {
+    state.midiUsedPatches.set(target.id, target);
+    scheduleMidiUsedPatchesRerender();
+  }
+
+  // --- LOGIKA CACHE ---
   const cacheKey = target.id;
   if (patchBufferCache.has(cacheKey)) {
     return patchBufferCache.get(cacheKey);
@@ -2804,7 +2823,9 @@ async function ensureTimidityPlayer() {
     },
     instrumentLoader: (bank, isDrum, program, file) => {
       return getProjectPatchData(bank, isDrum, program, file);
-    }
+    },
+    bufferSize: 4096,
+    sampleRate: 96000
   });
 
   timidityPlayer.onPlay(() => {
@@ -2847,6 +2868,10 @@ async function ensureTimidityPlayer() {
 async function loadMidiFile(e) {
   const file = e.target.files[0];
   if (!file) return;
+
+  resetMidiUsedPatches();              // (1) reset daftar
+  invalidateTimidityPlayer(false);     // shutdown WASM, cache .pat dipertahankan
+
   state.midiData = new Uint8Array(await file.arrayBuffer());
   state.midiFileName = file.name;
   
@@ -2862,6 +2887,8 @@ async function loadMidiFile(e) {
   $("btnStopMidi").disabled = true;
   $("btnRenderMidi").disabled = false;
   $("midiSeek").disabled = false;
+
+  $("btnShowMidiUsedPatches").disabled = false;
   
   updateMidiUI();
 }
@@ -2929,6 +2956,187 @@ const midiProgress = {
   raf: null,
   seeking: false
 };
+
+function resetMidiUsedPatches() {
+  state.midiUsedPatches.clear();
+  if ($("midiUsedPatchesDialog") && !$("midiUsedPatchesDialog").hidden) {
+    renderMidiUsedPatchesList();
+  }
+}
+
+let midiUsedPatchesRerenderScheduled = false;
+function scheduleMidiUsedPatchesRerender() {
+  if (midiUsedPatchesRerenderScheduled) return;
+  midiUsedPatchesRerenderScheduled = true;
+  requestAnimationFrame(() => {
+    midiUsedPatchesRerenderScheduled = false;
+    if ($("midiUsedPatchesDialog") && !$("midiUsedPatchesDialog").hidden) {
+      renderMidiUsedPatchesList();
+    }
+  });
+}
+
+function renderMidiUsedPatchesList() {
+  const list = $("midiUsedPatchesList");
+  if (!list) return;
+  list.innerHTML = "";
+
+  const entries = Array.from(state.midiUsedPatches.values())
+    .filter(entry => state.patches.some(p => p.id === entry.id));
+
+  $("midiUsedPatchesCount").textContent = entries.length;
+
+  $("midiUsedPatchesDesc").textContent = state.midiFileName
+    ? `${t("midi_used_patches_desc")} (${state.midiFileName})`
+    : t("midi_used_patches_desc");
+
+  if (entries.length === 0) {
+    list.innerHTML = `<div style="padding:12px;color:var(--dim);text-align:center;font-size:11px">${t("midi_used_patches_empty")}</div>`;
+    return;
+  }
+
+  entries.forEach(entry => {
+    const d = document.createElement("div");
+    d.className = "li" + (entry.id === state.currentPatchId ? " active" : "");
+    const isDrum = (entry.gmBank ?? 0) === 128;
+    const typeLabel = isDrum ? t("drum") : t("non_drum");
+
+    d.innerHTML = `
+      <span class="name" title="${escapeHtml(entry.name)}">${escapeHtml(entry.name)}</span>
+      <span class="meta">${typeLabel} · #${String(entry.gmProgram ?? -1).padStart(3, "0")} · Bank ${entry.targetBank ?? 0}</span>
+    `;
+
+    d.addEventListener("click", () => {
+      closeMidiUsedPatchesDialog();
+      selectPatch(entry.id);
+      setTimeout(() => {
+        const activeLi = document.querySelector("#patchList .li.active");
+        if (activeLi) activeLi.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 100);
+    });
+
+    list.appendChild(d);
+  });
+}
+
+function openMidiUsedPatchesDialog() {
+  renderMidiUsedPatchesList();
+  $("midiUsedPatchesDialog").hidden = false;
+}
+
+function closeMidiUsedPatchesDialog() {
+  $("midiUsedPatchesDialog").hidden = true;
+}
+
+function getUsedMidiPrograms(midiData) {
+  const used = new Set();   // format key: "bank:program:isDrum"
+  let p = 0;
+  if (!(midiData[p] === 0x4D && midiData[p+1] === 0x54 &&
+        midiData[p+2] === 0x68 && midiData[p+3] === 0x64)) return used;
+  p += 4;
+  const headerLength = (midiData[p]<<24) | (midiData[p+1]<<16) | (midiData[p+2]<<8) | midiData[p+3];
+  p += 4;
+  const numTracks = (midiData[p+2]<<8) | midiData[p+3];
+  p += headerLength;
+
+  const channelBanks   = new Array(16).fill(0);
+  const channelPrograms = new Array(16).fill(0);
+  const channelHadPC    = new Array(16).fill(false);
+
+  const recordProgram = (ch, program) => {
+    const isDrum = ch === 9;
+    const bank = channelBanks[ch];   // GUS drumkit id juga 0..N, jadi tidak perlu +128
+    used.add(`${bank}:${program}:${isDrum ? 1 : 0}`);
+  };
+
+  for (let t = 0; t < numTracks; t++) {
+    if (p+4 > midiData.length) break;
+    if (!(midiData[p] === 0x4D && midiData[p+1] === 0x54 &&
+          midiData[p+2] === 0x72 && midiData[p+3] === 0x6B)) break;
+    p += 4;
+    const trackLen = (midiData[p]<<24) | (midiData[p+1]<<16) | (midiData[p+2]<<8) | midiData[p+3];
+    p += 4;
+    const trackEnd = p + trackLen;
+    let runningStatus = 0;
+
+    while (p < trackEnd) {
+      let b;
+      do { b = midiData[p++]; } while (b & 0x80);      // skip delta time
+
+      let status = midiData[p];
+      if (status & 0x80) {
+        p++;
+        if (status < 0xF0) runningStatus = status;
+      } else {
+        status = runningStatus;
+      }
+
+      if (status === 0xFF) {
+        const type = midiData[p++];
+        let len = 0;
+        do { b = midiData[p++]; len = (len << 7) | (b & 0x7F); } while (b & 0x80);
+        p += len;
+      } else if (status === 0xF0 || status === 0xF7) {
+        let len = 0;
+        do { b = midiData[p++]; len = (len << 7) | (b & 0x7F); } while (b & 0x80);
+        p += len;
+      } else {
+        const type = status & 0xF0;
+        const ch = status & 0x0F;
+
+        if (type === 0x90) {
+          const vel = midiData[p+1];
+          p += 2;
+          if (vel > 0 && !channelHadPC[ch]) {
+            // Catatan dimainkan tanpa PC → program default 0
+            recordProgram(ch, 0);
+          }
+        } else if (type === 0x80) {
+          p += 2;
+        } else if (type === 0xB0) {
+          const cc  = midiData[p];
+          const val = midiData[p+1];
+          p += 2;
+          if (cc === 0) channelBanks[ch] = val;
+        } else if (type === 0xC0) {
+          channelPrograms[ch] = midiData[p++];
+          channelHadPC[ch] = true;
+          recordProgram(ch, channelPrograms[ch]);
+        } else if (type === 0xA0 || type === 0xE0) {
+          p += 2;
+        } else if (type === 0xD0) {
+          p += 1;
+        }
+      }
+    }
+    p = trackEnd;
+  }
+  return used;
+}
+
+function populateMidiUsedPatchesFromScan() {
+  if (!state.midiData || !state.currentProjectId) return;
+  const project = state.projects.find(p => p.id === state.currentProjectId);
+  if (!project) return;
+  const patches = getProjectPatches(project);
+  if (patches.length === 0) return;
+
+  const used = getUsedMidiPrograms(state.midiData);
+  for (const key of used) {
+    const [bankStr, programStr, isDrumStr] = key.split(":");
+    const bank    = parseInt(bankStr, 10);
+    const program = parseInt(programStr, 10);
+    const isDrum  = isDrumStr === "1";
+
+    const target = patches.find(p =>
+      isDrum
+        ? (p.gmBank === 128 && p.gmProgram === program && (p.targetBank ?? 0) === bank)
+        : ((p.targetBank ?? 0) === bank && (p.gmProgram ?? -1) === program)
+    );
+    if (target) state.midiUsedPatches.set(target.id, target);
+  }
+  scheduleMidiUsedPatchesRerender();
+}
 
 // Parser durasi MIDI (menghitung tempo, tick, dan waktu secara akurat)
 function calculateMidiDuration(midiData) {
@@ -3084,6 +3292,10 @@ async function playMidi(fromTime = 0) {
     midiProgress.paused = false;
     midiProgress.startTime = performance.now() - (fromTime * 1000);
     midiProgress.current = fromTime;
+
+    // Pemindaian MIDI: tangkap patch yang akan dipakai, terlepas dari
+    // preload/lazy-load/timing instrumentLoader.
+    populateMidiUsedPatchesFromScan();
     
     if (timidityPlayer) timidityPlayer.stop();
     await timidityPlayer.loadAndPlay(state.midiData, fromTime);
@@ -3582,6 +3794,7 @@ function openBankBreakdownDialog(bank, patches) {
     btnDelete.onclick = (e) => {
       e.stopPropagation();
       deletePatchFromBreakdown(p.id, bank);
+      state.midiUsedPatches.delete(patchId);
     };
 
     list.appendChild(row);
@@ -3971,6 +4184,11 @@ function selectProject(projectId) {
   renderProjects();
   renderLibrary();
   renderBankManager();
+
+  // Reset daftar hanya jika MIDI sedang diputar (atau dijeda)
+  if (state.midiData && (wasPlaying || wasPaused)) {
+    resetMidiUsedPatches();
+  }
 
   if (state.midiData && (wasPlaying || wasPaused)) {
     setTimeout(() => {
@@ -6415,6 +6633,17 @@ function bind(){
     const file = e.target.files && e.target.files[0];
     if (file) importSampleFromJsonFile(file);
     e.target.value = "";
+  });
+
+
+  $("btnShowMidiUsedPatches").addEventListener("click", openMidiUsedPatchesDialog);
+  $("btnCloseMidiUsedPatches").addEventListener("click", closeMidiUsedPatchesDialog);
+  $("btnCloseMidiUsedPatchesX").addEventListener("click", closeMidiUsedPatchesDialog);
+  $("midiUsedPatchesDialog").addEventListener("click", e => {
+    if (e.target === $("midiUsedPatchesDialog")) closeMidiUsedPatchesDialog();
+  });
+  $("midiUsedPatchesDialog").addEventListener("keydown", e => {
+    if (e.key === "Escape") closeMidiUsedPatchesDialog();
   });
   
 
