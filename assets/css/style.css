@@ -635,6 +635,10 @@ main {
     color: var(--muted)
 }
 
+.card .pill {
+    margin-top: -3px;
+}
+
 .check-row {
     display: flex;
     flex-wrap: wrap;
@@ -1424,5 +1428,11 @@ footer {
   z-index: 10;
 }
 
-
+#patchNameSide{
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  max-width: 75%;
+}
 

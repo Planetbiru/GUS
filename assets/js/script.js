@@ -2271,7 +2271,7 @@ async function handleProjectPatchFile(e) {
     const patch = parsePAT(bytes);
     const entry = {
       id: uid("pat"),
-      name: (patch.header.description || file.name.replace(/\.pat$/i, "")).substring(0, 64),
+      name: (file.name.replace(/\.pat$/i, "") || patch.header.description).substring(0, 64),
       source: "pat",
       gmProgram: -1,
       gmBank: 0,
@@ -4292,7 +4292,8 @@ function render(save=true){
   }
 
   const p=state.patch, samples=allSamples();
-  $("patchNameSide").textContent=p.header.description||t("unnamed");
+  const currentEntry = state.patches.find(p=>p.id===state.currentPatchId);
+  $("patchNameSide").textContent = currentEntry?.name || p.header.description || t("unnamed");
   $("statInst").textContent=p.instruments.length;
   $("statSamples").textContent=samples.length;
   $("statVoices").textContent=p.header.voices??"—";
@@ -5284,7 +5285,7 @@ async function handleZipOpen(ab) {
       const patch = parsePAT(patData);
       const entry = {
         id: uid("pat"),
-        name: (patch.header.description || item.filename.split('/').pop().replace(/\.pat$/i, "")).substring(0, 64),
+        name: getPatchDisplayName(patch, item.filename.split('/').pop().replace(/\.pat$/i, "")),
         source: "zip:" + cfgName,
         gmProgram: item.program,
         gmBank: item.isDrum ? 128 : 0,
@@ -5328,6 +5329,17 @@ function detectFileType(ab) {
   return null;
 }
 
+function getPatchDisplayName(patch, fallbackName) {
+  if (!patch || !patch.instruments) return fallbackName || "patch";
+  // Jika hanya ada 1 instrumen dan namanya tidak kosong, gunakan nama instrumen
+  if (patch.instruments.length === 1) {
+    const instName = patch.instruments[0]?.name?.trim();
+    if (instName) return instName.substring(0, 64);
+  }
+  // Jika multi-instrumen atau nama instrumen kosong, gunakan deskripsi atau fallback
+  return (patch.header.description || fallbackName || "patch").substring(0, 64);
+}
+
 function handleFileOpen(e) {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
@@ -5350,7 +5362,7 @@ function handleFileOpen(e) {
         const patch = parsePAT(ab);
         const entry = {
           id: uid("pat"),
-          name: (patch.header.description || file.name.replace(/\.pat$/i, "")).substring(0, 64),
+          name: (file.name.replace(/\.pat$/i, "") || patch.header.description).substring(0, 64),
           source: "pat",
           gmProgram: -1,
           gmBank: 0,
@@ -6316,12 +6328,16 @@ function bind(){
     e.target.value=state.patch.header.channels; scheduleSave();
   });
   $("pDescription").addEventListener("input",e=>{
-    if(!state.patch)return;
-    state.patch.header.description=e.target.value.slice(0,60);
-    $("patchNameSide").textContent=state.patch.header.description||t("unnamed");
-    const entry=state.patches.find(p=>p.id===state.currentPatchId);
-    if(entry){ entry.name=state.patch.header.description||t("patch"); renderLibrary(); }
-    scheduleSave();
+      if(!state.patch)return;
+      state.patch.header.description=e.target.value.slice(0,60);
+      const entry=state.patches.find(p=>p.id===state.currentPatchId);
+      
+      if(entry){ 
+          entry.name = state.patch.header.description || t("unnamed");  // bukan t("patch")
+          renderLibrary(); 
+      }
+      $("patchNameSide").textContent = entry?.name || t("unnamed");
+      scheduleSave();
   });
   $("pMasterVolume").addEventListener("change",e=>{
     if(!state.patch)return;
