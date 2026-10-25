@@ -260,7 +260,14 @@
 
         <!-- TAMBAHKAN SELECT INI -->
         <select id="libraryBankFilter" style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);">
-          <option value="all">Semua Bank</option>
+          <option value="all">{{all_banks}}</option>
+        </select>
+
+        <!-- SELECT BARU UNTUK FILTER TIPE -->
+        <select id="libraryTypeFilter" style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);">
+          <option value="all">{{all_types}}</option>
+          <option value="melodic">{{melodic_only}}</option>
+          <option value="drum">{{drum_kit_only}}</option>
         </select>
 
         <div class="list" id="patchList" style="max-height:200px"></div>

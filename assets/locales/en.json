@@ -414,5 +414,9 @@
   "midi_used_patches_title": "Loaded MIDI Libraries",
   "midi_used_patches_btn": "View Libraries",
   "midi_used_patches_desc": "The following patches were loaded while playing this MIDI:",
-  "midi_used_patches_empty": "No libraries have been loaded yet. Press Play to generate the list."
+  "midi_used_patches_empty": "No libraries have been loaded yet. Press Play to generate the list.",
+  "all_banks": "All Banks",
+  "all_types": "All Types",
+  "melodic_only": "Melodic Only",
+  "drum_kit_only": "Drum Kit Only"
 }

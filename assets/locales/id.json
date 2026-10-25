@@ -414,5 +414,9 @@
   "midi_used_patches_title": "Library MIDI yang Dipakai",
   "midi_used_patches_btn": "Daftar Library",
   "midi_used_patches_desc": "Patch yang dimuat saat memutar MIDI ini:",
-  "midi_used_patches_empty": "Belum ada library yang dipakai. Tekan Putar untuk mengisi daftar."
+  "midi_used_patches_empty": "Belum ada library yang dipakai. Tekan Putar untuk mengisi daftar.",
+  "all_banks": "Semua Bank",
+  "all_types": "Semua Jenis",
+  "melodic_only": "Melodis Saja",
+  "drum_kit_only": "Drum Kit Saja"
 }

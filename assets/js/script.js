@@ -172,6 +172,7 @@ const state = {
   currentProjectId: null,
   libraryView: "project",
   libraryBankFilter: "all",
+  libraryTypeFilter: "all",
   midiData: null,
   midiFileName: null,
   midiUsedPatches: new Map(),
@@ -4085,6 +4086,21 @@ function renderLibrary(filterProjectId = undefined) {
   }
   // ==========================
 
+
+  // === FITUR FILTER TIPE (BARU) ===
+  const typeFilterSelect = $("libraryTypeFilter");
+  if (typeFilterSelect) {
+    typeFilterSelect.value = state.libraryTypeFilter;
+  }
+  if (state.libraryTypeFilter !== "all") {
+    const isDrumFilter = state.libraryTypeFilter === "drum";
+    displayPatches = displayPatches.filter(p => {
+      const pIsDrum = (p.gmBank ?? 0) === 128;
+      return pIsDrum === isDrumFilter;
+    });
+  }
+  // ================================
+
   // === URUTAN YANG BENAR ===
   displayPatches = [...displayPatches].sort((a, b) => {
     // 1. Melodi (0) selalu di atas Drum (1)
@@ -6199,9 +6215,11 @@ function bind(){
   $("btnDeleteProject").addEventListener("click", () => {
     if (state.currentProjectId) requestDeleteProject(state.currentProjectId);
   });
-  $("btnLibraryScope").addEventListener("click", () => {
+    $("btnLibraryScope").addEventListener("click", () => {
     if (!state.currentProjectId) return;
     state.libraryView = state.libraryView === "all" ? "project" : "all";
+    state.libraryBankFilter = "all"; // Reset filter bank
+    state.libraryTypeFilter = "all"; // <-- Reset filter tipe juga
     renderLibrary();
   });
   $("btnChooseProjectPatchFile").addEventListener("click", () => {
@@ -6631,6 +6649,12 @@ function bind(){
 
   $("libraryBankFilter").addEventListener("change", (e) => {
     state.libraryBankFilter = e.target.value;
+    renderLibrary();
+  });
+
+  // TAMBAHKAN EVENT LISTENER INI
+  $("libraryTypeFilter").addEventListener("change", (e) => {
+    state.libraryTypeFilter = e.target.value;
     renderLibrary();
   });
 
