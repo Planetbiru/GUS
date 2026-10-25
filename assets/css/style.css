@@ -376,7 +376,7 @@ main {
     color: var(--muted);
     border: 1px dashed #1e3357;
     border-radius: 10px;
-    padding: 30px;
+    padding: 20px;
     margin-bottom: 10px;
 }
 
@@ -430,6 +430,8 @@ main {
     text-overflow: ellipsis
 }
 
+.modal-overlay input,
+.modal-overlay select,
 .card input,
 .card select {
     background: #080f1e;
@@ -439,11 +441,12 @@ main {
     padding: 5px 7px;
     outline: none;
     width: 100%;
-    min-width: 0
+    min-width: 0;
+    transition: border-color ease-in-out 0.05s;
 }
 
-.card input:focus {
-    border-color: var(--accent)
+.modal-overlay input:focus, .card input:focus {
+    border-color: #335f70;
 }
 
 .hint {
