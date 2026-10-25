@@ -524,12 +524,6 @@ function floatToPcm(s,f){
 }
 
 function computeSf2Pitch(rootFreq, scaleFreq) {
-  // === FIX PITCH ROUNDTRIP ===
-  // originalPitch HARUS diturunkan dari rootFreq (frekuensi fundamental sesungguhnya),
-  // bukan dari scaleFreq. scaleFreq hanya fallback bila rootFreq = 0.
-  // Dengan cara ini:
-  //   freqOfOriginalPitch * 2^(pitchCorrection/1200) = rootHz
-  // secara eksak, sehingga roundtrip PAT->SF2->PAT mempertahankan rootFreq persis.
   let rootHz = (rootFreq && rootFreq > 0) ? rootFreq / 1000 : null;
 
   if (rootHz === null) {
