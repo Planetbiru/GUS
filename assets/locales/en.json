@@ -14,7 +14,9 @@
   "new_project": "Add Project",
   "add_patch": "Add Patch",
   "import_sf2": "Import SF2",
+  "import_package_title": "Import package file (SF2/zipped PAT)",
   "import_soundfont_title": "Import a SoundFont file (SF2)",
+  "import_patch_title": "Import GUS Patch file (PAT)",
   "add_patch_title": "Add a patch to the project",
   "add_patch_message": "Choose one way to add a patch to the currently selected project.",
   "open_pat_file": "Open a .PAT file",
@@ -314,6 +316,9 @@
   "env_rate_3": "R3",
   "product_subtitle": "Gravis Ultrasound .PAT · .SF2",
   "zip_format": "ZIP",
+  "sf2_format": "SF2",
+  "export_zip_format": "Export ZIP",
+  "export_sf2_format": "Export SF2",
   "ok_button": "OK",
   "project_count_one": "{count} project",
   "project_count_many": "{count} projects",
@@ -429,5 +434,7 @@
   "all_types": "All Types",
   "melodic_only": "Melodic Only",
   "drum_kit_only": "Drum Kit Only",
-  "search_patch_name": "Search patch name..."
+  "search_patch_name": "Search patch name...",
+  "export_sf2_processing": "Exporting SF2...",
+  "export_sf2_done": "Exporting SF2 done"
 }

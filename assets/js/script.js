@@ -499,19 +499,59 @@ function floatToPcm(s,f){
   const {is16,unsigned}=fmt(s), n=f.length, b=new Uint8Array(n*(is16?2:1));
   if(is16){
     for(let i=0;i<n;i++){
-      let v=clamp(f[i],-1,1), iv=Math.round(v*32767);
-      if(unsigned)iv+=32768; else if(iv<0)iv+=65536;
-      b[i*2]=iv&255; b[i*2+1]=(iv>>8)&255;
+      let v=clamp(f[i],-1,1);
+      let iv = Math.round(v * 32768);
+      if (iv > 32767) iv = 32767;
+      if (iv < -32768) iv = -32768;
+      if(unsigned) iv += 32768;
+      else if(iv < 0) iv += 65536;
+      b[i*2]=iv&255;
+      b[i*2+1]=(iv>>8)&255;
     }
   }else{
     for(let i=0;i<n;i++){
-      let v=clamp(f[i],-1,1), iv=Math.round(v*127);
-      if(unsigned)iv+=128; else if(iv<0)iv+=256;
+      let v=clamp(f[i],-1,1);
+      let iv = Math.round(v * 128);
+      if (iv > 127) iv = 127;
+      if (iv < -128) iv = -128;
+      if(unsigned) iv += 128;
+      else if(iv < 0) iv += 256;
       b[i]=iv&255;
     }
   }
-  s.pcm=b; s.dataSize=b.length;
+  s.pcm=b;
+  s.dataSize=b.length;
 }
+
+function computeSf2Pitch(rootFreq, scaleFreq) {
+  // === FIX PITCH ROUNDTRIP ===
+  // originalPitch HARUS diturunkan dari rootFreq (frekuensi fundamental sesungguhnya),
+  // bukan dari scaleFreq. scaleFreq hanya fallback bila rootFreq = 0.
+  // Dengan cara ini:
+  //   freqOfOriginalPitch * 2^(pitchCorrection/1200) = rootHz
+  // secara eksak, sehingga roundtrip PAT->SF2->PAT mempertahankan rootFreq persis.
+  let rootHz = (rootFreq && rootFreq > 0) ? rootFreq / 1000 : null;
+
+  if (rootHz === null) {
+    const scaleNote = (scaleFreq >= 0 && scaleFreq <= 127) ? scaleFreq : 60;
+    rootHz = 440 * Math.pow(2, (scaleNote - 69) / 12);
+  }
+
+  const midiNoteFloat = 69 + 12 * Math.log2(rootHz / 440);
+  let originalPitch = Math.round(midiNoteFloat);
+  if (originalPitch < 0) originalPitch = 0;
+  if (originalPitch > 127) originalPitch = 127;
+
+  const freqOfOriginalPitch = 440 * Math.pow(2, (originalPitch - 69) / 12);
+  let pitchCorrection = Math.round(1200 * Math.log2(rootHz / freqOfOriginalPitch));
+
+  // Clamp defensif (tidak akan pernah kena karena originalPitch = round(midiNoteFloat))
+  if (pitchCorrection < -128) pitchCorrection = -128;
+  if (pitchCorrection > 127) pitchCorrection = 127;
+
+  return { originalPitch, pitchCorrection };
+}
+
 function ensureFloat(s){ if(!s._float)s._float=pcmToFloat(s); return s._float; }
 function commitFloat(s){ if(s._float)floatToPcm(s,s._float); }
 
@@ -2688,6 +2728,382 @@ function generateProjectTimidityCfg(project) {
   return cfg;
 }
 
+async function exportProjectToSF2(project, patches) {
+  try {
+    showStatus(t("export_sf2_processing") || "Menyiapkan SF2...", "ok");
+
+    const sampleData = [];
+    const shdr = [];
+    let currentOffset = 0;
+    const processedPatches = [];
+
+    // 1. Kumpulkan Data Sampel
+    for (let idx = 0; idx < patches.length; idx++) {
+      const entry = patches[idx];
+      const patch = cleanPatchForStorage(entry.patch);
+      const inst = patch.instruments[0];
+      if (!inst) continue;
+
+      const samples = [];
+      for (const layer of inst.layers) {
+        for (const s of layer.samples) {
+          // === FIX PITCH ===
+          // Hitung originalPitch & pitchCorrection dari rootFreq (prioritas utama)
+          // dan scaleFreq (fallback). Inilah satu-satunya sumber kebenaran pitch
+          // yang akan dibaca balik oleh convertSample saat import SF2 -> PAT.
+          const { originalPitch, pitchCorrection } = computeSf2Pitch(s.rootFreq, s.scaleFreq);
+
+          // Konversi PCM ke 16-bit signed. Skala 32768 + clamp menjaga roundtrip
+          // PCM agar identik dengan pcmToFloat (tidak kehilangan 1 LSB).
+          const f = pcmToFloat(s);
+          const pcm16 = new Int16Array(f.length);
+          for (let i = 0; i < f.length; i++) {
+            let v = Math.round(f[i] * 32768);
+            if (v > 32767) v = 32767;
+            if (v < -32768) v = -32768;
+            pcm16[i] = v;
+          }
+
+          const bps = (s.modes & M16) ? 2 : 1;
+          let startFrame = Math.round(s.loopStart / bps);
+          let endFrame = Math.round(s.loopEnd / bps);
+          if (startFrame >= endFrame || endFrame > pcm16.length) {
+            startFrame = 0;
+            endFrame = 0;
+          }
+
+          sampleData.push(pcm16);
+
+          const sr = s.sampleRate || 22050;
+
+          shdr.push({
+            name: (s.name || "SMP").substring(0, 20),
+            start: currentOffset,
+            end: currentOffset + pcm16.length,
+            startloop: currentOffset + startFrame,
+            endloop: currentOffset + endFrame,
+            sampleRate: sr,
+            originalPitch: originalPitch,         // <-- dari computeSf2Pitch
+            pitchCorrection: pitchCorrection,     // <-- dari computeSf2Pitch (BUKAN 0)
+            sampleLink: 0,
+            sampleType: 1
+          });
+
+          currentOffset += pcm16.length;
+
+          let keyLow = s.lowFreq
+            ? Math.max(0, Math.min(127, Math.round(69 + 12 * Math.log2((s.lowFreq / 1000) / 440))))
+            : 0;
+          let keyHigh = s.highFreq
+            ? Math.max(0, Math.min(127, Math.round(69 + 12 * Math.log2((s.highFreq / 1000) / 440))))
+            : 127;
+
+          samples.push({
+            shdrIndex: shdr.length - 1,
+            keyLow,
+            keyHigh,
+            loopMode: (s.modes & MLOOP) ? 1 : 0
+          });
+        }
+      }
+
+      processedPatches.push({ entry, samples });
+      if (idx % 8 === 0) await new Promise(r => setTimeout(r, 0));
+    }
+
+    // 2. Susun Preset (Gunakan Target Bank & Tangani Program Kosong)
+    const presets = new Map();
+    const bankProgramTracker = new Map();
+
+    // Daftarkan dulu semua program eksplisit (selain -1) agar tidak bentrok
+    for (const p of processedPatches) {
+      const entry = p.entry;
+      const isDrum = (entry.gmBank ?? 0) === 128;
+      if (isDrum) continue;
+      const targetBank = entry.targetBank ?? 0;
+      const program = entry.gmProgram ?? -1;
+
+      if (program !== -1) {
+        if (!bankProgramTracker.has(targetBank)) bankProgramTracker.set(targetBank, new Set());
+        bankProgramTracker.get(targetBank).add(program);
+      }
+    }
+
+    for (const p of processedPatches) {
+      const entry = p.entry;
+      const isDrum = (entry.gmBank ?? 0) === 128;
+
+      if (isDrum) {
+        // Drum Kit digabung menjadi 1 Preset (Bank 128, Program = ID Kit)
+        const kitId = entry.targetBank ?? 0;
+        const key = `128:${kitId}`;
+
+        if (!presets.has(key)) {
+          presets.set(key, {
+            name: (entry.name || "Drum Kit").substring(0, 20),
+            bank: 128,
+            program: kitId,
+            zones: []
+          });
+        }
+
+        const preset = presets.get(key);
+        for (const s of p.samples) {
+          preset.zones.push({
+            keyLow: entry.gmProgram ?? 0,   // Note drum dijadikan batas nada
+            keyHigh: entry.gmProgram ?? 0,
+            sampleIndex: s.shdrIndex,
+            loopMode: s.loopMode
+          });
+        }
+      } else {
+        // Melodic
+        const targetBank = entry.targetBank ?? 0;
+        let program = entry.gmProgram ?? -1;
+
+        if (program === -1) {
+          if (!bankProgramTracker.has(targetBank)) bankProgramTracker.set(targetBank, new Set());
+          const used = bankProgramTracker.get(targetBank);
+          program = 0;
+          while (used.has(program) && program < 128) program++;
+          used.add(program);
+        }
+
+        const key = `${targetBank}:${program}`;
+        if (!presets.has(key)) {
+          presets.set(key, {
+            name: (entry.name || "Preset").substring(0, 20),
+            bank: targetBank,
+            program: program,
+            zones: []
+          });
+        }
+
+        const preset = presets.get(key);
+        for (const s of p.samples) {
+          preset.zones.push({
+            keyLow: s.keyLow,
+            keyHigh: s.keyHigh,
+            sampleIndex: s.shdrIndex,
+            loopMode: s.loopMode
+          });
+        }
+      }
+    }
+
+    // 3. Bangun PDTA (Instrument, Bag, Generator)
+    const instHeaders = [];
+    const ibag = [];
+    const igen = [];
+    let instBagIndex = 0;
+    let instGenIndex = 0;
+
+    const phdr = [];
+    const pbag = [];
+    const pgen = [];
+
+    for (const preset of presets.values()) {
+      const instIdx = instHeaders.length;
+      instHeaders.push({
+        name: preset.name,
+        bagIdx: instBagIndex
+      });
+
+      for (const zone of preset.zones) {
+        ibag.push({ genIdx: instGenIndex, modIdx: 0 });
+        igen.push({ op: 43, amt: (zone.keyHigh << 8) | zone.keyLow }); // keyRange
+        if (zone.loopMode) igen.push({ op: 54, amt: 1 });              // sampleModes
+        igen.push({ op: 53, amt: zone.sampleIndex });                  // sampleID
+        instGenIndex = igen.length;
+      }
+
+      ibag.push({ genIdx: instGenIndex, modIdx: 0 }); // Terminal ibag
+      instBagIndex = ibag.length;
+
+      pbag.push({ genIdx: pgen.length, modIdx: 0 });
+      pgen.push({ op: 41, amt: instIdx }); // instrument
+
+      phdr.push({
+        name: preset.name,
+        program: preset.program,
+        bank: preset.bank,
+        bagIdx: pbag.length - 1
+      });
+    }
+
+    // Terminal record
+    phdr.push({ name: "EOP", program: 0, bank: 0, bagIdx: pbag.length });
+    pbag.push({ genIdx: pgen.length, modIdx: 0 });
+    pgen.push({ op: 0, amt: 0 });
+
+    instHeaders.push({ name: "EOI", bagIdx: ibag.length });
+    ibag.push({ genIdx: igen.length, modIdx: 0 });
+    igen.push({ op: 0, amt: 0 });
+
+    shdr.push({
+      name: "EOS", start: 0, end: 0, startloop: 0, endloop: 0,
+      sampleRate: 0, originalPitch: 0, pitchCorrection: 0, sampleLink: 0, sampleType: 0
+    });
+
+    // 4. Encoder Biner SF2
+    const encoder = new TextEncoder();
+
+    const makeChunk = (id, dataArray) => {
+      const size = dataArray.length;
+      const buf = new Uint8Array(8 + size + (size % 2));
+      buf.set(encoder.encode(id), 0);
+      new DataView(buf.buffer).setUint32(4, size, true);
+      buf.set(dataArray, 8);
+      return buf;
+    };
+
+    const makeList = (type, chunks) => {
+      let totalSize = 4;
+      for (const c of chunks) totalSize += c.length;
+      const buf = new Uint8Array(8 + totalSize);
+      buf.set(encoder.encode("LIST"), 0);
+      new DataView(buf.buffer).setUint32(4, totalSize, true);
+      buf.set(encoder.encode(type), 8);
+      let offset = 12;
+      for (const c of chunks) {
+        buf.set(c, offset);
+        offset += c.length;
+      }
+      return buf;
+    };
+
+    const encodePhdr = (list) => {
+      const buf = new Uint8Array(list.length * 38);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        buf.set(encoder.encode(p.name.padEnd(20, '\0').substring(0, 20)), offset); offset += 20;
+        dv.setUint16(offset, p.program, true); offset += 2;
+        dv.setUint16(offset, p.bank, true); offset += 2;
+        dv.setUint16(offset, p.bagIdx, true); offset += 2;
+        dv.setUint32(offset, 0, true); offset += 4;
+        dv.setUint32(offset, 0, true); offset += 4;
+        dv.setUint32(offset, 0, true); offset += 4;
+      }
+      return buf;
+    };
+
+    const encodePbag = (list) => {
+      const buf = new Uint8Array(list.length * 4);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        dv.setUint16(offset, p.genIdx, true); offset += 2;
+        dv.setUint16(offset, p.modIdx, true); offset += 2;
+      }
+      return buf;
+    };
+
+    const encodePmod = (list) => new Uint8Array(list.length * 10);
+
+    const encodePgen = (list) => {
+      const buf = new Uint8Array(list.length * 4);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        dv.setUint16(offset, p.op, true); offset += 2;
+        dv.setUint16(offset, p.amt, true); offset += 2;
+      }
+      return buf;
+    };
+
+    const encodeInst = (list) => {
+      const buf = new Uint8Array(list.length * 22);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        buf.set(encoder.encode(p.name.padEnd(20, '\0').substring(0, 20)), offset); offset += 20;
+        dv.setUint16(offset, p.bagIdx, true); offset += 2;
+      }
+      return buf;
+    };
+
+    const encodeShdr = (list) => {
+      const buf = new Uint8Array(list.length * 46);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        buf.set(encoder.encode(p.name.padEnd(20, '\0').substring(0, 20)), offset); offset += 20;
+        dv.setUint32(offset, p.start, true); offset += 4;
+        dv.setUint32(offset, p.end, true); offset += 4;
+        dv.setUint32(offset, p.startloop, true); offset += 4;
+        dv.setUint32(offset, p.endloop, true); offset += 4;
+        dv.setUint32(offset, p.sampleRate, true); offset += 4;
+        dv.setUint8(offset, p.originalPitch); offset += 1;
+        dv.setInt8(offset, p.pitchCorrection); offset += 1;
+        dv.setUint16(offset, p.sampleLink, true); offset += 2;
+        dv.setUint16(offset, p.sampleType, true); offset += 2;
+      }
+      return buf;
+    };
+
+    let totalSamples = 0;
+    for (const s of sampleData) totalSamples += s.length;
+    const smplBytes = new Uint8Array(totalSamples * 2);
+    const smplDv = new DataView(smplBytes.buffer);
+    let smplOffset = 0;
+    for (const s of sampleData) {
+      for (let i = 0; i < s.length; i++) {
+        smplDv.setInt16(smplOffset, s[i], true);
+        smplOffset += 2;
+      }
+    }
+
+    const infoChunks = [];
+    const ifilBuf = new Uint8Array(4);
+    new DataView(ifilBuf.buffer).setUint16(0, 2, true);
+    new DataView(ifilBuf.buffer).setUint16(2, 1, true);
+    infoChunks.push(makeChunk("ifil", ifilBuf));
+    infoChunks.push(makeChunk("isng", encoder.encode("EMU8000\0")));
+    infoChunks.push(makeChunk("INAM", encoder.encode(project.name + "\0")));
+
+    const infoList = makeList("INFO", infoChunks);
+    const sdtaList = makeList("sdta", [makeChunk("smpl", smplBytes)]);
+
+    const pdtaChunks = [
+      makeChunk("phdr", encodePhdr(phdr)),
+      makeChunk("pbag", encodePbag(pbag)),
+      makeChunk("pmod", encodePmod([{}])),
+      makeChunk("pgen", encodePgen(pgen)),
+      makeChunk("inst", encodeInst(instHeaders)),
+      makeChunk("ibag", encodePbag(ibag)),
+      makeChunk("imod", encodePmod([{}])),
+      makeChunk("igen", encodePgen(igen)),
+      makeChunk("shdr", encodeShdr(shdr))
+    ];
+    const pdtaList = makeList("pdta", pdtaChunks);
+
+    const finalSize = 4 + infoList.length + sdtaList.length + pdtaList.length;
+    const result = new Uint8Array(8 + finalSize);
+    result.set(encoder.encode("RIFF"), 0);
+    new DataView(result.buffer).setUint32(4, finalSize, true);
+    result.set(encoder.encode("sfbk"), 8);
+
+    let offset = 12;
+    result.set(infoList, offset); offset += infoList.length;
+    result.set(sdtaList, offset); offset += sdtaList.length;
+    result.set(pdtaList, offset);
+
+    const blob = new Blob([result], { type: "audio/x-soundfont" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.name.replace(/[^\w\-]+/g, "_")}.sf2`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    showStatus(t("export_sf2_done") || "SF2 berhasil diekspor", "ok");
+  } catch (err) {
+    console.error("SF2 export error:", err);
+    showStatus(t("export_sf2_failed") || "Gagal ekspor SF2", "bad");
+  }
+}
+
 async function exportProjectWithConfig(project, patches) {
   try {
     const zipFiles = [];
@@ -4322,6 +4738,7 @@ function renderProjects() {
     $("btnImportSoundfont").disabled = true;
     $("btnDeleteProject").disabled = true;
     $("btnExportProject").disabled = true;
+    $("btnExportProjectSf2").disabled = true;
     return;
   }
   state.projects.forEach(proj => {
@@ -4353,6 +4770,7 @@ function renderProjects() {
   $("btnImportSoundfont").disabled = !hasActive;
   $("btnDeleteProject").disabled = !hasActive;
   $("btnExportProject").disabled = !hasActive;
+  $("btnExportProjectSf2").disabled = !hasActive;
 }
 
 function render(save=true){
@@ -6794,6 +7212,21 @@ function bind(){
   });
   $("midiUsedPatchesDialog").addEventListener("keydown", e => {
     if (e.key === "Escape") closeMidiUsedPatchesDialog();
+  });
+
+  // Tambahkan di dalam bind()
+  $("btnExportProjectSf2").addEventListener("click", async () => {
+    const project = state.projects.find(p => p.id === state.currentProjectId);
+    if (!project) return;
+    
+    // Ekspor semua patch di proyek
+    const patches = getProjectPatchEntries();
+    if (patches.length === 0) {
+      showStatus(t("empty_project"), "bad");
+      return;
+    }
+    
+    await exportProjectToSF2(project, patches);
   });
   
 
