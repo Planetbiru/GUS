@@ -41,7 +41,7 @@
   </div>
 
   <!-- SVG SPRITE (Icons) -->
-  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+  <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg">
     <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
       stroke-linejoin="round">
       <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
@@ -136,6 +136,14 @@
       <line x1="8" y1="12" x2="20" y2="12" stroke-width="3"></line>
       <line x1="2" y1="18" x2="14" y2="18" stroke-width="3"></line>
     </symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <circle cx="9" cy="6" r="1.5"></circle>
+      <circle cx="9" cy="12" r="1.5"></circle>
+      <circle cx="9" cy="18" r="1.5"></circle>
+      <circle cx="15" cy="6" r="1.5"></circle>
+      <circle cx="15" cy="12" r="1.5"></circle>
+      <circle cx="15" cy="18" r="1.5"></circle>
+    </symbol>
   </svg>
 
   <header>
@@ -181,15 +189,15 @@
       <!-- PROYEK -->
       <div class="card">
         <h3>{{projects}} <span class="pill" id="projCount">0</span></h3>
-        <div class="list" id="projectList" style="max-height:160px"></div>
-        <div style="display:flex;gap:4px;margin-top:4px">
+        <div class="list project-list" id="projectList"></div>
+        <div class="inline-actions project-actions">
           <button class="btn small" id="btnAddToProject" style="flex:1" disabled>{{add_patch}}</button>
           <button class="btn small" id="btnImportSoundfont" style="flex:1" title="{{import_soundfont_title}}" data-i18n-title="import_soundfont_title" disabled>{{import_package}}</button>
           <button class="btn small" id="btnExportProject" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
             </svg> {{zip_format}}</button>
         </div>
-        <div style="display:flex;gap:4px;margin-top:6px">
+        <div class="inline-actions project-secondary-actions">
           <button class="btn small" id="btnNewProject" style="flex:1">{{new_project}}</button>
           <button class="btn small danger" id="btnDeleteProject" style="flex:1" disabled>{{delete}}</button>
         </div>
@@ -198,30 +206,26 @@
       <!-- MIDI PREVIEW -->
       <div class="card">
         <h3>{{midi_preview}}</h3>
-        <input type="file" id="midiFile" accept=".mid,.midi,audio/midi" style="display:none">
-        <div style="display:flex;flex-direction:column;gap:6px">
+        <input type="file" id="midiFile" accept=".mid,.midi,audio/midi" hidden>
+        <div class="midi-preview-controls">
           <button class="btn small" id="btnLoadMidi"><svg class="icon">
               <use href="#i-folder"></use>
             </svg> {{load_midi}}</button>
 
-          <!-- Seeker & Waktu -->
-          <div style="display:flex;flex-direction:column;gap:2px">
+          <div class="midi-seek-controls">
             <input type="range" id="midiSeek" min="0" max="1000" value="0" step="1" disabled
-              style="width:100%; accent-color:var(--accent); height:12px; cursor:pointer">
-            <div
-              style="display:flex;justify-content:space-between;font-size:9px;color:var(--dim);font-family:ui-monospace,monospace">
+              class="midi-seek">
+            <div class="midi-time-labels">
               <span id="midiTimeCur">00:00</span>
               <span id="midiTimeTotal">00:00</span>
             </div>
           </div>
 
-          <!-- Kontrol -->
-          <div style="display:flex;gap:4px">
+          <div class="inline-actions">
             <button class="btn small primary" id="btnPlayMidi" disabled style="flex:1"><svg class="icon">
                 <use href="#i-play"></use>
               </svg> {{play}}</button>
               
-            <!-- TOMBOL PILIH BANK DIPINDAHKAN KE SINI -->
             <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
             
             <button class="btn small danger" id="btnStopMidi" style="flex:1" disabled><svg class="icon">
@@ -229,16 +233,13 @@
               </svg> {{stop}}</button>
           </div>
 
-          <!-- Tombol Pilih Bank yang lama di sini sudah dihapus -->
-
-          <!-- Volume -->
-          <div style="display:flex;align-items:center;gap:6px;font-size:10px;margin-top:2px">
-            <span style="color:var(--dim);display:flex;align-items:center;gap:2px"><svg class="icon">
+          <div class="midi-volume-row">
+            <span class="midi-volume-label"><svg class="icon">
                 <use href="#i-volume"></use>
               </svg> {{volume_short}}</span>
-            <input type="range" id="midiVolume" min="0" max="100" value="100"
-              style="flex:1; height:12px; accent-color:var(--accent)">
-            <span id="midiVolVal" style="color:var(--accent);min-width:24px;text-align:right">100%</span>
+            <input type="range" id="midiVolume" min="0" max="100" value="100" class="midi-volume-slider"
+              style="flex:1">
+            <span id="midiVolVal" class="midi-volume-value">100%</span>
           </div>
 
           <button class="btn small" id="btnRenderMidi" disabled><svg class="icon">
@@ -250,33 +251,29 @@
             <svg class="icon"><use href="#i-chart"></use></svg> {{midi_used_patches_btn}}
           </button>
 
-          <div id="midiStatus" style="font-size:10px;color:var(--dim);text-align:center;margin-top:4px">{{select_project_load_midi}}</div>
+          <div id="midiStatus">{{select_project_load_midi}}</div>
         </div>
       </div>
 
       <div class="card">
-        <h3>{{library}} <span class="pill" id="libCount" style="float:right">0</span></h3>
-        <button class="btn small" id="btnLibraryScope" style="width:100%;margin:0 0 6px">{{show_all_library}}</button>
+        <h3>{{library}} <span class="pill" id="libCount">0</span></h3>
+        <button class="btn small" id="btnLibraryScope">{{show_all_library}}</button>
 
-        <!-- TAMBAHKAN SELECT INI -->
-        <select id="libraryBankFilter" style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);">
+        <select id="libraryBankFilter" class="library-filter">
           <option value="all">{{all_banks}}</option>
         </select>
 
-        <!-- SELECT BARU UNTUK FILTER TIPE -->
-        <select id="libraryTypeFilter" style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);">
+        <select id="libraryTypeFilter" class="library-filter">
           <option value="all">{{all_types}}</option>
           <option value="melodic">{{melodic_only}}</option>
           <option value="drum">{{drum_kit_only}}</option>
         </select>
 
-        <!-- INPUT BARU UNTUK FILTER NAMA -->
-        <input type="text" id="libraryNameFilter" 
-               style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);" 
+        <input type="text" id="libraryNameFilter" class="library-filter"
                placeholder="{{search_patch_name}}" data-i18n-placeholder="search_patch_name">
 
-        <div class="list" id="patchList" style="max-height:200px"></div>
-        <div style="display:flex;gap:4px;margin-top:6px">
+        <div class="list patch-list" id="patchList"></div>
+        <div class="inline-actions library-actions">
           <button class="btn small" id="btnExportAll" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
             </svg> {{export_zip}}</button>
@@ -285,7 +282,7 @@
       </div>
 
       <div class="card">
-        <h3>{{patch}} <span class="pill" id="patchNameSide" style="float:right">—</span></h3>
+        <h3>{{patch}} <span class="pill" id="patchNameSide">—</span></h3>
         <div class="stats">
           <div class="stat"><label>{{instruments}}</label><b id="statInst">0</b></div>
           <div class="stat"><label>{{samples}}</label><b id="statSamples">0</b></div>
@@ -296,14 +293,13 @@
       <div class="card">
         <h3>{{instruments}}</h3>
         <div class="list" id="instrumentList"></div>
-        <button class="btn small" id="btnExportInst" style="margin-top:6px;width:100%"><svg class="icon">
+        <button class="btn small" id="btnExportInst"><svg class="icon">
             <use href="#i-download"></use>
           </svg> {{export_instrument}}</button>
       </div>
       <div class="card">
         <h3>{{midi_monitor}}</h3>
-        <div id="midiMonitor"
-          style="font-size:11px;color:var(--dim);line-height:1.6;font-family:ui-monospace,monospace">{{no_midi_messages}}</div>
+        <div id="midiMonitor" class="midi-monitor">{{no_midi_messages}}</div>
       </div>
     </aside>
 
@@ -313,15 +309,14 @@
         <p>{{welcome_description}}</p>
 
         <!-- NEW SECTION -->
-        <div
-          style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--muted); margin-bottom:4px; display:flex; align-items:center; gap:8px;">
-          <svg class="icon" style="color:var(--accent); width:16px; height:16px; flex-shrink:0;">
+        <div class="welcome-tip">
+          <svg class="icon">
             <use href="#i-play"></use>
           </svg>
           <span>{{welcome_tip}}</span>
         </div>
 
-        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+        <div class="welcome-actions">
           <button class="btn primary" id="btnOpen2">{{open_file}}</button>
           <button class="btn" id="btnDemo2">{{load_demo}}</button>
         </div>
@@ -336,11 +331,11 @@
           <button class="btn small" id="btnExportAllBanks"><svg class="icon"><use href="#i-download"></use></svg> {{export_all_banks}}</button>
           <button class="btn small primary" id="btnExportSelectedBanks"><svg class="icon"><use href="#i-download"></use></svg> {{export_selected_banks}}</button>
         </div>
-        <p class="hint" style="margin:0 0 8px">{{bank_management_hint}}</p>
+        <p class="hint bank-management-hint">{{bank_management_hint}}</p>
         <div class="bank-toolbar">
           <button class="btn small" id="btnCompactBanks" title="{{compact_banks_title}}">{{compact_banks}}</button>
           <button class="btn small" id="btnRefreshBankOrder" title="{{refresh_order_title}}">{{refresh_order}}</button>
-          <label class="check" style="margin-left:auto">
+          <label class="check bank-select-all">
             <input type="checkbox" id="bankSelectAll">
             <span>{{select_all}}</span>
           </label>
@@ -362,7 +357,7 @@
             <div class="field"><label>{{gm_program}}</label><input id="pGMProgram" type="number" min="-1"
                 max="127"></div>
             <div class="field"><label>{{gm_bank}}</label><input id="pGMBank" type="number" min="0" max="127"></div>
-            <div class="field" style="grid-column:span 4"><label>{{description}}</label><input id="pDescription"
+            <div class="field grid-span-4"><label>{{description}}</label><input id="pDescription"
                 maxlength="60"></div>
           </div>
         </section>
@@ -375,7 +370,7 @@
           <div class="grid g3">
             <div class="field"><label>{{instrument_number}}</label><input id="iNumber" type="number" min="0" max="65535">
             </div>
-            <div class="field" style="grid-column:span 2"><label>{{name_16_chars}}</label><input id="iName"
+            <div class="field grid-span-2"><label>{{name_16_chars}}</label><input id="iName"
                 maxlength="16"></div>
           </div>
         </section>
@@ -388,12 +383,12 @@
 
             <!-- IMPORT JSON -->
             <input type="file" id="sampleJsonFile" accept=".json,application/json" hidden>
-            <button class="btn small" id="btnImportSampleJson" style="margin-right: 8px;"
+            <button class="btn small sample-action" id="btnImportSampleJson"
                     title="{{sample_json_import_title}}" data-i18n-title="sample_json_import_title">
               <svg class="icon"><use href="#i-upload"></use></svg> {{import_sample_json}}
             </button>
 
-            <button class="btn small" id="btnShowFreqMap" style="margin-right: 8px;">
+            <button class="btn small sample-action" id="btnShowFreqMap">
               <svg class="icon"><use href="#i-range"></use></svg> {{freq_map_btn}}
             </button>
             <span class="hint">{{click_sample_to_edit}}</span>
@@ -429,7 +424,7 @@
                 <use href="#i-zoom-in"></use>
               </svg></button>
             <button class="btn small" id="btnZoomReset" title="{{reset_zoom}}" data-i18n-title="reset_zoom">{{reset}}</button>
-            <span id="zoomLevelText" class="pill" style="line-height:20px;margin-left:4px">1.0x</span>
+            <span id="zoomLevelText" class="pill zoom-level">1.0x</span>
             <div class="sep"></div>
             <button class="btn small" id="btnSelectAll">{{select_all}}</button>
             <button class="btn small" id="btnNormalize">{{normalize}}</button>
@@ -475,7 +470,7 @@
 
           <div class="divider"></div>
 
-          <h3 style="margin:0 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">{{sample_properties}}</h3>
+          <h3 class="editor-subsection-heading editor-subsection-heading-compact">{{sample_properties}}</h3>
           <div class="grid g6">
             <div class="field"><label>{{wave_name_7}}</label><input id="sName" maxlength="7"></div>
             <div class="field"><label>{{sample_rate_label}}</label><input id="sRate" type="number" min="1" max="192000"></div>
@@ -492,12 +487,12 @@
             </div>
           </div>
 
-          <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">{{envelope_rates}}</h3>
+          <h3 class="editor-subsection-heading">{{envelope_rates}}</h3>
           <div class="grid g6" id="envRatesGrid"></div>
-          <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">{{envelope_offsets}}</h3>
+          <h3 class="editor-subsection-heading">{{envelope_offsets}}</h3>
           <div class="grid g6" id="envOffsetsGrid"></div>
 
-          <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">{{tremolo_vibrato}}</h3>
+          <h3 class="editor-subsection-heading">{{tremolo_vibrato}}</h3>
           <div class="grid g6">
             <div class="field"><label>{{trem_sweep_label}}</label><input id="sTremSweep" type="number" min="0" max="255"></div>
             <div class="field"><label>{{trem_rate_label}}</label><input id="sTremRate" type="number" min="0" max="255"></div>
@@ -507,12 +502,12 @@
             <div class="field"><label>{{vib_depth_label}}</label><input id="sVibDepth" type="number" min="0" max="255"></div>
           </div>
 
-          <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">{{sample_modes}}</h3>
+          <h3 class="editor-subsection-heading">{{sample_modes}}</h3>
           <div class="check-row" id="modesRow"></div>
 
-          <h3 style="margin:12px 0 6px;font-size:10px;text-transform:uppercase;color:var(--muted)">{{sound_test_keyboard}}</h3>
+          <h3 class="editor-subsection-heading">{{sound_test_keyboard}}</h3>
           <div class="hint">{{keyboard_test_hint}}</div>
-          <div class="check-row" id="pianoRow" style="margin-top:6px"></div>
+          <div class="check-row piano-row" id="pianoRow"></div>
         </section>
       </div>
     </main>
@@ -520,11 +515,11 @@
 
   <footer>
     <span id="statusBar">{{ready_status}}</span>
-    <span style="margin-left:auto;font-family:ui-monospace,monospace" id="footerInfo"></span>
+    <span id="footerInfo"></span>
   </footer>
 
   <div id="freqMapDialog" class="modal-overlay" hidden>
-    <section class="modal-panel" style="width: min(900px, 100%);" role="dialog" aria-modal="true" aria-labelledby="freqMapTitle">
+    <section class="modal-panel freq-map-modal" role="dialog" aria-modal="true" aria-labelledby="freqMapTitle">
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="freqMapTitle">{{freq_map_title}}</h2>
@@ -569,7 +564,7 @@
         </div>
         <div class="modal-body">
           <p id="demoProjectDescription" class="modal-message">{{demo_project_prompt}}</p>
-          <div class="field" style="margin-top:14px">
+          <div class="field modal-field-spaced">
             <label for="demoProjectName">{{project_name}}</label>
             <input id="demoProjectName" name="demo_project_name" type="text" maxlength="100" autocomplete="off" placeholder="{{project_name_placeholder}}" data-i18n-placeholder="project_name_placeholder">
           </div>
@@ -792,10 +787,9 @@
         </div>
         <div class="modal-body">
           <p class="modal-message">{{select_bank_hint}}</p>
-          <div class="list" id="bankSelectList" style="max-height:300px;overflow:auto;"></div>
+          <div class="list bank-select-list" id="bankSelectList"></div>
           
-          <!-- TAMBAHKAN BARIS INI -->
-          <div id="bankLoadingStatus" style="margin-top:12px; font-size:12px; display:none; font-weight:500;"></div>
+          <div id="bankLoadingStatus"></div>
           
         </div>
         <div class="modal-footer">
@@ -807,7 +801,7 @@
   </div>
 
   <div id="bankBreakdownDialog" class="modal-overlay" hidden>
-    <section class="modal-panel" style="width: min(500px, 100%);" role="dialog" aria-modal="true" aria-labelledby="bankBreakdownTitle">
+    <section class="modal-panel bank-breakdown-modal" role="dialog" aria-modal="true" aria-labelledby="bankBreakdownTitle">
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="bankBreakdownTitle">{{bank_breakdown_title}}</h2>
@@ -837,7 +831,7 @@
         </div>
         <div class="modal-body">
           <p class="modal-message" id="midiUsedPatchesDesc">{{midi_used_patches_desc}}</p>
-          <div class="list" id="midiUsedPatchesList" style="max-height:400px;overflow-y:auto;"></div>
+          <div class="list midi-used-patches-list" id="midiUsedPatchesList"></div>
         </div>
         <div class="modal-footer">
           <button class="btn primary" id="btnCloseMidiUsedPatches" type="button">{{close}}</button>
@@ -855,7 +849,7 @@
         </div>
         <div class="modal-body">
           <p id="customPromptMessage" class="modal-message"></p>
-          <div class="field" id="customPromptField" style="margin-top:14px">
+          <div class="field modal-field-spaced" id="customPromptField">
             <label id="customPromptLabel" for="customPromptInput"></label>
             <input id="customPromptInput" name="custom_prompt" type="text" autocomplete="off">
           </div>
@@ -903,7 +897,6 @@
     </section>
   </div>
 
-  <!-- LibTiMidityPlayer -->
   <script src="timidity-player/timidity-player.min.js"></script>
   <script src="timidity-player/libtimidity.min.js"></script>
   <script src="JSGUS/GUSPatchGenerator.min.js"></script>
