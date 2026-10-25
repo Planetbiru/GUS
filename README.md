@@ -1,6 +1,6 @@
 # GUS Patch Editor
 
-A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patch files**, with support for importing SoundFonts (`.sf2`), Timidity ZIP packages, and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, and patch export.
+A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patch files**, with support for importing and exporting SoundFonts (`.sf2`), Timidity ZIP packages, and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, and patch export.
 
 Built with vanilla JavaScript and no build step. Runs entirely in the browser. All data is stored locally in IndexedDB.
 
@@ -77,11 +77,19 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Compact banks** — collapse sparse target banks to sequential 0, 1, 2, …
 - **Bank health check** — flags broken or zero-byte patches before exporting
 
+### Bidirectional PAT ⇄ SF2 Roundtrip
+- **Export any project to SF2** — melodic presets and drum kits are consolidated into a standard SoundFont 2 file
+- **Import SF2 back** — each preset becomes a GUS patch; drum kits are split per MIDI note
+- **Lossless roundtrip** — PCM data, root frequency, loop points, key ranges, and sample rates survive any number of `PAT → SF2 → PAT → SF2 → …` conversions
+- **Sub-cent pitch accuracy** — root frequency is encoded as `originalPitch` (MIDI note) + `chPitchCorrection` (signed cents), verified to stay within ±0.5 cent across conversions
+- **Round-trip tested** — chain conversions are bit-exact for PCM and loop points, and pitch-stable to < 1 cent for root frequency
+
 ### Export
 - **Single patch** export to `.pat`
 - **Single instrument** export to `.pat`
 - **Whole library** export to ZIP with `manifest.json` and `timidity.cfg`
 - **Selected banks** export with configurable target banks
+- **Whole project** export to `.sf2` SoundFont
 - **Rendered MIDI** export to `.wav`
 
 ### Localization
@@ -129,6 +137,46 @@ drumset 0
 35 kick_1.pat
 38 snare_1.pat
 ```
+
+### `.sf2` (SoundFont 2)
+
+**Import.** A single `.sf2` may contain dozens of presets. Each one is turned into its own GUS patch:
+
+- Melodic presets (`bank 0`–`127`) → one patch each. `gmProgram = preset` and `gmBank = bank`.
+- Drum kits (`bank 128`) → **one patch per MIDI note** covered by the kit's key ranges. Every patch in the same kit shares a `drumSet` ID.
+- Generators honored on import: `keyRange` (43), `sampleModes` (54), `overridingRootKey` (58), `coarseTune` (51), `fineTune` (52), `sampleID` (53).
+
+**Export.** Any project can be written as a SoundFont:
+
+- Each patch becomes a preset at its **target bank** and **GM program** (falling back to `originalOrder` when unset).
+- Drum patches that share a target bank are merged into a single Bank 128 preset, with one key-range zone per MIDI note.
+- Loop points, sample rates, `originalPitch`, and `chPitchCorrection` are written to `shdr`; loop mode is written as the `sampleModes` generator.
+
+**Roundtrip fidelity.**
+
+```
+PAT ──► SF2 ──► PAT ──► SF2 ──► PAT ──► …
+```
+
+Every pass through this chain preserves the following:
+
+| Property | Precision |
+|---|---|
+| PCM samples | Bit-exact (8-bit inputs promote to 16-bit on the first conversion, then remain exact) |
+| Root frequency | < 1 cent drift, encoded via `originalPitch` + `chPitchCorrection` |
+| Loop points | Bit-exact in frame counts; fractional loop offsets are lost |
+| Sample rate | Bit-exact (`shdr.dwSampleRate`) |
+| Key range | Bit-exact in MIDI notes (via `lowFreq`/`highFreq` ⇄ `keyRange`) |
+| Preset name, bank, program | Preserved; names capped at 20 characters |
+
+**Not preserved** — these are SF2 format limitations, not bugs:
+
+- Envelope rates and offsets (SF2 uses its own envelope generator that GUS patches don't carry)
+- Tremolo and vibrato settings
+- Loop `.fractions` byte (sub-frame loop offsets)
+- `scaleFreq` and `scaleFactor` — metadata-only UI fields; `scaleFreq` is rewritten from `rootFreq` on export
+
+> **Tip:** Because pitch is derived from `rootFreq` (via `originalPitch` + `chPitchCorrection`), two patches with identical PCM but different `scaleFreq` will roundtrip to identical pitches. If a patch's `scaleFreq` looks different after a roundtrip, only the UI label changed — the audible pitch did not.
 
 ---
 
@@ -231,9 +279,23 @@ Header → MIDI.js URL → paste a jsDelivr URL
 | **Export This Instrument** | Only the selected instrument |
 | **Export ZIP** (library) | All patches in the current library view |
 | **Export Selected** (bank manager) | Patches checked in the bank table |
+| **Export Project → SF2** (project toolbar) | Current project as a single `.sf2` SoundFont |
 | **Render WAV** (MIDI preview) | Offline-rendered mixdown |
 | **Download WAV** (sample editor) | Current sample as a `.wav` file |
 | **Export JSON** (sample editor) | Sample with PCM as base64 JSON |
+
+### Exporting a Project to SF2
+
+Any project with at least one patch can be exported as a SoundFont:
+
+```
+Projects sidebar → select a project → Export SF2
+```
+
+- Melodic patches are emitted as presets at their **target bank** and **GM program**.
+- Drum patches that share a target bank are merged into a single Bank 128 preset, one zone per MIDI note.
+- The resulting `.sf2` loads in any SF2-compatible synth (FluidSynth, TiMidity, sF2 stubs, the built-in preview when re-imported, etc.).
+- Re-importing the `.sf2` produces patches that **sound identical** to the original project — pitch, loop points, and PCM data are preserved.
 
 ### Sharing Samples Between Patches
 
@@ -309,7 +371,8 @@ gus-patch-editor/
                        ┌───────────────┐     ┌──────────────┐
                        │ IndexedDB     │     │  Export      │
                        │ (persistent)  │     │  .PAT/.ZIP   │
-                       └───────────────┘     └──────────────┘
+                       └───────────────┘     │  .SF2        │
+                                             └──────────────┘
 ```
 
 ### Storage
@@ -331,6 +394,18 @@ Samples are stored internally as `Uint8Array` PCM plus a cached `Float32Array` (
 - `MUNS` set → unsigned PCM, otherwise signed
 
 Conversion happens once per sample and is cached.
+
+### Pitch Encoding
+
+GUS patches store pitch as a millihertz `rootFreq` plus legacy `scaleFreq`/`scaleFactor` metadata. SoundFont 2 expresses the same information as:
+
+```
+rootHz = 440 · 2^((originalPitch − 69) / 12) · 2^(chPitchCorrection / 1200)
+```
+
+On **export**, the editor picks `originalPitch = round(midiNote(rootFreq))` and stores the remaining detune in `chPitchCorrection` (signed cents, range ±50 in practice). On **import**, `rootFreq` is reconstructed from the same formula, so `rootFreq_out = rootFreq_in` exactly.
+
+`scaleFreq` is not used to determine pitch; it is a UI label only, so patches whose `scaleFreq` disagrees with `rootFreq` still roundtrip to the correct audible pitch.
 
 ---
 
@@ -354,6 +429,7 @@ Placeholders use `{name}` syntax and are substituted from the `values` argument 
 - **RAM usage** — converting a large SoundFont can hold hundreds of megabytes in memory during conversion; browsers may crash on low-RAM devices
 - **Storage limits** — IndexedDB quotas vary by browser (usually 10% of disk); large libraries may hit the quota
 - **SF2 import** — parsed in the main thread; the UI may freeze during conversion of large files
+- **SF2 roundtrip** — PCM, loop points, sample rate, root frequency, key ranges, and preset metadata are preserved. Envelopes, tremolo, vibrato, and loop fractions are **not** part of the SF2 export format and are lost after a roundtrip; use a `.pat`-only export if you need those settings
 - **MIDI.js import** — decoding ~88 notes at 22050 Hz takes 20–60 seconds depending on the file and device
 - **Web MIDI** — Firefox and Safari only partially support `navigator.requestMIDIAccess`
 - **Loop points** — GUS loop points reference 16-bit sample positions; fractional loop points (`.fractions`) are only partially honored on export

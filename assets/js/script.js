@@ -20,6 +20,8 @@ let localePacks = {};
 let lastTranslation = null;
 let currentStatusTranslation = null;
 let currentMidiStatusTranslation = null;
+let currentBankStatusTranslation = null;
+let currentBankStatusElement = null;
 let currentBank = 0;
 
 function t(key, values = {}) {
@@ -129,6 +131,13 @@ function setLanguage(nextLocale) {
   applyLocalization();
   document.querySelectorAll("[data-i18n-content], [data-i18n-title], [data-i18n-placeholder], [data-i18n-aria-label]")
     .forEach(localizeElement);
+  document.querySelectorAll("[data-bank-patch-count]").forEach(element => {
+    const count = Number(element.dataset.bankPatchCount);
+    element.textContent = t(count === 1 ? "patch_count_one" : "patch_count_many", {count});
+  });
+  document.querySelectorAll("[data-bank-broken-count]").forEach(element => {
+    element.textContent = t("broken_patch_count", {count: Number(element.dataset.bankBrokenCount)});
+  });
   if ($("newProjectDialog") && !$("newProjectDialog").hidden && $("newProjectName").value === defaultProjectName) {
     $("newProjectName").value = t("create_project_default", {number: state.projects.length + 1});
   }
@@ -143,6 +152,9 @@ function setLanguage(nextLocale) {
   }
   if (currentMidiStatusTranslation) {
     $("midiStatus").textContent = t(currentMidiStatusTranslation.key, currentMidiStatusTranslation.values);
+  }
+  if (currentBankStatusTranslation && currentBankStatusElement?.isConnected) {
+    currentBankStatusElement.textContent = t(currentBankStatusTranslation.key, currentBankStatusTranslation.values);
   }
   if (pendingProjectDeletionId) {
     const project = state.projects.find(entry => entry.id === pendingProjectDeletionId);
@@ -206,6 +218,11 @@ function showStatus(m,k){
 function setMidiStatus(key, values = {}) {
   currentMidiStatusTranslation = {key, values};
   $("midiStatus").textContent = t(key, values);
+}
+function setBankStatus(statusEl, key, values = {}) {
+  currentBankStatusElement = statusEl;
+  currentBankStatusTranslation = {key, values};
+  statusEl.textContent = t(key, values);
 }
 function fmtBytes(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -378,16 +395,13 @@ function parsePAT(ab){
         let srRaw = u16();
         const stdRates = [8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 96000];
         if (!stdRates.includes(srRaw)) {
-        // Heuristic: jika bukan rate standar, kemungkinan file lama (period ns)
-        const converted = Math.round(1e9 / srRaw);
-        if (stdRates.includes(converted) || (converted > 8000 && converted < 192000)) {
-            srRaw = converted;
-        }
+          // Heuristic: jika bukan rate standar, kemungkinan file lama (period ns)
+          const converted = Math.round(1e9 / srRaw);
+          if (stdRates.includes(converted) || (converted > 8000 && converted < 192000)) {
+              srRaw = converted;
+          }
         }
         const sampleRate = srRaw;
-
-
-
         const lowFreq=u32();
         const highFreq=u32();
         const rootFreq=u32();
@@ -485,19 +499,53 @@ function floatToPcm(s,f){
   const {is16,unsigned}=fmt(s), n=f.length, b=new Uint8Array(n*(is16?2:1));
   if(is16){
     for(let i=0;i<n;i++){
-      let v=clamp(f[i],-1,1), iv=Math.round(v*32767);
-      if(unsigned)iv+=32768; else if(iv<0)iv+=65536;
-      b[i*2]=iv&255; b[i*2+1]=(iv>>8)&255;
+      let v=clamp(f[i],-1,1);
+      let iv = Math.round(v * 32768);
+      if (iv > 32767) iv = 32767;
+      if (iv < -32768) iv = -32768;
+      if(unsigned) iv += 32768;
+      else if(iv < 0) iv += 65536;
+      b[i*2]=iv&255;
+      b[i*2+1]=(iv>>8)&255;
     }
   }else{
     for(let i=0;i<n;i++){
-      let v=clamp(f[i],-1,1), iv=Math.round(v*127);
-      if(unsigned)iv+=128; else if(iv<0)iv+=256;
+      let v=clamp(f[i],-1,1);
+      let iv = Math.round(v * 128);
+      if (iv > 127) iv = 127;
+      if (iv < -128) iv = -128;
+      if(unsigned) iv += 128;
+      else if(iv < 0) iv += 256;
       b[i]=iv&255;
     }
   }
-  s.pcm=b; s.dataSize=b.length;
+  s.pcm=b;
+  s.dataSize=b.length;
 }
+
+function computeSf2Pitch(rootFreq, scaleFreq) {
+  let rootHz = (rootFreq && rootFreq > 0) ? rootFreq / 1000 : null;
+
+  if (rootHz === null) {
+    const scaleNote = (scaleFreq >= 0 && scaleFreq <= 127) ? scaleFreq : 60;
+    rootHz = 440 * Math.pow(2, (scaleNote - 69) / 12);
+  }
+
+  const midiNoteFloat = 69 + 12 * Math.log2(rootHz / 440);
+  let originalPitch = Math.round(midiNoteFloat);
+  if (originalPitch < 0) originalPitch = 0;
+  if (originalPitch > 127) originalPitch = 127;
+
+  const freqOfOriginalPitch = 440 * Math.pow(2, (originalPitch - 69) / 12);
+  let pitchCorrection = Math.round(1200 * Math.log2(rootHz / freqOfOriginalPitch));
+
+  // Clamp defensif (tidak akan pernah kena karena originalPitch = round(midiNoteFloat))
+  if (pitchCorrection < -128) pitchCorrection = -128;
+  if (pitchCorrection > 127) pitchCorrection = 127;
+
+  return { originalPitch, pitchCorrection };
+}
+
 function ensureFloat(s){ if(!s._float)s._float=pcmToFloat(s); return s._float; }
 function commitFloat(s){ if(s._float)floatToPcm(s,s._float); }
 
@@ -2674,6 +2722,382 @@ function generateProjectTimidityCfg(project) {
   return cfg;
 }
 
+async function exportProjectToSF2(project, patches) {
+  try {
+    showStatus(t("export_sf2_processing") || "Menyiapkan SF2...", "ok");
+
+    const sampleData = [];
+    const shdr = [];
+    let currentOffset = 0;
+    const processedPatches = [];
+
+    // 1. Kumpulkan Data Sampel
+    for (let idx = 0; idx < patches.length; idx++) {
+      const entry = patches[idx];
+      const patch = cleanPatchForStorage(entry.patch);
+      const inst = patch.instruments[0];
+      if (!inst) continue;
+
+      const samples = [];
+      for (const layer of inst.layers) {
+        for (const s of layer.samples) {
+          // === FIX PITCH ===
+          // Hitung originalPitch & pitchCorrection dari rootFreq (prioritas utama)
+          // dan scaleFreq (fallback). Inilah satu-satunya sumber kebenaran pitch
+          // yang akan dibaca balik oleh convertSample saat import SF2 -> PAT.
+          const { originalPitch, pitchCorrection } = computeSf2Pitch(s.rootFreq, s.scaleFreq);
+
+          // Konversi PCM ke 16-bit signed. Skala 32768 + clamp menjaga roundtrip
+          // PCM agar identik dengan pcmToFloat (tidak kehilangan 1 LSB).
+          const f = pcmToFloat(s);
+          const pcm16 = new Int16Array(f.length);
+          for (let i = 0; i < f.length; i++) {
+            let v = Math.round(f[i] * 32768);
+            if (v > 32767) v = 32767;
+            if (v < -32768) v = -32768;
+            pcm16[i] = v;
+          }
+
+          const bps = (s.modes & M16) ? 2 : 1;
+          let startFrame = Math.round(s.loopStart / bps);
+          let endFrame = Math.round(s.loopEnd / bps);
+          if (startFrame >= endFrame || endFrame > pcm16.length) {
+            startFrame = 0;
+            endFrame = 0;
+          }
+
+          sampleData.push(pcm16);
+
+          const sr = s.sampleRate || 22050;
+
+          shdr.push({
+            name: (s.name || "SMP").substring(0, 20),
+            start: currentOffset,
+            end: currentOffset + pcm16.length,
+            startloop: currentOffset + startFrame,
+            endloop: currentOffset + endFrame,
+            sampleRate: sr,
+            originalPitch: originalPitch,         // <-- dari computeSf2Pitch
+            pitchCorrection: pitchCorrection,     // <-- dari computeSf2Pitch (BUKAN 0)
+            sampleLink: 0,
+            sampleType: 1
+          });
+
+          currentOffset += pcm16.length;
+
+          let keyLow = s.lowFreq
+            ? Math.max(0, Math.min(127, Math.round(69 + 12 * Math.log2((s.lowFreq / 1000) / 440))))
+            : 0;
+          let keyHigh = s.highFreq
+            ? Math.max(0, Math.min(127, Math.round(69 + 12 * Math.log2((s.highFreq / 1000) / 440))))
+            : 127;
+
+          samples.push({
+            shdrIndex: shdr.length - 1,
+            keyLow,
+            keyHigh,
+            loopMode: (s.modes & MLOOP) ? 1 : 0
+          });
+        }
+      }
+
+      processedPatches.push({ entry, samples });
+      if (idx % 8 === 0) await new Promise(r => setTimeout(r, 0));
+    }
+
+    // 2. Susun Preset (Gunakan Target Bank & Tangani Program Kosong)
+    const presets = new Map();
+    const bankProgramTracker = new Map();
+
+    // Daftarkan dulu semua program eksplisit (selain -1) agar tidak bentrok
+    for (const p of processedPatches) {
+      const entry = p.entry;
+      const isDrum = (entry.gmBank ?? 0) === 128;
+      if (isDrum) continue;
+      const targetBank = entry.targetBank ?? 0;
+      const program = entry.gmProgram ?? -1;
+
+      if (program !== -1) {
+        if (!bankProgramTracker.has(targetBank)) bankProgramTracker.set(targetBank, new Set());
+        bankProgramTracker.get(targetBank).add(program);
+      }
+    }
+
+    for (const p of processedPatches) {
+      const entry = p.entry;
+      const isDrum = (entry.gmBank ?? 0) === 128;
+
+      if (isDrum) {
+        // Drum Kit digabung menjadi 1 Preset (Bank 128, Program = ID Kit)
+        const kitId = entry.targetBank ?? 0;
+        const key = `128:${kitId}`;
+
+        if (!presets.has(key)) {
+          presets.set(key, {
+            name: (entry.name || "Drum Kit").substring(0, 20),
+            bank: 128,
+            program: kitId,
+            zones: []
+          });
+        }
+
+        const preset = presets.get(key);
+        for (const s of p.samples) {
+          preset.zones.push({
+            keyLow: entry.gmProgram ?? 0,   // Note drum dijadikan batas nada
+            keyHigh: entry.gmProgram ?? 0,
+            sampleIndex: s.shdrIndex,
+            loopMode: s.loopMode
+          });
+        }
+      } else {
+        // Melodic
+        const targetBank = entry.targetBank ?? 0;
+        let program = entry.gmProgram ?? -1;
+
+        if (program === -1) {
+          if (!bankProgramTracker.has(targetBank)) bankProgramTracker.set(targetBank, new Set());
+          const used = bankProgramTracker.get(targetBank);
+          program = 0;
+          while (used.has(program) && program < 128) program++;
+          used.add(program);
+        }
+
+        const key = `${targetBank}:${program}`;
+        if (!presets.has(key)) {
+          presets.set(key, {
+            name: (entry.name || "Preset").substring(0, 20),
+            bank: targetBank,
+            program: program,
+            zones: []
+          });
+        }
+
+        const preset = presets.get(key);
+        for (const s of p.samples) {
+          preset.zones.push({
+            keyLow: s.keyLow,
+            keyHigh: s.keyHigh,
+            sampleIndex: s.shdrIndex,
+            loopMode: s.loopMode
+          });
+        }
+      }
+    }
+
+    // 3. Bangun PDTA (Instrument, Bag, Generator)
+    const instHeaders = [];
+    const ibag = [];
+    const igen = [];
+    let instBagIndex = 0;
+    let instGenIndex = 0;
+
+    const phdr = [];
+    const pbag = [];
+    const pgen = [];
+
+    for (const preset of presets.values()) {
+      const instIdx = instHeaders.length;
+      instHeaders.push({
+        name: preset.name,
+        bagIdx: instBagIndex
+      });
+
+      for (const zone of preset.zones) {
+        ibag.push({ genIdx: instGenIndex, modIdx: 0 });
+        igen.push({ op: 43, amt: (zone.keyHigh << 8) | zone.keyLow }); // keyRange
+        if (zone.loopMode) igen.push({ op: 54, amt: 1 });              // sampleModes
+        igen.push({ op: 53, amt: zone.sampleIndex });                  // sampleID
+        instGenIndex = igen.length;
+      }
+
+      ibag.push({ genIdx: instGenIndex, modIdx: 0 }); // Terminal ibag
+      instBagIndex = ibag.length;
+
+      pbag.push({ genIdx: pgen.length, modIdx: 0 });
+      pgen.push({ op: 41, amt: instIdx }); // instrument
+
+      phdr.push({
+        name: preset.name,
+        program: preset.program,
+        bank: preset.bank,
+        bagIdx: pbag.length - 1
+      });
+    }
+
+    // Terminal record
+    phdr.push({ name: "EOP", program: 0, bank: 0, bagIdx: pbag.length });
+    pbag.push({ genIdx: pgen.length, modIdx: 0 });
+    pgen.push({ op: 0, amt: 0 });
+
+    instHeaders.push({ name: "EOI", bagIdx: ibag.length });
+    ibag.push({ genIdx: igen.length, modIdx: 0 });
+    igen.push({ op: 0, amt: 0 });
+
+    shdr.push({
+      name: "EOS", start: 0, end: 0, startloop: 0, endloop: 0,
+      sampleRate: 0, originalPitch: 0, pitchCorrection: 0, sampleLink: 0, sampleType: 0
+    });
+
+    // 4. Encoder Biner SF2
+    const encoder = new TextEncoder();
+
+    const makeChunk = (id, dataArray) => {
+      const size = dataArray.length;
+      const buf = new Uint8Array(8 + size + (size % 2));
+      buf.set(encoder.encode(id), 0);
+      new DataView(buf.buffer).setUint32(4, size, true);
+      buf.set(dataArray, 8);
+      return buf;
+    };
+
+    const makeList = (type, chunks) => {
+      let totalSize = 4;
+      for (const c of chunks) totalSize += c.length;
+      const buf = new Uint8Array(8 + totalSize);
+      buf.set(encoder.encode("LIST"), 0);
+      new DataView(buf.buffer).setUint32(4, totalSize, true);
+      buf.set(encoder.encode(type), 8);
+      let offset = 12;
+      for (const c of chunks) {
+        buf.set(c, offset);
+        offset += c.length;
+      }
+      return buf;
+    };
+
+    const encodePhdr = (list) => {
+      const buf = new Uint8Array(list.length * 38);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        buf.set(encoder.encode(p.name.padEnd(20, '\0').substring(0, 20)), offset); offset += 20;
+        dv.setUint16(offset, p.program, true); offset += 2;
+        dv.setUint16(offset, p.bank, true); offset += 2;
+        dv.setUint16(offset, p.bagIdx, true); offset += 2;
+        dv.setUint32(offset, 0, true); offset += 4;
+        dv.setUint32(offset, 0, true); offset += 4;
+        dv.setUint32(offset, 0, true); offset += 4;
+      }
+      return buf;
+    };
+
+    const encodePbag = (list) => {
+      const buf = new Uint8Array(list.length * 4);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        dv.setUint16(offset, p.genIdx, true); offset += 2;
+        dv.setUint16(offset, p.modIdx, true); offset += 2;
+      }
+      return buf;
+    };
+
+    const encodePmod = (list) => new Uint8Array(list.length * 10);
+
+    const encodePgen = (list) => {
+      const buf = new Uint8Array(list.length * 4);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        dv.setUint16(offset, p.op, true); offset += 2;
+        dv.setUint16(offset, p.amt, true); offset += 2;
+      }
+      return buf;
+    };
+
+    const encodeInst = (list) => {
+      const buf = new Uint8Array(list.length * 22);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        buf.set(encoder.encode(p.name.padEnd(20, '\0').substring(0, 20)), offset); offset += 20;
+        dv.setUint16(offset, p.bagIdx, true); offset += 2;
+      }
+      return buf;
+    };
+
+    const encodeShdr = (list) => {
+      const buf = new Uint8Array(list.length * 46);
+      const dv = new DataView(buf.buffer);
+      let offset = 0;
+      for (const p of list) {
+        buf.set(encoder.encode(p.name.padEnd(20, '\0').substring(0, 20)), offset); offset += 20;
+        dv.setUint32(offset, p.start, true); offset += 4;
+        dv.setUint32(offset, p.end, true); offset += 4;
+        dv.setUint32(offset, p.startloop, true); offset += 4;
+        dv.setUint32(offset, p.endloop, true); offset += 4;
+        dv.setUint32(offset, p.sampleRate, true); offset += 4;
+        dv.setUint8(offset, p.originalPitch); offset += 1;
+        dv.setInt8(offset, p.pitchCorrection); offset += 1;
+        dv.setUint16(offset, p.sampleLink, true); offset += 2;
+        dv.setUint16(offset, p.sampleType, true); offset += 2;
+      }
+      return buf;
+    };
+
+    let totalSamples = 0;
+    for (const s of sampleData) totalSamples += s.length;
+    const smplBytes = new Uint8Array(totalSamples * 2);
+    const smplDv = new DataView(smplBytes.buffer);
+    let smplOffset = 0;
+    for (const s of sampleData) {
+      for (let i = 0; i < s.length; i++) {
+        smplDv.setInt16(smplOffset, s[i], true);
+        smplOffset += 2;
+      }
+    }
+
+    const infoChunks = [];
+    const ifilBuf = new Uint8Array(4);
+    new DataView(ifilBuf.buffer).setUint16(0, 2, true);
+    new DataView(ifilBuf.buffer).setUint16(2, 1, true);
+    infoChunks.push(makeChunk("ifil", ifilBuf));
+    infoChunks.push(makeChunk("isng", encoder.encode("EMU8000\0")));
+    infoChunks.push(makeChunk("INAM", encoder.encode(project.name + "\0")));
+
+    const infoList = makeList("INFO", infoChunks);
+    const sdtaList = makeList("sdta", [makeChunk("smpl", smplBytes)]);
+
+    const pdtaChunks = [
+      makeChunk("phdr", encodePhdr(phdr)),
+      makeChunk("pbag", encodePbag(pbag)),
+      makeChunk("pmod", encodePmod([{}])),
+      makeChunk("pgen", encodePgen(pgen)),
+      makeChunk("inst", encodeInst(instHeaders)),
+      makeChunk("ibag", encodePbag(ibag)),
+      makeChunk("imod", encodePmod([{}])),
+      makeChunk("igen", encodePgen(igen)),
+      makeChunk("shdr", encodeShdr(shdr))
+    ];
+    const pdtaList = makeList("pdta", pdtaChunks);
+
+    const finalSize = 4 + infoList.length + sdtaList.length + pdtaList.length;
+    const result = new Uint8Array(8 + finalSize);
+    result.set(encoder.encode("RIFF"), 0);
+    new DataView(result.buffer).setUint32(4, finalSize, true);
+    result.set(encoder.encode("sfbk"), 8);
+
+    let offset = 12;
+    result.set(infoList, offset); offset += infoList.length;
+    result.set(sdtaList, offset); offset += sdtaList.length;
+    result.set(pdtaList, offset);
+
+    const blob = new Blob([result], { type: "audio/x-soundfont" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.name.replace(/[^\w\-]+/g, "_")}.sf2`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    showStatus(t("export_sf2_done") || "SF2 berhasil diekspor", "ok");
+  } catch (err) {
+    console.error("SF2 export error:", err);
+    showStatus(t("export_sf2_failed") || "Gagal ekspor SF2", "bad");
+  }
+}
+
 async function exportProjectWithConfig(project, patches) {
   try {
     const zipFiles = [];
@@ -3740,6 +4164,10 @@ function openBankSelectDialog() {
   const statusEl = $("bankLoadingStatus");
   
   list.innerHTML = "";
+  if (currentBankStatusElement === statusEl) {
+    currentBankStatusElement = null;
+    currentBankStatusTranslation = null;
+  }
   statusEl.style.display = "none";
   statusEl.textContent = "";
   isLoadingBank = false;
@@ -3752,22 +4180,26 @@ function openBankSelectDialog() {
     // Deteksi patch rusak: Anggap < 1024 byte sebagai file kosong/rusak
     const brokenPatches = patches.filter(p => getPatchSize(p) < MIN_PAT_SIZE);
     const hasBrokenPatch = brokenPatches.length > 0;
-    const icon = hasBrokenPatch ? `⚠️ (${brokenPatches.length} rusak)` : "";
+    const brokenLabel = hasBrokenPatch
+      ? `<span data-bank-broken-count="${brokenPatches.length}">${t("broken_patch_count", {count: brokenPatches.length})}</span>`
+      : "";
+    const patchCount = t(patches.length === 1 ? "patch_count_one" : "patch_count_many", {count: patches.length});
 
     const d = document.createElement("div");
     d.className = "li" + (bank === currentBank ? " active" : "");
     
     d.innerHTML = `
       <div class="bank-item-row ${hasBrokenPatch ? 'bank-item-broken-row' : ''}">
-        <span class="name ${hasBrokenPatch ? 'bank-broken' : ''}">Bank ${bank} ${icon}</span>
+        <span class="name ${hasBrokenPatch ? 'bank-broken' : ''}">Bank ${bank} ${hasBrokenPatch ? `⚠️ (${brokenLabel})` : ""}</span>
         <div class="bank-item-actions">
-          <span class="bank-item-info">${patches.length} patch (${sizeMB} MB)</span>
-          <button class="icon-btn bank-info-btn" data-bank="${bank}" title="Lihat Rincian">
+          <span class="bank-item-info"><span data-bank-patch-count="${patches.length}">${patchCount}</span> (${sizeMB} MB)</span>
+          <button class="icon-btn bank-info-btn" data-bank="${bank}" data-i18n-title="view_bank_details" title="${t("view_bank_details")}">
             <svg class="icon"><use href="#i-folder"></use></svg>
           </button>
         </div>
       </div>
     `;
+    localizeElement(d.querySelector(".bank-info-btn"));
     
     d.onclick = (e) => {
       if (isLoadingBank) return;
@@ -3904,7 +4336,7 @@ function deletePatchFromBreakdown(patchId, currentBank) {
       
     } catch (err) {
       console.error("Gagal menghapus patch:", err);
-      showStatus("Failed to delete patch.", "bad");
+      showStatus(t("patch_delete_failed"), "bad");
     }
   });
 }
@@ -3933,7 +4365,11 @@ async function loadBankAsync(bank, patches, statusEl) {
 
   for (let i = 0; i < patches.length; i++) {
     const p = patches[i];
-    statusEl.textContent = `Memuat patch ${i + 1}/${patches.length}: ${p.name}...`;
+    setBankStatus(statusEl, "bank_loading_patch", {
+      current: i + 1,
+      total: patches.length,
+      name: p.name
+    });
     await new Promise(resolve => setTimeout(resolve, 10));
     
     if (!patchBufferCache.has(p.id)) {
@@ -3953,7 +4389,7 @@ async function loadBankAsync(bank, patches, statusEl) {
     }
   }
 
-  statusEl.textContent = `Menerapkan Bank ${bank}...`;
+  setBankStatus(statusEl, "bank_applying", {bank});
   const ME_TONE_BANK = 15;
   let ch = 0;
   
@@ -3961,15 +4397,15 @@ async function loadBankAsync(bank, patches, statusEl) {
     if (ch >= 16) {
       isLoadingBank = false;
       statusEl.style.color = "var(--ok)";
-      statusEl.textContent = `Bank ${bank} berhasil dimuat.`;
+      setBankStatus(statusEl, "bank_loaded_success", {bank});
       
       const heavyPatches = patches.filter(p => getPatchSize(p) > 1 * 1024 * 1024);
       if (heavyPatches.length > 0 || fallbackCount > 0) {
         statusEl.style.color = "var(--bad)";
-        let msg = `<b>Perhatian:</b> `;
-        if (heavyPatches.length > 0) msg += `Ada patch >1MB. `;
-        if (fallbackCount > 0) msg += `${fallbackCount} patch rusak diganti dengan silent.`;
-        statusEl.innerHTML = msg;
+        const warningKey = heavyPatches.length > 0
+          ? (fallbackCount > 0 ? "bank_warning_heavy_and_fallback" : "bank_warning_heavy")
+          : "bank_warning_fallback";
+        setBankStatus(statusEl, warningKey, {count: fallbackCount});
       }
       return;
     }
@@ -3998,7 +4434,10 @@ function applyBankToPlayerAsync(bank, statusEl, patches) {
   
   statusEl.style.display = "block";
   statusEl.style.color = "var(--accent)";
-  statusEl.textContent = `Memuat Bank ${bank} (${patches.length} patch)...`;
+  setBankStatus(statusEl, "bank_loading", {
+    bank,
+    patches: patches.length
+  });
 
   // Cek peringatan patch berat (> 5MB)
   const heavyPatches = patches.filter(p => {
@@ -4015,11 +4454,13 @@ function applyBankToPlayerAsync(bank, statusEl, patches) {
       if (ch >= 16) {
         isLoadingBank = false;
         statusEl.style.color = "var(--ok)";
-        statusEl.textContent = `Bank ${bank} berhasil dimuat.`;
+        setBankStatus(statusEl, "bank_loaded_success", {bank});
         
         if (heavyPatches.length > 0) {
           statusEl.style.color = "var(--bad)"; // Warna merah/kuning
-          statusEl.innerHTML = `<b>Peringatan:</b> Patch berikut berukuran sangat besar (>5MB) dan dapat memperlambat browser: <br><i>${heavyPatches.map(p=>p.name).join(', ')}</i>.<br>Sebaiknya kurangi ukuran sampel atau hapus patch tersebut.`;
+          setBankStatus(statusEl, "bank_large_patch_warning", {
+            patches: heavyPatches.map(p => p.name).join(", ")
+          });
         }
         return;
       }
@@ -4029,7 +4470,7 @@ function applyBankToPlayerAsync(bank, statusEl, patches) {
       } catch (e) {
         console.warn("Error applying bank to channel", ch, e);
         statusEl.style.color = "var(--bad)";
-        statusEl.textContent = `Gagal memuat di channel ${ch}. Coba hapus patch terberat di bank ini.`;
+        setBankStatus(statusEl, "bank_channel_load_failed", {channel: ch});
         isLoadingBank = false;
         return;
       }
@@ -4066,7 +4507,7 @@ function applyBankToPlayer(bank) {
   
   const sendNext = () => {
     if (ch >= 16) {
-      showStatus(`Bank ${bank} siap`, "ok");
+      showStatus(t("bank_ready", {bank}), "ok");
       return;
     }
     try {
@@ -4079,7 +4520,7 @@ function applyBankToPlayer(bank) {
     bankSwitchTimer = setTimeout(sendNext, 50);
   };
   
-  showStatus(`Memuat Bank ${bank}...`, "ok");
+  showStatus(t("bank_loading_simple", {bank}), "ok");
   sendNext();
 }
 
@@ -4110,7 +4551,7 @@ function renderLibrary(filterProjectId = undefined) {
   const bankFilterSelect = $("libraryBankFilter");
   if (bankFilterSelect) {
     const availableBanks = [...new Set(displayPatches.map(p => p.targetBank ?? 0))].sort((a, b) => a - b);
-    let optionsHtml = `<option value="all">Semua Bank</option>`;
+    let optionsHtml = `<option value="all">${t("all_banks")}</option>`;
     availableBanks.forEach(b => {
       optionsHtml += `<option value="${b}">Bank ${b}</option>`;
     });
@@ -4291,6 +4732,7 @@ function renderProjects() {
     $("btnImportSoundfont").disabled = true;
     $("btnDeleteProject").disabled = true;
     $("btnExportProject").disabled = true;
+    $("btnExportProjectSf2").disabled = true;
     return;
   }
   state.projects.forEach(proj => {
@@ -4322,6 +4764,7 @@ function renderProjects() {
   $("btnImportSoundfont").disabled = !hasActive;
   $("btnDeleteProject").disabled = !hasActive;
   $("btnExportProject").disabled = !hasActive;
+  $("btnExportProjectSf2").disabled = !hasActive;
 }
 
 function render(save=true){
@@ -5209,7 +5652,7 @@ async function readZip(arrayBuffer) {
       eocdOffset = i; break;
     }
   }
-  if (eocdOffset === -1) throw new Error("Format ZIP tidak valid");
+  if (eocdOffset === -1) throw new Error("Invalid zip format");
 
   const cdEntries = view.getUint16(eocdOffset + 10, true);
   let cdOffset = view.getUint32(eocdOffset + 16, true);
@@ -5237,7 +5680,7 @@ async function readZip(arrayBuffer) {
 async function extractFile(zip, file) {
   const { bytes, view } = zip;
   const off = file.localOffset;
-  if (view.getUint32(off, true) !== 0x04034b50) throw new Error("Header lokal ZIP tidak valid");
+  if (view.getUint32(off, true) !== 0x04034b50) throw new Error("Invalid zip header");
   const nameLen = view.getUint16(off + 26, true);
   const extraLen = view.getUint16(off + 28, true);
   const dataOffset = off + 30 + nameLen + extraLen;
@@ -5248,13 +5691,13 @@ async function extractFile(zip, file) {
     return compData.buffer;
   } else if (file.method === 8) {
     if (typeof DecompressionStream === 'undefined') {
-      throw new Error("Browser Anda tidak mendukung DecompressionStream (Deflate). Gunakan browser modern.");
+      throw new Error("Your browser does not support DecompressionStream (Deflate). Please use a modern browser.");
     }
     const ds = new DecompressionStream('deflate-raw');
     const stream = new Blob([compData]).stream().pipeThrough(ds);
     return await new Response(stream).arrayBuffer();
   }
-  throw new Error("Metode kompresi ZIP tidak didukung: " + file.method);
+  throw new Error("Unsupported ZIP compression method: " + file.method);
 }
 
 function normalizePath(p) {
@@ -5988,7 +6431,7 @@ async function midiJsInstrumentToEntry(parsed, fileName, decodeCtx, onProgress) 
     try {
       decoded = await decodeBase64AudioToMono16(b64, decodeCtx);
     } catch (err) {
-      console.warn(`[MIDI.js] Gagal decode note ${name}:`, err);
+      console.warn(`[MIDI.js] Failed to decode note ${name}:`, err);
       continue;
     }
     // Beri napas ke UI setiap beberapa note
@@ -6763,6 +7206,21 @@ function bind(){
   });
   $("midiUsedPatchesDialog").addEventListener("keydown", e => {
     if (e.key === "Escape") closeMidiUsedPatchesDialog();
+  });
+
+  // Tambahkan di dalam bind()
+  $("btnExportProjectSf2").addEventListener("click", async () => {
+    const project = state.projects.find(p => p.id === state.currentProjectId);
+    if (!project) return;
+    
+    // Ekspor semua patch di proyek
+    const patches = getProjectPatchEntries();
+    if (patches.length === 0) {
+      showStatus(t("empty_project"), "bad");
+      return;
+    }
+    
+    await exportProjectToSF2(project, patches);
   });
   
 
