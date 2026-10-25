@@ -20,6 +20,8 @@ let localePacks = {};
 let lastTranslation = null;
 let currentStatusTranslation = null;
 let currentMidiStatusTranslation = null;
+let currentBankStatusTranslation = null;
+let currentBankStatusElement = null;
 let currentBank = 0;
 
 function t(key, values = {}) {
@@ -129,6 +131,13 @@ function setLanguage(nextLocale) {
   applyLocalization();
   document.querySelectorAll("[data-i18n-content], [data-i18n-title], [data-i18n-placeholder], [data-i18n-aria-label]")
     .forEach(localizeElement);
+  document.querySelectorAll("[data-bank-patch-count]").forEach(element => {
+    const count = Number(element.dataset.bankPatchCount);
+    element.textContent = t(count === 1 ? "patch_count_one" : "patch_count_many", {count});
+  });
+  document.querySelectorAll("[data-bank-broken-count]").forEach(element => {
+    element.textContent = t("broken_patch_count", {count: Number(element.dataset.bankBrokenCount)});
+  });
   if ($("newProjectDialog") && !$("newProjectDialog").hidden && $("newProjectName").value === defaultProjectName) {
     $("newProjectName").value = t("create_project_default", {number: state.projects.length + 1});
   }
@@ -143,6 +152,9 @@ function setLanguage(nextLocale) {
   }
   if (currentMidiStatusTranslation) {
     $("midiStatus").textContent = t(currentMidiStatusTranslation.key, currentMidiStatusTranslation.values);
+  }
+  if (currentBankStatusTranslation && currentBankStatusElement?.isConnected) {
+    currentBankStatusElement.textContent = t(currentBankStatusTranslation.key, currentBankStatusTranslation.values);
   }
   if (pendingProjectDeletionId) {
     const project = state.projects.find(entry => entry.id === pendingProjectDeletionId);
@@ -206,6 +218,11 @@ function showStatus(m,k){
 function setMidiStatus(key, values = {}) {
   currentMidiStatusTranslation = {key, values};
   $("midiStatus").textContent = t(key, values);
+}
+function setBankStatus(statusEl, key, values = {}) {
+  currentBankStatusElement = statusEl;
+  currentBankStatusTranslation = {key, values};
+  statusEl.textContent = t(key, values);
 }
 function fmtBytes(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -3740,6 +3757,10 @@ function openBankSelectDialog() {
   const statusEl = $("bankLoadingStatus");
   
   list.innerHTML = "";
+  if (currentBankStatusElement === statusEl) {
+    currentBankStatusElement = null;
+    currentBankStatusTranslation = null;
+  }
   statusEl.style.display = "none";
   statusEl.textContent = "";
   isLoadingBank = false;
@@ -3752,22 +3773,26 @@ function openBankSelectDialog() {
     // Deteksi patch rusak: Anggap < 1024 byte sebagai file kosong/rusak
     const brokenPatches = patches.filter(p => getPatchSize(p) < MIN_PAT_SIZE);
     const hasBrokenPatch = brokenPatches.length > 0;
-    const icon = hasBrokenPatch ? `⚠️ (${brokenPatches.length} rusak)` : "";
+    const brokenLabel = hasBrokenPatch
+      ? `<span data-bank-broken-count="${brokenPatches.length}">${t("broken_patch_count", {count: brokenPatches.length})}</span>`
+      : "";
+    const patchCount = t(patches.length === 1 ? "patch_count_one" : "patch_count_many", {count: patches.length});
 
     const d = document.createElement("div");
     d.className = "li" + (bank === currentBank ? " active" : "");
     
     d.innerHTML = `
       <div class="bank-item-row ${hasBrokenPatch ? 'bank-item-broken-row' : ''}">
-        <span class="name ${hasBrokenPatch ? 'bank-broken' : ''}">Bank ${bank} ${icon}</span>
+        <span class="name ${hasBrokenPatch ? 'bank-broken' : ''}">Bank ${bank} ${hasBrokenPatch ? `⚠️ (${brokenLabel})` : ""}</span>
         <div class="bank-item-actions">
-          <span class="bank-item-info">${patches.length} patch (${sizeMB} MB)</span>
-          <button class="icon-btn bank-info-btn" data-bank="${bank}" title="Lihat Rincian">
+          <span class="bank-item-info"><span data-bank-patch-count="${patches.length}">${patchCount}</span> (${sizeMB} MB)</span>
+          <button class="icon-btn bank-info-btn" data-bank="${bank}" data-i18n-title="view_bank_details" title="${t("view_bank_details")}">
             <svg class="icon"><use href="#i-folder"></use></svg>
           </button>
         </div>
       </div>
     `;
+    localizeElement(d.querySelector(".bank-info-btn"));
     
     d.onclick = (e) => {
       if (isLoadingBank) return;
@@ -3904,7 +3929,7 @@ function deletePatchFromBreakdown(patchId, currentBank) {
       
     } catch (err) {
       console.error("Gagal menghapus patch:", err);
-      showStatus("Failed to delete patch.", "bad");
+      showStatus(t("patch_delete_failed"), "bad");
     }
   });
 }
@@ -3933,7 +3958,11 @@ async function loadBankAsync(bank, patches, statusEl) {
 
   for (let i = 0; i < patches.length; i++) {
     const p = patches[i];
-    statusEl.textContent = `Memuat patch ${i + 1}/${patches.length}: ${p.name}...`;
+    setBankStatus(statusEl, "bank_loading_patch", {
+      current: i + 1,
+      total: patches.length,
+      name: p.name
+    });
     await new Promise(resolve => setTimeout(resolve, 10));
     
     if (!patchBufferCache.has(p.id)) {
@@ -3953,7 +3982,7 @@ async function loadBankAsync(bank, patches, statusEl) {
     }
   }
 
-  statusEl.textContent = `Menerapkan Bank ${bank}...`;
+  setBankStatus(statusEl, "bank_applying", {bank});
   const ME_TONE_BANK = 15;
   let ch = 0;
   
@@ -3961,15 +3990,15 @@ async function loadBankAsync(bank, patches, statusEl) {
     if (ch >= 16) {
       isLoadingBank = false;
       statusEl.style.color = "var(--ok)";
-      statusEl.textContent = `Bank ${bank} berhasil dimuat.`;
+      setBankStatus(statusEl, "bank_loaded_success", {bank});
       
       const heavyPatches = patches.filter(p => getPatchSize(p) > 1 * 1024 * 1024);
       if (heavyPatches.length > 0 || fallbackCount > 0) {
         statusEl.style.color = "var(--bad)";
-        let msg = `<b>Perhatian:</b> `;
-        if (heavyPatches.length > 0) msg += `Ada patch >1MB. `;
-        if (fallbackCount > 0) msg += `${fallbackCount} patch rusak diganti dengan silent.`;
-        statusEl.innerHTML = msg;
+        const warningKey = heavyPatches.length > 0
+          ? (fallbackCount > 0 ? "bank_warning_heavy_and_fallback" : "bank_warning_heavy")
+          : "bank_warning_fallback";
+        setBankStatus(statusEl, warningKey, {count: fallbackCount});
       }
       return;
     }
@@ -3998,7 +4027,10 @@ function applyBankToPlayerAsync(bank, statusEl, patches) {
   
   statusEl.style.display = "block";
   statusEl.style.color = "var(--accent)";
-  statusEl.textContent = `Memuat Bank ${bank} (${patches.length} patch)...`;
+  setBankStatus(statusEl, "bank_loading", {
+    bank,
+    patches: patches.length
+  });
 
   // Cek peringatan patch berat (> 5MB)
   const heavyPatches = patches.filter(p => {
@@ -4015,11 +4047,13 @@ function applyBankToPlayerAsync(bank, statusEl, patches) {
       if (ch >= 16) {
         isLoadingBank = false;
         statusEl.style.color = "var(--ok)";
-        statusEl.textContent = `Bank ${bank} berhasil dimuat.`;
+        setBankStatus(statusEl, "bank_loaded_success", {bank});
         
         if (heavyPatches.length > 0) {
           statusEl.style.color = "var(--bad)"; // Warna merah/kuning
-          statusEl.innerHTML = `<b>Peringatan:</b> Patch berikut berukuran sangat besar (>5MB) dan dapat memperlambat browser: <br><i>${heavyPatches.map(p=>p.name).join(', ')}</i>.<br>Sebaiknya kurangi ukuran sampel atau hapus patch tersebut.`;
+          setBankStatus(statusEl, "bank_large_patch_warning", {
+            patches: heavyPatches.map(p => p.name).join(", ")
+          });
         }
         return;
       }
@@ -4029,7 +4063,7 @@ function applyBankToPlayerAsync(bank, statusEl, patches) {
       } catch (e) {
         console.warn("Error applying bank to channel", ch, e);
         statusEl.style.color = "var(--bad)";
-        statusEl.textContent = `Gagal memuat di channel ${ch}. Coba hapus patch terberat di bank ini.`;
+        setBankStatus(statusEl, "bank_channel_load_failed", {channel: ch});
         isLoadingBank = false;
         return;
       }
@@ -4066,7 +4100,7 @@ function applyBankToPlayer(bank) {
   
   const sendNext = () => {
     if (ch >= 16) {
-      showStatus(`Bank ${bank} siap`, "ok");
+      showStatus(t("bank_ready", {bank}), "ok");
       return;
     }
     try {
@@ -4079,7 +4113,7 @@ function applyBankToPlayer(bank) {
     bankSwitchTimer = setTimeout(sendNext, 50);
   };
   
-  showStatus(`Memuat Bank ${bank}...`, "ok");
+  showStatus(t("bank_loading_simple", {bank}), "ok");
   sendNext();
 }
 
@@ -4110,7 +4144,7 @@ function renderLibrary(filterProjectId = undefined) {
   const bankFilterSelect = $("libraryBankFilter");
   if (bankFilterSelect) {
     const availableBanks = [...new Set(displayPatches.map(p => p.targetBank ?? 0))].sort((a, b) => a - b);
-    let optionsHtml = `<option value="all">Semua Bank</option>`;
+    let optionsHtml = `<option value="all">${t("all_banks")}</option>`;
     availableBanks.forEach(b => {
       optionsHtml += `<option value="${b}">Bank ${b}</option>`;
     });
