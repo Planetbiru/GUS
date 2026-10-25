@@ -173,6 +173,7 @@ const state = {
   libraryView: "project",
   libraryBankFilter: "all",
   libraryTypeFilter: "all",
+  libraryNameFilter: "",
   midiData: null,
   midiFileName: null,
   midiUsedPatches: new Map(),
@@ -2040,7 +2041,6 @@ function scheduleSave(){
   state.saveTimer=setTimeout(async()=>{
     const entry=state.patches.find(p=>p.id===state.currentPatchId);
     if(!entry)return;
-    entry.name=(state.patch.header.description||entry.name||t("patch")).substring(0,64);
     try{
       await dbPutMany(STORE, [cleanEntryForStorage(entry)]);
     }catch(err){
@@ -2272,7 +2272,7 @@ async function handleProjectPatchFile(e) {
     const patch = parsePAT(bytes);
     const entry = {
       id: uid("pat"),
-      name: (file.name.replace(/\.pat$/i, "") || patch.header.description).substring(0, 64),
+      name: getPatchDisplayName(patch, file.name.replace(/\.pat$/i, "")),
       source: "pat",
       gmProgram: -1,
       gmBank: 0,
@@ -2669,7 +2669,13 @@ async function exportProjectWithConfig(project, patches) {
       const kind = isDrum ? "drum" : "tone";
       const folderPath = `${groupId}/${kind}/`;
 
-      let filename = sanitizeFilename(entry.name) + ".pat";
+      // Gunakan getPatchDisplayName untuk mengambil nama paling baru
+      const exportName = getPatchDisplayName(entry.patch, entry.name);
+      const programNum = (entry.gmProgram >= 0 && entry.gmProgram <= 127) ? entry.gmProgram : 0;
+      const programPrefix = String(programNum).padStart(3, "0");
+      
+      let filename = `${programPrefix}_${sanitizeFilename(exportName)}.pat`;
+
       let suffix = 1;
       const original = filename;
       while (usedPaths.has(folderPath + filename)) {
@@ -2690,7 +2696,7 @@ async function exportProjectWithConfig(project, patches) {
 
     const manifestData = zipFiles.map(zf => ({
       filename: zf.name,
-      patchName: zf.entry.name,
+      patchName: getPatchDisplayName(zf.entry.patch, zf.entry.name),
       gmProgram: zf.entry.gmProgram ?? -1,
       originalOrder: zf.entry.originalOrder ?? 0,
       userOrder: zf.entry.userOrder ?? 0,
@@ -3511,7 +3517,7 @@ async function exportAllPatches(){
     const bankMap = new Map(uniqueBanks.map((id, idx) => [id, idx]));
     // ==========================================
 
-    for (const entry of state.patches) {
+        for (const entry of state.patches) {
       const clean = cleanPatchForStorage(entry.patch);
       const bytes = writePAT(clean);
 
@@ -3523,7 +3529,15 @@ async function exportAllPatches(){
       const kind = isDrum ? "drum" : "tone";
       const folderPath = `${groupId}/${kind}/`;
 
-      let filename = sanitizeFilename(entry.name) + ".pat";
+      // Gunakan getPatchDisplayName untuk mengambil nama paling baru
+      const exportName = getPatchDisplayName(entry.patch, entry.name);
+      const programNum = (entry.gmProgram >= 0 && entry.gmProgram <= 127) ? entry.gmProgram : 0;
+      const programPrefix = String(programNum).padStart(3, "0");
+      
+      let filename = `${programPrefix}_${sanitizeFilename(exportName)}.pat`;
+
+      // ======================================
+
       let suffix = 1;
       let original = filename;
       while (usedPaths.has(folderPath + filename)) {
@@ -3547,7 +3561,7 @@ async function exportAllPatches(){
 
     const manifestData = zipFiles.map(zf => ({
       filename: zf.name,
-      patchName: zf.entry.name,
+      patchName: getPatchDisplayName(zf.entry.patch, zf.entry.name),
       gmBank: zf.entry.gmBank ?? 0,
       gmProgram: zf.entry.gmProgram ?? -1,
       drumSet: zf.entry.drumSet,
@@ -4097,6 +4111,21 @@ function renderLibrary(filterProjectId = undefined) {
     displayPatches = displayPatches.filter(p => {
       const pIsDrum = (p.gmBank ?? 0) === 128;
       return pIsDrum === isDrumFilter;
+    });
+  }
+  // ================================
+
+  // === FITUR FILTER NAMA (BARU) ===
+  const nameFilterInput = $("libraryNameFilter");
+  if (nameFilterInput) {
+    nameFilterInput.value = state.libraryNameFilter;
+  }
+  if (state.libraryNameFilter && state.libraryNameFilter.trim() !== "") {
+    const searchStr = state.libraryNameFilter.toLowerCase().trim();
+    displayPatches = displayPatches.filter(p => {
+      const patchName = (p.name || "").toLowerCase();
+      const patchDesc = (p.patch?.header?.description || "").toLowerCase();
+      return patchName.includes(searchStr) || patchDesc.includes(searchStr);
     });
   }
   // ================================
@@ -5378,7 +5407,7 @@ function handleFileOpen(e) {
         const patch = parsePAT(ab);
         const entry = {
           id: uid("pat"),
-          name: (file.name.replace(/\.pat$/i, "") || patch.header.description).substring(0, 64),
+          name: getPatchDisplayName(patch, file.name.replace(/\.pat$/i, "")),
           source: "pat",
           gmProgram: -1,
           gmBank: 0,
@@ -6351,10 +6380,14 @@ function bind(){
       const entry=state.patches.find(p=>p.id===state.currentPatchId);
       
       if(entry){ 
-          entry.name = state.patch.header.description || t("unnamed");  // bukan t("patch")
-          renderLibrary(); 
+          // Hanya update entry.name dari deskripsi JIKA instrumen tidak punya nama
+          const hasInstName = state.patch.instruments.length === 1 && state.patch.instruments[0].name?.trim();
+          if (!hasInstName) {
+              entry.name = state.patch.header.description || t("unnamed");
+              $("patchNameSide").textContent = entry.name;
+              renderLibrary(); 
+          }
       }
-      $("patchNameSide").textContent = entry?.name || t("unnamed");
       scheduleSave();
   });
   $("pMasterVolume").addEventListener("change",e=>{
@@ -6393,6 +6426,17 @@ function bind(){
     $("instTitle").textContent=inst.name||t("instrument_default");
     const items=$("instrumentList").children;
     if(items[state.selInst])items[state.selInst].querySelector(".name").textContent=inst.name||t("unnamed");
+    
+    // SINKRONISASI BARU: Jika patch ini hanya punya 1 instrumen, update entry.name
+    if (state.patch.instruments.length === 1) {
+        const entry = state.patches.find(p=>p.id===state.currentPatchId);
+        if (entry) {
+            entry.name = inst.name || t("unnamed");
+            $("patchNameSide").textContent = entry.name;
+            renderLibrary();
+        }
+    }
+    
     scheduleSave();
   });
 
@@ -6655,6 +6699,11 @@ function bind(){
   // TAMBAHKAN EVENT LISTENER INI
   $("libraryTypeFilter").addEventListener("change", (e) => {
     state.libraryTypeFilter = e.target.value;
+    renderLibrary();
+  });
+
+  $("libraryNameFilter").addEventListener("input", (e) => {
+    state.libraryNameFilter = e.target.value;
     renderLibrary();
   });
 

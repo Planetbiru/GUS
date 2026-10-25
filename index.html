@@ -270,6 +270,11 @@
           <option value="drum">{{drum_kit_only}}</option>
         </select>
 
+        <!-- INPUT BARU UNTUK FILTER NAMA -->
+        <input type="text" id="libraryNameFilter" 
+               style="width:100%; margin-bottom:6px; font-size:11px; padding:4px; border-radius:4px; background:var(--panel); color:var(--text); border:1px solid var(--line);" 
+               placeholder="{{search_patch_name}}" data-i18n-placeholder="search_patch_name">
+
         <div class="list" id="patchList" style="max-height:200px"></div>
         <div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn small" id="btnExportAll" style="flex:1"><svg class="icon">

@@ -418,5 +418,6 @@
   "all_banks": "All Banks",
   "all_types": "All Types",
   "melodic_only": "Melodic Only",
-  "drum_kit_only": "Drum Kit Only"
+  "drum_kit_only": "Drum Kit Only",
+  "search_patch_name": "Search patch name..."
 }
