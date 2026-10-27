@@ -3448,22 +3448,16 @@ async function ensureTimidityPlayer() {
       if (!state.currentProjectId) return "";
       const project = state.projects.find(p => p.id === state.currentProjectId);
       if (!project) return "";
-      // Teruskan currentBank: null = semua bank; angka = filter bank tersebut
-      return generateProjectTimidityCfg(project, currentBank);
+      // SELALU hasilkan cfg untuk semua bank, abaikan currentBank
+      return generateProjectTimidityCfg(project, null);
     },
     instrumentLoader: (bank, isDrum, program, file) => {
-      // KRITIS: jika filter aktif, cfg berbunyi "bank 0" tapi patch aslinya
-      // berada di targetBank = currentBank. Gunakan currentBank untuk lookup.
-      const effectiveBank = (currentBank !== null) ? currentBank : bank;
-      return getProjectPatchData(effectiveBank, isDrum, program, file);
+      // Gunakan 'bank' langsung dari engine, bukan currentBank
+      return getProjectPatchData(bank, isDrum, program, file);
     },
     bufferSize: 4096,
     sampleRate: 96000
   });
-
-  // HAPUS callback onPlay yang lama (applyBankToPlayer(currentBank)).
-  // Bank sudah di-bake ke cfg saat init, jadi tidak perlu diterapkan saat play.
-  // timidityPlayer.onPlay(() => { applyBankToPlayer(currentBank); });  ← HAPUS
 
   timidityPlayer.onError((err) => {
     console.error("TiMidity Error:", err);
@@ -4517,44 +4511,62 @@ function closeBankBreakdownDialog() {
 
 let applyBankGeneration = 0;
 
+/**
+ * Ganti bank instrumen secara real-time pada semua channel MIDI
+ * tanpa menghentikan playback.
+ *
+ * @param {number} bank - Target bank number yang akan diterapkan.
+ */
 async function applyBankToPlayer(bank) {
+  // Gunakan generation untuk mencegah race condition jika dipanggil cepat
   const generation = ++applyBankGeneration;
 
-  // Simpan state playback untuk resume
-  const wasPlaying = midiProgress.playing;
-  const wasPaused = midiProgress.paused;
-  const resumeTime = midiProgress.current;
-
-  // Set bank filter (null = tanpa filter, angka = filter bank tersebut)
+  // 1. Set state global
   currentBank = bank;
 
-  // Hentikan playback yang sedang berjalan
-  if (timidityPlayer) {
-    try { timidityPlayer.stop(); } catch (e) {}
-  }
-  cancelAnimationFrame(midiProgress.raf);
-  midiProgress.playing = false;
-  midiProgress.paused = false;
+  // 2. Pastikan player sudah siap. Jika belum, inisialisasi.
+  //    (init hanya terjadi sekali; pemanggilan berikutnya akan return early)
+  await ensureTimidityPlayer();
 
-  // Shutdown engine (cache buffer .pat dipertahankan — isinya sama)
-  invalidateTimidityPlayer(false);
-
-  // Superseded oleh pemanggilan yang lebih baru?
+  // Cek apakah ada panggilan yang lebih baru yang menggantikan kita
   if (generation !== applyBankGeneration) return;
+
+  // Jika tidak ada MIDI yang sedang dimuat/diputar, tidak ada yang perlu di-swap.
+  if (!state.midiData) {
+    showStatus(t("bank_ready", { bank }), "ok");
+    return;
+  }
 
   showStatus(t("bank_loading_simple", { bank }), "ok");
 
   try {
-    // Reinit player; timidityCfgLoader akan menggunakan currentBank
-    await ensureTimidityPlayer();
+
+    // 3. Iterasi semua 16 channel MIDI
+    for (let ch = 0; ch < 16; ch++) {
+      // tick terus berjalan karena proses secara keseluruhan mungkin memerlukan waktu cukup lama
+      const tick = timidityPlayer.getCurrentTick();
+      // Dapatkan program yang aktif pada channel ini di tick saat ini
+      const program = timidityPlayer.getProgram(ch, tick);
+
+      // -1 berarti tidak ada program change yang valid untuk channel ini.
+      // Lewati channel tanpa program.
+      if (program === -1) continue;
+
+      // 4. Muat instrumen baru ke engine untuk channel ini.
+      //    Karena instrumentLoader kita sudah menggunakan 'bank' dari argumen,
+      //    patch yang benar akan diambil dan di-cache.
+      await timidityPlayer.loadInstrumentForSong(ch, program, bank);
+
+      // 5. Kirim event bank & program agar engine langsung menerapkan
+      //    instrumen baru pada playback yang sedang berjalan.
+      timidityPlayer.sendEvent(timidityPlayer.ME_TONE_BANK, ch, bank);
+      timidityPlayer.sendEvent(timidityPlayer.ME_PROGRAM, ch, program);
+    }
+
+    // Cek lagi apakah kita masih relevan setelah semua proses async
     if (generation !== applyBankGeneration) return;
 
-    // Resume jika sebelumnya sedang playing/paused
-    if ((wasPlaying || wasPaused) && state.midiData) {
-      await playMidi(resumeTime);
-    } else {
-      showStatus(t("bank_ready", { bank }), "ok");
-    }
+    showStatus(t("bank_ready", { bank }), "ok");
   } catch (err) {
     if (generation !== applyBankGeneration) return;
     console.error("applyBankToPlayer error:", err);
