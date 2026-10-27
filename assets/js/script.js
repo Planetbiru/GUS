@@ -22,7 +22,7 @@ let currentStatusTranslation = null;
 let currentMidiStatusTranslation = null;
 let currentBankStatusTranslation = null;
 let currentBankStatusElement = null;
-let currentBank = 0;
+let currentBank = null;
 
 function t(key, values = {}) {
   const template = translations[key];
@@ -364,6 +364,41 @@ function cleanEntryForStorage(entry){
   };
 }
 
+function capSampleRateTo65535(sample) {
+  if (!sample.sampleRate || sample.sampleRate <= 65535) return sample;
+  const is16 = (sample.modes & M16) !== 0;
+  const targetRate = sample.sampleRate > 48000 ? 44100 : 48000;
+  const resampled = resamplePcmTo(sample.pcm, sample.sampleRate, targetRate, is16);
+  if (!resampled) {
+    // fallback: paksa rate (lebih baik daripada clamp korup)
+    sample.sampleRate = targetRate;
+    return sample;
+  }
+  const bps = is16 ? 2 : 1;
+  const ratio = targetRate / sample.sampleRate;
+  const wasLoop = (sample.modes & MLOOP) !== 0;
+  const oldStart = sample.loopStart;
+  const oldEnd = sample.loopEnd;
+  sample.pcm = resampled;
+  sample.dataSize = sample.pcm.length;
+  sample.sampleRate = targetRate;
+  sample._float = null;
+  if (wasLoop) {
+    const total = sample.pcm.length;
+    let ns = clamp(Math.round(oldStart * ratio), 0, total);
+    let ne = clamp(Math.round(oldEnd * ratio), 0, total);
+    if (ne > ns && (ne - ns) >= 4 * bps) {
+      sample.loopStart = ns;
+      sample.loopEnd = ne;
+    } else {
+      sample.modes &= ~MLOOP;
+      sample.loopStart = 0;
+      sample.loopEnd = 0;
+    }
+  }
+  return sample;
+}
+
 /* ---------- Parse PAT ---------- */
 function parsePAT(ab){
   const bytes=new Uint8Array(ab), dv=new DataView(ab); let p=0;
@@ -395,11 +430,14 @@ function parsePAT(ab){
         let srRaw = u16();
         const stdRates = [8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 96000];
         if (!stdRates.includes(srRaw)) {
+          // Perbaikan bug biola
           // Heuristic: jika bukan rate standar, kemungkinan file lama (period ns)
           const converted = Math.round(1e9 / srRaw);
-          if (stdRates.includes(converted) || (converted > 8000 && converted < 192000)) {
+            if (stdRates.includes(converted)) {
               srRaw = converted;
-          }
+            } else if (srRaw < 4000) {
+              srRaw = converted;
+            }
         }
         const sampleRate = srRaw;
         const lowFreq=u32();
@@ -461,7 +499,15 @@ function writePAT(patch){
       w8(layer.duplicate); w8(layer.layer); w32(layer.layerSize); w8(layer.samples.length); wB(layer.reserved,40);
       for(const s of layer.samples){
         wS(s.name,7); w8(s.fractions); w32(s.pcm.length); w32(s.loopStart); w32(s.loopEnd);
-        w16(clamp(s.sampleRate || 22050, 1, 65535));  
+        
+        // Perbaikan bug biola
+        let outRate = s.sampleRate || 22050;
+        if (outRate > 65535) {
+          console.warn(`[writePAT] Sample "${s.name}" rate ${outRate} melebihi u16; clamp ke 65535.`);
+          outRate = 65535;
+        }
+        w16(outRate);
+        
         w32(s.lowFreq); w32(s.highFreq); w32(s.rootFreq);
         w16(s.tune); w8(s.balance);
         for(let i=0;i<6;i++)w8(s.envRates[i]??0);
@@ -743,8 +789,8 @@ function sf2ToGusPatches(sf2, fileName){
     return range?[range.amt&0xff,(range.amt>>8)&0xff]:[0,127];
   }
 
-  function convertSample(sIdx, overrideRoot, coarseSemis, fineCents, keyLow, keyHigh){
-    const cacheKey = `${sIdx}_${overrideRoot}_${coarseSemis}_${fineCents}_${keyLow}_${keyHigh}`;
+  function convertSample(sIdx, overrideRoot, coarseSemis, fineCents, keyLow, keyHigh, loopFromZone){
+    const cacheKey = `${sIdx}_${overrideRoot}_${coarseSemis}_${fineCents}_${keyLow}_${keyHigh}_${loopFromZone}`;
     let cached = sampleCache.get(cacheKey);
     
     if (!cached) {
@@ -756,7 +802,9 @@ function sf2ToGusPatches(sf2, fileName){
       const pcm = smplData.slice(startByte, endByte); 
       const start=sh.dwStart, end=endByte / 2;
       const loopStartSmp=sh.dwStartloop-start, loopEndSmp=sh.dwEndloop-start;
-      const hasLoop=(sh.sfSampleType&1)&&loopEndSmp>loopStartSmp&&loopStartSmp>=0;
+      const hasLoop = loopFromZone === true
+        && loopEndSmp > loopStartSmp
+        && loopStartSmp >= 0;
 
       let rootNote = (overrideRoot !== undefined && overrideRoot > 0 && overrideRoot < 128)
                ? overrideRoot
@@ -770,8 +818,22 @@ function sf2ToGusPatches(sf2, fileName){
       const lowFreq=Math.floor(440*Math.pow(2,(keyLow-69)/12)*1000);
       const highFreq=Math.ceil(440*Math.pow(2,(keyHigh-69)/12)*1000);
 
-      let modes=M16;
-      if(hasLoop) modes|=MLOOP;
+      let modes = M16;
+      let envRates   = [0, 0, 0, 0, 0, 0];
+      let envOffsets = [255, 255, 255, 0, 0, 0];
+
+      if (hasLoop) {
+        modes |= MLOOP;
+
+        // FIX: tanpa MENV, TiMidity mengabaikan envRates/envOffsets dan memutar
+        // sampel loop selamanya setelah note-off → "reverb panjang".
+        modes |= MENV;
+
+        // Envelope default ringan: attack ~10ms, sustain 100%, release ~148ms.
+        // Nilai rate mengikuti kurva gusEnvMs().
+        envRates   = [9, 0, 0, 69, 0, 0];
+        envOffsets = [255, 255, 255, 0, 0, 0];
+      }
 
       const safeName=(sh.name||"SMP").replace(/[^\x20-\x7E]/g,"").trim().substring(0,7)||"SMP";
 
@@ -781,7 +843,8 @@ function sf2ToGusPatches(sf2, fileName){
         sampleRate:clamp(sh.dwSampleRate||22050,1,192000),
         lowFreq, highFreq,
         rootFreq, tune:0, balance:7,
-        envRates:[0,0,0,0,0,0], envOffsets:[255,255,255,0,0,0],
+        envRates,
+        envOffsets,
         tremoloSweep:0,tremoloRate:0,tremoloDepth:0,
         vibratoSweep:0,vibratoRate:0,vibratoDepth:0,
         modes, scaleFreq: rootNote, scaleFactor:1024,
@@ -838,14 +901,24 @@ function sf2ToGusPatches(sf2, fileName){
         const sampGen=findGen(igens,53);
         if(!sampGen)continue;
 
+        // Baca generator sampleModes (op 54) — sumber kebenaran loop
+        const sampleModesGen = findGen(igens, 54);
+        const loopFromZone = sampleModesGen ? (sampleModesGen.amt & 0x03) !== 0 : false;
+
         const rootKeyGen=findGen(igens,58);
         const coarseGen=findGen(igens,51);
         const fineGen=findGen(igens,52);
         const coarseSemis=coarseGen?s16(coarseGen.amt):0;
         const fineCents=fineGen?s16(fineGen.amt):0;
 
-        const gusSample=convertSample(sampGen.amt, rootKeyGen?rootKeyGen.amt:undefined, coarseSemis, fineCents, keyLow, keyHigh);
-        if(!gusSample)continue;
+        const gusSample=convertSample(
+          sampGen.amt,
+          rootKeyGen?rootKeyGen.amt:undefined,
+          coarseSemis, fineCents,
+          keyLow, keyHigh,
+          loopFromZone                       // <-- parameter ke-7 (BARU)
+        );
+        if(!gusSample) continue;
 
         layers.push({
           duplicate:0, layer:layers.length, layerSize:0,
@@ -893,10 +966,10 @@ function sf2ToGusPatches(sf2, fileName){
       const sampGen = findGen(igens, 53);
       if (!sampGen) continue;
 
-      // (2) Baca key range dari instrument level (igen 43) — PERBAIKAN UTAMA
-      const [instKeyLow, instKeyHigh] = getKeyRange(igens);
+      const sampleModesGen = findGen(igens, 54);
+      const loopFromZone = sampleModesGen ? (sampleModesGen.amt & 0x03) !== 0 : false;
 
-      // (3) Intersect kedua range (persis seperti di PHP)
+      const [instKeyLow, instKeyHigh] = getKeyRange(igens);
       const keyLo = Math.max(presetKeyLow, instKeyLow);
       const keyHi = Math.min(presetKeyHigh, instKeyHigh);
       if (keyLo > keyHi) continue;
@@ -911,7 +984,8 @@ function sf2ToGusPatches(sf2, fileName){
         sampGen.amt,
         rootGen ? rootGen.amt : undefined,
         coarseSemis, fineCents,
-        keyLo, keyHi
+        keyLo, keyHi,
+        loopFromZone                       // <-- parameter ke-7 (BARU)
       );
       if (!sample) continue;
       zones.push({ keyLo, keyHi, sample, sampIdx: sampGen.amt });
@@ -2071,6 +2145,7 @@ async function confirmClearLibrary(){
     state.patches=[];
     state.currentPatchId=null;
     state.patch=null;
+    currentBank = null;
     state.midiUsedPatches.clear();
     closeClearLibraryDialog(true);
     render();
@@ -2118,6 +2193,7 @@ async function createProject(name) {
   await saveProject(project);
   state.projects.push(project);
   state.currentProjectId = project.id;
+  currentBank = null; 
   state.libraryView = "project";
   invalidateTimidityPlayer();
   renderProjects();
@@ -2558,6 +2634,11 @@ function writeTimidityPatch(patch) {
     throw new Error(t("too_many_samples", {count: samples.length}));
   }
 
+  // ---------------------------------------------------------------------
+  // Legacy normalization: patch lama mungkin menyimpan rootFreq/lowFreq/highFreq
+  // sebagai nomor nada MIDI (<=127) atau Hz (<8000), bukan mHz.
+  // JANGAN dihapus — dibutuhkan untuk backward compatibility patch lama.
+  // ---------------------------------------------------------------------
   for (const sample of samples) {
     if (sample.rootFreq > 0 && sample.rootFreq < 8000) {
       sample.rootFreq = sample.rootFreq <= 127
@@ -2568,7 +2649,9 @@ function writeTimidityPatch(patch) {
     }
   }
 
-    // === RESAMPLE ke 44100 Hz (fix pitch 2x) ===
+  // ---------------------------------------------------------------------
+  // Resample ke 22050 Hz (fix pitch 2x)
+  // ---------------------------------------------------------------------
   const OUT_RATE = 22050;
   for (const s of samples) {
     if (!s.sampleRate || s.sampleRate === OUT_RATE) continue;
@@ -2579,7 +2662,7 @@ function writeTimidityPatch(patch) {
     const oldStart = s.loopStart;
     const oldEnd = s.loopEnd;
     const resampled = resamplePcmTo(s.pcm, s.sampleRate, OUT_RATE, is16);
-    
+
     if (!resampled) continue;
 
     s.pcm = resampled;
@@ -2607,8 +2690,35 @@ function writeTimidityPatch(patch) {
       }
     }
   }
-  // === END RESAMPLE ===
 
+  // =====================================================================
+  // === FIX: SAFETY NET — loop tanpa MENV ===
+  // Sampel yang ber-loop tapi tidak punya envelope akan berputar selamanya
+  // di TiMidity setelah note-off → gejala "reverb panjang".
+  // Pasang MENV + envelope default ringan (attack ~10ms, sustain 100%,
+  // release ~148ms) bila belum ada envelope yang bermakna.
+  //
+  // Diletakkan SETELAH resample, karena resample bisa menonaktifkan MLOOP
+  // untuk loop yang terlalu pendek — dalam hal itu sampel tidak lagi
+  // butuh release envelope.
+  // =====================================================================
+  for (const s of samples) {
+    if ((s.modes & MLOOP) && !(s.modes & MENV)) {
+      s.modes |= MENV;
+      if (!Array.isArray(s.envRates) || s.envRates.every(r => r === 0)) {
+        s.envRates = [9, 0, 0, 69, 0, 0];
+      }
+      if (!Array.isArray(s.envOffsets) ||
+          (s.envOffsets.every(o => o === 0))) {
+        s.envOffsets = [255, 255, 255, 0, 0, 0];
+      }
+    }
+  }
+  // === END SAFETY NET ===
+
+  // ---------------------------------------------------------------------
+  // Distribusi pitch-range untuk sampel "unrestricted range"
+  // ---------------------------------------------------------------------
   const usesUnrestrictedSampleRanges = samples.length > 1 && samples.every(sample =>
     sample.lowFreq === 0 &&
     sample.sampleRate > 0 &&
@@ -2652,59 +2762,65 @@ function writeTimidityPatch(patch) {
   });
 }
 
-function generateProjectTimidityCfg(project) {
-  const patches = getProjectPatches(project);
+function generateProjectTimidityCfg(project, bankFilter = null) {
+  const allPatches = getProjectPatches(project);
+
+  // Jika filter bank aktif, hanya ambil patch dari bank tersebut.
+  // Semua di-remap ke bank 0 (bank default TiMidity).
+  let patches = allPatches;
+  if (bankFilter !== null) {
+    patches = allPatches.filter(p => (p.targetBank ?? 0) === bankFilter);
+  }
+
   const melodic = patches.filter(p => (p.gmBank ?? 0) !== 128 && (p.gmProgram ?? -1) !== -1);
   const drums   = patches.filter(p => (p.gmBank ?? 0) === 128 && (p.gmProgram ?? -1) !== -1);
 
   let cfg = "# Generated by GUS Patch Editor for Player\n# Visit: https://composer.planetbiru.com/instrument-editor/\n\n";
   cfg += "dir /gus-patch\n\n";
 
-  // === TAMBAHKAN LOGIKA SUFFIX DI SINI ===
-  const usedBasenames = new Set();
-  const allocateName = (p) => {
-    const base = sanitizeFilename(p.name) + ".pat";
-    let name = base;
+  const usedPaths = new Set();
+  const allocatePath = (p) => {
+    const bank = (bankFilter !== null) ? 0 : (p.targetBank ?? 0);
+    const kind = (p.gmBank ?? 0) === 128 ? "drum" : "tone";
+    const prog = String(p.gmProgram ?? 0).padStart(3, "0");
+    const basePath = `${bank}/${kind}/${prog}_${sanitizeFilename(p.name)}.pat`;
+    let path = basePath;
     let suffix = 1;
-    // Terus tambahkan _1, _2, dst. jika nama sudah dipakai
-    while (usedBasenames.has(name)) {
-      name = base.replace(/\.pat$/, `_${suffix++}.pat`);
+    while (usedPaths.has(path)) {
+      path = basePath.replace(/\.pat$/, `_${suffix++}.pat`);
     }
-    usedBasenames.add(name);
-    return name;
+    usedPaths.add(path);
+    return path;
   };
-  // ========================================
 
-  // Melodic (Menggunakan targetBank)
+  // Melodic
   const melodicByBank = {};
   for (const p of melodic) {
-    const b = p.targetBank ?? 0;
+    const b = (bankFilter !== null) ? 0 : (p.targetBank ?? 0);
     if (!melodicByBank[b]) melodicByBank[b] = [];
     melodicByBank[b].push(p);
   }
-  for (const b of Object.keys(melodicByBank).map(Number).sort((a,b)=>a-b)) {
+  for (const b of Object.keys(melodicByBank).map(Number).sort((a, b) => a - b)) {
     cfg += `bank ${b}\n`;
     for (const p of melodicByBank[b]) {
-      // Gunakan allocateName(p) alih-alih sanitizeFilename(p.name)
-      cfg += `${p.gmProgram} ${allocateName(p)}\n`;
+      cfg += `${p.gmProgram} ${allocatePath(p)}\n`;
     }
     cfg += "\n";
   }
 
-  // Drums (Menggunakan targetBank sebagai Drum Set)
+  // Drums
   if (drums.length > 0) {
     const drumGroups = {};
     for (const p of drums) {
-      const kitId = p.targetBank ?? 0;
+      const kitId = (bankFilter !== null) ? 0 : (p.targetBank ?? 0);
       if (!drumGroups[kitId]) drumGroups[kitId] = [];
       drumGroups[kitId].push(p);
     }
-    const kitIds = Object.keys(drumGroups).map(Number).sort((a,b)=>a-b);
+    const kitIds = Object.keys(drumGroups).map(Number).sort((a, b) => a - b);
     for (const kitId of kitIds) {
       cfg += `drumset ${kitId}\n`;
-      for (const p of drumGroups[kitId].sort((a,b)=>a.gmProgram - b.gmProgram)) {
-        // Gunakan allocateName(p)
-        cfg += `${p.gmProgram} ${allocateName(p)}\n`;
+      for (const p of drumGroups[kitId].sort((a, b) => a.gmProgram - b.gmProgram)) {
+        cfg += `${p.gmProgram} ${allocatePath(p)}\n`;
       }
       cfg += "\n";
     }
@@ -2714,8 +2830,7 @@ function generateProjectTimidityCfg(project) {
   if (melodic.length === 0 && drums.length === 0 && patches.length > 0) {
     cfg += "bank 0\n";
     patches.slice(0, 128).forEach((p, i) => {
-      // Gunakan allocateName(p)
-      cfg += `${i} ${allocateName(p)}\n`;
+      cfg += `${i} ${allocatePath(p)}\n`;
     });
   }
 
@@ -2759,11 +2874,14 @@ async function exportProjectToSF2(project, patches) {
           }
 
           const bps = (s.modes & M16) ? 2 : 1;
-          let startFrame = Math.round(s.loopStart / bps);
-          let endFrame = Math.round(s.loopEnd / bps);
-          if (startFrame >= endFrame || endFrame > pcm16.length) {
-            startFrame = 0;
-            endFrame = 0;
+          let startFrame = 0, endFrame = 0;
+          if (s.modes & MLOOP) {
+            const bps = (s.modes & M16) ? 2 : 1;
+            startFrame = Math.round(s.loopStart / bps);
+            endFrame   = Math.round(s.loopEnd   / bps);
+            if (startFrame >= endFrame || endFrame > pcm16.length) {
+              startFrame = 0; endFrame = 0;
+            }
           }
 
           sampleData.push(pcm16);
@@ -3270,25 +3388,28 @@ async function ensureTimidityPlayer() {
     throw new Error(t("player_library_missing"));
   }
   timidityPlayer = new TimidityPlayer({
-    patchUrlBase: '', 
+    patchUrlBase: '',
     timidityCfgLoader: () => {
       if (!state.currentProjectId) return "";
       const project = state.projects.find(p => p.id === state.currentProjectId);
       if (!project) return "";
-      return generateProjectTimidityCfg(project);
+      // Teruskan currentBank: null = semua bank; angka = filter bank tersebut
+      return generateProjectTimidityCfg(project, currentBank);
     },
     instrumentLoader: (bank, isDrum, program, file) => {
-      return getProjectPatchData(bank, isDrum, program, file);
+      // KRITIS: jika filter aktif, cfg berbunyi "bank 0" tapi patch aslinya
+      // berada di targetBank = currentBank. Gunakan currentBank untuk lookup.
+      const effectiveBank = (currentBank !== null) ? currentBank : bank;
+      return getProjectPatchData(effectiveBank, isDrum, program, file);
     },
     bufferSize: 4096,
     sampleRate: 96000
   });
 
-  timidityPlayer.onPlay(() => {
-    applyBankToPlayer(currentBank);
-  });
-  
-  // PERBAIKAN: Tambahkan event listener untuk debugging
+  // HAPUS callback onPlay yang lama (applyBankToPlayer(currentBank)).
+  // Bank sudah di-bake ke cfg saat init, jadi tidak perlu diterapkan saat play.
+  // timidityPlayer.onPlay(() => { applyBankToPlayer(currentBank); });  ← HAPUS
+
   timidityPlayer.onError((err) => {
     console.error("TiMidity Error:", err);
     setMidiStatus("midi_error", {message: err});
@@ -3310,11 +3431,8 @@ async function ensureTimidityPlayer() {
     midiProgress.paused = false;
     midiProgress.current = midiProgress.duration;
     cancelAnimationFrame(midiProgress.raf);
-    
     $("btnPlayMidi").disabled = false;
-    // PERBAIKAN: Kembalikan ikon play
     $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
-    
     $("btnStopMidi").disabled = true;
     setMidiStatus("midi_finished");
     updateMidiUI();
@@ -4202,19 +4320,9 @@ function openBankSelectDialog() {
     localizeElement(d.querySelector(".bank-info-btn"));
     
     d.onclick = (e) => {
-      if (isLoadingBank) return;
-      if (e.target.closest('button')) return; 
-      
-      if (hasBrokenPatch) {
-        // Hanya beri peringatan, jangan blokir
-        showStatus(t("bank_zero_size_warning"), "bad");
-      }
-      
-      currentBank = bank;
+      applyBankToPlayer(bank);   // ini yang men-set currentBank
       list.querySelectorAll(".li").forEach(el => el.classList.remove("active"));
       d.classList.add("active");
-      
-      loadBankAsync(bank, patches, statusEl);
     };
 
     d.querySelector('button').onclick = (e) => {
@@ -4352,75 +4460,53 @@ function closeBankBreakdownDialog() {
   $("bankBreakdownDialog").hidden = true;
 }
 
-async function loadBankAsync(bank, patches, statusEl) {
-  if (!timidityPlayer) return;
-  
-  isLoadingBank = true;
-  if (bankSwitchTimer) clearTimeout(bankSwitchTimer);
-  
-  statusEl.style.display = "block";
-  statusEl.style.color = "var(--accent)";
-  
-  let fallbackCount = 0;
+let applyBankGeneration = 0;
 
-  for (let i = 0; i < patches.length; i++) {
-    const p = patches[i];
-    setBankStatus(statusEl, "bank_loading_patch", {
-      current: i + 1,
-      total: patches.length,
-      name: p.name
-    });
-    await new Promise(resolve => setTimeout(resolve, 10));
-    
-    if (!patchBufferCache.has(p.id)) {
-      try {
-        const bytes = writeTimidityPatch(p.patch);
-        patchBufferCache.set(p.id, bytes.buffer);
-      } catch (e) {
-        console.error(`[loadBankAsync] Patch "${p.name}" rusak, menggunakan silent:`, e);
-        try {
-          const silentBytes = createSilentPatch();
-          patchBufferCache.set(p.id, silentBytes.buffer);
-          fallbackCount++;
-        } catch (silentErr) {
-          console.error("[loadBankAsync] Gagal membuat silent patch:", silentErr);
-        }
-      }
-    }
+async function applyBankToPlayer(bank) {
+  const generation = ++applyBankGeneration;
+
+  // Simpan state playback untuk resume
+  const wasPlaying = midiProgress.playing;
+  const wasPaused = midiProgress.paused;
+  const resumeTime = midiProgress.current;
+
+  // Set bank filter (null = tanpa filter, angka = filter bank tersebut)
+  currentBank = bank;
+
+  // Hentikan playback yang sedang berjalan
+  if (timidityPlayer) {
+    try { timidityPlayer.stop(); } catch (e) {}
   }
+  cancelAnimationFrame(midiProgress.raf);
+  midiProgress.playing = false;
+  midiProgress.paused = false;
 
-  setBankStatus(statusEl, "bank_applying", {bank});
-  const ME_TONE_BANK = 15;
-  let ch = 0;
-  
-  const sendNext = () => {
-    if (ch >= 16) {
-      isLoadingBank = false;
-      statusEl.style.color = "var(--ok)";
-      setBankStatus(statusEl, "bank_loaded_success", {bank});
-      
-      const heavyPatches = patches.filter(p => getPatchSize(p) > 1 * 1024 * 1024);
-      if (heavyPatches.length > 0 || fallbackCount > 0) {
-        statusEl.style.color = "var(--bad)";
-        const warningKey = heavyPatches.length > 0
-          ? (fallbackCount > 0 ? "bank_warning_heavy_and_fallback" : "bank_warning_heavy")
-          : "bank_warning_fallback";
-        setBankStatus(statusEl, warningKey, {count: fallbackCount});
-      }
-      return;
+  // Shutdown engine (cache buffer .pat dipertahankan — isinya sama)
+  invalidateTimidityPlayer(false);
+
+  // Superseded oleh pemanggilan yang lebih baru?
+  if (generation !== applyBankGeneration) return;
+
+  showStatus(t("bank_loading_simple", { bank }), "ok");
+
+  try {
+    // Reinit player; timidityCfgLoader akan menggunakan currentBank
+    await ensureTimidityPlayer();
+    if (generation !== applyBankGeneration) return;
+
+    // Resume jika sebelumnya sedang playing/paused
+    if ((wasPlaying || wasPaused) && state.midiData) {
+      await playMidi(resumeTime);
+    } else {
+      showStatus(t("bank_ready", { bank }), "ok");
     }
-    
-    try {
-      timidityPlayer.sendEvent(ME_TONE_BANK, ch, bank, 0);
-    } catch (e) {
-      console.warn("Error applying bank to channel", ch, e);
-    }
-    ch++;
-    bankSwitchTimer = setTimeout(sendNext, 50);
-  };
-  
-  sendNext();
+  } catch (err) {
+    if (generation !== applyBankGeneration) return;
+    console.error("applyBankToPlayer error:", err);
+    showStatus(t("timidity_error", { message: err.message }), "bad");
+  }
 }
+
 
 function closeBankSelectDialog() {
   $("bankSelectDialog").hidden = true;
@@ -4496,33 +4582,6 @@ function getPatchesForBank(bank) {
   return patches.filter(p => (p.targetBank ?? 0) === bank);
 }
 
-function applyBankToPlayer(bank) {
-  if (!timidityPlayer) return;
-  
-  // Hentikan antrean sebelumnya jika pengguna mengganti bank secara cepat
-  if (bankSwitchTimer) clearTimeout(bankSwitchTimer);
-  
-  const ME_TONE_BANK = 15;
-  let ch = 0;
-  
-  const sendNext = () => {
-    if (ch >= 16) {
-      showStatus(t("bank_ready", {bank}), "ok");
-      return;
-    }
-    try {
-      timidityPlayer.sendEvent(ME_TONE_BANK, ch, bank, 0);
-    } catch (e) {
-      console.warn("Error applying bank to channel", ch, e);
-    }
-    ch++;
-    // Jeda 50ms antar channel agar WebAssembly (Timidity) bisa bernapas
-    bankSwitchTimer = setTimeout(sendNext, 50);
-  };
-  
-  showStatus(t("bank_loading_simple", {bank}), "ok");
-  sendNext();
-}
 
 /* ---------- Rendering ---------- */
 function allSamples(){
@@ -4695,6 +4754,7 @@ function selectProject(projectId) {
   const resumeTime = midiProgress.current;
 
   state.currentProjectId = project.id;
+  currentBank = null;               // ← reset filter saat ganti proyek
   state.libraryView = "project";
   invalidateTimidityPlayer();
   renderProjects();
