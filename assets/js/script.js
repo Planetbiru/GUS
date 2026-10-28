@@ -1217,29 +1217,23 @@ function generateProjectTimidityCfgForZip(project, patchPaths, patches, drumSetM
 }
 
 function renderBankManager() {
-    const card = $("bankManagerCard");
+  const card = $("bankManagerCard");
   if (!card) return;
-  
+
   const project = state.projects.find(p => p.id === state.currentProjectId);
   const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
 
-  // Sembunyikan jika tidak ada proyek atau tidak ada patch yang dipilih
   if (!project || !currentPatch) {
     card.hidden = true;
     return;
   }
 
-  // Tentukan filter berdasarkan patch yang sedang dipilih
   const isDrum = (currentPatch.gmBank ?? 0) === 128;
   const prog = currentPatch.gmProgram ?? -1;
-  const targetBank = currentPatch.targetBank ?? 0; // <-- Ambil nilai targetBank
 
-  // Ambil semua patch di proyek, lalu filter berdasarkan Program, Tipe, DAN Target Bank
-  let entries = getProjectPatchEntries().filter(p => {
+  const entries = getProjectPatchEntries().filter(p => {
     const pIsDrum = (p.gmBank ?? 0) === 128;
-    return pIsDrum === isDrum && 
-           (p.gmProgram ?? -1) === prog && 
-           (p.targetBank ?? 0) === targetBank; // <-- Tambahkan filter ini
+    return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
   });
 
   if (entries.length === 0) {
@@ -1249,79 +1243,115 @@ function renderBankManager() {
   card.hidden = false;
 
   const selectedCount = entries.filter(p => p.exportSelected !== false).length;
-  $("bankSummaryPill").textContent = t("bank_filtered_summary", {
-    count: entries.length,
-    selected: selectedCount
-  });
-  $("bankSelectAll").checked = selectedCount === entries.length;
+  const summaryPill = $("bankSummaryPill");
+  if (summaryPill) {
+    summaryPill.textContent = t("bank_filtered_summary", {
+      count: entries.length,
+      selected: selectedCount
+    });
+  }
+  const selectAll = $("bankSelectAll");
+  if (selectAll) selectAll.checked = selectedCount === entries.length;
 
-  // Tampilkan info filter di judul (tambahkan info Target Bank)
   const typeLabel = isDrum ? t("drum") : t("non_drum");
   const titleEl = card.querySelector("h2");
   let titleText = t("bank_management");
   if (currentPatch) {
-    titleText += " - " + t("bank_filter_active", { program: prog, type: typeLabel }) + ` (Target Bank: ${targetBank})`;
+    titleText += " - " + t("bank_filter_active", { program: prog, type: typeLabel });
   }
-  titleEl.textContent = titleText;
+  if (titleEl) titleEl.textContent = titleText;
 
   const list = $("bankList");
+  if (!list) return;
+
+  // ← Bersihkan state drag SEBELUM render ulang (defensif)
+  bankDragSource = null;
+  list.querySelectorAll(".bank-row.dragging, .bank-row.drag-over").forEach(r => {
+    r.classList.remove("dragging", "drag-over");
+  });
   list.innerHTML = "";
 
-  let lastType = null;
-  for (const p of entries) {
-    const rowIsDrum = (p.gmBank ?? 0) === 128;
-    const typeKey = rowIsDrum ? "drum" : "melodic";
-    
-    if (typeKey !== lastType) {
-      const header = document.createElement("div");
-      header.className = "bank-group-header";
-      header.textContent = rowIsDrum ? t("drum") : t("non_drum");
-      list.appendChild(header);
-      lastType = typeKey;
-    }
+  // Sort flat: Bank pertama, lalu userOrder. Tidak ada grup/header per bank.
+  const sortedEntries = [...entries].sort((a, b) => {
+    const bankA = a.targetBank ?? 0;
+    const bankB = b.targetBank ?? 0;
+    if (bankA !== bankB) return bankA - bankB;
+    return (a.userOrder ?? 0) - (b.userOrder ?? 0);
+  });
+
+  // Satu header baris untuk label kolom (bukan per bank)
+  const headerRow = document.createElement("div");
+  headerRow.className = "bank-col-header";
+  headerRow.innerHTML = `
+    <span></span>
+    <span></span>
+    <span>${t("bank_label") || "Bank"}</span>
+    <span>${t("type_label_short") || "T"}</span>
+    <span>${t("program_label_short") || "Prog"}</span>
+    <span class="bank-col-header-left">${t("name_label") || "Name"}</span>
+    <span>${t("original_label_short") || "Orig"}</span>
+    <span>${t("order_label_short") || "Order"}</span>
+    <span></span>
+  `;
+  list.appendChild(headerRow);
+
+  const selectPatchLabel = typeof translations["select_patch"] === "string"
+    ? t("select_patch")
+    : "Pilih patch";
+  const typeKey = isDrum ? "drum" : "melodic";
+
+  for (const p of sortedEntries) {
+    const bankId = p.targetBank ?? 0;
+    const isCurrent = p.id === state.currentPatchId;
 
     const row = document.createElement("div");
-    row.className = "bank-row" + (p.exportSelected === false ? " disabled" : "");
+    row.className = "bank-row"
+      + (p.exportSelected === false ? " disabled" : "")
+      + (isCurrent ? " bank-row-current" : "");
     row.draggable = true;
     row.dataset.id = p.id;
-    const targetChanged = (p.targetBank ?? 0) !== (p.originalOrder ?? 0);
-    
-    // TODO: Ganti ☰ dengan SVG
+    row.dataset.bank = String(bankId);
+
+    if (isCurrent) {
+      row.style.background = "rgba(56, 189, 248, 0.08)";
+      row.style.borderLeft = "2px solid var(--accent, #38bdf8)";
+    }
+
+    const targetChanged = bankId !== (p.originalOrder ?? 0);
+
+    // Kolom Bank sekarang berupa input langsung (editable) — tidak ada header grup.
     row.innerHTML = `
       <input type="checkbox" data-act="select" ${p.exportSelected !== false ? "checked" : ""} aria-label="${t("export_selected_only")}">
       <span class="bank-handle" title="${t("drag_to_reorder")}">
         <svg class="icon" style="width: 14px; height: 14px;"><use href="#i-grip"></use></svg>
       </span>
-      <span class="bank-type ${typeKey}">${rowIsDrum ? "D" : "M"}</span>
+      <input type="number" class="bank-target${targetChanged ? " changed" : ""}" data-act="target"
+             min="0" max="999" value="${bankId}" title="${t("target_bank")}" aria-label="${t("target_bank")}">
+      <span class="bank-type ${typeKey}">${isDrum ? "D" : "M"}</span>
       <span class="bank-program">${String(p.gmProgram ?? -1).padStart(3, "0")}</span>
-      <span class="bank-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</span>
+      <span class="bank-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}${isCurrent ? ' <span style="color:var(--accent, #38bdf8);">●</span>' : ''}</span>
       <span class="bank-original" title="${t("original_order")}">${p.originalOrder ?? 0}</span>
       <span class="bank-order" title="${t("user_order")}">${p.userOrder ?? 0}</span>
-      <input type="number" class="bank-target${targetChanged ? " changed" : ""}" data-act="target"
-             min="0" max="999" value="${p.targetBank ?? 0}" title="${t("target_bank")}" aria-label="${t("target_bank")}">
+      <button class="icon-btn bank-select-btn" data-act="select-patch"
+              title="${selectPatchLabel}" aria-label="${selectPatchLabel}">
+        <svg class="icon"><use href="#i-play"></use></svg>
+      </button>
     `;
+
+    row.addEventListener("click", (e) => {
+      if (e.target.closest("input, button, .bank-handle")) return;
+      if (p.id !== state.currentPatchId) selectPatch(p.id);
+    });
+
+    row.querySelector(".bank-select-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (p.id !== state.currentPatchId) selectPatch(p.id);
+    });
+
     list.appendChild(row);
   }
 
   bindBankManagerEvents(list);
-}
-
-// Update Drag & Drop agar hanya menukar urutan antar item yang terlihat (satu program)
-function updateUserOrderFromDom(list) {
-  const rows = Array.from(list.querySelectorAll(".bank-row"));
-  const visiblePatches = rows.map(r => state.patches.find(p => p.id === r.dataset.id)).filter(Boolean);
-
-  // Ekstrak nilai userOrder yang ada, lalu urutkan
-  const orders = visiblePatches.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
-
-  // Terapkan kembali ke patch sesuai urutan DOM yang baru
-  visiblePatches.forEach((p, i) => {
-    p.userOrder = orders[i];
-    const orderEl = rows[i].querySelector(".bank-order");
-    if (orderEl) orderEl.textContent = p.userOrder;
-  });
-
-  saveProjectBankConfig();
 }
 
 // Perbarui fungsi refresh agar hanya mereset urutan pada program yang sedang aktif
@@ -1374,9 +1404,30 @@ function bindBankManagerEvents(list) {
   if (list.dataset.bound === "1") return;
   list.dataset.bound = "1";
 
+  // ═══════════════════════════════════════════════════════════════
+  // Kunci utama: cegah drag dimulai dari elemen interaktif.
+  // Dengan draggable=false saat mousedown pada input/button, browser
+  // memperlakukan interaksi tersebut sebagai klik/selection normal,
+  // bukan sebagai awal drag dari row.
+  // ═══════════════════════════════════════════════════════════════
+  list.addEventListener("mousedown", (e) => {
+    const row = e.target.closest(".bank-row");
+    if (!row) return;
+    const isInteractive = !!e.target.closest(
+      "input, button, select, textarea, a, [contenteditable='true']"
+    );
+    row.draggable = !isInteractive;
+  });
+
   list.addEventListener("dragstart", e => {
     const row = e.target.closest(".bank-row");
     if (!row) return;
+    // Jika draggable dimatikan pada mousedown (karena klik di input),
+    // batalkan drag sepenuhnya.
+    if (!row.draggable) {
+      e.preventDefault();
+      return;
+    }
     bankDragSource = row;
     row.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
@@ -1386,14 +1437,23 @@ function bindBankManagerEvents(list) {
   list.addEventListener("dragend", e => {
     const row = e.target.closest(".bank-row");
     if (row) row.classList.remove("dragging");
-    list.querySelectorAll(".bank-row.drag-over").forEach(r => r.classList.remove("drag-over"));
+    // Pulihkan draggable untuk semua row agar interaksi berikutnya normal
+    list.querySelectorAll(".bank-row").forEach(r => {
+      r.classList.remove("drag-over");
+      r.draggable = true;
+    });
     bankDragSource = null;
   });
 
   list.addEventListener("dragover", e => {
     e.preventDefault();
+    if (!bankDragSource) {
+      e.dataTransfer.dropEffect = "none";
+      return;
+    }
     const row = e.target.closest(".bank-row");
     if (!row || row === bankDragSource) return;
+
     e.dataTransfer.dropEffect = "move";
     list.querySelectorAll(".bank-row.drag-over").forEach(r => r !== row && r.classList.remove("drag-over"));
     row.classList.add("drag-over");
@@ -1407,14 +1467,46 @@ function bindBankManagerEvents(list) {
   list.addEventListener("drop", e => {
     e.preventDefault();
     const target = e.target.closest(".bank-row");
-    if (!target || !bankDragSource || target === bankDragSource) return;
+    if (!target || !bankDragSource || target === bankDragSource) {
+      list.querySelectorAll(".bank-row.drag-over").forEach(r => r.classList.remove("drag-over"));
+      return;
+    }
     target.classList.remove("drag-over");
 
-    const rect = target.getBoundingClientRect();
-    const after = e.clientY > rect.top + rect.height / 2;
-    list.insertBefore(bankDragSource, after ? target.nextSibling : target);
+    try {
+      const rect = target.getBoundingClientRect();
+      const dropAfter = e.clientY > rect.top + rect.height / 2;
+      list.insertBefore(bankDragSource, dropAfter ? target.nextSibling : target);
 
-    updateUserOrderFromDom(list);
+      const sourcePatch = state.patches.find(p => p.id === bankDragSource.dataset.id);
+      const targetBankId = parseInt(target.dataset.bank, 10) || 0;
+      const sourceBankId = sourcePatch ? (sourcePatch.targetBank ?? 0) : 0;
+
+      if (sourcePatch && targetBankId !== sourceBankId) {
+        sourcePatch.targetBank = targetBankId;
+        bankDragSource.dataset.bank = String(targetBankId);
+        const targetInput = bankDragSource.querySelector(".bank-target");
+        if (targetInput) {
+          targetInput.value = targetBankId;
+          targetInput.classList.toggle(
+            "changed",
+            targetBankId !== (sourcePatch.originalOrder ?? 0)
+          );
+        }
+        scheduleBankConfigSave(sourcePatch);
+      }
+
+      updateUserOrderFromDom(list);
+      renderBankManager();
+      renderLibrary();
+    } catch (err) {
+      console.error("Drag/drop failed:", err);
+    } finally {
+      bankDragSource = null;
+      list.querySelectorAll(".bank-row.dragging, .bank-row.drag-over").forEach(r => {
+        r.classList.remove("dragging", "drag-over");
+      });
+    }
   });
 
   list.addEventListener("change", e => {
@@ -1428,41 +1520,65 @@ function bindBankManagerEvents(list) {
       row.classList.toggle("disabled", !patch.exportSelected);
       scheduleBankConfigSave(patch);
     } else if (e.target.dataset.act === "target") {
+      const oldBank = patch.targetBank ?? 0;
       patch.targetBank = clamp(parseInt(e.target.value, 10) || 0, 0, 999);
       e.target.value = patch.targetBank;
       e.target.classList.toggle("changed", patch.targetBank !== (patch.originalOrder ?? 0));
       scheduleBankConfigSave(patch);
+
+      if (oldBank !== patch.targetBank) {
+        renderBankManager();
+        renderLibrary();
+        return;
+      }
     }
 
-    // Update ringkasan berdasarkan item yang SEDANG DIFILTER
     const currentPatch = state.patches.find(p => p.id === state.currentPatchId);
-    if (currentPatch) {
-      const isDrum = (currentPatch.gmBank ?? 0) === 128;
-      const prog = currentPatch.gmProgram ?? -1;
-      const visibleEntries = getProjectPatchEntries().filter(p => {
-        const pIsDrum = (p.gmBank ?? 0) === 128;
-        return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+    if (!currentPatch) return;
+
+    const isDrum = (currentPatch.gmBank ?? 0) === 128;
+    const prog = currentPatch.gmProgram ?? -1;
+    const visibleEntries = getProjectPatchEntries().filter(p => {
+      const pIsDrum = (p.gmBank ?? 0) === 128;
+      return pIsDrum === isDrum && (p.gmProgram ?? -1) === prog;
+    });
+    const selectedCount = visibleEntries.filter(p => p.exportSelected !== false).length;
+
+    const summaryPill = $("bankSummaryPill");
+    if (summaryPill) {
+      summaryPill.textContent = t("bank_filtered_summary", {
+        count: visibleEntries.length,
+        selected: selectedCount
       });
-      const selectedCount = visibleEntries.filter(p => p.exportSelected !== false).length;
-      
-      $("bankSummaryPill").textContent = t("bank_filtered_summary", {count: visibleEntries.length, selected: selectedCount});
-      $("bankSelectAll").checked = selectedCount === visibleEntries.length;
-      $("exportSelectedLabel").textContent = t("export_selected_only") + ` (${selectedCount})`;
+    }
+    const selectAll = $("bankSelectAll");
+    if (selectAll) selectAll.checked = selectedCount === visibleEntries.length;
+    const exportLabel = $("exportSelectedLabel");
+    if (exportLabel) {
+      exportLabel.textContent = t("export_selected_only") + ` (${selectedCount})`;
     }
   });
 }
 
 function updateUserOrderFromDom(list) {
-  const rows = Array.from(list.querySelectorAll(".bank-row"));
-  const visiblePatches = rows.map(r => state.patches.find(p => p.id === r.dataset.id)).filter(Boolean);
-  const orders = visiblePatches.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
-
-  visiblePatches.forEach((p, i) => {
-    p.userOrder = orders[i];
-    scheduleBankConfigSave(p);
-    const orderEl = rows[i].querySelector(".bank-order");
-    if (orderEl) orderEl.textContent = p.userOrder;
+  const groups = new Map();
+  list.querySelectorAll(".bank-row").forEach(row => {
+    const bankId = row.dataset.bank ?? "0";
+    if (!groups.has(bankId)) groups.set(bankId, []);
+    groups.get(bankId).push(row);
   });
+
+  for (const rows of groups.values()) {
+    const patches = rows.map(r => state.patches.find(p => p.id === r.dataset.id)).filter(Boolean);
+    const orders = patches.map(p => p.userOrder ?? 0).sort((a, b) => a - b);
+
+    patches.forEach((p, i) => {
+      p.userOrder = orders[i];
+      scheduleBankConfigSave(p);
+      const orderEl = rows[i].querySelector(".bank-order");
+      if (orderEl) orderEl.textContent = p.userOrder;
+    });
+  }
 }
 
 async function saveProjectBankConfig() {
@@ -4193,7 +4309,7 @@ function updateTimelinePlayhead(tick) {
 
   // Gunakan offsetWidth & offsetLeft agar akurat meski modal baru dibuka
   const trackWidth = trackEl.offsetWidth;
-  const offsetLeft = trackEl.offsetLeft;
+  const offsetLeft = trackEl.offsetLeft - 7;
 
   // Jika lebar 0 (modal belum dirender sempurna), jangan hitung dulu
   if (trackWidth === 0) return;
@@ -4590,7 +4706,7 @@ function openExportBanksDialog() {
       <td class="text-center">
         <input type="checkbox" class="export-group-checkbox" ${allSelected ? 'checked' : ''}>
       </td>
-      <td class="text-center text-dim">
+      <td class="text-dim">
         ${group.targetBank}
       </td>
       <td class="text-dim">
