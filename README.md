@@ -1,6 +1,6 @@
-# GUS Patch Editor
+# Planetbiru Instrument Editor
 
-A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patch files**, with support for importing and exporting SoundFonts (`.sf2`), Timidity ZIP packages, and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, and patch export.
+A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches** and **SoundFonts (`.sf2`)**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
 
 Built with vanilla JavaScript and no build step. Runs entirely in the browser. All data is stored locally in IndexedDB.
 
@@ -26,8 +26,9 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 
 ## Features
 
-### Patch Editing
+### Instrument & Patch Editing
 - **Full GUS `.PAT` support** — parse, inspect, edit, and export Gravis Ultrasound patches
+- **SoundFont (`.sf2`) support** — import presets into editable patches, and export projects back to standard SF2
 - **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
 - **Instrument management** — add, rename, reorder, and export individual instruments
 - **Sample bank management** — per-sample rate, root frequency, low/high frequency range, tune, balance, scale factor, envelope rates/offsets, tremolo/vibrato, and 8 sample mode flags
@@ -54,8 +55,12 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 | MIDI.js soundfont | `.js` | FluidR3_GM-style OGG/MP3 soundfonts from jsDelivr and similar CDNs |
 | MIDI.js from URL | — | Fetch soundfont directly from a URL |
 
-### MIDI Playback & Rendering
+### MIDI Playback & Visualization
 - **In-browser MIDI playback** via LibTiMidityPlayer (WASM)
+- **Interactive MIDI Timeline** — visualize instrument usage across all 16 channels over time (ticks)
+- **Real-time Playhead** — a synchronized vertical line that smoothly tracks the current playback position across the entire timeline
+- **Timeline Playback Controls** — play, pause, and seek directly from the Timeline modal, with synchronized UI updates
+- **Interactive Segments** — click any instrument bar in the timeline to instantly jump to and select the corresponding patch in the library
 - **Bank selection** — switch which target bank each channel uses
 - **Volume control** — safe API-based volume, no crash-prone MIDI CC injection
 - **Seek / pause / resume** — precise tempo-map-aware duration calculation
@@ -188,9 +193,9 @@ Every pass through this chain preserves the following:
 |---|---|
 | ![Welcome](docs/screenshot-welcome.png) | ![Editor](docs/screenshot-editor.png) |
 
-| Bank manager | Frequency map |
+| Bank manager | MIDI Timeline |
 |---|---|
-| ![Bank manager](docs/screenshot-bank-manager.png) | ![Frequency map](docs/screenshot-freq-map.png) |
+| ![Bank manager](docs/screenshot-bank-manager.png) | ![MIDI Timeline](docs/screenshot-timeline.png) |
 
 ---
 
@@ -205,8 +210,8 @@ Every pass through this chain preserves the following:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/gus-patch-editor.git
-cd gus-patch-editor
+git clone https://github.com/YOUR_USERNAME/planetbiru-instrument-editor.git
+cd planetbiru-instrument-editor
 
 # Start a simple HTTP server (any of these work)
 python3 -m http.server 8000
@@ -264,12 +269,17 @@ Header → MIDI.js URL → paste a jsDelivr URL
 3. Apply DSP operations from the toolbar
 4. Set loop points, mode flags, envelope values, or click a key on the test keyboard
 
-### Playing MIDI
+### Playing MIDI & Using the Timeline
 
 1. Select a project
 2. Click **Load MIDI** in the **MIDI Preview** panel
 3. Choose a bank with **Select Bank**
 4. Click **Play** — the loaded project patches will be used
+5. Click **Timeline** (the chart icon next to Select Bank) to open the **MIDI Timeline** modal:
+   - View a visual representation of which instruments and banks are used on each of the 16 channels over time.
+   - The red vertical line is the **Playhead**, tracking the current position in real-time.
+   - Use the **Play/Pause** and **Seek** controls directly in the modal footer to navigate the song without closing the timeline.
+   - Click any colored instrument segment to instantly jump to that patch in the library.
 
 ### Exporting
 
@@ -341,7 +351,7 @@ Tested on:
 ## Architecture
 
 ```
-gus-patch-editor/
+planetbiru-instrument-editor/
 ├── index.html                       # Single-page app shell
 ├── assets/
 │   ├── css/
@@ -377,7 +387,7 @@ gus-patch-editor/
 
 ### Storage
 
-All data lives in **IndexedDB**, database name `gus-patch-editor-2`:
+All data lives in **IndexedDB**, database name `gus-patch-editor-2` (inherited from the previous name for backward compatibility):
 
 | Object store | Key | Contents |
 |---|---|---|
@@ -498,4 +508,4 @@ Bundled third-party components retain their own licenses:
 
 ---
 
-*If this project helped you preserve or create GUS patches, consider giving it a ⭐ on GitHub.*
+*If this project helped you preserve or create instruments, consider giving it a ⭐ on GitHub.*

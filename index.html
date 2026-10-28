@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>GUS Patch Editor</title>
+  <title>Planetbiru Instrument Editor</title>
   <link rel="stylesheet" href="assets/css/style.min.css">
   <style>
     html { background-color: #060b14; }
@@ -229,15 +229,22 @@
           </div>
 
           <div class="inline-actions">
-            <button class="btn small primary" id="btnPlayMidi" disabled style="flex:4"><svg class="icon">
+            <button class="btn small primary" id="btnPlayMidi" disabled style="flex:1"><svg class="icon">
                 <use href="#i-play"></use>
               </svg> {{play}}</button>
               
-            <button class="btn small" id="btnSelectBank" style="flex:6"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
-            
-            <button class="btn small danger" id="btnStopMidi" style="flex:4" disabled><svg class="icon">
+            <button class="btn small danger" id="btnStopMidi" style="flex:1" disabled><svg class="icon">
                 <use href="#i-stop"></use>
               </svg> {{stop}}</button>
+          </div>
+
+          <div class="inline-actions">
+            <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
+            
+            <button class="btn small" id="btnShowMidiTimeline" title="{{midi_timeline_title}}" data-i18n-title="midi_timeline_title" style="flex:1" disabled>
+              <svg class="icon"><use href="#i-chart"></use></svg> {{midi_timeline_btn}}
+            </button>
+
           </div>
 
           <div class="midi-volume-row">
@@ -819,6 +826,32 @@
         </div>
         <div class="modal-footer">
           <button class="btn primary" id="btnCloseBankBreakdown" type="button">{{close}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="midiTimelineDialog" class="modal-overlay" hidden>
+    <section class="modal-panel midi-timeline-panel" role="dialog" aria-modal="true"
+             aria-labelledby="midiTimelineTitle" aria-describedby="midiTimelineDesc">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="midiTimelineTitle">{{midi_timeline_title}}</h2>
+          <button class="icon-btn" id="btnCloseMidiTimelineX" type="button"
+                  aria-label="{{close}}" data-i18n-aria-label="close">
+            <svg class="icon"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="midiTimelineDesc" class="modal-message">{{midi_timeline_desc}}</p>
+          <div class="midi-timeline-container" id="midiTimelineContainer"></div>
+        </div>
+        <div class="modal-footer" style="display: flex; gap: 12px; align-items: center;">
+          <button class="btn primary" id="btnTimelinePlay" type="button" style="padding: 6px 12px;">
+            <svg class="icon"><use href="#i-play"></use></svg>
+          </button>
+          <input type="range" id="timelineSeek" min="0" max="1000" value="0" step="1" class="midi-seek" style="flex: 1;">
+          <button class="btn" id="btnCloseMidiTimeline" type="button">{{close}}</button>
         </div>
       </div>
     </section>
