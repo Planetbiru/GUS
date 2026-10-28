@@ -4309,7 +4309,7 @@ function updateTimelinePlayhead(tick) {
 
   // Gunakan offsetWidth & offsetLeft agar akurat meski modal baru dibuka
   const trackWidth = trackEl.offsetWidth;
-  const offsetLeft = trackEl.offsetLeft;
+  const offsetLeft = trackEl.offsetLeft - 7;
 
   // Jika lebar 0 (modal belum dirender sempurna), jangan hitung dulu
   if (trackWidth === 0) return;
