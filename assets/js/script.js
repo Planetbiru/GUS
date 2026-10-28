@@ -3476,10 +3476,19 @@ async function ensureTimidityPlayer() {
     }
   });
   timidityPlayer.onEnded(() => {
+    // ═══════════════════════════════════════════════════════════════
+    // Guard kritis: hanya proses jika kita MASIH di state playing.
+    // Jika playing=false, berarti user baru saja pause/stop/seek —
+    // onEnded ini adalah efek samping dari timidityPlayer.stop(),
+    // bukan akhir lagu yang sesungguhnya.
+    // ═══════════════════════════════════════════════════════════════
+    if (!midiProgress.playing) return;
+
     midiProgress.playing = false;
     midiProgress.paused = false;
     midiProgress.current = midiProgress.duration;
     cancelAnimationFrame(midiProgress.raf);
+
     $("btnPlayMidi").disabled = false;
     $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
     $("btnStopMidi").disabled = true;
@@ -3914,39 +3923,39 @@ async function playMidi(fromTime = 0) {
   try {
     await ensureTimidityPlayer();
     setMidiStatus("midi_loading_patch");
-    
+
     midiProgress.playing = true;
     midiProgress.paused = false;
-    midiProgress.startTime = performance.now() - (fromTime * 1000);
     midiProgress.current = fromTime;
 
     populateMidiUsedPatchesFromScan();
-    
+
     if (timidityPlayer) timidityPlayer.stop();
     await timidityPlayer.loadAndPlay(state.midiData, fromTime);
-    
+
+    // ═══════════════════════════════════════════════════════════════
+    // Clock UI dimulai SETELAH loadAndPlay selesai.
+    // Patch loading (1–3 detik) tidak lagi membuat timer berjalan
+    // "di depan" audio. Inilah penyebab utama lagu terpotong.
+    // ═══════════════════════════════════════════════════════════════
+    midiProgress.startTime = performance.now() - (fromTime * 1000);
+
     setMidiStatus("midi_playing");
-    
-    // PERBAIKAN: Jangan disable tombol, ubah ikon menjadi pause
+
     $("btnPlayMidi").disabled = false;
     $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg> ${t("pause")}`;
-    
     $("btnStopMidi").disabled = false;
     $("midiSeek").disabled = false;
 
-    // Loop UI Timer
+    // ═══════════════════════════════════════════════════════════════
+    // Timer HANYA untuk update UI progress. TIDAK memanggil stopMidi().
+    // Akhir lagu ditandai oleh timidityPlayer.onEnded().
+    // ═══════════════════════════════════════════════════════════════
     cancelAnimationFrame(midiProgress.raf);
     const tick = () => {
       if (!midiProgress.playing) return;
-      
       const elapsed = (performance.now() - midiProgress.startTime) / 1000;
-      midiProgress.current = elapsed;
-      
-      if (elapsed >= midiProgress.duration) {
-        stopMidi();
-        return;
-      }
-      
+      midiProgress.current = Math.min(elapsed, midiProgress.duration);
       updateMidiUI();
       midiProgress.raf = requestAnimationFrame(tick);
     };
@@ -4324,7 +4333,7 @@ function getAvailableBanks() {
   banks.add(0); // pastikan 0 selalu ada
   return Array.from(banks).sort((a, b) => a - b);
 }
-
+let lastBank = 0;
 function openBankSelectDialog() {
   const banks = getAvailableBanks();
   const list = $("bankSelectList");
@@ -4481,7 +4490,7 @@ function deletePatchFromBreakdown(patchId, currentBank) {
       const remainingPatches = getPatchesForBank(currentBank);
       if (remainingPatches.length === 0) {
         closeBankBreakdownDialog();
-        closeBankSelectDialog();
+        closeBankSelectDialog(false);
       } else {
         // Render ulang modal breakdown dengan list terbaru
         openBankBreakdownDialog(currentBank, remainingPatches);
@@ -4575,7 +4584,16 @@ async function applyBankToPlayer(bank) {
 }
 
 
-function closeBankSelectDialog() {
+function closeBankSelectDialog(rollback = false) {
+  if (rollback) {
+    // Cancel: kembalikan ke bank yang terakhir dikonfirmasi via OK
+    currentBank = lastBank;
+    applyBankToPlayer(currentBank);
+  } else {
+    // OK: simpan bank saat ini sebagai "bank terakhir yang dikonfirmasi"
+    // agar Cancel berikutnya bisa rollback ke sini.
+    lastBank = currentBank;
+  }
   $("bankSelectDialog").hidden = true;
 }
 
@@ -6992,20 +7010,25 @@ function bind(){
     const pct = parseInt(e.target.value, 10) / 1000;
     const targetTime = pct * midiProgress.duration;
     const wasPaused = midiProgress.paused;
-    
+
     midiProgress.seeking = false;
     cancelAnimationFrame(midiProgress.raf);
+
+    // ═══════════════════════════════════════════════════════════════
+    // Set playing=false SEBELUM stop(). Jika library memicu onEnded
+    // saat stop(), guard di onEnded akan mengabaikannya.
+    // ═══════════════════════════════════════════════════════════════
+    midiProgress.playing = false;
     if (timidityPlayer) timidityPlayer.stop();
+
     midiProgress.current = targetTime;
     midiProgress.startTime = performance.now() - (targetTime * 1000);
-    
+
     if (wasPaused) {
-      midiProgress.playing = false;
       midiProgress.paused = true;
       updateMidiUI();
       setMidiStatus("midi_paused_at", {time: formatTime(targetTime)});
     } else {
-      midiProgress.playing = false;
       midiProgress.paused = false;
       playMidi(targetTime);
     }
@@ -7099,10 +7122,8 @@ function bind(){
   });
 
   $("btnSelectBank").addEventListener("click", openBankSelectDialog);
-  $("btnCancelBankSelect").addEventListener("click", closeBankSelectDialog);
-  $("btnConfirmBankSelect").addEventListener("click", () => {
-    closeBankSelectDialog();
-  });
+  $("btnCancelBankSelect").addEventListener("click", () => {closeBankSelectDialog(true);});
+  $("btnConfirmBankSelect").addEventListener("click", () => {closeBankSelectDialog(false);});
 
   const bindProp=(id,prop,tf)=>{
     $(id).addEventListener("change",e=>{
