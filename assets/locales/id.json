@@ -450,5 +450,12 @@
   "timeline_tooltip_instrument": "Instrumen: {name}",
   "timeline_tooltip_bank": "Bank: {bank}",
   "timeline_tooltip_tick": "Tick: {start} – {end}",
-  "unknown_instrument": "Instrumen Tidak Dikenal (Prog {program})"
+  "unknown_instrument": "Instrumen Tidak Dikenal (Prog {program})",
+  "bank_label": "Bank",
+"type_label_short": "Tipe",
+"program_label_short": "Prog",
+"name_label": "Nama",
+"original_label_short": "Asli",
+"order_label_short": "Urutan",
+"select_patch": "Pilih patch"
 }

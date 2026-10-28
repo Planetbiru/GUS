@@ -450,5 +450,12 @@
   "timeline_tooltip_instrument": "Instrument: {name}",
   "timeline_tooltip_bank": "Bank: {bank}",
   "timeline_tooltip_tick": "Tick: {start} – {end}",
-  "unknown_instrument": "Unknown Instrument (Prog {program})"
+  "unknown_instrument": "Unknown Instrument (Prog {program})",
+  "bank_label": "Bank",
+"type_label_short": "Type",
+"program_label_short": "Prog",
+"name_label": "Name",
+"original_label_short": "Orig",
+"order_label_short": "Order",
+"select_patch": "Select patch"
 }
