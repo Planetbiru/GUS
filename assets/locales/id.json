@@ -1,5 +1,5 @@
 {
-  "app_title": "GUS Patch Editor",
+  "app_title": "Planetbiru Instrument Editor",
   "language_label": "Bahasa",
   "language_preference_save_failed": "Bahasa berubah, tetapi preferensi tidak dapat disimpan di browser ini.",
   "language_indonesian": "Bahasa Indonesia",
@@ -58,7 +58,7 @@
   "export_instrument": "Export Instrumen Ini",
   "midi_monitor": "Pemantau MIDI",
   "no_midi_messages": "Belum ada pesan MIDI.",
-  "editor_heading": "Editor GUS Patch",
+  "editor_heading": "Planetbiru Instrument Editor",
   "welcome_description": "Load a Gravis Ultrasound .PAT, a SoundFont .SF2, a Timidity .ZIP package, or a MIDI.js soundfont .JS file. Edit patch properties and waveforms, import/export WAV and JSON samples, and test sounds via keyboard or MIDI. All data is stored in your browser's IndexedDB. Note: SoundFont files can be very large — conversion to GUS patches may require substantial memory and free storage space.",
   "welcome_tip": "<b>Tips:</b> Anda dapat menguji patch suara dengan memuat file MIDI dan memutarnya melalui panel <b>Preview MIDI</b> di sidebar sebelah kiri.",
   "open_file": "Buka File",
@@ -436,5 +436,19 @@
   "drum_kit_only": "Drum Kit Saja",
   "search_patch_name": "Cari nama patch...",
   "export_sf2_processing": "Mengekspor SF2...",
-  "export_sf2_done": "Ekspor SF2 selesai"
+  "export_sf2_done": "Ekspor SF2 selesai",
+  "midi_timeline_btn": "Timeline",
+  "midi_timeline_title": "Timeline Instrumen MIDI",
+  "midi_timeline_desc": "Menampilkan instrumen dan bank yang digunakan per channel sepanjang lagu. Klik bar untuk memilih patch terkait di library.",
+  "midi_timeline_no_midi": "Muat file MIDI terlebih dahulu.",
+  "midi_timeline_empty": "Tidak ada program change ditemukan pada MIDI ini.",
+  "midi_timeline_patch_not_found": "Patch tidak ditemukan untuk Program {program}, Bank {bank}, Channel {channel}.",
+  "midi_timeline_drum_kit_not_found": "Drum kit tidak ditemukan untuk Bank {bank}.",
+  "timeline_tooltip_channel": "Channel {channel}",
+  "timeline_tooltip_drum": "(Drum)",
+  "timeline_tooltip_program": "Program: {program}",
+  "timeline_tooltip_instrument": "Instrumen: {name}",
+  "timeline_tooltip_bank": "Bank: {bank}",
+  "timeline_tooltip_tick": "Tick: {start} – {end}",
+  "unknown_instrument": "Instrumen Tidak Dikenal (Prog {program})"
 }

@@ -1,5 +1,5 @@
 {
-  "app_title": "GUS Patch Editor",
+  "app_title": "Planetbiru Instrument Editor",
   "language_label": "Language",
   "language_preference_save_failed": "Language changed, but this browser could not save your preference.",
   "language_indonesian": "Indonesian",
@@ -58,7 +58,7 @@
   "export_instrument": "Export This Instrument",
   "midi_monitor": "MIDI Monitor",
   "no_midi_messages": "No MIDI messages yet.",
-  "editor_heading": "GUS Patch Editor",
+  "editor_heading": "Planetbiru Instrument Editor",
   "welcome_description": "Load a Gravis Ultrasound .PAT file or a SoundFont .SF2 file (automatically converted into multiple GUS patches). Edit patch properties, edit waveforms, import/export WAV files, and test sounds using your keyboard or MIDI. All data is stored in your browser's IndexedDB. Warning: SoundFont files are generally large, and their size can grow substantially when converted to GUS Patches. Make sure your computer has at least 16 GB of RAM and 15 GB of free storage.",
   "welcome_tip": "<b>Tip:</b> Load and play a MIDI file in the <b>MIDI Preview</b> panel in the left sidebar to test patch sounds.",
   "open_file": "Open File",
@@ -436,5 +436,19 @@
   "drum_kit_only": "Drum Kit Only",
   "search_patch_name": "Search patch name...",
   "export_sf2_processing": "Exporting SF2...",
-  "export_sf2_done": "Exporting SF2 done"
+  "export_sf2_done": "Exporting SF2 done",
+  "midi_timeline_btn": "Timeline",
+  "midi_timeline_title": "MIDI Instrument Timeline",
+  "midi_timeline_desc": "Displays the instruments and banks used on each channel throughout the song. Click a bar to select the corresponding patch in the library.",
+  "midi_timeline_no_midi": "Please load a MIDI file first.",
+  "midi_timeline_empty": "No program changes were found in this MIDI file.",
+  "midi_timeline_patch_not_found": "Patch not found for Program {program}, Bank {bank}, Channel {channel}.",
+  "midi_timeline_drum_kit_not_found": "Drum kit not found for Bank {bank}.",
+  "timeline_tooltip_channel": "Channel {channel}",
+  "timeline_tooltip_drum": "(Drum)",
+  "timeline_tooltip_program": "Program: {program}",
+  "timeline_tooltip_instrument": "Instrument: {name}",
+  "timeline_tooltip_bank": "Bank: {bank}",
+  "timeline_tooltip_tick": "Tick: {start} – {end}",
+  "unknown_instrument": "Unknown Instrument (Prog {program})"
 }
