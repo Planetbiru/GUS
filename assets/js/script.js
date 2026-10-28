@@ -3906,7 +3906,7 @@ function togglePauseMidi() {
     cancelAnimationFrame(midiProgress.raf);
     
     const btn = $("btnPlayMidi");
-    btn.innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("resume")}`;
+    btn.innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
     btn.classList.remove("danger"); // Keep primary class
     btn.classList.add("primary");
     setMidiStatus("midi_paused");
