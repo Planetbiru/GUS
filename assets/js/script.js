@@ -6495,6 +6495,57 @@ function normalizePath(p) {
   return p.replace(/^\/+/, '').replace(/\\/g, '/').replace(/\/+/g, '/').replace(/^\.\//, '');
 }
 
+/**
+ * Ambil direktori dari path file di dalam ZIP (dengan trailing slash).
+ * "timidity.cfg"        -> ""
+ * "wrapper/timidity.cfg"-> "wrapper/"
+ * "a/b/c/cfg.ini"       -> "a/b/c/"
+ */
+function zipDirname(path) {
+  const norm = String(path).replace(/\\/g, '/');
+  const idx = norm.lastIndexOf('/');
+  return idx < 0 ? "" : norm.slice(0, idx + 1);
+}
+
+/**
+ * Deteksi folder wrapper: bila root ZIP hanya berisi folder (tidak ada file
+ * langsung di root) dan hanya ada satu folder top-level, kembalikan path
+ * folder itu dengan trailing slash. Selain itu, kembalikan "".
+ *
+ * Ini menangani ZIP seperti:
+ *   package/
+ *     timidity.cfg
+ *     piano.pat
+ *
+ * Jika root punya file (mis. timidity.cfg langsung di root), fungsi
+ * mengembalikan "" karena tidak ada wrapper yang perlu ditembus.
+ */
+function detectWrapperFolder(zip) {
+  const roots = new Set();
+  let hasRootFile = false;
+
+  for (const name of zip.files.keys()) {
+    const parts = name.replace(/\\/g, '/').split('/').filter(Boolean);
+    if (parts.length === 0) continue;
+
+    if (parts.length === 1) {
+      // Entry langsung di root — folder (trailing /) atau file?
+      if (name.endsWith('/')) {
+        roots.add(parts[0]);
+      } else {
+        hasRootFile = true;
+      }
+    } else {
+      // Entry di dalam subfolder → parts[0] adalah folder top-level
+      roots.add(parts[0]);
+    }
+  }
+
+  if (hasRootFile) return "";
+  if (roots.size === 1) return Array.from(roots)[0] + "/";
+  return "";
+}
+
 function parseTimidityCfg(text) {
   const patches = [];
   let currentBank = null;
@@ -6549,39 +6600,226 @@ function parseTimidityCfg(text) {
   return patches;
 }
 
+/**
+ * Parse file ultramid.ini (UltraMID / GUS patch collection).
+ *
+ * Format per baris (CSV):
+ *   <program>, <256K>, <512K>, <768K>, <1024K>, <name>
+ *
+ * Mapping program:
+ *   0..127   -> melodic  (gmBank=0,   gmProgram=program)
+ *   128      -> placeholder "blank", dilewati
+ *   129..255 -> drum     (gmBank=128, gmProgram=program-128)
+ *
+ * Kolom remap ukuran library diabaikan — kita impor koleksi penuh.
+ * Kolom `name` menjadi nama file patch (name + ".pat"); pencocokan
+ * sebenarnya ditangani oleh findPatchFileInZip (case-insensitive,
+ * abaikan ekstensi).
+ */
+function parseUltramidIni(text) {
+  const patches = [];
+  const lines = text.split(/\r?\n/);
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    if (line.startsWith('#') || line.startsWith(';')) continue;
+    // Baris data harus diawali angka (nomor program)
+    if (!/^\d/.test(line)) continue;
+
+    const parts = line.split(',').map(s => s.trim());
+    if (parts.length < 2) continue;
+
+    const program = parseInt(parts[0], 10);
+    const name = parts[parts.length - 1];
+
+    if (!Number.isFinite(program) || !name) continue;
+    if (program < 0 || program > 255) continue;
+
+    // Program 128 = placeholder "blank" — jangan diimpor
+    if (program === 128) continue;
+
+    let isDrum, gmProgram, gmBank;
+    if (program < 128) {
+      isDrum = false;
+      gmProgram = program;
+      gmBank = 0;
+    } else {
+      // 129..255 -> drum note 1..127
+      isDrum = true;
+      gmProgram = program - 128;
+      gmBank = 128;
+      if (gmProgram > 127) continue; // safety
+    }
+
+    patches.push({
+      program: gmProgram,
+      filename: name + ".pat",
+      isDrum,
+      targetBank: 0
+    });
+  }
+
+  return patches;
+}
+
+/* ---------- ZIP filename helpers (case-insensitive, extension-agnostic) ---------- */
+function zipBasename(path) {
+  return String(path).split(/[\\/]/).pop() || "";
+}
+
+// "Piano.PAT" -> "piano", "sub/Drums.pat" -> "drums"
+function normalizeBasenameKey(name) {
+  return zipBasename(name).toLowerCase().replace(/\.[^.]+$/, "");
+}
+
+/**
+ * Kandidat file konfigurasi (urut prioritas):
+ *   1. timidity.cfg  (format "timidity")
+ *   2. *.cfg         (format "timidity")
+ *   3. *.ini         (coba "timidity" dulu, lalu "ultramid")
+ *
+ * Setiap kandidat = { name, format }.
+ */
+function findConfigFileCandidates(zip) {
+  const names = Array.from(zip.files.keys());
+  const candidates = [];
+  const seen = new Set();
+  const push = (name, format) => {
+    const key = name + "|" + format;
+    if (seen.has(key)) return;
+    seen.add(key);
+    candidates.push({ name, format });
+  };
+
+  // Prioritas 1: timidity.cfg
+  names.forEach(name => {
+    if (zipBasename(name).toLowerCase() === "timidity.cfg") push(name, "timidity");
+  });
+  // Prioritas 2: *.cfg (selain timidity.cfg yang sudah masuk)
+  names.forEach(name => {
+    if (/\.cfg$/i.test(name) && zipBasename(name).toLowerCase() !== "timidity.cfg") {
+      push(name, "timidity");
+    }
+  });
+  // Prioritas 3: *.ini — coba sebagai TiMidity dulu, lalu sebagai UltraMID
+  names.forEach(name => {
+    if (/\.ini$/i.test(name)) {
+      push(name, "timidity");
+      push(name, "ultramid");
+    }
+  });
+
+  return candidates;
+}
+
+/**
+ * Cari file patch di dalam ZIP yang cocok dengan path yang direferensikan
+ * oleh cfg. Pencocokan dilakukan berlapis (paling ketat → paling longgar):
+ *   1. Path ternormalisasi persis (case-insensitive)
+ *   2. Suffix "/<target>" (case-insensitive)
+ *   3. Basename persis (case-insensitive, dengan ekstensi)
+ *   4. Basename tanpa ekstensi (case-insensitive), preferensi .pat
+ */
+function findPatchFileInZip(zip, targetPath) {
+  const targetNorm = normalizePath(targetPath).toLowerCase();
+  const targetBasename = zipBasename(targetPath).toLowerCase();
+  const targetKey = normalizeBasenameKey(targetPath);
+
+  // Pass 1: exact normalized path
+  for (const [name, entry] of zip.files) {
+    if (normalizePath(name).toLowerCase() === targetNorm) return entry;
+  }
+  // Pass 2: endsWith (folder berbeda di root ZIP)
+  for (const [name, entry] of zip.files) {
+    const normName = normalizePath(name).toLowerCase();
+    if (normName.endsWith("/" + targetNorm)) return entry;
+  }
+  // Pass 3: exact basename (case-insensitive, dengan ekstensi)
+  for (const [name, entry] of zip.files) {
+    if (zipBasename(name).toLowerCase() === targetBasename) return entry;
+  }
+  // Pass 4: basename tanpa ekstensi — preferensi file .pat
+  const candidates = [];
+  for (const [name, entry] of zip.files) {
+    if (normalizeBasenameKey(name) === targetKey) candidates.push({ name, entry });
+  }
+  if (candidates.length > 0) {
+    const patMatch = candidates.find(c => /\.pat$/i.test(c.name));
+    return (patMatch || candidates[0]).entry;
+  }
+  return null;
+}
+
 async function handleZipOpen(ab) {
   showStatus(t("reading_zip"));
   const zip = await readZip(ab);
 
+  // 1) Cari kandidat config: timidity.cfg → *.cfg → *.ini (+ultramid)
+  const cfgCandidates = findConfigFileCandidates(zip);
+  if (cfgCandidates.length === 0) throw new Error(t("zip_no_cfg"));
+
+  // 2) Coba tiap kandidat hingga menghasilkan >= 1 patch
   let cfgName = null;
-  for (const name of zip.files.keys()) {
-    if (name.endsWith('timidity.cfg') || name === 'timidity.cfg') {
-      cfgName = name;
-      break;
+  let parsed = null;
+  for (const candidate of cfgCandidates) {
+    try {
+      const cfgData = await extractFile(zip, zip.files.get(candidate.name));
+      const text = new TextDecoder().decode(cfgData);
+      const result = (candidate.format === "ultramid")
+        ? parseUltramidIni(text)
+        : parseTimidityCfg(text);
+      if (result.length > 0) {
+        cfgName = candidate.name;
+        parsed = result;
+        break;
+      }
+    } catch (e) {
+      console.warn(
+        `Gagal parse kandidat config "${candidate.name}" (${candidate.format}):`,
+        e
+      );
     }
   }
-  if (!cfgName) throw new Error(t("zip_no_cfg"));
 
-  const cfgData = await extractFile(zip, zip.files.get(cfgName));
-  const cfgText = new TextDecoder().decode(cfgData);
-  const parsed = parseTimidityCfg(cfgText);
+  if (!parsed) throw new Error(t("zip_no_patches"));
 
-  if (parsed.length === 0) throw new Error(t("zip_no_patches"));
+  // 3) Tentukan base directory untuk resolusi path patch.
+  //    - Jika config berada di subfolder → pakai direktori config sebagai basis.
+  //    - Jika config di root → baseDir = "" (cari dari root, seperti biasa).
+  //    - Jika config di root tapi patch berada di wrapper folder → wrapperFolder
+  //      dipakai sebagai hint tambahan.
+  const cfgDir = zipDirname(cfgName);
+  const wrapperFolder = detectWrapperFolder(zip);
+  const baseDir = cfgDir || ""; // prioritas: direktori config
 
   const entries = [];
   let processed = 0;
 
   for (const item of parsed) {
     const targetPath = normalizePath(item.filename);
+
     let zipFileEntry = null;
 
-    // Cari file di dalam ZIP (Exact match atau EndsWith)
-    for (const [name, entry] of zip.files) {
-      const normName = normalizePath(name);
-      if (normName === targetPath || normName.endsWith('/' + targetPath) || normName === targetPath.split('/').pop()) {
-        zipFileEntry = entry;
-        break;
-      }
+    // (a) Coba dengan prefix baseDir — pencocokan persis (Pass 1 di
+    //     findPatchFileInZip memakai exact match, jadi paling presisi).
+    if (baseDir) {
+      const prefixed = normalizePath(baseDir + targetPath);
+      zipFileEntry = findPatchFileInZip(zip, prefixed);
+    }
+
+    // (b) Fallback: path asli. findPatchFileInZip akan mencoba 4 lapis
+    //     (exact → suffix / → basename → basename tanpa ekstensi),
+    //     yang menangani wrapper folder secara implisit.
+    if (!zipFileEntry) {
+      zipFileEntry = findPatchFileInZip(zip, targetPath);
+    }
+
+    // (c) Fallback terakhir: bila config di root tapi ada wrapper folder
+    //     yang berbeda dari cfgDir, coba prefix wrapperFolder secara eksplisit.
+    if (!zipFileEntry && wrapperFolder && wrapperFolder !== baseDir) {
+      const wrapped = normalizePath(wrapperFolder + targetPath);
+      zipFileEntry = findPatchFileInZip(zip, wrapped);
     }
 
     if (!zipFileEntry) {
@@ -6589,16 +6827,13 @@ async function handleZipOpen(ab) {
       continue;
     }
 
-        try {
+    try {
       const patData = await extractFile(zip, zipFileEntry);
       const patch = parsePAT(patData);
       const fallbackName = item.filename.split('/').pop().replace(/\.pat$/i, "");
-      
-      // Dapatkan nama (prioritas: instrumen -> GM -> deskripsi -> nama file)
       const entryName = getImportedPatchName(patch, item, fallbackName);
 
-      // === AUTO-FILL NAMA INSTRUMEN ===
-      // Jika nama instrumen di dalam PAT kosong, isi dengan entryName (maks 16 karakter)
+      // Auto-fill nama instrumen jika kosong
       if (patch.instruments && patch.instruments.length > 0) {
         for (const inst of patch.instruments) {
           if (!inst.name || !inst.name.trim()) {

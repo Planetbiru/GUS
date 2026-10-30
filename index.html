@@ -269,15 +269,6 @@
               </svg> {{stop}}</button>
           </div>
 
-          <div class="inline-actions">
-            <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
-            
-            <button class="btn small" id="btnShowMidiTimeline" title="{{midi_timeline_title}}" data-i18n-title="midi_timeline_title" style="flex:1" disabled>
-              <svg class="icon"><use href="#i-chart"></use></svg> {{midi_timeline_btn}}
-            </button>
-
-          </div>
-
           <div class="midi-volume-row">
             <span class="midi-volume-label"><svg class="icon">
                 <use href="#i-volume"></use>
@@ -287,15 +278,23 @@
             <span id="midiVolVal" class="midi-volume-value">100%</span>
           </div>
 
-          <button class="btn small" id="btnRenderMidi" disabled><svg class="icon">
-              <use href="#i-download"></use>
-            </svg> {{render_midi_wav}}
-          </button>
-          <button class="btn small" id="btnShowMidiUsedPatches" disabled
-                  title="{{midi_used_patches_title}}" data-i18n-title="midi_used_patches_title">
-            <svg class="icon"><use href="#i-chart"></use></svg> {{midi_used_patches_btn}}
-          </button>
 
+          <div class="inline-actions">
+            <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon">
+              <use href="#i-folder"></use></svg> {{select_bank}}
+            </button>
+            <button class="btn small" id="btnRenderMidi" style="flex:1" disabled>
+              <svg class="icon"><use href="#i-download"></use> </svg> {{render_midi_wav}}
+            </button>            
+          </div>
+          <div class="inline-actions">
+            <button class="btn small" id="btnShowMidiTimeline" title="{{midi_timeline_title}}" data-i18n-title="midi_timeline_title" style="flex:1" disabled>
+              <svg class="icon"><use href="#i-chart"></use></svg> {{midi_timeline_btn}}
+            </button>
+            <button class="btn small" id="btnShowMidiUsedPatches" disabled title="{{midi_used_patches_title}}" data-i18n-title="midi_used_patches_title" style="flex:1">
+              <svg class="icon"><use href="#i-chart"></use></svg> {{midi_used_patches_btn}}
+            </button>
+          </div>
           <div id="midiStatus">{{select_project_load_midi}}</div>
         </div>
       </div>
