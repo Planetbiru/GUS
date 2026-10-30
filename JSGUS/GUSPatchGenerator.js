@@ -178,17 +178,23 @@ class MelodicRenderer {
 
         if (isLoop) {
             // Kunci phase-coherent loop:
-            //   cs HARUS integer, dan frekuensi natural sample = SR/cs.
-            //   rootFreq di patch WAJIB = naturalFreq (bukan user freq).
+            // cs HARUS integer, dan frekuensi natural sample = SR/cs.
+            // rootFreq di patch WAJIB = naturalFreq (bukan user freq).
             const targetFreq = o.freq || p.freq || 441;
             cs = p.cycleSamples || Math.max(2, Math.round(SR / targetFreq));
             naturalFreq = SR / cs;
 
             const cycles = p.cycles || 12;
-            length    = cs * cycles;
-            baseFreq  = naturalFreq;
+            const tailCycles = p.tailCycles || 4;
+
+            // Bagian loop tetap memiliki panjang seperti sebelumnya.
             loopStart = (p.loopSkip || 3) * cs;
-            loopEnd   = length;
+            loopEnd = cs * cycles;
+
+            // Tambahkan ekor setelah loopEnd.
+            length = loopEnd + cs * tailCycles;
+
+            baseFreq = naturalFreq;
         } else {
             // Skala durasi agar sample-rate-independent
             length = p.length
@@ -268,6 +274,22 @@ class MelodicRenderer {
                 }
             }
         }
+
+        // --- Fade-out pada ekor setelah loopEnd ---
+        if (isLoop && length > loopEnd) {
+            const tailLength = length - loopEnd;
+
+            for (let i = 0; i < tailLength; i++) {
+                const t = (i + 1) / tailLength;
+
+                // Fade-out cosine: turun perlahan hingga nol.
+                const gain = 0.5 * (1 + Math.cos(Math.PI * t));
+
+                out[loopEnd + i] *= gain;
+            }
+        }
+
+        GUSPatchGenerator.normalize(out, 0.9);
 
         GUSPatchGenerator.normalize(out, 0.9);
         return { pcm: out, length, loopStart, loopEnd, loop: isLoop, SR, naturalFreq };
