@@ -430,6 +430,7 @@ main {
 }
 
 .modal-overlay input,
+.modal-overlay textarea,
 .modal-overlay select,
 .card input,
 .card select {
@@ -443,8 +444,16 @@ main {
     min-width: 0;
     transition: border-color ease-in-out 0.05s;
 }
+.modal-overlay textarea{
+    font: 13px ui-sans-serif, system-ui, sans-serif;
+}
+.modal-overlay textarea::placeholder{
+    color: rgba(255, 255, 255, 0.4);
 
-.modal-overlay input:focus, .card input:focus {
+}
+
+
+.modal-overlay input:focus, .modal-overlay textarea:focus, .card input:focus {
     border-color: #335f70;
 }
 

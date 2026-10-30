@@ -7,7 +7,7 @@ const MODE_LABELS=[[M16,"mode_16_bit"],[MUNS,"mode_unsigned"],[MLOOP,"mode_loop"
 const $ = id => document.getElementById(id);
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const midiToFreq = n => 440 * Math.pow(2, (n-69)/12);
-
+let editingProjectPropertiesId = null;
 
 
 /* ---------- GM Instrument Name Lists ---------- */
@@ -169,12 +169,6 @@ function setLanguage(nextLocale) {
   const defaultDemoProjectName = t("demo_project_name");
   locale = nextLocale;
   translations = localePacks[locale];
-
-  for (const proj of state.projects) {
-    if (proj.locale) {
-      proj.name = t("recovered_library_project");
-    }
-  }
 
   let preferenceSaved = true;
   try {
@@ -2456,6 +2450,117 @@ function requestDeleteProject(id) {
   $("deleteProjectError").textContent = "";
   $("deleteProjectDialog").hidden = false;
   $("btnCancelDeleteProject").focus();
+}
+
+/* ---------- Project Properties Modal ---------- */
+function openProjectPropertiesDialog(projectId) {
+  const project = state.projects.find(p => p.id === projectId);
+  if (!project) return;
+
+  editingProjectPropertiesId = projectId;
+
+  $("projectPropName").value        = project.name || "";
+  $("projectPropAuthor").value      = project.author || "";
+  $("projectPropSource").value      = project.sourceFile || "";
+  $("projectPropStartDate").value   = project.startDate || "";
+  $("projectPropEndDate").value     = project.endDate || "";
+  $("projectPropDescription").value = project.description || "";
+  $("projectPropertiesError").textContent = "";
+
+  // Auto-isi source jika masih kosong
+  if (!project.sourceFile) {
+    const detected = detectProjectSourceFile(project);
+    if (detected) $("projectPropSource").value = detected;
+  }
+
+  $("projectPropertiesDialog").hidden = false;
+  requestAnimationFrame(() => {
+    $("projectPropName").focus();
+    $("projectPropName").select();
+  });
+}
+
+function closeProjectPropertiesDialog(force = false) {
+  if (!force && $("btnSaveProjectProperties").disabled) return;
+  editingProjectPropertiesId = null;
+  $("projectPropertiesDialog").hidden = true;
+}
+
+async function saveProjectProperties() {
+  const projectId = editingProjectPropertiesId;
+  if (!projectId) return;
+
+  const project = state.projects.find(p => p.id === projectId);
+  if (!project) {
+    closeProjectPropertiesDialog(true);
+    return;
+  }
+
+  const name = $("projectPropName").value.trim();
+  if (!name) {
+    $("projectPropertiesError").textContent = t("project_name_required");
+    $("projectPropName").focus();
+    return;
+  }
+
+  const startDate = $("projectPropStartDate").value || "";
+  const endDate   = $("projectPropEndDate").value   || "";
+  if (startDate && endDate && endDate < startDate) {
+    $("projectPropertiesError").textContent = t("project_end_date_before_start");
+    $("projectPropEndDate").focus();
+    return;
+  }
+
+  const saveButton = $("btnSaveProjectProperties");
+  saveButton.disabled = true;
+  $("projectPropertiesError").textContent = "";
+
+  try {
+    const updated = {
+      ...project,
+      name,
+      author:      $("projectPropAuthor").value.trim()      || undefined,
+      sourceFile:  $("projectPropSource").value.trim()      || undefined,
+      startDate:   startDate                                || undefined,
+      endDate:     endDate                                  || undefined,
+      description: $("projectPropDescription").value.trim() || undefined
+    };
+
+    // Jika proyek "recovered" di-rename oleh user, lepaskan flag locale
+    // agar nama baru tidak ditimpa saat ganti bahasa.
+    if (project.locale && name !== t("recovered_library_project")) {
+      delete updated.locale;
+    }
+
+    await saveProject(updated);
+    Object.assign(project, updated);
+
+    closeProjectPropertiesDialog(true);
+    renderProjects();
+    showStatus(t("project_properties_saved", { name: updated.name }), "ok");
+  } catch (err) {
+    console.error("Save project properties error:", err);
+    $("projectPropertiesError").textContent = t("project_save_failed");
+  } finally {
+    saveButton.disabled = false;
+  }
+}
+
+/**
+ * Deteksi otomatis nama file sumber dari daftar patch dalam proyek.
+ * Mengembalikan string gabungan nama file (tanpa prefix "sf2:", "zip:", dst).
+ */
+function detectProjectSourceFile(project) {
+  const sources = new Set();
+  for (const patchId of project.patchIds || []) {
+    const patch = state.patches.find(p => p.id === patchId);
+    if (!patch || !patch.source) continue;
+    const src = patch.source;
+    if (src === "pat" || src === "generated" || src === "demo-generated") continue;
+    const match = src.match(/^(?:sf2|zip|midijs):(.+)$/);
+    if (match) sources.add(match[1]);
+  }
+  return Array.from(sources).sort().join(", ");
 }
 
 function closeDeleteProjectDialog(force = false) {
@@ -5670,24 +5775,48 @@ function renderProjects() {
     const d = document.createElement("div");
     d.className = "li" + (proj.id === state.currentProjectId ? " active" : "");
     const patchCount = proj.patchIds.length;
+
+    const metaParts = [
+      t(patchCount === 1 ? "patch_count_one" : "patch_count_many", { count: patchCount })
+    ];
+    // if (proj.author) metaParts.push(proj.author);
+    const metaText = metaParts.join(" · ");
+
+    const displayName = proj.locale ? t("recovered_library_project") : proj.name;
+
     d.innerHTML = `
-      <span class="name"${proj.locale ? ` data-i18n-content="recovered_library_project"` : ""} title="${proj.locale ? t("recovered_library_project") : escapeHtml(proj.name)}">${proj.locale ? t("recovered_library_project") : escapeHtml(proj.name)}</span>
-      <span class="meta">${t(patchCount === 1 ? "patch_count_one" : "patch_count_many", {count: patchCount})}</span>
+      <span class="name"${proj.locale ? ` data-i18n-content="recovered_library_project"` : ""}
+            title="${escapeHtml(proj.name || "")}">${escapeHtml(displayName || "")}</span>
+      <span class="meta">${escapeHtml(metaText)}</span>
       <span class="tools">
-  <button class="icon-btn" data-act="export" title="${t("export_project_zip")}"><svg class="icon"><use href="#i-download"></use></svg></button>
-  <button class="icon-btn danger" data-act="delete" title="${t("delete")}"><svg class="icon"><use href="#i-close"></use></svg></button>
-</span>`;
+        <button class="icon-btn" data-act="edit"
+                title="${t("edit_project_properties")}"
+                aria-label="${t("edit_project_properties")}">
+          <svg class="icon"><use href="#i-pencil"></use></svg>
+        </button>
+        <button class="icon-btn" data-act="export"
+                title="${t("export_project_zip")}">
+          <svg class="icon"><use href="#i-download"></use></svg>
+        </button>
+        <button class="icon-btn danger" data-act="delete"
+                title="${t("delete")}">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </span>`;
+
     d.addEventListener("click", ev => {
-  if (isMidiRendering) return;
-  const btn = ev.target.closest("button");
-  if (btn) {
+      if (isMidiRendering) return;
+      const btn = ev.target.closest("button");
+      if (btn) {
         ev.stopPropagation();
-        if (btn.dataset.act === "export") exportProject(proj.id);
+        if (btn.dataset.act === "edit")       openProjectPropertiesDialog(proj.id);
+        else if (btn.dataset.act === "export") exportProject(proj.id);
         else if (btn.dataset.act === "delete") requestDeleteProject(proj.id);
         return;
       }
       selectProject(proj.id);
     });
+
     list.appendChild(d);
   });
   const hasActive = !!state.currentProjectId;
@@ -7892,6 +8021,24 @@ function bind(){
       newProjectDialog.hidden = true;
     }
   });
+
+  // === Project Properties Modal ===
+  $("btnCloseProjectProperties").addEventListener("click", () => closeProjectPropertiesDialog());
+  $("btnCancelProjectProperties").addEventListener("click", () => closeProjectPropertiesDialog());
+  $("btnSaveProjectProperties").addEventListener("click", saveProjectProperties);
+  $("projectPropertiesDialog").addEventListener("click", e => {
+    if (e.target === $("projectPropertiesDialog")) closeProjectPropertiesDialog();
+  });
+  $("projectPropertiesDialog").addEventListener("keydown", e => {
+    if (e.key === "Escape") closeProjectPropertiesDialog();
+  });
+  ["projectPropName", "projectPropAuthor", "projectPropSource"].forEach(id => {
+    $(id).addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); saveProjectProperties(); }
+    });
+  });
+
+
   $("btnCancelDeleteProject").addEventListener("click", closeDeleteProjectDialog);
   $("btnConfirmDeleteProject").addEventListener("click", confirmDeleteProject);
   $("deleteProjectDialog").addEventListener("click", event => {
