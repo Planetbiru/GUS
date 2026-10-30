@@ -1,6 +1,8 @@
 class ProjectPatchGenerator {
-  static MODE_UNSIGNED_PCM = 0x02;
-  static MODE_LOOP = 0x04;
+  static MODE_16BIT         = 0x01;   // BARU
+  static MODE_UNSIGNED_PCM  = 0x02;
+  static MODE_LOOP          = 0x04;
+  static MODE_ENVELOPE      = 0x40;   // BARU — dipakai untuk loop
 
   constructor({sampleRate = 22050, duration = 0.25} = {}) {
     this.sampleRate = sampleRate;
@@ -44,34 +46,44 @@ class ProjectPatchGenerator {
       }).render();
     }
 
-    const pcm = new Uint8Array(rendered.pcm.length);
+    // --- PCM: signed 16-bit little-endian ---
+    const pcm = new Uint8Array(rendered.pcm.length * 2);
     for (let i = 0; i < rendered.pcm.length; i++) {
-      pcm[i] = Math.round(Math.max(-1, Math.min(1, rendered.pcm[i])) * 127) + 128;
+      let v = Math.round(Math.max(-1, Math.min(1, rendered.pcm[i])) * 32768);
+      if (v >  32767) v =  32767;
+      if (v < -32768) v = -32768;
+      if (v < 0) v += 65536;
+      pcm[i * 2]     =  v       & 0xff;
+      pcm[i * 2 + 1] = (v >> 8) & 0xff;
     }
+
     const sampleName = this.slugify(name).slice(0, 7) || "PATCH";
-    const lowFreq = Math.round(8.1757989156 * 1000);
+    const lowFreq  = Math.round(8.1757989156 * 1000);
     const highFreq = Math.round(12543.853951 * 1000);
+
+    // modes: 16-bit selalu; loop menambah MLOOP + MENV
+    let modes = ProjectPatchGenerator.MODE_16BIT;
+    if (rendered.loop) {
+      modes |= ProjectPatchGenerator.MODE_LOOP | ProjectPatchGenerator.MODE_ENVELOPE;
+    }
+
     const sample = {
       name: sampleName,
       fractions: 0,
-      dataSize: pcm.length,
-      loopStart: rendered.loop ? rendered.loopStart : 0,
-      loopEnd: rendered.loop ? rendered.loopEnd : 0,
+      dataSize: pcm.length,                                       // BYTES (2 × jumlah sampel)
+      loopStart: rendered.loop ? rendered.loopStart * 2 : 0,      // BYTES
+      loopEnd:   rendered.loop ? rendered.loopEnd   * 2 : 0,      // BYTES
       sampleRate: this.sampleRate,
       lowFreq,
       highFreq,
       rootFreq: Math.round(rootFreq * 1000),
       tune: 0,
       balance: 7,
-      envRates: [0, 0, 0, 0, 0, 0],
-      envOffsets: [255, 255, 255, 0, 0, 0],
-      tremoloSweep: 0,
-      tremoloRate: 0,
-      tremoloDepth: 0,
-      vibratoSweep: 0,
-      vibratoRate: 0,
-      vibratoDepth: 0,
-      modes: ProjectPatchGenerator.MODE_UNSIGNED_PCM | (rendered.loop ? ProjectPatchGenerator.MODE_LOOP : 0),
+      envRates:   rendered.loop ? [9, 0, 0, 69, 0, 0]      : [0, 0, 0, 0, 0, 0],
+      envOffsets: rendered.loop ? [255, 255, 255, 0, 0, 0] : [255, 255, 255, 0, 0, 0],
+      tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
+      vibratoSweep: 0, vibratoRate: 0, vibratoDepth: 0,
+      modes,
       scaleFreq: 60,
       scaleFactor: 1024,
       reserved: new Uint8Array(36),

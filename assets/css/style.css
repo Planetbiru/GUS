@@ -1858,3 +1858,7 @@ footer {
     will-change: transform;
     /* Hapus transisi agar pergerakan JS lebih mulus tanpa delay */
 }
+
+.midi-timeline-row[data-channel] {
+  transition: opacity 0.15s ease;
+}

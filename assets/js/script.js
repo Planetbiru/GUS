@@ -253,6 +253,13 @@ let timelinePlayheadEl = null; // Hanya satu playhead
 let timelineTotalTicks = 0;     // Total tick dari lagu yang sedang ditampilkan
 let isMidiRendering = false;
 let isDemoGenerating = false;
+
+// ─── Mute / Solo per MIDI channel ─────────────────────────────────────
+const midiChannelMute = new Array(16).fill(false);
+const midiChannelSolo = new Array(16).fill(false);
+const midiChannelMuteBtnRefs = new Array(16).fill(null);
+const midiChannelSoloBtnRefs = new Array(16).fill(null);
+let muteReapplyTimer = null;
 let pendingProjectDeletionId = null;
 let pendingConfirmationAction = null;
 let activeAlert = null;
@@ -4064,6 +4071,11 @@ function openMidiTimelineDialog() {
   }
 
   container.innerHTML = "";
+
+  // ─── reset referensi tombol M/S ───
+  midiChannelMuteBtnRefs.fill(null);
+  midiChannelSoloBtnRefs.fill(null);
+  
   const totalTicks = Math.max(1, timeline.totalTicks);
 
   timelineTotalTicks = totalTicks; 
@@ -4121,11 +4133,63 @@ function openMidiTimelineDialog() {
   for (let ch = 0; ch < 16; ch++) {
     const row = document.createElement("div");
     row.className = "midi-timeline-row";
+    row.dataset.channel = String(ch);          // ← untuk updateTimelineMutedVisuals()
 
     const label = document.createElement("div");
     label.className = "midi-timeline-label";
-    label.textContent = ch === 9 ? `Drum (9)` : `CH ${ch}`;
-    if (ch === 9) label.style.color = "var(--accent2, #a78bfa)";
+    label.style.display = "flex";
+    label.style.alignItems = "center";
+    label.style.gap = "2px";
+    label.style.overflow = "hidden";
+
+    // ─── Tombol Mute ───
+    const muteBtn = document.createElement("button");
+    muteBtn.type = "button";
+    muteBtn.textContent = "M";
+    muteBtn.title = "Mute channel " + ch;
+    muteBtn.style.cssText =
+      "width:14px;height:14px;padding:0;font-size:9px;font-weight:700;" +
+      "border-radius:2px;border:1px solid #334155;background:#1e293b;" +
+      "color:#94a3b8;cursor:pointer;display:inline-flex;" +
+      "align-items:center;justify-content:center;line-height:1;flex:0 0 auto;";
+    muteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      midiChannelMute[ch] = !midiChannelMute[ch];
+      refreshMuteSoloButtons();
+      applyMidiMuteSolo();
+      updateTimelineMutedVisuals();
+    });
+    midiChannelMuteBtnRefs[ch] = muteBtn;
+
+    // ─── Tombol Solo ───
+    const soloBtn = document.createElement("button");
+    soloBtn.type = "button";
+    soloBtn.textContent = "S";
+    soloBtn.title = "Solo channel " + ch;
+    soloBtn.style.cssText =
+      "width:14px;height:14px;padding:0;font-size:9px;font-weight:700;" +
+      "border-radius:2px;border:1px solid #334155;background:#1e293b;" +
+      "color:#94a3b8;cursor:pointer;display:inline-flex;" +
+      "align-items:center;justify-content:center;line-height:1;flex:0 0 auto;";
+    soloBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      midiChannelSolo[ch] = !midiChannelSolo[ch];
+      refreshMuteSoloButtons();
+      applyMidiMuteSolo();
+      updateTimelineMutedVisuals();
+    });
+    midiChannelSoloBtnRefs[ch] = soloBtn;
+
+    // ─── Label nama channel ───
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = ch === 9 ? "Drum" : `CH ${ch}`;
+    nameSpan.style.cssText =
+      "font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;";
+    if (ch === 9) nameSpan.style.color = "var(--accent2, #a78bfa)";
+
+    label.appendChild(muteBtn);
+    label.appendChild(soloBtn);
+    label.appendChild(nameSpan);
 
     const track = document.createElement("div");
     track.className = "midi-timeline-track";
@@ -4167,6 +4231,9 @@ function openMidiTimelineDialog() {
     row.appendChild(track);
     container.appendChild(row);
   }
+
+  refreshMuteSoloButtons();
+  updateTimelineMutedVisuals();
 
   timelinePlayheadEl = document.createElement("div");
   timelinePlayheadEl.className = "midi-timeline-playhead";
@@ -4287,6 +4354,8 @@ function seekToTick(tick) {
   if (timidityPlayer && typeof timidityPlayer.goTo === "function") {
     try {
       timidityPlayer.goTo(clampedTick);
+      // ─── Reapply setelah seek (file mungkin menimpa CC 7) ───
+      scheduleMuteReapply();
     } catch (err) {
       console.warn("TiMidity goTo failed:", err);
     }
@@ -4534,6 +4603,69 @@ function applyMidiVolume() {
   }
 }
 
+/* ---------- Mute / Solo Helper ---------- */
+function isMidiChannelAudible(ch) {
+  const anySolo = midiChannelSolo.some(v => v);
+  if (anySolo) return midiChannelSolo[ch];
+  return !midiChannelMute[ch];
+}
+
+function applyMidiMuteSolo() {
+  if (!timidityPlayer || !state.midiData) return;
+  try {
+    for (let ch = 0; ch < 16; ch++) {
+      timidityPlayer.setChannelMute(ch, !isMidiChannelAudible(ch));
+    }
+  } catch (err) {
+    console.warn("[Mute/Solo] setChannelMute gagal:", err);
+  }
+}
+
+/** Debounce — hindari spam saat user drag slider/seek cepat. */
+function scheduleMuteReapply() {
+  if (muteReapplyTimer) clearTimeout(muteReapplyTimer);
+  muteReapplyTimer = setTimeout(() => {
+    muteReapplyTimer = null;
+    applyMidiMuteSolo();
+  }, 60);
+}
+
+/** Debounce — hindari spam CC 7 saat user drag slider/seek cepat. */
+function scheduleMuteReapply() {
+  if (muteReapplyTimer) clearTimeout(muteReapplyTimer);
+  muteReapplyTimer = setTimeout(() => {
+    muteReapplyTimer = null;
+    applyMidiMuteSolo();
+  }, 60);
+}
+
+function refreshMuteSoloButtons() {
+  for (let ch = 0; ch < 16; ch++) {
+    const mBtn = midiChannelMuteBtnRefs[ch];
+    const sBtn = midiChannelSoloBtnRefs[ch];
+    if (mBtn) {
+      const on = midiChannelMute[ch];
+      mBtn.style.background  = on ? "#dc2626" : "var(--bg2, #1e293b)";
+      mBtn.style.color       = on ? "#ffffff" : "var(--dim, #94a3b8)";
+      mBtn.style.borderColor = on ? "#dc2626" : "var(--border, #334155)";
+    }
+    if (sBtn) {
+      const on = midiChannelSolo[ch];
+      sBtn.style.background  = on ? "#eab308" : "var(--bg2, #1e293b)";
+      sBtn.style.color       = on ? "#000000" : "var(--dim, #94a3b8)";
+      sBtn.style.borderColor = on ? "#eab308" : "var(--border, #334155)";
+    }
+  }
+}
+
+function updateTimelineMutedVisuals() {
+  document.querySelectorAll(".midi-timeline-row[data-channel]").forEach(row => {
+    const ch = parseInt(row.dataset.channel, 10);
+    if (isNaN(ch)) return;
+    row.style.opacity = isMidiChannelAudible(ch) ? "" : "0.35";
+  });
+}
+
 function togglePauseMidi() {
   if (!state.midiData) return;
   if (midiProgress.playing) {
@@ -4571,6 +4703,12 @@ async function playMidi(fromTime = 0) {
 
     if (timidityPlayer) timidityPlayer.stop();
     await timidityPlayer.loadAndPlay(state.midiData, fromTime);
+
+    if (timidityPlayer) timidityPlayer.stop();
+    await timidityPlayer.loadAndPlay(state.midiData, fromTime);
+
+    // ─── Reapply mute/solo setelah patch dimuat ───
+    applyMidiMuteSolo();
 
     // ═══════════════════════════════════════════════════════════════
     // Clock UI dimulai SETELAH loadAndPlay selesai.
@@ -5185,6 +5323,8 @@ async function applyBankToPlayer(bank) {
 
   // Cek apakah ada panggilan yang lebih baru yang menggantikan kita
   if (generation !== applyBankGeneration) return;
+
+  applyMidiMuteSolo();
 
   // Jika tidak ada MIDI yang sedang dimuat/diputar, tidak ada yang perlu di-swap.
   if (!state.midiData) {
