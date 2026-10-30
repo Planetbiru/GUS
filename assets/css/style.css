@@ -1871,3 +1871,9 @@ footer {
 .midi-timeline-row[data-channel] {
   transition: opacity 0.15s ease;
 }
+
+#libraryCountLabel{
+    color: var(--dim);
+    font-size: 10px;
+    text-align: center;
+}

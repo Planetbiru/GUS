@@ -470,5 +470,7 @@
   "project_description_placeholder": "Short description, notes, or other remarks about this project",
   "project_properties_saved": "Project properties \"{name}\" saved",
   "project_end_date_before_start": "End date cannot be earlier than start date",
-  "save": "Save"
+  "save": "Save",
+
+  "list_cont_label": "{count} patches"
 }

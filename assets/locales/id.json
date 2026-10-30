@@ -470,5 +470,7 @@
   "project_description_placeholder": "Deskripsi singkat proyek, catatan, atau keterangan lain",
   "project_properties_saved": "Properti proyek \"{name}\" berhasil disimpan",
   "project_end_date_before_start": "Tanggal selesai tidak boleh lebih awal dari tanggal mulai",
-  "save": "Simpan"
+  "save": "Simpan",
+
+  "list_cont_label": "{count} patch"
 }

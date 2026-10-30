@@ -5666,6 +5666,7 @@ function renderLibrary(filterProjectId = undefined) {
   // ========================================
 
   const list = $("patchList");
+  let listCount = 0;
   list.innerHTML = "";
   $("libCount").textContent = displayPatches.length;
   const showAll = state.libraryView === "all";
@@ -5674,6 +5675,7 @@ function renderLibrary(filterProjectId = undefined) {
 
   if (displayPatches.length === 0) {
     list.innerHTML = `<div style="padding:6px;color:var(--dim);font-size:11px;text-align:center">${t("no_patch")}</div>`;
+    $("libraryCountLabel").textContent = t("list_cont_label", {count: 0});
     return;
   }
 
@@ -5717,7 +5719,12 @@ function renderLibrary(filterProjectId = undefined) {
       selectPatch(entry.id);
     });
     list.appendChild(d);
+    listCount++;
   });
+
+  $("libraryCountLabel").textContent = t("list_cont_label", {count: listCount});
+
+
 }
 
 function selectProject(projectId) {
