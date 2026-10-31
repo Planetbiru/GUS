@@ -1,3 +1,136 @@
+// =================================================================
+// Aplikasi ProjectPatchGenerator
+// =================================================================
+
+class ProjectPatchGenerator {
+  static MODE_16BIT         = 0x01;   // BARU
+  static MODE_UNSIGNED_PCM  = 0x02;
+  static MODE_LOOP          = 0x04;
+  static MODE_ENVELOPE      = 0x40;   // BARU — dipakai untuk loop
+
+  constructor({sampleRate = 22050, duration = 0.25} = {}) {
+    this.sampleRate = sampleRate;
+    this.duration = duration;
+    this.library = new InstrumentLibrary();
+  }
+
+  getPrograms(isDrum) {
+    if (isDrum) {
+      return this.library.drums.map(([note, name]) => ({id: note, name}));
+    }
+    return this.library.melodic.map(([, name], id) => ({id, name}));
+  }
+
+  generate({isDrum, program}) {
+    const id = Number(program);
+    if (!Number.isInteger(id)) {
+      throw new Error("Instrument program must be an integer.");
+    }
+
+    let name;
+    let rendered;
+    let rootFreq;
+    if (isDrum) {
+      const drum = this.library.findDrum(id);
+      if (!drum) throw new Error(`Unknown drum instrument: ${id}.`);
+      const [note, drumName, preset] = drum;
+      name = drumName;
+      rendered = new DrumRenderer(preset, this.sampleRate).render();
+      rootFreq = this.library.drumToFreq(note);
+    } else {
+      const instrument = this.library.melodic[id];
+      if (!instrument) throw new Error(`Unknown melodic instrument: ${id}.`);
+      const [, instrumentName, preset] = instrument;
+      name = instrumentName;
+      rootFreq = preset.freq || 441;
+      rendered = new MelodicRenderer(preset, {
+        sampleRate: this.sampleRate,
+        freq: rootFreq,
+        duration: this.duration
+      }).render();
+    }
+
+    // --- PCM: signed 16-bit little-endian ---
+    const pcm = new Uint8Array(rendered.pcm.length * 2);
+    for (let i = 0; i < rendered.pcm.length; i++) {
+      let v = Math.round(Math.max(-1, Math.min(1, rendered.pcm[i])) * 32768);
+      if (v >  32767) v =  32767;
+      if (v < -32768) v = -32768;
+      if (v < 0) v += 65536;
+      pcm[i * 2]     =  v       & 0xff;
+      pcm[i * 2 + 1] = (v >> 8) & 0xff;
+    }
+
+    const sampleName = this.slugify(name).slice(0, 7) || "PATCH";
+    const lowFreq  = Math.round(8.1757989156 * 1000);
+    const highFreq = Math.round(12543.853951 * 1000);
+
+    // modes: 16-bit selalu; loop menambah MLOOP + MENV
+    let modes = ProjectPatchGenerator.MODE_16BIT;
+    if (rendered.loop) {
+      modes |= ProjectPatchGenerator.MODE_LOOP | ProjectPatchGenerator.MODE_ENVELOPE;
+    }
+
+    const sample = {
+      name: sampleName,
+      fractions: 0,
+      dataSize: pcm.length,                                       // BYTES (2 × jumlah sampel)
+      loopStart: rendered.loop ? rendered.loopStart * 2 : 0,      // BYTES
+      loopEnd:   rendered.loop ? rendered.loopEnd   * 2 : 0,      // BYTES
+      sampleRate: this.sampleRate,
+      lowFreq,
+      highFreq,
+      rootFreq: Math.round(rootFreq * 1000),
+      tune: 0,
+      balance: 7,
+      envRates:   rendered.loop ? [9, 0, 0, 69, 0, 0]      : [0, 0, 0, 0, 0, 0],
+      envOffsets: rendered.loop ? [255, 255, 255, 0, 0, 0] : [255, 255, 255, 0, 0, 0],
+      tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
+      vibratoSweep: 0, vibratoRate: 0, vibratoDepth: 0,
+      modes,
+      scaleFreq: 60,
+      scaleFactor: 1024,
+      reserved: new Uint8Array(36),
+      pcm,
+      _float: null
+    };
+    const patch = {
+      header: {
+        magic: "GF1PATCH110",
+        gravisId: "ID#000002",
+        description: name,
+        voices: 14,
+        channels: 0,
+        waveForms: 1,
+        masterVolume: 120,
+        dataSize: 0,
+        reserved: new Uint8Array(36)
+      },
+      instruments: [{
+        instrument: 0,
+        name: this.slugify(name).slice(0, 15),
+        size: 0,
+        reserved: new Uint8Array(40),
+        layers: [{
+          duplicate: 0,
+          layer: 0,
+          layerSize: 0,
+          reserved: new Uint8Array(40),
+          samples: [sample]
+        }]
+      }]
+    };
+    return {patch, name, program: id, isDrum};
+  }
+
+  slugify(value) {
+    return String(value).replace(/[^A-Za-z0-9]/g, "_");
+  }
+}
+
+// =================================================
+
+
 
 // =================================================================
 //                          BAGIAN 1
@@ -10,9 +143,7 @@
 class GUSPatchGenerator {
     static TAU = Math.PI * 2;
 
-    static sin(p) {
-        return Math.sin(Math.PI * 2 * p);
-    }
+    static sin(p) { return Math.sin(Math.PI * 2 * p); }
 
     static partials(phase, amps) {
         let s = 0;
@@ -32,8 +163,15 @@ class GUSPatchGenerator {
         }
     }
 
+    static fadeIn(buffer, fadeLen) {
+        const L = buffer.length;
+        fadeLen = Math.min(fadeLen, L);
+        for (let i = 0; i < fadeLen; i++) buffer[i] *= i / fadeLen;
+    }
+
     static fadeOut(buffer, fadeLen) {
         const L = buffer.length;
+        fadeLen = Math.min(fadeLen, L);
         for (let i = 0; i < fadeLen; i++) buffer[L - 1 - i] *= i / fadeLen;
     }
 
@@ -59,6 +197,118 @@ class GUSPatchGenerator {
             prev += a * (buffer[i] - prev);
             buffer[i] = prev;
         }
+    }
+
+    /* ─────────────── NEW: realism helpers ─────────────── */
+
+    /** Pink noise (−3 dB/oct) — lebih "hangat" dari white, dasar snare wire/breath/wind */
+    static pinkNoise(len) {
+        const out = new Float32Array(len);
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < len; i++) {
+            const w = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + w * 0.0555179;
+            b1 = 0.99332 * b1 + w * 0.0750759;
+            b2 = 0.96900 * b2 + w * 0.1538520;
+            b3 = 0.86650 * b3 + w * 0.3104856;
+            b4 = 0.55000 * b4 + w * 0.5329522;
+            b5 = -0.7616 * b5 - w * 0.0168980;
+            out[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
+            b6 = w * 0.115926;
+        }
+        return out;
+    }
+
+    /** Brown noise (−6 dB/oct) — untuk body kick, low wind rumble */
+    static brownNoise(len) {
+        const out = new Float32Array(len);
+        let last = 0;
+        for (let i = 0; i < len; i++) {
+            const w = Math.random() * 2 - 1;
+            last = (last + 0.02 * w) / 1.02;
+            out[i] = last * 3.5;
+        }
+        return out;
+    }
+
+    /** RBJ peaking filter — basis formant */
+    static peakFilter(buf, freq, q, gainDb, SR) {
+        if (!freq || freq >= SR * 0.49) return;
+        const w0 = 2 * Math.PI * freq / SR;
+        const cosW = Math.cos(w0);
+        const alpha = Math.sin(w0) / (2 * Math.max(0.1, q || 1));
+        const A = Math.pow(10, (gainDb == null ? 6 : gainDb) / 40);
+        const a0 = 1 + alpha / A;
+        const b0 = (1 + alpha * A) / a0;
+        const b1 = (-2 * cosW) / a0;
+        const b2 = (1 - alpha * A) / a0;
+        const a1 = (-2 * cosW) / a0;
+        const a2 = (1 - alpha / A) / a0;
+        let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+        for (let i = 0; i < buf.length; i++) {
+            const x = buf[i];
+            const y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+            x2 = x1; x1 = x; y2 = y1; y1 = y;
+            buf[i] = y;
+        }
+    }
+
+    /** Susun formant — mis. `[{freq:900,q:2,gain:4}, {freq:2200,q:3,gain:3}]` */
+    static applyFormants(buf, formants, SR) {
+        if (!formants) return;
+        for (const f of formants) this.peakFilter(buf, f.freq, f.q, f.gain, SR);
+    }
+
+    /** Time-varying lowpass — startHz → endHz secara eksponensial sepanjang buffer */
+    static brightnessSweep(buf, startHz, endHz, SR) {
+        const N = buf.length;
+        if (!N || !startHz || !endHz) return;
+        let y = 0;
+        for (let i = 0; i < N; i++) {
+            const pos = i / (N - 1);
+            const hz = Math.max(20, Math.min(SR * 0.49,
+                startHz * Math.pow(endHz / startHz, pos)));
+            const dt = 1 / SR;
+            const rc = 1 / (2 * Math.PI * hz);
+            const a = dt / (rc + dt);
+            y += a * (buf[i] - y);
+            buf[i] = y;
+        }
+    }
+
+    /** Soft saturation — richness brass/tube/overdrive */
+    static softClip(buf, drive = 2) {
+        if (!drive || drive <= 0) return;
+        const k = Math.tanh(drive);
+        if (k < 1e-9) return;
+        for (let i = 0; i < buf.length; i++) buf[i] = Math.tanh(buf[i] * drive) / k;
+    }
+
+    /** Bandpass noise (white/pink/brown) — untuk snare wire, cymbal wash */
+    static bandpassNoise(len, centerFreq, q, SR, type = 'white') {
+        let buf;
+        if (type === 'pink') buf = this.pinkNoise(len);
+        else if (type === 'brown') buf = this.brownNoise(len);
+        else {
+            buf = new Float32Array(len);
+            for (let i = 0; i < len; i++) buf[i] = Math.random() * 2 - 1;
+        }
+        const w0 = 2 * Math.PI * centerFreq / SR;
+        const cosW = Math.cos(w0);
+        const alpha = Math.sin(w0) / (2 * Math.max(0.1, q || 1));
+        const a0 = 1 + alpha;
+        const b0 = alpha / a0;
+        const b2 = -alpha / a0;
+        const a1 = -2 * cosW / a0;
+        const a2 = (1 - alpha) / a0;
+        let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+        for (let i = 0; i < len; i++) {
+            const x = buf[i];
+            const y = b0 * x + b2 * x2 - a1 * y1 - a2 * y2;
+            x2 = x1; x1 = x; y2 = y1; y1 = y;
+            buf[i] = y;
+        }
+        return buf;
     }
 }
 
@@ -172,31 +422,20 @@ class MelodicRenderer {
     render() {
         const { p, o, SR, isLoop } = this;
 
-        // --- Tentukan panjang & frekuensi dasar ---
         let length, baseFreq, loopStart = 0, loopEnd = 0, cs = 50;
         let naturalFreq;
 
         if (isLoop) {
-            // Kunci phase-coherent loop:
-            // cs HARUS integer, dan frekuensi natural sample = SR/cs.
-            // rootFreq di patch WAJIB = naturalFreq (bukan user freq).
             const targetFreq = o.freq || p.freq || 441;
             cs = p.cycleSamples || Math.max(2, Math.round(SR / targetFreq));
             naturalFreq = SR / cs;
-
             const cycles = p.cycles || 12;
             const tailCycles = p.tailCycles || 4;
-
-            // Bagian loop tetap memiliki panjang seperti sebelumnya.
             loopStart = (p.loopSkip || 3) * cs;
             loopEnd = cs * cycles;
-
-            // Tambahkan ekor setelah loopEnd.
             length = loopEnd + cs * tailCycles;
-
             baseFreq = naturalFreq;
         } else {
-            // Skala durasi agar sample-rate-independent
             length = p.length
                 ? Math.round(p.length * SR / 22050)
                 : Math.round(SR * (o.duration || 0.25));
@@ -204,50 +443,85 @@ class MelodicRenderer {
             naturalFreq = baseFreq;
         }
 
-        // --- Modulasi: matikan vibrato & detune saat loop ---
-        const vib = isLoop ? null : (p.vibrato || null);
-        const detunes = isLoop ? [0] : (p.detune || [0]);
+        // ─────────────────────────────────────────────────────────────
+        // LOOP PERIODICITY RULES
+        // Untuk loop mulus, sinyal di [loopStart, loopEnd) HARUS periodik
+        // dengan periode `cs`, sehingga out[loopEnd] == out[loopStart]
+        // (fasa + amplitudo identik). Konsekuensinya semua modulasi waktu
+        // (vibrato, detune, FM, inharmonicity, pitchScoop, attack burst,
+        // partialDecay) DIMATIKAN untuk loop. Kalau tidak, fasa drift →
+        // klik/pop atau modulasi amplitudo ("patah-patah").
+        // Vibrato/tremolo tetap bisa diberikan lewat header GUS
+        // (vibratoRate/vibratoDepth/tremolo*) supaya pemutar yang
+        // men-modulasi, bukan sample-nya.
+        // ─────────────────────────────────────────────────────────────
+        const vib       = isLoop ? null : (p.vibrato || null);
+        const detunes   = isLoop ? [0]  : (p.detune || [0]);
+        const env       = p.env || { a: 0.005, d: 0.5, s: 0, r: 0.3 };
+        const noiseAmt  = p.noise || 0;
+        const fm        = isLoop ? null : (p.fm || null);
+        const harm      = p.harm || [1];
+        const inharmB   = isLoop ? 0    : (p.inharmonicity || 0);
+        const atk       = isLoop ? null : (p.attackNoise || null);
+        const scoop     = isLoop ? null : (p.pitchScoop || null);
+        const scoopTime  = scoop ? (scoop.time  || 0.03) : 0;
+        const scoopDepth = scoop ? (scoop.depth || 0.05) : 0;
+        const vibOnset   = p.vibratoOnset != null ? p.vibratoOnset : (isLoop ? 0 : 0.12);
+        const pDecay    = isLoop ? null : (p.partialDecay || null);
 
-        const env      = p.env || { a: 0.005, d: 0.5, s: 0, r: 0.3 };
-        const noiseAmt = p.noise || 0;
-        const fm       = p.fm || null;
-        const harm     = p.harm || [1];
-
+        const nP = harm.length;
         const voices = detunes.map(c => ({
-            phase: 0, modPhase: 0,
-            ratio: Math.pow(2, c / 1200)
+            phases: new Float32Array(nP),
+            modPhase: 0,
+            ratio: Math.pow(2, c / 1200),
         }));
         const out = new Float32Array(length);
-
         const noiseBuf    = (isLoop && noiseAmt > 0) ? this._buildLoopNoise(cs) : null;
         const fadeSamples = isLoop ? cs : 0;
 
-        // --- Render ---
         for (let i = 0; i < length; i++) {
             const t = i / SR;
-            const vDepth = vib ? vib.depth * Math.sin(Math.PI * 2 * vib.rate * t) : 0;
+
+            let sc = 0;
+            if (scoopTime > 0 && t < scoopTime * 4) sc = scoopDepth * Math.exp(-t / scoopTime);
+
+            let vDepth = 0;
+            if (vib) {
+                const onset = Math.min(1, t / Math.max(0.001, vibOnset));
+                vDepth = vib.depth * onset * Math.sin(Math.PI * 2 * vib.rate * t);
+            }
+
             let sample = 0;
 
             for (const v of voices) {
-                const f = baseFreq * v.ratio * (1 + vDepth);
-
-                v.phase += f / SR;
-                v.phase -= Math.floor(v.phase);           // wrap [0,1)
+                const f0 = baseFreq * v.ratio * (1 + vDepth) * (1 + sc);
 
                 if (fm) {
-                    // FM berbasis phase — periodik terhadap loop
-                    v.modPhase += f * fm.ratio / SR;
+                    v.modPhase += f0 * fm.ratio / SR;
                     v.modPhase -= Math.floor(v.modPhase);
                     const mod = Math.sin(Math.PI * 2 * v.modPhase) * fm.index;
-                    sample += Math.sin(Math.PI * 2 * v.phase + mod);
+                    v.phases[0] += f0 / SR;
+                    v.phases[0] -= Math.floor(v.phases[0]);
+                    sample += Math.sin(Math.PI * 2 * v.phases[0] + mod);
                 } else {
-                    sample += GUSPatchGenerator.partials(v.phase, harm);
+                    for (let k = 0; k < nP; k++) {
+                        const a = harm[k];
+                        if (a === 0) continue;
+                        const order = k + 1;
+                        const stretch = inharmB > 0
+                            ? order * Math.sqrt(1 + inharmB * order * order)
+                            : order;
+                        v.phases[k] += (f0 * stretch) / SR;
+                        v.phases[k] -= Math.floor(v.phases[k]);
+                        let pAmp = a;
+                        if (pDecay) pAmp *= Math.exp(-t / (pDecay[k] || 1));
+                        sample += pAmp * Math.sin(Math.PI * 2 * v.phases[k]);
+                    }
                 }
             }
             sample /= voices.length;
 
             if (noiseAmt > 0) {
-                // noiseBuf periodik dengan cs → aman untuk loop
                 const n = noiseBuf ? noiseBuf[i % cs] : (Math.random() * 2 - 1);
                 sample = sample * (1 - noiseAmt) + n * noiseAmt;
             }
@@ -255,71 +529,105 @@ class MelodicRenderer {
             out[i] = sample * this._envelope(t, length, env, isLoop, i, fadeSamples);
         }
 
-        // --- Crossfade di batas loop (jaring pengaman) ---
-        // Menggantikan nilai tail [loopEnd-F, loopEnd-1] dengan blend menuju
-        // pre-head [loopStart-F, loopStart-1] sehingga out[loopEnd-1] ≈ out[loopStart-1]
-        // → transisi ke out[loopStart] menjadi kontinu.
-        if (isLoop && loopEnd > loopStart) {
-            const F = Math.min(
-                Math.floor((loopEnd - loopStart) / 4),
-                cs,
-                loopStart
-            );
-            if (F > 1) {
-                for (let k = 0; k < F; k++) {
-                    const a       = k / (F - 1);          // 0 → 1
-                    const tailIdx = loopEnd - F + k;
-                    const headIdx = loopStart - F + k;
-                    out[tailIdx] = (1 - a) * out[tailIdx] + a * out[headIdx];
-                }
+        // Attack transient (hanya non-loop)
+        if (atk && !isLoop) {
+            const dur = Math.max(1, Math.round(SR * (atk.duration || 0.015)));
+            const L   = Math.min(length, dur);
+            const burst = GUSPatchGenerator.pinkNoise(L);
+            const amp = atk.amp || 0.1;
+            for (let i = 0; i < L; i++) {
+                const e = Math.exp(-i / (SR * (atk.duration || 0.015) * 0.3));
+                out[i] += burst[i] * amp * e;
             }
         }
 
-        // --- Fade-out pada ekor setelah loopEnd ---
+        // (Crossfade lama DIHAPUS.)
+        // Dengan periodisitas sempurna, wrap loopEnd→loopStart sudah kontinu
+        // secara alami (out[loopEnd-1] ≈ out[loopStart-1] karena loopLength
+        // kelipatan bulat `cs`). Crossfade justru mencampur dua sinyal yang
+        // fase/amplitude-nya beda bila ada modulasi sisa → AM "patah-patah".
+
+        // Fade-out ekor (dipertahankan; ekor mulai dari fasa 0 == fasa loopStart,
+        // jadi transisi loopEnd → ekor juga mulus saat note release)
         if (isLoop && length > loopEnd) {
             const tailLength = length - loopEnd;
-
             for (let i = 0; i < tailLength; i++) {
-                const t = (i + 1) / tailLength;
-
-                // Fade-out cosine: turun perlahan hingga nol.
-                const gain = 0.5 * (1 + Math.cos(Math.PI * t));
-
-                out[loopEnd + i] *= gain;
+                const g = 0.5 * (1 + Math.cos(Math.PI * ((i + 1) / tailLength)));
+                out[loopEnd + i] *= g;
             }
         }
 
-        GUSPatchGenerator.normalize(out, 0.9);
+        // Formants + brightness sweep + saturation
+        if (p.brightness && !isLoop) {
+            GUSPatchGenerator.brightnessSweep(out,
+                p.brightness.start || 8000,
+                p.brightness.end || 1200,
+                SR);
+        }
+        if (p.formants) GUSPatchGenerator.applyFormants(out, p.formants, SR);
+        if (p.drive)    GUSPatchGenerator.softClip(out, p.drive);
+
+        // Fade-in 2 ms (non-loop)
+        if (!isLoop) {
+            const fi = Math.min(Math.round(SR * 0.002), length);
+            for (let i = 0; i < fi; i++) out[i] *= i / fi;
+        }
 
         GUSPatchGenerator.normalize(out, 0.9);
         return { pcm: out, length, loopStart, loopEnd, loop: isLoop, SR, naturalFreq };
     }
 
     _envelope(t, length, env, isLoop, i, fadeSamples) {
-        if (isLoop) return i < fadeSamples ? (i / fadeSamples) : 1.0;
+        if (isLoop) {
+            // Fade-in kosinus → nilai tepat 1.0 di i = fadeSamples
+            // (fade linear lama berakhir di ~0.98 lalu lompat ke 1.0 →
+            //  potensi klik halus di sampel ke-`cs`)
+            if (i < fadeSamples) return 0.5 * (1 - Math.cos(Math.PI * i / fadeSamples));
+            return 1.0;
+        }
 
         let e;
-        if (t < env.a) e = t / env.a;
-        else if (t < env.a + env.d) e = 1 - (1 - env.s) * ((t - env.a) / env.d);
-        else e = env.s;
-
+        if (t < env.a) {
+            const tau = Math.max(env.a / 3, 0.001);
+            e = 1 - Math.exp(-t / tau);
+        } else if (t < env.a + env.d) {
+            const dt = t - env.a;
+            const tau = Math.max(env.d / 3, 0.001);
+            e = env.s + (1 - env.s) * Math.exp(-dt / tau);
+        } else {
+            e = env.s;
+        }
         if (env.r > 0) {
             const relStart = length / this.SR - env.r;
-            if (t > relStart) e *= Math.max(0, 1 - (t - relStart) / env.r);
+            if (t > relStart) e *= Math.exp(-3 * ((t - relStart) / env.r));
+        }
+        return e;
+    }
+
+    _envelope(t, length, env, isLoop, i, fadeSamples) {
+        if (isLoop) return i < fadeSamples ? (i / fadeSamples) : 1.0;
+
+        // Exponential attack/decay — jauh lebih natural dari linear
+        let e;
+        if (t < env.a) {
+            const tau = Math.max(env.a / 3, 0.001);
+            e = 1 - Math.exp(-t / tau);
+        } else if (t < env.a + env.d) {
+            const dt = t - env.a;
+            const tau = Math.max(env.d / 3, 0.001);
+            e = env.s + (1 - env.s) * Math.exp(-dt / tau);
+        } else {
+            e = env.s;
+        }
+        if (env.r > 0) {
+            const relStart = length / this.SR - env.r;
+            if (t > relStart) e *= Math.exp(-3 * ((t - relStart) / env.r));
         }
         return e;
     }
 
     _buildLoopNoise(cs) {
-        let buf = new Float32Array(cs);
-        for (let i = 0; i < cs; i++) buf[i] = Math.random() * 2 - 1;
-        for (let pass = 0; pass < 2; pass++) {
-            const tmp = new Float32Array(cs);
-            for (let i = 0; i < cs; i++) {
-                tmp[i] = (buf[(i - 1 + cs) % cs] + 2 * buf[i] + buf[(i + 1) % cs]) / 4;
-            }
-            buf = tmp;
-        }
+        const buf = GUSPatchGenerator.pinkNoise(cs);
         let np = 0;
         for (let i = 0; i < cs; i++) np = Math.max(np, Math.abs(buf[i]));
         if (np > 0) for (let i = 0; i < cs; i++) buf[i] /= np;
@@ -333,110 +641,153 @@ class MelodicRenderer {
 class DrumFactory {
     static kick(o = {}) {
         return {
-            duration: o.duration || 0.5,
-            tones: [{
-                fStart: o.fStart || 110, fEnd: o.fEnd || 45,
-                pitchDecay: o.pitchDecay || 0.04, decay: o.toneDecay || 0.3, amp: 1.0
-            }],
-            click: { duration: 0.004, amp: 0.4 },
-            lowpass: o.lowpass || 1500,
+            duration: o.duration || 0.55,
+            membrane: {
+                freq: o.fEnd || 55,
+                pitchDecay: o.pitchDecay || 0.05,
+                decay: o.toneDecay || 0.35,
+                modes: [
+                    { ratio: 1.0,   amp: 1.0,  decay: 1.0 },
+                    { ratio: 1.593, amp: 0.45, decay: 0.55 },
+                    { ratio: 2.136, amp: 0.20, decay: 0.35 },
+                    { ratio: 2.296, amp: 0.12, decay: 0.25 },
+                ],
+            },
+            click: { duration: 0.006, amp: 0.55 },
+            noise: { amp: 0.18, decay: 0.012, type: 'brown' },
+            lowpass: o.lowpass || 2500,
         };
     }
+
     static snare(o = {}) {
         return {
-            duration: o.duration || 0.25,
-            tones: [{
-                fStart: o.fStart || 200, fEnd: o.fEnd || 160,
-                pitchDecay: 0.015, decay: o.toneDecay || 0.08, amp: 0.5
-            }],
-            noise: { amp: 0.9, decay: o.noiseDecay || 0.12 },
+            duration: o.duration || 0.28,
+            membrane: {
+                freq: o.fEnd || 180,
+                pitchDecay: 0.02,
+                decay: o.toneDecay || 0.10,
+                modes: [
+                    { ratio: 1.0,   amp: 0.55, decay: 1.0 },
+                    { ratio: 1.83,  amp: 0.45, decay: 0.85 },
+                    { ratio: 2.13,  amp: 0.25, decay: 0.55 },
+                ],
+            },
+            noise: {
+                amp: 0.95,
+                decay: o.noiseDecay || 0.14,
+                type: 'pink',
+                bandpass: { center: 4200, q: 0.6 },
+            },
             highpass: o.highpass || 400,
         };
     }
+
     static hihat(o = {}) {
         return {
             duration: o.duration || 0.08,
-            noise: { amp: 1.0, decay: o.decay || 0.02 },
+            metallic: {
+                baseFreq: 350,
+                partials: [1, 1.34, 1.71, 2.04, 2.42, 2.83, 3.17, 3.62, 4.15, 4.68, 5.21, 5.87],
+                decay: o.decay || 0.03,
+                amp: 0.55,
+            },
+            noise: {
+                amp: 0.85, decay: o.decay || 0.025,
+                type: 'white',
+                bandpass: { center: 9500, q: 0.7 },
+            },
             highpass: o.highpass || 7000,
         };
     }
+
     static tom(freq, o = {}) {
         return {
-            duration: o.duration || 0.5,
-            tones: [{
-                fStart: freq * 1.3, fEnd: freq,
-                pitchDecay: 0.06, decay: o.decay || 0.4, amp: 1.0
-            }],
-            noise: o.noise ? { amp: o.noise, decay: 0.02 } : null,
+            duration: o.duration || 0.55,
+            membrane: {
+                freq,
+                pitchDecay: 0.06,
+                decay: o.decay || 0.42,
+                modes: [
+                    { ratio: 1.0,   amp: 1.0,  decay: 1.0 },
+                    { ratio: 1.593, amp: 0.5,  decay: 0.75 },
+                    { ratio: 2.136, amp: 0.25, decay: 0.55 },
+                    { ratio: 2.296, amp: 0.15, decay: 0.42 },
+                ],
+            },
+            noise: o.noise ? { amp: o.noise, decay: 0.015, type: 'pink' } : null,
             lowpass: freq * 8,
         };
     }
+
     static cymbal(o = {}) {
         return {
-            duration: o.duration || 1.2,
-            tones: [
-                {
-                    fStart: 3200, fEnd: 2800, pitchDecay: 0.1, decay: 0.7, amp: 0.3,
-                    fm: { ratio: 1.41, index: 3 }
-                },
-                {
-                    fStart: 4500, fEnd: 4000, pitchDecay: 0.1, decay: 0.9, amp: 0.25,
-                    fm: { ratio: 1.73, index: 4 }
-                },
-            ],
-            noise: { amp: 0.9, decay: o.noiseDecay || 0.6 },
+            duration: o.duration || 1.4,
+            metallic: {
+                baseFreq: 380,
+                partials: [1, 1.42, 1.89, 2.34, 2.81, 3.29, 3.76, 4.24, 4.81, 5.42, 6.05, 6.78],
+                decay: o.noiseDecay || 0.65,
+                amp: 0.35,
+            },
+            noise: {
+                amp: 0.9, decay: o.noiseDecay || 0.7,
+                type: 'pink',
+                bandpass: { center: 6500, q: 0.4 },
+            },
             highpass: o.highpass || 3000,
         };
     }
+
     static ride(o = {}) {
         return {
             duration: o.duration || 1.0,
-            tones: [
-                {
-                    fStart: 520, fEnd: 500, pitchDecay: 0.1, decay: 0.4, amp: 0.5,
-                    fm: { ratio: 1.41, index: 5 }
-                },
-                {
-                    fStart: 820, fEnd: 800, pitchDecay: 0.1, decay: 0.5, amp: 0.4,
-                    fm: { ratio: 1.62, index: 4 }
-                },
-            ],
-            noise: { amp: 0.4, decay: 0.4 },
+            metallic: {
+                baseFreq: 480,
+                partials: [1, 1.37, 1.78, 2.21, 2.64, 3.11, 3.58, 4.05, 4.51],
+                decay: o.decay || 0.5,
+                amp: 0.5,
+            },
+            noise: { amp: 0.35, decay: 0.5, type: 'pink', bandpass: { center: 5500, q: 0.5 } },
             highpass: 2500,
         };
     }
+
     static bell(freq, o = {}) {
         return {
-            duration: o.duration || 0.6,
-            tones: [
-                { fStart: freq, fEnd: freq, pitchDecay: 1, decay: o.decay || 0.4, amp: 0.6 },
-                { fStart: freq * 2.76, fEnd: freq * 2.76, pitchDecay: 1, decay: o.decay || 0.3, amp: 0.25 },
-            ],
+            duration: o.duration || 0.65,
+            metallic: {
+                baseFreq: freq,
+                partials: [1, 2.76, 5.4, 8.93],
+                decay: o.decay || 0.4,
+                amp: 0.55,
+            },
             highpass: freq * 0.5,
         };
     }
+
     static clap() {
         return {
-            duration: 0.28,
-            noise: { amp: 0.8, decay: 0.1 },
+            duration: 0.3,
+            noise: { amp: 0.85, decay: 0.13, type: 'pink', bandpass: { center: 1400, q: 0.6 } },
             highpass: 900,
-            bursts: [0, 0.009, 0.019, 0.03],
+            bursts: [0, 0.011, 0.022, 0.033],
         };
     }
+
     static sideStick() {
         return {
-            duration: 0.12,
+            duration: 0.13,
             tones: [
-                { fStart: 1400, fEnd: 900, pitchDecay: 0.004, decay: 0.035, amp: 0.6 },
+                { fStart: 1400, fEnd: 900,  pitchDecay: 0.004, decay: 0.035, amp: 0.6 },
                 { fStart: 2600, fEnd: 1700, pitchDecay: 0.004, decay: 0.025, amp: 0.4 },
             ],
-            noise: { amp: 0.3, decay: 0.02 },
+            noise: { amp: 0.35, decay: 0.02, type: 'pink' },
             highpass: 1000,
         };
     }
+
     static cowbell() {
         return {
-            duration: 0.45,
+            duration: 0.5,
             tones: [
                 { fStart: 800, fEnd: 800, pitchDecay: 1, decay: 0.35, amp: 0.55 },
                 { fStart: 540, fEnd: 540, pitchDecay: 1, decay: 0.35, amp: 0.5 },
@@ -444,14 +795,16 @@ class DrumFactory {
             highpass: 400,
         };
     }
+
     static woodblock(freq) {
         return {
-            duration: 0.12,
+            duration: 0.13,
             tones: [{ fStart: freq, fEnd: freq * 0.9, pitchDecay: 0.01, decay: 0.05, amp: 1.0 }],
-            noise: { amp: 0.15, decay: 0.005 },
+            noise: { amp: 0.18, decay: 0.006, type: 'pink' },
             highpass: 300,
         };
     }
+
     static agogo(freq) {
         return {
             duration: 0.5,
@@ -462,66 +815,114 @@ class DrumFactory {
             highpass: 500,
         };
     }
+
     static bongo(freq) {
         return {
-            duration: 0.25,
-            tones: [{ fStart: freq * 1.2, fEnd: freq, pitchDecay: 0.03, decay: 0.15, amp: 1.0 }],
-            noise: { amp: 0.1, decay: 0.01 },
+            duration: 0.27,
+            membrane: {
+                freq,
+                pitchDecay: 0.03,
+                decay: 0.18,
+                modes: [
+                    { ratio: 1.0,   amp: 1.0, decay: 1.0 },
+                    { ratio: 1.593, amp: 0.4, decay: 0.6 },
+                ],
+            },
+            noise: { amp: 0.12, decay: 0.012, type: 'pink' },
             highpass: 200,
         };
     }
+
     static conga(freq) {
         return {
-            duration: 0.4,
-            tones: [{ fStart: freq * 1.15, fEnd: freq, pitchDecay: 0.05, decay: 0.25, amp: 1.0 }],
-            noise: { amp: 0.08, decay: 0.01 },
+            duration: 0.42,
+            membrane: {
+                freq,
+                pitchDecay: 0.05,
+                decay: 0.28,
+                modes: [
+                    { ratio: 1.0,   amp: 1.0, decay: 1.0 },
+                    { ratio: 1.593, amp: 0.5, decay: 0.7 },
+                    { ratio: 2.136, amp: 0.25, decay: 0.4 },
+                ],
+            },
+            noise: { amp: 0.10, decay: 0.012, type: 'pink' },
             lowpass: freq * 6,
         };
     }
+
     static cabasa() {
-        return { duration: 0.15, noise: { amp: 1.0, decay: 0.06 }, highpass: 6000 };
+        return {
+            duration: 0.16,
+            noise: { amp: 1.0, decay: 0.06, type: 'pink', bandpass: { center: 7500, q: 0.6 } },
+            highpass: 6000,
+        };
     }
+
     static maracas() {
-        return { duration: 0.12, noise: { amp: 1.0, decay: 0.04 }, highpass: 7000 };
+        return {
+            duration: 0.13,
+            noise: { amp: 1.0, decay: 0.04, type: 'pink', bandpass: { center: 8000, q: 0.6 } },
+            highpass: 7000,
+        };
     }
+
     static tambourine() {
-        return { duration: 0.25, noise: { amp: 1.0, decay: 0.12 }, highpass: 5500 };
+        return {
+            duration: 0.28,
+            metallic: {
+                baseFreq: 900,
+                partials: [1, 1.83, 2.67, 3.51, 4.35, 5.19],
+                decay: 0.14,
+                amp: 0.35,
+            },
+            noise: { amp: 0.9, decay: 0.14, type: 'pink', bandpass: { center: 6000, q: 0.5 } },
+            highpass: 5500,
+        };
     }
+
     static whistle(o = {}) {
         return {
             duration: o.duration || 0.3,
             tones: [{ fStart: 2200, fEnd: 2200, pitchDecay: 1, decay: o.duration || 0.3, amp: 1.0 }],
+            noise: { amp: 0.05, decay: 0.02, type: 'pink', bandpass: { center: 2200, q: 3 } },
             highpass: 1500,
         };
     }
+
     static guiro(o = {}) {
         return {
             duration: o.duration || 0.3,
-            noise: { amp: 1.0, decay: o.duration || 0.3 },
+            noise: { amp: 1.0, decay: o.duration || 0.3, type: 'pink', bandpass: { center: 3500, q: 1.5 } },
             highpass: 2500,
         };
     }
+
     static triangle(o = {}) {
         return {
             duration: o.duration || 0.5,
-            tones: [
-                { fStart: 5200, fEnd: 5200, pitchDecay: 1, decay: o.duration || 0.5, amp: 0.6 },
-                { fStart: 8900, fEnd: 8900, pitchDecay: 1, decay: (o.duration || 0.5) * 0.7, amp: 0.3 },
-            ],
+            metallic: {
+                baseFreq: 5200,
+                partials: [1, 1.71, 2.94, 4.62],
+                decay: o.duration || 0.5,
+                amp: 0.55,
+            },
             highpass: 3000,
         };
     }
+
     static vibraslap() {
         return {
-            duration: 0.5,
+            duration: 0.55,
             tones: [{
                 fStart: 400, fEnd: 400, pitchDecay: 1, decay: 0.4, amp: 0.5,
                 fm: { ratio: 3.7, index: 2 }
             }],
-            noise: { amp: 0.4, decay: 0.3 },
+            noise: { amp: 0.4, decay: 0.3, type: 'pink' },
             highpass: 800,
         };
     }
+
     static cuica(o = {}) {
         return {
             duration: o.duration || 0.25,
@@ -532,9 +933,10 @@ class DrumFactory {
             highpass: 300,
         };
     }
+
     static clave() {
         return {
-            duration: 0.12,
+            duration: 0.13,
             tones: [
                 { fStart: 2400, fEnd: 2000, pitchDecay: 0.005, decay: 0.05, amp: 0.8 },
                 { fStart: 3600, fEnd: 3200, pitchDecay: 0.005, decay: 0.04, amp: 0.5 },
@@ -557,20 +959,28 @@ class DrumRenderer {
     render() {
         const { p, SR, length } = this;
         const out = new Float32Array(length);
-        const tones = (p.tones || []).map(t => ({ ...t, phase: 0, modPhase: 0 }));
+        const tones     = (p.tones    || []).map(t => ({ ...t, phase: 0, modPhase: 0 }));
+        const membrane  = p.membrane  ? this._setupMembrane(p.membrane, SR) : null;
+        const metallic  = p.metallic  ? this._setupMetallic(p.metallic)     : null;
+        const noiseBuf  = p.noise     ? this._buildNoise(p.noise, length, SR) : null;
 
         for (let i = 0; i < length; i++) {
             const t = i / SR;
-            let sample = this._tones(t, tones) + this._noise(t) + this._click(t);
+            let sample = 0;
+            sample += this._tones(t, tones);
+            if (membrane) sample += this._membrane(t, membrane);
+            if (metallic) sample += this._metallic(t, metallic);
+            if (noiseBuf) sample += this._noise(t, noiseBuf, p.noise);
+            sample += this._click(t);
             sample = this._bursts(t, sample);
             out[i] = sample;
         }
 
         if (p.highpass) GUSPatchGenerator.highpass(out, p.highpass, SR);
-        if (p.lowpass) GUSPatchGenerator.lowpass(out, p.lowpass, SR);
+        if (p.lowpass)  GUSPatchGenerator.lowpass(out, p.lowpass, SR);
+        GUSPatchGenerator.fadeIn(out, Math.min(64, Math.floor(length * 0.01)));
         GUSPatchGenerator.fadeOut(out, Math.min(96, Math.floor(length * 0.05)));
         GUSPatchGenerator.normalize(out, 0.9);
-
         return { pcm: out, length, loop: false, loopStart: 0, loopEnd: 0, SR };
     }
 
@@ -580,7 +990,6 @@ class DrumRenderer {
             const f = tn.fEnd + (tn.fStart - tn.fEnd) * Math.exp(-t / (tn.pitchDecay || 0.02));
             tn.phase += f / this.SR;
             if (tn.phase >= 1) tn.phase -= Math.floor(tn.phase);
-
             let val;
             if (tn.fm) {
                 const mf = f * tn.fm.ratio;
@@ -596,10 +1005,84 @@ class DrumRenderer {
         return s;
     }
 
-    _noise(t) {
-        const n = this.p.noise;
-        if (!n || !n.amp) return 0;
-        return (Math.random() * 2 - 1) * n.amp * Math.exp(-t / (n.decay || 0.1));
+    _setupMembrane(cfg, SR) {
+        const baseFreq = cfg.freq || 200;
+        const ratios = [1.0, 1.593, 2.136, 2.295, 2.653, 2.917, 3.156];
+        const amps   = [1.0, 0.55, 0.30, 0.20, 0.13, 0.08, 0.05];
+        const decays = [1.0, 0.75, 0.55, 0.45, 0.35, 0.28, 0.22];
+        const baseDecay = cfg.decay || 0.4;
+        const list = cfg.modes || ratios.map((r, i) => ({
+            ratio: r, amp: amps[i] || 0.1, decay: decays[i] || 0.3
+        }));
+        return list.map(m => ({
+            fStart: baseFreq * m.ratio * (m.startRatio || 1.2),
+            fEnd: baseFreq * m.ratio,
+            pitchDecay: cfg.pitchDecay || 0.05,
+            amp: m.amp,
+            decay: baseDecay * m.decay,
+            phase: 0,
+        }));
+    }
+
+    _membrane(t, modes) {
+        let s = 0;
+        for (const m of modes) {
+            const f = m.fEnd + (m.fStart - m.fEnd) * Math.exp(-t / (m.pitchDecay || 0.05));
+            m.phase += f / this.SR;
+            if (m.phase >= 1) m.phase -= Math.floor(m.phase);
+            s += Math.sin(Math.PI * 2 * m.phase) * m.amp * Math.exp(-t / m.decay);
+        }
+        return s;
+    }
+
+    _setupMetallic(cfg) {
+        const base = cfg.baseFreq || 400;
+        const ratios = cfg.partials || [1, 1.34, 1.71, 2.04, 2.42, 2.83, 3.17, 3.62, 4.15, 4.68];
+        const decay = cfg.decay || 0.3;
+        const amp   = cfg.amp   || 0.5;
+        return ratios.map((r, i) => ({
+            freq: base * r,
+            phase: 0,
+            amp: amp / (1 + i * 0.35),
+            decay: decay / (1 + i * 0.25),
+        }));
+    }
+
+    _metallic(t, partials) {
+        let s = 0;
+        for (const pt of partials) {
+            pt.phase += pt.freq / this.SR;
+            if (pt.phase >= 1) pt.phase -= Math.floor(pt.phase);
+            s += Math.sin(Math.PI * 2 * pt.phase) * pt.amp * Math.exp(-t / pt.decay);
+        }
+        return s;
+    }
+
+    _buildNoise(cfg, length, SR) {
+        const type = cfg.type || 'white';
+        if (cfg.bandpass) {
+            return GUSPatchGenerator.bandpassNoise(
+                length,
+                cfg.bandpass.center,
+                cfg.bandpass.q || 1,
+                SR,
+                type
+            );
+        }
+        let buf;
+        if (type === 'pink') buf = GUSPatchGenerator.pinkNoise(length);
+        else if (type === 'brown') buf = GUSPatchGenerator.brownNoise(length);
+        else {
+            buf = new Float32Array(length);
+            for (let i = 0; i < length; i++) buf[i] = Math.random() * 2 - 1;
+        }
+        return buf;
+    }
+
+    _noise(t, noiseBuf, cfg) {
+        if (!cfg || !cfg.amp) return 0;
+        const idx = Math.min(noiseBuf.length - 1, Math.floor(t * this.SR));
+        return noiseBuf[idx] * cfg.amp * Math.exp(-t / (cfg.decay || 0.1));
     }
 
     _click(t) {
@@ -624,13 +1107,12 @@ class DrumRenderer {
 class InstrumentLibrary {
     constructor() {
         this.families = {
-            // length tetap dalam satuan sample @ 22050 Hz; render akan menyesuaikan ke SR aktif.
-            piano:   { harm: [1, .55, .35, .22, .14, .09, .05, .03], env: { a: .003, d: .9, s: .15, r: .4 }, length: 66150, freq: 441 }, // 3,0 s
-            epiano:  { harm: [1, .2, .08, .03], fm: { ratio: 3, index: 1.8 }, env: { a: .005, d: 1.2, s: .1, r: .5 }, length: 55125, freq: 441 }, // 2,5 s
-            bell:    { harm: [1, .5, .25, .12, .06], env: { a: .001, d: 1.5, s: 0, r: .6 }, length: 55125, freq: 441 }, // 2,5 s
+            piano:   { harm: [1, .55, .35, .22, .14, .09, .05, .03], env: { a: .003, d: .9, s: .15, r: .4 }, length: 66150, freq: 441 },
+            epiano:  { harm: [1, .2, .08, .03], fm: { ratio: 3, index: 1.8 }, env: { a: .005, d: 1.2, s: .1, r: .5 }, length: 55125, freq: 441 },
+            bell:    { harm: [1, .5, .25, .12, .06], env: { a: .001, d: 1.5, s: 0, r: .6 }, length: 55125, freq: 441 },
             organ:   { harm: [1, 0, .5, 0, .3, 0, .2, 0, .1], env: { a: .02, d: .1, s: 1, r: .1 }, loop: 1, cycles: 12 },
-            guitar:  { harm: [1, .7, .5, .35, .2, .12, .08, .05, .03], env: { a: .002, d: .8, s: .1, r: .3 }, length: 44100, freq: 441 }, // 2,0 s
-            bass:    { harm: [1, .7, .5, .3, .2, .1, .05], env: { a: .005, d: .5, s: .2, r: .3 }, length: 33075, freq: 220 }, // 1,5 s
+            guitar:  { harm: [1, .7, .5, .35, .2, .12, .08, .05, .03], env: { a: .002, d: .8, s: .1, r: .3 }, length: 44100, freq: 441 },
+            bass:    { harm: [1, .7, .5, .3, .2, .1, .05], env: { a: .005, d: .5, s: .2, r: .3 }, length: 33075, freq: 220 },
             strings: { harm: [1, .5, .33, .25, .2, .16, .14, .12], env: { a: .15, d: .2, s: .9, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .005 }, detune: [0, 8] },
             ensemble:{ harm: [1, .5, .33, .25, .2, .16, .14], env: { a: .2, d: .2, s: .95, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 4.5, depth: .004 }, detune: [-12, 0, 12] },
             brass:   { harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], env: { a: .06, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .003 } },
@@ -638,13 +1120,68 @@ class InstrumentLibrary {
             pipe:    { harm: [1, .15, .4, .05, .15, .03, .08], env: { a: .08, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .008 }, noise: .05 },
             lead:    { harm: [1, .5, .33, .25, .2, .16, .14, .12, .1], env: { a: .01, d: .2, s: .85, r: .15 }, loop: 1, cycles: 12 },
             pad:     { harm: [1, .4, .2, .1, .05], env: { a: .3, d: .3, s: .95, r: .5 }, loop: 1, cycles: 16, detune: [-15, 0, 15], vibrato: { rate: 2, depth: .003 } },
-            fx:      { harm: [1, .5, .33, .25, .2], fm: { ratio: 1.5, index: 3 }, env: { a: .05, d: .5, s: .5, r: .4 }, length: 44100, noise: .2 }, // 2,0 s
-            ethnic:  { harm: [1, .6, .4, .25, .15, .1, .05], env: { a: .005, d: .7, s: .2, r: .35 }, length: 44100, freq: 441, vibrato: { rate: 5, depth: .01 } }, // 2,0 s
-            perc:    { harm: [1, .4, .2, .1], env: { a: .001, d: .3, s: 0, r: .15 }, length: 22050, freq: 441, noise: .3 }, // 1,0 s
+            fx:      { harm: [1, .5, .33, .25, .2], fm: { ratio: 1.5, index: 3 }, env: { a: .05, d: .5, s: .5, r: .4 }, length: 44100, noise: .2 },
+            ethnic:  { harm: [1, .6, .4, .25, .15, .1, .05], env: { a: .005, d: .7, s: .2, r: .35 }, length: 44100, freq: 441, vibrato: { rate: 5, depth: .01 } },
+            perc:    { harm: [1, .4, .2, .1], env: { a: .001, d: .3, s: 0, r: .15 }, length: 22050, freq: 441, noise: .3 },
         };
 
         this.melodic = this._buildMelodic();
         this.drums = this._buildDrums();
+    }
+
+
+    _piano(o = {}) {
+        return {
+            inharmonicity: 0.0004,
+            attackNoise: { amp: 0.09, duration: 0.008 },
+            brightness: { start: 9000, end: 1800 },
+            partialDecay: [3.5, 2.5, 1.8, 1.2, 0.9, 0.7, 0.5, 0.4],
+            ...o
+        };
+    }
+    _guitar(o = {}) {
+        return {
+            attackNoise: { amp: 0.10, duration: 0.010 },
+            brightness: { start: 8000, end: 1500 },
+            partialDecay: [2.5, 2.0, 1.5, 1.1, 0.8, 0.6, 0.5, 0.4, 0.3],
+            ...o
+        };
+    }
+    _bass(o = {}) {
+        return {
+            attackNoise: { amp: 0.07, duration: 0.008 },
+            brightness: { start: 5000, end: 900 },
+            ...o
+        };
+    }
+    _wind(o = {}) {  // brass, reed, pipe — semua punya tiupan & scoop
+        return {
+            attackNoise: { amp: 0.08, duration: 0.018 },
+            pitchScoop: { depth: 0.02, time: 0.03 },
+            vibratoOnset: 0.18,
+            brightness: { start: 7000, end: 2500 },
+            ...o
+        };
+    }
+    _strings(o = {}) {
+        return {
+            attackNoise: { amp: 0.04, duration: 0.025 },
+            vibratoOnset: 0.20,
+            brightness: { start: 6000, end: 2500 },
+            formants: [
+                { freq: 400, q: 1.5, gain: 3 },
+                { freq: 1200, q: 2.0, gain: 2 },
+                { freq: 2800, q: 2.5, gain: 1.5 },
+            ],
+            ...o
+        };
+    }
+    _bell(o = {}) {
+        return {
+            inharmonicity: 0.008,
+            partialDecay: [3.0, 2.0, 1.4, 1.0, 0.7, 0.5],
+            ...o
+        };
     }
 
     preset(fam, over = {}) {
@@ -659,7 +1196,24 @@ class InstrumentLibrary {
     }
 
     _buildMelodic() {
-        const P = (fam, over) => this.preset(fam, over);
+        const P = (fam, over) => {
+            let base = this.preset(fam, over);
+            // Terapkan extras otomatis berdasarkan family
+            switch (fam) {
+                case 'piano':  base = this._piano(base);  break;
+                case 'bell':   base = this._bell(base);   break;
+                case 'guitar': base = this._guitar(base); break;
+                case 'bass':   base = this._bass(base);   break;
+                case 'strings':
+                case 'ensemble': base = this._strings(base); break;
+                case 'brass':
+                case 'reed':
+                case 'pipe':   base = this._wind(base);   break;
+                case 'lead':   base = { ...base, drive: 1.4, brightness: { start: 8000, end: 2500 } }; break;
+                case 'pad':    base = this._strings(base); break;
+            }
+            return base;
+        };
         return [
             // 0-7 Piano
             ['Piano', 'Acoustic Grand', P('piano')],
