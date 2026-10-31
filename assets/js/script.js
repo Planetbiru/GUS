@@ -3754,6 +3754,8 @@ function getProjectPatchData(bank, isDrum, program, file) {
   const patches = getProjectPatches(project);
   if (patches.length === 0) return null;
 
+  let target = null;
+
   // --- 1) Filter utama: type + bank (targetBank) + program ---
   let candidates = patches.filter(p => {
     const pIsDrum = (p.gmBank ?? 0) === 128;
@@ -3780,29 +3782,39 @@ function getProjectPatchData(bank, isDrum, program, file) {
     });
   }
 
-  if (candidates.length === 0) {
+  if (candidates.length > 0) {
+    target = candidates[0];
+    
+    // --- 3) Jika lebih dari 1 kandidat, persempit menggunakan nama file ---
+    if (candidates.length > 1) {
+      const reqName = String(file || "").split(/[\\/]/).pop().replace(/\.pat$/i, "").toLowerCase();
+      if (reqName) {
+        const byName = candidates.find(p => {
+          const pName = sanitizeFilename(p.name).toLowerCase();
+          return pName === reqName || reqName.endsWith("_" + pName);
+        });
+        if (byName) target = byName;
+      }
+    }
+  } else if (file) {
+    // --- 4) FALLBACK EKSTREM: Cari berdasarkan nama file ---
+    // Terjadi jika gmProgram = -1 (misal hasil import SFZ yang belum diset),
+    // engine meminta "0/tone/0-1_NamaPatch.pat", tapi patch punya program -1.
+    const reqName = String(file).split(/[\\/]/).pop().replace(/\.pat$/i, "").toLowerCase();
+    const byName = patches.find(p => {
+      const pName = sanitizeFilename(p.name).toLowerCase();
+      // Cocokkan jika reqName sama persis, atau diakhiri dengan "_" + nama patch
+      return pName === reqName || reqName.endsWith("_" + pName);
+    });
+    if (byName) target = byName;
+  }
+
+  if (!target) {
     // Tidak ada patch yang cocok — jangan memutar patch acak.
     return null;
   }
 
-  // --- 3) Filter terakhir: hanya jika lebih dari 1 kandidat, gunakan nama file ---
-  let target = candidates[0];
-  if (candidates.length > 1) {
-    const reqName = String(file || "")
-      .split(/[\\/]/)
-      .pop()
-      .replace(/\.pat$/i, "")
-      .toLowerCase();
-
-    if (reqName) {
-      const byName = candidates.find(p =>
-        sanitizeFilename(p.name).toLowerCase() === reqName
-      );
-      if (byName) target = byName;
-    }
-  }
-
-  // --- 4) Cache & bangun .pat biner ---
+  // --- 5) Cache & bangun .pat biner ---
   const cacheKey = target.id;
   if (patchBufferCache.has(cacheKey)) {
     return patchBufferCache.get(cacheKey);
@@ -6496,29 +6508,38 @@ function estimateRootFrequency(samples,sampleRate){
   return bestCorrelation>=0.55&&bestLag?clamp(analyzedRate/bestLag,40,2000):440;
 }
 
-function buildSampleDraft(audioBuffer,name){
-  return monoSampleBuffer(audioBuffer).then(({samples,sampleRate})=>{
-    if(samples.length===0)throw new Error(t("sample_audio_empty"));
-    const envelope=estimateEnvelopeOffsets(samples,sampleRate);
-    const pcm=new Uint8Array(samples.length*2);
-    for(let i=0;i<samples.length;i++){
-      let value=Math.round(clamp(samples[i],-1,1)*32767);
-      if(value<0)value+=65536;
-      pcm[i*2]=value&255;
-      pcm[i*2+1]=(value>>8)&255;
+function buildSampleDraft(audioBuffer, name) {
+  const originalRate = audioBuffer.sampleRate;          // ← capture dulu
+  return monoSampleBuffer(audioBuffer).then(({samples, sampleRate}) => {
+    if (samples.length === 0) throw new Error(t("sample_audio_empty"));
+    const envelope = estimateEnvelopeOffsets(samples, sampleRate);
+    const pcm = new Uint8Array(samples.length * 2);
+    for (let i = 0; i < samples.length; i++) {
+      let value = Math.round(clamp(samples[i], -1, 1) * 32767);
+      if (value < 0) value += 65536;
+      pcm[i * 2] = value & 255;
+      pcm[i * 2 + 1] = (value >> 8) & 255;
     }
-    const rootFrequency=estimateRootFrequency(samples,sampleRate);
-    const safeName=String(name||"SAMPLE").replace(/\.[^.]+$/,"").replace(/[^\w-]/g,"").substring(0,7)||"SAMPLE";
-    const sample={
-      name:safeName,fractions:0,dataSize:pcm.length,loopStart:0,loopEnd:pcm.length,sampleRate,
-      lowFreq:8176,highFreq:12543854,rootFreq:Math.round(rootFrequency*1000),
-      tune:0,balance:7,envRates:envelope.rates,envOffsets:envelope.offsets,
-      tremoloSweep:0,tremoloRate:0,tremoloDepth:0,
-      vibratoSweep:0,vibratoRate:0,vibratoDepth:0,
-      modes:M16|MENV,scaleFreq:60,scaleFactor:1024,
-      reserved:new Uint8Array(36),pcm,_float:samples
+    const rootFrequency = estimateRootFrequency(samples, sampleRate);
+    const safeName = String(name || "SAMPLE")
+      .replace(/\.[^.]+$/, "").replace(/[^\w-]/g, "").substring(0, 7) || "SAMPLE";
+    const sample = {
+      name: safeName, fractions: 0, dataSize: pcm.length,
+      loopStart: 0, loopEnd: pcm.length, sampleRate,
+      lowFreq: 8176, highFreq: 12543854,
+      rootFreq: Math.round(rootFrequency * 1000),
+      tune: 0, balance: 7, envRates: envelope.rates, envOffsets: envelope.offsets,
+      tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
+      vibratoSweep: 0, vibratoRate: 0, vibratoDepth: 0,
+      modes: M16 | MENV, scaleFreq: 60, scaleFactor: 1024,
+      reserved: new Uint8Array(36), pcm, _float: samples
     };
-    return {sample,duration:samples.length/sampleRate,sourceName:name||"SAMPLE"};
+    return {
+      sample,
+      duration: samples.length / sampleRate,
+      sourceName: name || "SAMPLE",
+      resampleRatio: sampleRate / originalRate       // ← rasio resample
+    };
   });
 }
 
@@ -6951,7 +6972,23 @@ async function extractFile(zip, file) {
 }
 
 function normalizePath(p) {
-  return p.replace(/^\/+/, '').replace(/\\/g, '/').replace(/\/+/g, '/').replace(/^\.\//, '');
+  const path = String(p ?? "").replace(/\\/g, "/").replace(/^\/+/, "");
+  const parts = [];
+  for (const seg of path.split("/")) {
+    if (seg === "" || seg === ".") continue;
+    if (seg === "..") { if (parts.length) parts.pop(); continue; }
+    parts.push(seg);
+  }
+  return parts.join("/");
+}
+
+function resolvePath(base, rel) {
+  const r = String(rel ?? "").replace(/\\/g, "/");
+  if (!r) return normalizePath(base);
+  if (r.startsWith("/")) return normalizePath(r);
+  const b = String(base || "").replace(/\\/g, "/");
+  const combined = b && !b.endsWith("/") ? b + "/" + r : b + r;
+  return normalizePath(combined);
 }
 
 /**
@@ -7210,47 +7247,471 @@ function findPatchFileInZip(zip, targetPath) {
   return null;
 }
 
+/* ---------- SFZ Import ---------- */
+
+function tokenizeSfzLine(line) {
+  const tokens = [];
+  let current = "";
+  let inQuote = false;
+  for (const ch of line) {
+    if (ch === '"') { inQuote = !inQuote; continue; }
+    if (!inQuote && /\s/.test(ch)) {
+      if (current) { tokens.push(current); current = ""; }
+    } else {
+      current += ch;
+    }
+  }
+  if (current) tokens.push(current);
+  return tokens;
+}
+
+function parseSfzText(text) {
+  const result = { control: {}, global: {}, regions: [] };
+  // Hapus komentar blok
+  text = text.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  const lines = text.split(/\r?\n/).map(l => l.replace(/\/\/.*$/, "").trim());
+  let currentTarget = null;
+  let currentMaster = {};
+  let currentGroup = null;
+  const defines = {};
+
+  for (let line of lines) {
+    if (!line) continue;
+
+    // Handle #define
+    if (/^#define\s/i.test(line)) {
+      const m = line.match(/^#define\s+\$([A-Za-z_][A-Za-z0-9_]*)\s+(.+)$/i);
+      if (m) defines[m[1]] = m[2].trim();
+      continue;
+    }
+
+    // Deteksi blok <header> (misal <region>, <group>)
+    let headerMatch = line.match(/<([a-zA-Z0-9_]+)>/);
+    if (headerMatch) {
+      const section = headerMatch[1].toLowerCase();
+      if (section === "control") currentTarget = result.control;
+      else if (section === "global") currentTarget = result.global;
+      else if (section === "master") {
+        currentMaster = {};
+        currentTarget = currentMaster;
+        currentGroup = null;
+      } else if (section === "group") {
+        currentGroup = { opcodes: {}, master: currentMaster };
+        currentTarget = currentGroup.opcodes;
+      } else if (section === "region") {
+        const region = { opcodes: {}, group: currentGroup, master: currentMaster };
+        result.regions.push(region);
+        currentTarget = region.opcodes;
+      } else {
+        currentTarget = null;
+      }
+      
+      // Buang bagian <header> agar sisa opcode di baris yang sama tetap terbaca
+      line = line.substring(headerMatch.index + headerMatch[0].length).trim();
+      if (!line) continue;
+    }
+
+    if (!currentTarget) continue;
+
+    // ✨ INI KUNCINYA: Regex untuk memisahkan key=value dengan aman
+    // Mendukung value berspasi asalkan tidak diikuti oleh "kata="
+    const regex = /([a-zA-Z0-9_]+)=(?:"([^"]*)"|(.*?)(?=\s+[a-zA-Z0-9_]+=|$))/g;
+    let match;
+    
+    while ((match = regex.exec(line)) !== null) {
+      const key = match[1].toLowerCase();
+      // match[2] jika diapit tanda kutip, match[3] jika tanpa kutip
+      let value = match[2] !== undefined ? match[2] : match[3];
+      value = value.trim();
+      
+      // Ganti variabel #define (misal $foo)
+      value = value.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (m, name) =>
+        Object.prototype.hasOwnProperty.call(defines, name) ? defines[name] : m
+      );
+
+      currentTarget[key] = value;
+    }
+  }
+  return result;
+}
+
+/** Gabungkan opcode dari global + master + group + region (prioritas region tertinggi). */
+function mergeSfzOpcodes(sfz, region) {
+  return {
+    ...sfz.global,
+    ...(region.master || {}),
+    ...(region.group?.opcodes || {}),
+    ...region.opcodes
+  };
+}
+
+/** Heuristik: apakah SFZ ini sebuah drum kit? */
+function detectSfzDrumKit(sfz, sfzName) {
+  const name = (sfzName || "").toLowerCase();
+  if (/drum|kit|percussion|perc_/i.test(name)) return true;
+
+  for (const region of sfz.regions) {
+    const opcodes = mergeSfzOpcodes(sfz, region);
+    if (opcodes.group || opcodes.off_group || opcodes.off_time) return true;
+    if (opcodes.trigger === "release") return true;
+    if (opcodes.sample &&
+        /(kick|snare|hat|tom|crash|ride|clap|conga|bongo|timbale|shaker|tambourine|cowbell|cymbal)/i.test(opcodes.sample)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function findAudioFileInZip(zip, targetPath) {
+  const targetRaw  = String(targetPath).replace(/\\/g, "/");
+  const targetNorm = normalizePath(targetRaw).toLowerCase();
+  const targetBase = zipBasename(targetRaw).toLowerCase();
+  const targetKey  = normalizeBasenameKey(targetRaw);
+  let targetDecode = targetNorm;
+  try { targetDecode = decodeURIComponent(targetNorm); } catch (_) {}
+
+  for (const [name, entry] of zip.files) {
+    if (normalizePath(name).toLowerCase() === targetDecode) return entry;
+  }
+  for (const [name, entry] of zip.files) {
+    if (normalizePath(name).toLowerCase() === targetNorm) return entry;
+  }
+  for (const [name, entry] of zip.files) {
+    const n = normalizePath(name).toLowerCase();
+    if (n.endsWith("/" + targetNorm) || n.endsWith("/" + targetDecode)) return entry;
+  }
+  for (const [name, entry] of zip.files) {
+    if (zipBasename(name).toLowerCase() === targetBase) return entry;
+  }
+  const candidates = [];
+  for (const [name, entry] of zip.files) {
+    if (normalizeBasenameKey(name) === targetKey) candidates.push({ name, entry });
+  }
+  if (candidates.length > 0) {
+    const audioMatch = candidates.find(c => /\.(wav|mp3|ogg|flac|aif|aiff)$/i.test(c.name));
+    return (audioMatch || candidates[0]).entry;
+  }
+  return null;
+}
+
+/**
+ * Terapkan opcode SFZ ke sample GUS.
+ * Dipanggil SETELAH sample dibuat oleh buildSampleDraft (yang sudah menetapkan
+ * modes=M16|MENV dan envelope estimasi). Opcode SFZ menimpa bagian yang relevan.
+ */
+function applySfzToSample(sample, opcodes) {
+  const bps = (sample.modes & M16) ? 2 : 1;
+
+  // Loop (SFZ memakai frame, GUS memakai byte)
+  const loopMode = String(opcodes.loop_mode || "").toLowerCase();
+  const isLooping = loopMode === "loop_continuous" || loopMode === "loop_sustain" || loopMode === "loop";
+
+  if (isLooping) {
+    const ls = parseInt(opcodes.loop_start, 10);
+    const le = parseInt(opcodes.loop_end, 10);
+    if (isFinite(ls)) sample.loopStart = Math.max(0, Math.round(ls * bps));
+    if (isFinite(le)) sample.loopEnd   = Math.max(0, Math.round(le * bps));
+
+    if (sample.loopEnd > sample.loopStart) {
+      sample.modes |= MLOOP;
+      sample.modes |= MENV;
+      // Envelope default ringan (attack ~10ms, sustain 100%, release ~148ms)
+      // Konsisten dengan safety net di writeTimidityPatch().
+      sample.envRates   = [9, 0, 0, 69, 0, 0];
+      sample.envOffsets = [255, 255, 255, 0, 0, 0];
+    }
+  }
+
+  // Tuning (tune = cents, transpose = semitone)
+  const tuneCents =
+    parseFloat(opcodes.tune || "0") +
+    (parseInt(opcodes.transpose || "0", 10) * 100);
+  if (isFinite(tuneCents) && tuneCents !== 0) {
+    const factor = Math.pow(2, tuneCents / 1200);
+    sample.rootFreq = Math.max(1, Math.round(sample.rootFreq * factor));
+  }
+
+  // Volume/pan SFZ diabaikan — envelope + velocity mengatur gain di engine.
+}
+
+async function sfzToGusEntries(sfz, zip, sfzName, sourceFileName, onProgress) {
+  const entries = [];
+  const missingSamples = [];
+  const failedSamples  = [];
+
+  const sfzDir = zipDirname(sfzName);
+  const defaultPath = sfz.control.default_path || "";
+  const sampleCache = new Map();
+
+  async function loadSample(samplePath) {
+    if (!samplePath) return null;
+    if (sampleCache.has(samplePath)) return sampleCache.get(samplePath);
+
+    let rel = String(samplePath).replace(/\\/g, "/");
+    try { rel = decodeURIComponent(rel); } catch (_) {}
+
+    if (defaultPath && !rel.startsWith("/")) {
+      const dp = String(defaultPath).replace(/\\/g, "/");
+      rel = dp.endsWith("/") ? dp + rel : dp + "/" + rel;
+    }
+
+    const resolved = resolvePath(sfzDir, rel);
+
+    const zipEntry = findAudioFileInZip(zip, resolved)
+                  || findAudioFileInZip(zip, rel)
+                  || findAudioFileInZip(zip, samplePath);
+
+    if (!zipEntry) {
+      missingSamples.push(samplePath);
+      sampleCache.set(samplePath, null);
+      return null;
+    }
+    try {
+      const audioData = await extractFile(zip, zipEntry);
+      const audioBuffer = await decodeSampleBlob(new Blob([audioData]));
+      const draft = await buildSampleDraft(audioBuffer, zipBasename(samplePath));
+      sampleCache.set(samplePath, draft);
+      return draft;
+    } catch (err) {
+      failedSamples.push({ path: samplePath, error: err.message || String(err) });
+      console.error(`[SFZ] Decode failed "${samplePath}" (zip: "${zipEntry.name}"):`, err);
+      sampleCache.set(samplePath, null);
+      return null;
+    }
+  }
+
+  const isDrum = detectSfzDrumKit(sfz, sfzName);
+  const baseName = (sfzName || "SFZ").replace(/\.sfz$/i, "");
+
+  if (isDrum) {
+    // ═══ DRUM: satu patch per region ═══
+    for (let i = 0; i < sfz.regions.length; i++) {
+      const region = sfz.regions[i];
+      const opcodes = mergeSfzOpcodes(sfz, region);
+      if (!opcodes.sample) continue;
+
+      let note = 36;
+      if (opcodes.key !== undefined) note = parseInt(opcodes.key, 10);
+      else if (opcodes.lokey !== undefined) note = parseInt(opcodes.lokey, 10);
+      else if (opcodes.pitch_keycenter !== undefined) note = parseInt(opcodes.pitch_keycenter, 10);
+      if (!isFinite(note) || note < 0 || note > 127) continue;
+
+      onProgress?.(i + 1, sfz.regions.length, zipBasename(opcodes.sample));
+      const draft = await loadSample(opcodes.sample);
+      if (!draft) continue;
+
+      const sample = { ...draft.sample, _float: null };
+      applySfzToSample(sample, opcodes);
+      if (draft.resampleRatio && draft.resampleRatio !== 1) {
+        sample.loopStart = Math.round(sample.loopStart * draft.resampleRatio);
+        sample.loopEnd   = Math.round(sample.loopEnd   * draft.resampleRatio);
+      }
+      sample.lowFreq  = Math.floor(midiToFreq(note) * 1000);
+      sample.highFreq = Math.ceil(midiToFreq(note) * 1000);
+      sample.rootFreq = Math.round(midiToFreq(note) * 1000);
+      sample.name = zipBasename(opcodes.sample)
+        .replace(/\.[^.]+$/, "").replace(/[^\w-]/g, "").slice(0, 7) || "SMP";
+
+      const drumName = GM_DRUM_NAMES[note] || `Note ${note}`;
+      entries.push({
+        id: uid("sfzdrum"),
+        name: `${String(note).padStart(2, "0")}_${drumName}`.substring(0, 48),
+        source: "sfz:" + sourceFileName,
+        gmProgram: note, gmBank: 128, drumSet: 0, originalOrder: 0,
+        patch: {
+          header: { magic: MAGIC, gravisId: GRAVIS_ID,
+            description: drumName.substring(0, 60),
+            voices: 14, channels: 0, waveForms: 1,
+            masterVolume: 127, dataSize: sample.pcm.length,
+            reserved: new Uint8Array(36) },
+          instruments: [{ instrument: 0, name: drumName.substring(0, 16),
+            size: 0, reserved: new Uint8Array(40),
+            layers: [{ duplicate: 0, layer: 0, layerSize: 0,
+              reserved: new Uint8Array(40), samples: [sample] }] }]
+        }
+      });
+    }
+  } else {
+    // ═══ MELODIC: satu patch, semua region jadi sample ═══
+    const allSamples = [];
+    for (let i = 0; i < sfz.regions.length; i++) {
+      const region = sfz.regions[i];
+      const opcodes = mergeSfzOpcodes(sfz, region);
+      if (!opcodes.sample) continue;
+
+      onProgress?.(i + 1, sfz.regions.length, zipBasename(opcodes.sample));
+      const draft = await loadSample(opcodes.sample);
+      if (!draft) continue;
+
+      const sample = { ...draft.sample, _float: null };
+      const loKey   = opcodes.lokey !== undefined ? parseInt(opcodes.lokey, 10) : 0;
+      const hiKey   = opcodes.hikey !== undefined ? parseInt(opcodes.hikey, 10) : 127;
+      const rootKey = opcodes.pitch_keycenter !== undefined
+        ? parseInt(opcodes.pitch_keycenter, 10)
+        : (opcodes.key !== undefined ? parseInt(opcodes.key, 10) : 60);
+
+      const safeLo   = clamp(isFinite(loKey)   ? loKey   : 0,   0, 127);
+      const safeHi   = clamp(isFinite(hiKey)   ? hiKey   : 127, 0, 127);
+      const safeRoot = clamp(isFinite(rootKey) ? rootKey : 60,  0, 127);
+
+      sample.lowFreq  = Math.floor(midiToFreq(safeLo) * 1000);
+      sample.highFreq = Math.ceil(midiToFreq(safeHi) * 1000);
+      sample.rootFreq = Math.round(midiToFreq(safeRoot) * 1000);
+      sample.name = zipBasename(opcodes.sample)
+        .replace(/\.[^.]+$/, "").replace(/[^\w-]/g, "").slice(0, 7) || "SMP";
+
+      applySfzToSample(sample, opcodes);
+      if (draft.resampleRatio && draft.resampleRatio !== 1) {
+        sample.loopStart = Math.round(sample.loopStart * draft.resampleRatio);
+        sample.loopEnd   = Math.round(sample.loopEnd   * draft.resampleRatio);
+      }
+      allSamples.push(sample);
+    }
+
+    if (allSamples.length > 0) {
+      const instName = String(sfz.control.description || baseName).substring(0, 60);
+      entries.push({
+        id: uid("sfz"),
+        name: instName.substring(0, 48),
+        source: "sfz:" + sourceFileName,
+        gmProgram: -1, gmBank: 0,
+        patch: {
+          header: { magic: MAGIC, gravisId: GRAVIS_ID, description: instName,
+            voices: 14, channels: 0, waveForms: allSamples.length,
+            masterVolume: 127,
+            dataSize: allSamples.reduce((s, x) => s + x.pcm.length, 0),
+            reserved: new Uint8Array(36) },
+          instruments: [{ instrument: 0, name: instName.substring(0, 16),
+            size: 0, reserved: new Uint8Array(40),
+            layers: [{ duplicate: 0, layer: 0, layerSize: 0,
+              reserved: new Uint8Array(40), samples: allSamples }] }]
+        }
+      });
+    }
+  }
+
+  return { entries, missingSamples, failedSamples, totalRegions: sfz.regions.length };
+}
+
+async function handleSfzZip(zip) {
+  const sfzNames = [];
+  for (const name of zip.files.keys()) {
+    if (/\.sfz$/i.test(name)) sfzNames.push(name);
+  }
+  if (sfzNames.length === 0) return null;
+
+  console.log(`[SFZ] Found ${sfzNames.length} SFZ file(s):`, sfzNames);
+
+  const allEntries = [];
+  const failures = [];
+
+  for (let i = 0; i < sfzNames.length; i++) {
+    const sfzName = sfzNames[i];
+    showStatus(`Reading SFZ ${i + 1}/${sfzNames.length}: ${zipBasename(sfzName)}`);
+    try {
+      const sfzData = await extractFile(zip, zip.files.get(sfzName));
+      const sfzText = new TextDecoder().decode(sfzData);
+      const sfz = parseSfzText(sfzText);
+
+      if (sfz.regions.length === 0) {
+        failures.push(`${sfzName}: no <region> sections found`);
+        continue;
+      }
+
+      const result = await sfzToGusEntries(
+        sfz, zip, sfzName, zipBasename(sfzName),
+        (cur, total, name) =>
+          showStatus(`SFZ ${i + 1}/${sfzNames.length}: ${cur}/${total} — ${name}`)
+      );
+
+      if (result.entries.length > 0) {
+        allEntries.push(...result.entries);
+      } else {
+        const detail = [];
+        if (result.missingSamples.length > 0) {
+          detail.push(`${result.missingSamples.length}/${result.totalRegions} sample tidak ditemukan (contoh: "${result.missingSamples[0]}")`);
+        }
+        if (result.failedSamples.length > 0) {
+          detail.push(`${result.failedSamples.length}/${result.totalRegions} decode gagal (contoh: "${result.failedSamples[0].path}": ${result.failedSamples[0].error})`);
+        }
+        failures.push(`${sfzName}: ${detail.join("; ") || "tidak ada patch dihasilkan"}`);
+      }
+    } catch (err) {
+      console.error(`[SFZ] Failed to process ${sfzName}:`, err);
+      failures.push(`${sfzName}: ${err.message || err}`);
+    }
+  }
+
+  return { entries: allEntries, failures, sfzNames };
+}
+
 async function handleZipOpen(ab) {
   showStatus(t("reading_zip"));
   const zip = await readZip(ab);
 
-  // 1) Cari kandidat config: timidity.cfg → *.cfg → *.ini (+ultramid)
+    // PRIORITAS 1: Cek apakah ada file .sfz
+  const hasSfz = Array.from(zip.files.keys()).some(n => /\.sfz$/i.test(n));
+
+  if (hasSfz) {
+    showStatus("Memproses file SFZ...");
+
+    let sfzResult;
+    try {
+      sfzResult = await handleSfzZip(zip);
+    } catch (err) {
+      console.error("[SFZ] Import threw:", err);
+      throw new Error(`SFZ import failed:\n${err.message || err}`);
+    }
+
+    // handleSfzZip mengembalikan OBJEK { entries, failures, sfzNames }
+    if (!sfzResult || !Array.isArray(sfzResult.entries)) {
+      throw new Error("SFZ import failed: handleSfzZip tidak mengembalikan objek { entries: [...] }.");
+    }
+
+    if (sfzResult.entries.length === 0) {
+      const detail = sfzResult.failures && sfzResult.failures.length > 0
+        ? sfzResult.failures.join("\n")
+        : "Tidak ada patch dihasilkan dari SFZ.";
+      throw new Error(`SFZ import failed:\n${detail}`);
+    }
+
+    // ⚠️ PERHATIKAN: Kita passing .entries (array), bukan sfzResult (objek)
+    const added = await addPatchEntries(sfzResult.entries);
+    
+    if (added) {
+      const n = sfzResult.entries.length;
+      showStatus(`Imported ${n} patch${n === 1 ? "" : "es"} dari ${sfzResult.sfzNames.length} file SFZ`, "ok");
+    }
+    return;
+  }
+
+  // PRIORITAS 2: Tanpa .sfz, gunakan jalur TiMidity cfg seperti biasa
   const cfgCandidates = findConfigFileCandidates(zip);
   if (cfgCandidates.length === 0) throw new Error(t("zip_no_cfg"));
 
-  // 2) Coba tiap kandidat hingga menghasilkan >= 1 patch
   let cfgName = null;
   let parsed = null;
   for (const candidate of cfgCandidates) {
     try {
       const cfgData = await extractFile(zip, zip.files.get(candidate.name));
       const text = new TextDecoder().decode(cfgData);
-      const result = (candidate.format === "ultramid")
-        ? parseUltramidIni(text)
-        : parseTimidityCfg(text);
+      const result = (candidate.format === "ultramid") ? parseUltramidIni(text) : parseTimidityCfg(text);
       if (result.length > 0) {
         cfgName = candidate.name;
         parsed = result;
         break;
       }
     } catch (e) {
-      console.warn(
-        `Gagal parse kandidat config "${candidate.name}" (${candidate.format}):`,
-        e
-      );
+      console.warn(`Gagal parse kandidat config "${candidate.name}":`, e);
     }
   }
 
   if (!parsed) throw new Error(t("zip_no_patches"));
 
-  // 3) Tentukan base directory untuk resolusi path patch.
-  //    - Jika config berada di subfolder → pakai direktori config sebagai basis.
-  //    - Jika config di root → baseDir = "" (cari dari root, seperti biasa).
-  //    - Jika config di root tapi patch berada di wrapper folder → wrapperFolder
-  //      dipakai sebagai hint tambahan.
   const cfgDir = zipDirname(cfgName);
   const wrapperFolder = detectWrapperFolder(zip);
-  const baseDir = cfgDir || ""; // prioritas: direktori config
+  const baseDir = cfgDir || "";
 
   const entries = [];
   let processed = 0;
@@ -7260,22 +7721,15 @@ async function handleZipOpen(ab) {
 
     let zipFileEntry = null;
 
-    // (a) Coba dengan prefix baseDir — pencocokan persis (Pass 1 di
-    //     findPatchFileInZip memakai exact match, jadi paling presisi).
     if (baseDir) {
       const prefixed = normalizePath(baseDir + targetPath);
       zipFileEntry = findPatchFileInZip(zip, prefixed);
     }
 
-    // (b) Fallback: path asli. findPatchFileInZip akan mencoba 4 lapis
-    //     (exact → suffix / → basename → basename tanpa ekstensi),
-    //     yang menangani wrapper folder secara implisit.
     if (!zipFileEntry) {
       zipFileEntry = findPatchFileInZip(zip, targetPath);
     }
 
-    // (c) Fallback terakhir: bila config di root tapi ada wrapper folder
-    //     yang berbeda dari cfgDir, coba prefix wrapperFolder secara eksplisit.
     if (!zipFileEntry && wrapperFolder && wrapperFolder !== baseDir) {
       const wrapped = normalizePath(wrapperFolder + targetPath);
       zipFileEntry = findPatchFileInZip(zip, wrapped);
@@ -7292,7 +7746,6 @@ async function handleZipOpen(ab) {
       const fallbackName = item.filename.split('/').pop().replace(/\.pat$/i, "");
       const entryName = getImportedPatchName(patch, item, fallbackName);
 
-      // Auto-fill nama instrumen jika kosong
       if (patch.instruments && patch.instruments.length > 0) {
         for (const inst of patch.instruments) {
           if (!inst.name || !inst.name.trim()) {
