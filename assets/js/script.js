@@ -4155,7 +4155,6 @@ function parseMidiTimeline(midiData) {
   });
   return result;
 }
-
 function openMidiTimelineDialog() {
   if (!state.midiData) {
     showAlert("midi_timeline_no_midi");
@@ -4180,10 +4179,9 @@ function openMidiTimelineDialog() {
   // ─── reset referensi tombol M/S ───
   midiChannelMuteBtnRefs.fill(null);
   midiChannelSoloBtnRefs.fill(null);
-  
-  const totalTicks = Math.max(1, timeline.totalTicks);
 
-  timelineTotalTicks = totalTicks; 
+  const totalTicks = Math.max(1, timeline.totalTicks);
+  timelineTotalTicks = totalTicks;
 
   const palette = [
     "#38bdf8", "#a78bfa", "#34d399", "#fbbf24", "#f87171",
@@ -4203,30 +4201,28 @@ function openMidiTimelineDialog() {
 
   // --- Ruler (tick markers) ---
   const rulerRow = document.createElement("div");
-  rulerRow.className = "midi-timeline-row";
-  rulerRow.style.marginBottom = "6px";
+  rulerRow.className = "midi-timeline-row midi-timeline-ruler-row";
+
   const rulerSpacer = document.createElement("div");
   rulerSpacer.className = "midi-timeline-label";
+
   const rulerTrack = document.createElement("div");
-  rulerTrack.className = "midi-timeline-track";
-  rulerTrack.style.height = "16px";
-  rulerTrack.style.background = "transparent";
-  rulerTrack.style.border = "none";
+  rulerTrack.className = "midi-timeline-track midi-timeline-ruler-track";
 
   const step = getNiceTickStep(totalTicks);
   for (let t = 0; t <= totalTicks; t += step) {
     const tickEl = document.createElement("span");
     tickEl.className = "midi-timeline-tick";
-    tickEl.style.left = `${(t / totalTicks) * 100}%`;
+    tickEl.style.left = `${(t / totalTicks) * 100}%`;   // dinamis
     tickEl.textContent = t.toLocaleString();
-    if (t === 0) tickEl.style.transform = "translateX(0)"; // Rata kiri untuk tick 0
+    if (t === 0) tickEl.style.transform = "translateX(0)";  // dinamis
     rulerTrack.appendChild(tickEl);
   }
   if (totalTicks % step !== 0) {
     const tickEl = document.createElement("span");
     tickEl.className = "midi-timeline-tick";
-    tickEl.style.left = "100%";
-    tickEl.style.transform = "translateX(-100%)";
+    tickEl.style.left = "100%";                          // dinamis
+    tickEl.style.transform = "translateX(-100%)";        // dinamis
     tickEl.textContent = totalTicks.toLocaleString();
     rulerTrack.appendChild(tickEl);
   }
@@ -4238,25 +4234,23 @@ function openMidiTimelineDialog() {
   for (let ch = 0; ch < 16; ch++) {
     const row = document.createElement("div");
     row.className = "midi-timeline-row";
-    row.dataset.channel = String(ch);          // ← untuk updateTimelineMutedVisuals()
+    row.dataset.channel = String(ch);
 
     const label = document.createElement("div");
-    label.className = "midi-timeline-label";
-    label.style.display = "flex";
-    label.style.alignItems = "center";
-    label.style.gap = "2px";
-    label.style.overflow = "hidden";
+    label.className = "midi-timeline-label midi-timeline-label-channel";
+
+    const vuMeter = document.createElement("div");
+    vuMeter.className = "vu-meter";
+    const vuMeterInner = document.createElement("div");
+    vuMeterInner.className = "vu-meter-inner";
+    vuMeter.appendChild(vuMeterInner);
 
     // ─── Tombol Mute ───
     const muteBtn = document.createElement("button");
     muteBtn.type = "button";
     muteBtn.textContent = "M";
     muteBtn.title = "Mute channel " + ch;
-    muteBtn.style.cssText =
-      "width:14px;height:14px;padding:0;font-size:9px;font-weight:700;" +
-      "border-radius:2px;border:1px solid #334155;background:#1e293b;" +
-      "color:#94a3b8;cursor:pointer;display:inline-flex;" +
-      "align-items:center;justify-content:center;line-height:1;flex:0 0 auto;";
+    muteBtn.className = "midi-ch-toggle";
     muteBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       midiChannelMute[ch] = !midiChannelMute[ch];
@@ -4271,11 +4265,7 @@ function openMidiTimelineDialog() {
     soloBtn.type = "button";
     soloBtn.textContent = "S";
     soloBtn.title = "Solo channel " + ch;
-    soloBtn.style.cssText =
-      "width:14px;height:14px;padding:0;font-size:9px;font-weight:700;" +
-      "border-radius:2px;border:1px solid #334155;background:#1e293b;" +
-      "color:#94a3b8;cursor:pointer;display:inline-flex;" +
-      "align-items:center;justify-content:center;line-height:1;flex:0 0 auto;";
+    soloBtn.className = "midi-ch-toggle";
     soloBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       midiChannelSolo[ch] = !midiChannelSolo[ch];
@@ -4288,13 +4278,12 @@ function openMidiTimelineDialog() {
     // ─── Label nama channel ───
     const nameSpan = document.createElement("span");
     nameSpan.textContent = ch === 9 ? "Drum" : `CH ${ch}`;
-    nameSpan.style.cssText =
-      "font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;";
-    if (ch === 9) nameSpan.style.color = "var(--accent2, #a78bfa)";
+    nameSpan.className = "midi-ch-name" + (ch === 9 ? " is-drum" : "");
 
     label.appendChild(muteBtn);
     label.appendChild(soloBtn);
     label.appendChild(nameSpan);
+    label.appendChild(vuMeter);
 
     const track = document.createElement("div");
     track.className = "midi-timeline-track";
@@ -4305,28 +4294,28 @@ function openMidiTimelineDialog() {
       bar.className = "midi-timeline-bar";
       const leftPct = (seg.startTick / totalTicks) * 100;
       const widthPct = ((seg.endTick - seg.startTick) / totalTicks) * 100;
-      bar.style.left = `${leftPct}%`;
-      bar.style.width = `${Math.max(0.5, widthPct)}%`;
-      bar.style.background = getColor(seg);
-      
-      // Ambil nama GM berdasarkan program
-      const gmName = GM_MELODIC_NAMES[seg.program] || t("unknown_instrument", { program: seg.program });
-      
+      bar.style.left = `${leftPct}%`;                    // dinamis
+      bar.style.width = `${Math.max(0.5, widthPct)}%`;   // dinamis
+      bar.style.background = getColor(seg);              // dinamis (warna per segmen)
+
+      const gmName = GM_MELODIC_NAMES[seg.program]
+        || t("unknown_instrument", { program: seg.program });
+
       bar.title =
-        t("timeline_tooltip_channel", { channel: seg.channel }) + 
+        t("timeline_tooltip_channel", { channel: seg.channel }) +
         (seg.isDrum ? ` ${t("timeline_tooltip_drum")}` : "") + `\n` +
         t("timeline_tooltip_program", { program: seg.program }) + `\n` +
         t("timeline_tooltip_instrument", { name: gmName }) + `\n` +
         t("timeline_tooltip_bank", { bank: seg.bank }) + `\n` +
-        t("timeline_tooltip_tick", { 
-          start: seg.startTick.toLocaleString(), 
-          end: seg.endTick.toLocaleString() 
+        t("timeline_tooltip_tick", {
+          start: seg.startTick.toLocaleString(),
+          end: seg.endTick.toLocaleString()
         });
-      
+
       if (widthPct > 2) bar.textContent = String(seg.program);
-      
+
       bar.addEventListener("click", (e) => {
-        e.stopPropagation(); // Cegah event bocor ke parent
+        e.stopPropagation();
         selectPatchFromTimeline(seg);
       });
       track.appendChild(bar);
@@ -4344,21 +4333,49 @@ function openMidiTimelineDialog() {
   timelinePlayheadEl.className = "midi-timeline-playhead";
   container.appendChild(timelinePlayheadEl);
 
-  // Di akhir openMidiTimelineDialog, setelah dialog.hidden = false;
-
   dialog.hidden = false;
-
   updateTimelinePlayButton();
 
-  // ⬇️ TAMBAHKAN INI UNTUK SINKRONISASI AWAL ⬇️
-  const curPct = midiProgress.duration > 0 ? (midiProgress.current / midiProgress.duration) * 1000 : 0;
+  const curPct = midiProgress.duration > 0
+    ? (midiProgress.current / midiProgress.duration) * 1000
+    : 0;
   $("timelineSeek").value = curPct;
-  // ⬆️ -------------------------------------- ⬆️
 
   requestAnimationFrame(() => {
     updateTimelinePlayhead(getPlayheadTick());
   });
-  
+
+  allChannelOff();
+
+  timidityPlayer.onNoteOn((e) => {
+    onNoteOn(e);
+  });
+  timidityPlayer.onNoteOff((e) => {
+    onNoteOff(e);
+  });
+
+}
+
+function onNoteOn(e) {
+  const el = document.querySelector(`.midi-timeline-row[data-channel="${e.channel}"] .vu-meter-inner`);
+  if(el) {
+    const op = Math.min(1, 0.5 + (e.velocity / 254));
+    el.style.opacity = op;
+  }  
+}
+
+function onNoteOff(e) {
+  const el = document.querySelector(`.midi-timeline-row[data-channel="${e.channel}"] .vu-meter-inner`);
+  if(el) {
+    el.style.opacity = 0;
+  }  
+}
+
+function allChannelOff() {
+  const els = document.querySelectorAll(`.midi-timeline-row .vu-meter-inner`);
+  if(els && els.length) {
+    els.forEach(el=>{el.style.opacity=0;});
+  }
 }
 
 function selectPatchFromTimeline(seg) {
@@ -4452,6 +4469,7 @@ function seekToTick(tick) {
   if ($("midiSeek")) $("midiSeek").value = sliderValue;
   if ($("timelineSeek")) $("timelineSeek").value = sliderValue;
 
+  allChannelOff();
   updateTimelinePlayhead(clampedTick);
   updateMidiUI();
 
@@ -4748,18 +4766,8 @@ function refreshMuteSoloButtons() {
   for (let ch = 0; ch < 16; ch++) {
     const mBtn = midiChannelMuteBtnRefs[ch];
     const sBtn = midiChannelSoloBtnRefs[ch];
-    if (mBtn) {
-      const on = midiChannelMute[ch];
-      mBtn.style.background  = on ? "#dc2626" : "var(--bg2, #1e293b)";
-      mBtn.style.color       = on ? "#ffffff" : "var(--dim, #94a3b8)";
-      mBtn.style.borderColor = on ? "#dc2626" : "var(--border, #334155)";
-    }
-    if (sBtn) {
-      const on = midiChannelSolo[ch];
-      sBtn.style.background  = on ? "#eab308" : "var(--bg2, #1e293b)";
-      sBtn.style.color       = on ? "#000000" : "var(--dim, #94a3b8)";
-      sBtn.style.borderColor = on ? "#eab308" : "var(--border, #334155)";
-    }
+    if (mBtn) mBtn.classList.toggle("is-mute-active", midiChannelMute[ch]);
+    if (sBtn) sBtn.classList.toggle("is-solo-active", midiChannelSolo[ch]);
   }
 }
 
