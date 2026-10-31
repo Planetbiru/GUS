@@ -14,6 +14,7 @@
   "new_project": "Add Project",
   "add_patch": "Add Patch",
   "import_sf2": "Import SF2",
+  "export_sf2": "Export to SoundFont (SF2)",
   "import_package_title": "Import package file (SF2 / zipped PAT / zipped SFZ)",
   "import_soundfont_title": "Import a SoundFont file (SF2)",
   "import_patch_title": "Import GUS Patch file (PAT)",
@@ -483,5 +484,16 @@
   "sample_from_generator": "Generate Automatically",
   "sample_from_generator_hint": "Create a sample from a basic waveform.",
   "wave_form": "Waveform",
-  "generate_sample": "Generate Sample"
+  "generate_sample": "Generate Sample",
+
+
+  "gm_map_btn": "GM Map",
+  "gm_map_title": "General MIDI Instrument Map",
+  "gm_map_desc": "List of General MIDI instruments with availability status in the active project's bank 0. Click an available instrument name to open the related patch.",
+  "gm_map_melodic": "Melodic Instruments",
+  "gm_map_drum": "Drum Kit",
+  "gm_map_instrument": "Instrument Name",
+  "gm_map_status": "Status",
+  "gm_map_available": "Available",
+  "gm_map_not_available": "Not available"
 }

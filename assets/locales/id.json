@@ -14,6 +14,7 @@
   "new_project": "Tambah Proyek",
   "add_patch": "Tambah Patch",
   "import_sf2": "Impor SF2",
+  "export_sf2": "Export ke SoundFont (SF2)",
   "import_package_title": "Impor file paket (SF2 / PAT dalam ZIP / SFZ dalam ZIP)",
   "import_soundfont_title": "Impor file SoundFont (SF2)",
   "import_patch_title": "Impor file GUS Patch (PAT)",
@@ -483,5 +484,16 @@
   "sample_from_generator": "Buat Otomatis",
   "sample_from_generator_hint":"Buat sampel dari bentuk gelombang dasar.",
   "wave_form": "Bentuk Gelombang",
-  "generate_sample": "Generate Sampel"
+  "generate_sample": "Generate Sampel",
+
+
+  "gm_map_btn": "Peta GM",
+  "gm_map_title": "Peta Instrumen General MIDI",
+  "gm_map_desc": "Daftar instrumen General MIDI beserta status ketersediaannya di bank 0 proyek aktif. Klik nama instrumen yang tersedia untuk membuka patch terkait.",
+  "gm_map_melodic": "Instrumen Melodis",
+  "gm_map_drum": "Drum Kit",
+  "gm_map_instrument": "Nama Instrumen",
+  "gm_map_status": "Status",
+  "gm_map_available": "Ada",
+  "gm_map_not_available": "Tidak ada"
 }

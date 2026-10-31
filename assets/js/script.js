@@ -8583,8 +8583,108 @@ async function importMidiJsFromUrl() {
   }
 }
 
+
+/* ---------- General MIDI Map ---------- */
+/**
+ * Cari patch di bank 0 (targetBank === 0) yang cocok dengan instrumen GM.
+ * @param {boolean} isDrum
+ * @param {number}  program — program (0..127) atau MIDI note drum (35..81)
+ * @returns {object|undefined}
+ */
+function findPatchInBank0(isDrum, program) {
+  return state.patches.find(p => {
+    const pIsDrum = (p.gmBank ?? 0) === 128;
+    if (pIsDrum !== isDrum) return false;
+    if (p.gmProgram !== program) return false;
+    return (p.targetBank ?? 0) === 0;
+  });
+}
+
+function renderGmMap() {
+  const melodicBody = $("gmMapMelodicBody");
+  const drumBody    = $("gmMapDrumBody");
+  if (!melodicBody || !drumBody) return;
+
+  const buildRow = (num, label, patch) => {
+    const tr = document.createElement("tr");
+    const numStr = String(num).padStart(3, "0");
+    if (patch) {
+      tr.className = "gm-map-row-available";
+      tr.innerHTML = `
+        <td class="gm-map-col-num">${numStr}</td>
+        <td><a href="#" class="gm-map-link" data-id="${escapeHtml(patch.id)}">${escapeHtml(label)}</a></td>
+        <td class="gm-map-col-status"><span class="gm-map-badge available">${t("gm_map_available")}</span></td>`;
+    } else {
+      tr.innerHTML = `
+        <td class="gm-map-col-num">${numStr}</td>
+        <td>${escapeHtml(label)}</td>
+        <td class="gm-map-col-status"><span class="gm-map-badge missing">${t("gm_map_not_available")}</span></td>`;
+    }
+    return tr;
+  };
+
+  // ── Melodis (0..127) ──
+  melodicBody.innerHTML = "";
+  for (let i = 0; i < GM_MELODIC_NAMES.length; i++) {
+    melodicBody.appendChild(buildRow(i, GM_MELODIC_NAMES[i], findPatchInBank0(false, i)));
+  }
+
+  // ── Drum Kit (35..81) ──
+  drumBody.innerHTML = "";
+  const drumNotes = Object.keys(GM_DRUM_NAMES).map(Number).sort((a, b) => a - b);
+  for (const note of drumNotes) {
+    drumBody.appendChild(buildRow(note, GM_DRUM_NAMES[note], findPatchInBank0(true, note)));
+  }
+
+  // Delegated click — pasang sekali saja per body
+  [melodicBody, drumBody].forEach(body => {
+    if (body.dataset.gmBound === "1") return;
+    body.dataset.gmBound = "1";
+    body.addEventListener("click", e => {
+      const link = e.target.closest(".gm-map-link");
+      if (!link) return;
+      e.preventDefault();
+      const patchId = link.dataset.id;
+      closeGmMapDialog();
+      selectPatch(patchId);
+      setTimeout(() => {
+        const activeLi = document.querySelector("#patchList .li.active");
+        if (activeLi) activeLi.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 100);
+    });
+  });
+}
+
+function openGmMapDialog() {
+  if (!state.patches || state.patches.length === 0) {
+    showStatus(t("empty_library"), "bad");
+    return;
+  }
+  renderGmMap();
+  $("gmMapDialog").hidden = false;
+}
+
+function closeGmMapDialog() {
+  $("gmMapDialog").hidden = true;
+}
+
 /* ---------- Bind UI ---------- */
 function bind(){
+
+
+  /* ── GM Map Dialog ── */
+  $("btnShowGmMap").addEventListener("click", openGmMapDialog);
+  $("btnCloseGmMap").addEventListener("click", closeGmMapDialog);
+  $("btnCloseGmMapX").addEventListener("click", closeGmMapDialog);
+  $("gmMapDialog").addEventListener("click", e => {
+    if (e.target === $("gmMapDialog")) closeGmMapDialog();
+  });
+  $("gmMapDialog").addEventListener("keydown", e => {
+    if (e.key === "Escape") closeGmMapDialog();
+  });
+
+
+
   const patInput=$("patFile");
   const sf2Input=$("sf2File");
   [$("btnOpen"),$("btnOpen2")].forEach(b=>{
