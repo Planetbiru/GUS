@@ -517,6 +517,17 @@
 
           <div class="divider"></div>
 
+          <div id="sampleRegenerateSection" hidden>
+            <h3 class="editor-subsection-heading">{{regenerate_sample}}</h3>
+            <p class="hint">{{regenerate_sample_hint}}</p>
+            <div class="toolbar" id="regenerateWaveformRow">
+              <button class="btn small" type="button" data-waveform="sine">{{sine}}</button>
+              <button class="btn small" type="button" data-waveform="triangle">{{triangle}}</button>
+              <button class="btn small" type="button" data-waveform="saw">{{saw}}</button>
+              <button class="btn small" type="button" data-waveform="square">{{square}}</button>
+            </div>
+          </div>    
+
           <h3 class="editor-subsection-heading editor-subsection-heading-compact">{{sample_properties}}</h3>
           <div class="grid g6">
             <div class="field"><label>{{wave_name_7}}</label><input id="sName" maxlength="7"></div>
@@ -551,6 +562,8 @@
 
           <h3 class="editor-subsection-heading">{{sample_modes}}</h3>
           <div class="check-row" id="modesRow"></div>
+
+      
 
           <h3 class="editor-subsection-heading">{{sound_test_keyboard}}</h3>
           <div class="hint">{{keyboard_test_hint}}</div>
@@ -738,6 +751,21 @@
                 <span id="addSampleRecordingTimer" class="pill">00:00</span>
               </div>
               <div id="addSampleRecordingStatus" class="sample-source-status" aria-live="polite"></div>
+            </section>
+            <section class="sample-source-card">
+              <h3>{{sample_from_generator}}</h3>
+              <p class="hint">{{sample_from_generator_hint}}</p>
+              <div class="field">
+                <label for="addSampleWaveform">{{wave_form}}</label>
+                <select id="addSampleWaveform">
+                  <option value="sine">{{sine}}</option>
+                  <option value="triangle">{{triangle}}</option>
+                  <option value="saw">{{saw}}</option>
+                  <option value="square">{{square}}</option>
+                </select>
+              </div>
+              <button class="btn primary" id="btnGenerateSampleWaveform" type="button">{{generate_sample}}</button>
+              <div id="addSampleGeneratorStatus" class="sample-source-status" aria-live="polite"></div>
             </section>
           </div>
 

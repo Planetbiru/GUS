@@ -123,7 +123,7 @@
   "choose_audio_file": "Pilih file WAV / MP3",
   "sample_from_microphone": "Dari mikrofon",
   "sample_microphone_hint": "Mulai merekam, lalu hentikan untuk memproses audio sebagai sampel.",
-  "start_recording": "Mulai rekam",
+  "start_recording": "Mulai",
   "stop_recording": "Hentikan",
   "sample_auto_parameters": "Parameter sampel otomatis",
   "sample_duration": "Durasi",
@@ -472,5 +472,18 @@
   "project_end_date_before_start": "Tanggal selesai tidak boleh lebih awal dari tanggal mulai",
   "save": "Simpan",
 
-  "list_cont_label": "{count} patch"
+  "list_cont_label": "{count} patch",
+
+
+
+  "regenerate_sample": "Buat Ulang Sampel",
+  "regenerate_sample_hint": "Sampel ini dibuat otomatis. Pilih bentuk gelombang baru untuk menggantinya.",
+  "sine": "Sinusoidal",
+  "square": "Kotak",
+  "saw": "Gigi Gergaji",
+  "triangle": "Segitiga",
+  "sample_from_generator": "Buat Otomatis",
+  "sample_from_generator_hint":"Buat sampel dari bentuk gelombang dasar.",
+  "wave_form": "Bentuk Gelombang",
+  "generate_sample": "Generate Sampel"
 }

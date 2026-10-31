@@ -123,7 +123,7 @@
   "choose_audio_file": "Choose WAV / MP3 file",
   "sample_from_microphone": "From microphone",
   "sample_microphone_hint": "Start recording, then stop to process the audio as a sample.",
-  "start_recording": "Start recording",
+  "start_recording": "Start",
   "stop_recording": "Stop",
   "sample_auto_parameters": "Automatic sample parameters",
   "sample_duration": "Duration",
@@ -472,5 +472,16 @@
   "project_end_date_before_start": "End date cannot be earlier than start date",
   "save": "Save",
 
-  "list_cont_label": "{count} patches"
+  "list_cont_label": "{count} patches",
+
+  "regenerate_sample": "Regenerate Sample",
+  "regenerate_sample_hint": "This sample was generated automatically. Select a new waveform to replace it.",
+  "sine": "Sine",
+  "square": "Square",
+  "saw": "Sawtooth",
+  "triangle": "Triangle",
+  "sample_from_generator": "Generate Automatically",
+  "sample_from_generator_hint": "Create a sample from a basic waveform.",
+  "wave_form": "Waveform",
+  "generate_sample": "Generate Sample"
 }
