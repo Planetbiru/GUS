@@ -1,6 +1,6 @@
 # Planetbiru Instrument Editor
 
-A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches** and **SoundFonts (`.sf2`)**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
+A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
 
 Built with vanilla JavaScript and no build step. Runs entirely in the browser. All data is stored locally in IndexedDB.
 
@@ -29,6 +29,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 ### Instrument & Patch Editing
 - **Full GUS `.PAT` support** — parse, inspect, edit, and export Gravis Ultrasound patches
 - **SoundFont (`.sf2`) support** — import presets into editable patches, and export projects back to standard SF2
+- **SFZ package support** — import `.sfz` instruments and their audio samples directly from `.zip` archives
 - **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
 - **Instrument management** — add, rename, reorder, and export individual instruments
 - **Sample bank management** — per-sample rate, root frequency, low/high frequency range, tune, balance, scale factor, envelope rates/offsets, tremolo/vibrato, and 8 sample mode flags
@@ -52,6 +53,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 | GUS Patch | `.pat` | Native Gravis Ultrasound patch format |
 | SoundFont | `.sf2` | Extracts all presets, including drum kits (split per MIDI note) |
 | Timidity package | `.zip` | Timidity distribution packages containing `timidity.cfg` |
+| SFZ Package | `.zip` | Instruments containing `.sfz` files and their audio samples (`.wav`, `.mp3`, etc.) |
 | MIDI.js soundfont | `.js` | FluidR3_GM-style OGG/MP3 soundfonts from jsDelivr and similar CDNs |
 | MIDI.js from URL | — | Fetch soundfont directly from a URL |
 
@@ -142,6 +144,18 @@ drumset 0
 35 kick_1.pat
 38 snare_1.pat
 ```
+
+### `.sfz` (SFZ Packages)
+
+The editor can parse and import `.sfz` instrument definitions, provided they are packaged inside a standard `.zip` file along with their audio samples (`.wav`, `.mp3`, etc.).
+
+**How it works:**
+- The parser reads `<control>`, `<global>`, `<master>`, `<group>`, and `<region>` blocks.
+- Sample paths defined in `sample=` opcodes are resolved relatively to the `.sfz` file's location inside the ZIP (including `..` directory traversal).
+- Basic opcodes are honored: `pitch_keycenter`, `lokey`, `hikey`, `lovel`, `hivel`, `loop_mode`, `loop_start`, `loop_end`, `tune`, and `transpose`.
+- **Melodic instruments** are imported as a single GUS patch containing all mapped samples.
+- **Drum kits** (detected via naming or group routing) are split into one GUS patch per MIDI note.
+- Supported audio formats depend entirely on the browser's `decodeAudioData` capability (usually WAV, MP3, and OGG).
 
 ### `.sf2` (SoundFont 2)
 
@@ -250,6 +264,12 @@ Each preset becomes a separate GUS patch. Drum kits (`bank 128`) are split into 
 ```
 Header → Open .PAT / .SF2 → select a ZIP produced by this editor or a compatible Timidity package
 ```
+
+**From an SFZ Package (ZIP):**
+```
+Header → Open .PAT / .SF2 → select a ZIP containing .sfz and audio files
+```
+The ZIP file must contain the `.sfz` file(s) and all referenced audio samples. Melodic SFZ files are combined into a single patch, while drum kits are split per MIDI note.
 
 **From a MIDI.js soundfont:**
 ```
@@ -436,10 +456,11 @@ Placeholders use `{name}` syntax and are substituted from the `values` argument 
 ## Known Limitations
 
 - **Browsers only** — no desktop build; a modern browser is required
-- **RAM usage** — converting a large SoundFont can hold hundreds of megabytes in memory during conversion; browsers may crash on low-RAM devices
+- **RAM usage** — converting a large SoundFont or an SFZ package with hundreds of samples can hold hundreds of megabytes in memory during conversion; browsers may crash on low-RAM devices
 - **Storage limits** — IndexedDB quotas vary by browser (usually 10% of disk); large libraries may hit the quota
 - **SF2 import** — parsed in the main thread; the UI may freeze during conversion of large files
 - **SF2 roundtrip** — PCM, loop points, sample rate, root frequency, key ranges, and preset metadata are preserved. Envelopes, tremolo, vibrato, and loop fractions are **not** part of the SF2 export format and are lost after a roundtrip; use a `.pat`-only export if you need those settings
+- **SFZ import** — Only basic SFZ opcodes are supported (key ranges, loops, tuning). Advanced opcodes (filters, complex modulation, keyswitches) are ignored. The `.sfz` file must be bundled inside a `.zip` along with its audio samples.
 - **MIDI.js import** — decoding ~88 notes at 22050 Hz takes 20–60 seconds depending on the file and device
 - **Web MIDI** — Firefox and Safari only partially support `navigator.requestMIDIAccess`
 - **Loop points** — GUS loop points reference 16-bit sample positions; fractional loop points (`.fractions`) are only partially honored on export
