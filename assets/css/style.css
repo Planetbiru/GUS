@@ -430,6 +430,7 @@ main {
 }
 
 .modal-overlay input,
+.modal-overlay textarea,
 .modal-overlay select,
 .card input,
 .card select {
@@ -443,8 +444,16 @@ main {
     min-width: 0;
     transition: border-color ease-in-out 0.05s;
 }
+.modal-overlay textarea{
+    font: 13px ui-sans-serif, system-ui, sans-serif;
+}
+.modal-overlay textarea::placeholder{
+    color: rgba(255, 255, 255, 0.4);
 
-.modal-overlay input:focus, .card input:focus {
+}
+
+
+.modal-overlay input:focus, .modal-overlay textarea:focus, .card input:focus {
     border-color: #335f70;
 }
 
@@ -751,7 +760,7 @@ footer {
 
 .sample-source-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
 }
 
@@ -1789,7 +1798,7 @@ footer {
     min-width: max-content;
 }
 .midi-timeline-label {
-    width: 80px;
+    width: 92px;
     flex-shrink: 0;
     font-size: 11px;
     font-weight: 600;
@@ -1858,3 +1867,180 @@ footer {
     will-change: transform;
     /* Hapus transisi agar pergerakan JS lebih mulus tanpa delay */
 }
+
+.midi-timeline-row[data-channel] {
+  transition: opacity 0.15s ease;
+}
+
+#libraryCountLabel{
+    color: var(--dim);
+    font-size: 10px;
+    text-align: center;
+}
+
+
+
+/* =====================================================================
+   MIDI Timeline — layout & controls
+   ===================================================================== */
+
+/* Baris ruler tick (di atas channel rows) */
+.midi-timeline-ruler-row {
+  margin-bottom: 6px;
+}
+
+.midi-timeline-ruler-track {
+  height: 16px;
+  background: transparent;
+  border: none;
+}
+
+/* Label channel + tombol M/S + nama + VU meter */
+.midi-timeline-label-channel {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+}
+
+/* Tombol M (Mute) / S (Solo) */
+.midi-ch-toggle {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 2px;
+  border: 1px solid var(--border, #334155);
+  background: var(--bg2, #1e293b);
+  color: var(--dim, #94a3b8);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.midi-ch-toggle:hover {
+  background: #273449;
+}
+
+/* State aktif — Mute */
+.midi-ch-toggle.is-mute-active,
+.midi-ch-toggle.is-mute-active:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+/* State aktif — Solo */
+.midi-ch-toggle.is-solo-active,
+.midi-ch-toggle.is-solo-active:hover {
+  background: #eab308;
+  color: #000000;
+  border-color: #eab308;
+}
+
+/* Nama channel */
+.midi-ch-name {
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Channel drum — warna beda */
+.midi-ch-name.is-drum {
+  color: var(--accent2, #a78bfa);
+}
+
+
+.midi-ch-name{
+    width: 92px;
+}
+
+
+.vu-meter{
+}
+.vu-meter-inner{
+    opacity: 0;
+    width: 8px;
+    height: 8px;
+    background-color: #00cf8b;
+    border-radius: 4px;
+}
+
+/* ── GM Map Modal ───────────────────────────── */
+.gm-map-modal { width: min(640px, 94vw); }
+.gm-map-section-title {
+  margin: 14px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent, #38bdf8);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gm-map-table-wrapper {
+  max-height: 30vh;
+  overflow-y: auto;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: rgba(6, 11, 20, 0.35);
+}
+.gm-map-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.gm-map-table thead th {
+  position: sticky;
+  top: 0;
+  background: #0d1626;
+  color: var(--dim, #94a3b8);
+  font-weight: 600;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+  z-index: 1;
+}
+.gm-map-table tbody td {
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.06);
+  vertical-align: middle;
+}
+.gm-map-table tbody tr:hover { background: rgba(56, 189, 248, 0.05); }
+.gm-map-col-num {
+  width: 46px;
+  font-family: ui-monospace, monospace;
+  color: var(--dim, #94a3b8);
+}
+.gm-map-col-status { width: 84px; text-align: right; }
+.gm-map-link {
+  color: var(--accent, #38bdf8);
+  text-decoration: none;
+  font-weight: 500;
+}
+.gm-map-link:hover { text-decoration: underline; }
+.gm-map-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.gm-map-badge.available {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+.gm-map-badge.missing {
+  background: rgba(148, 163, 184, 0.12);
+  color: #64748b;
+}
+.gm-map-row-available td:nth-child(2) { color: #e2e8f0; }
+

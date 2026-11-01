@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Planetbiru Instrument Editor</title>
-  <link rel="stylesheet" href="assets/css/style.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
   <style>
     html { background-color: #060b14; }
     #appLoadingOverlay {
@@ -144,6 +144,30 @@
       <circle cx="15" cy="12" r="1.5"></circle>
       <circle cx="15" cy="18" r="1.5"></circle>
     </symbol>
+
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5"  y1="12" x2="19" y2="12"/>
+    </symbol>
+
+    <symbol id="i-music" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l12-2v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="16" r="3"/>
+    </symbol>
+
+    <symbol id="i-drum" viewBox="0 -4 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="12" cy="9" rx="8" ry="2.5"/>
+      <path d="M4 9v5c0 1.38 3.58 2.5 8 2.5s8-1.12 8-2.5V9"/>
+      <line x1="7" y1="2" x2="10" y2="6"/>
+      <line x1="17" y1="2" x2="14" y2="6"/>
+    </symbol>
   </svg>
 
   <header>
@@ -222,14 +246,14 @@
         <h3>{{projects}} <span class="pill" id="projCount">0</span></h3>
         <div class="list project-list" id="projectList"></div>
         <div class="inline-actions project-actions">
-          <button class="btn small" id="btnAddToProject" title="{{import_patch_title}}" data-i18n-title="import_patch_title" style="flex:1" disabled><svg class="icon"><use href="#i-upload"></use></svg> {{add_patch}}</button>
+          <button class="btn small" id="btnAddToProject" title="{{import_patch_title}}" data-i18n-title="import_patch_title" style="flex:1" disabled><svg class="icon"><use href="#i-plus"></use></svg> {{add_patch}}</button>
           <button class="btn small" id="btnImportSoundfont" style="flex:1" title="{{import_package_title}}" data-i18n-title="import_package_title" disabled><svg class="icon"><use href="#i-upload"></use></svg> {{import_package}}</button>
         </div>
         <div class="inline-actions project-actions">
           <button class="btn small" id="btnExportProject" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
             </svg> {{export_zip_format}}</button>
-          <button class="btn small" id="btnExportProjectSf2" style="flex:1" title="Export to SoundFont (SF2)">
+          <button class="btn small" id="btnExportProjectSf2" style="flex:1" title="{{export_sf2}}">
               <svg class="icon"><use href="#i-download"></use>
             </svg> {{export_sf2_format}}
           </button>
@@ -269,15 +293,6 @@
               </svg> {{stop}}</button>
           </div>
 
-          <div class="inline-actions">
-            <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon"><use href="#i-folder"></use></svg> {{select_bank}}</button>
-            
-            <button class="btn small" id="btnShowMidiTimeline" title="{{midi_timeline_title}}" data-i18n-title="midi_timeline_title" style="flex:1" disabled>
-              <svg class="icon"><use href="#i-chart"></use></svg> {{midi_timeline_btn}}
-            </button>
-
-          </div>
-
           <div class="midi-volume-row">
             <span class="midi-volume-label"><svg class="icon">
                 <use href="#i-volume"></use>
@@ -287,15 +302,23 @@
             <span id="midiVolVal" class="midi-volume-value">100%</span>
           </div>
 
-          <button class="btn small" id="btnRenderMidi" disabled><svg class="icon">
-              <use href="#i-download"></use>
-            </svg> {{render_midi_wav}}
-          </button>
-          <button class="btn small" id="btnShowMidiUsedPatches" disabled
-                  title="{{midi_used_patches_title}}" data-i18n-title="midi_used_patches_title">
-            <svg class="icon"><use href="#i-chart"></use></svg> {{midi_used_patches_btn}}
-          </button>
 
+          <div class="inline-actions">
+            <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon">
+              <use href="#i-folder"></use></svg> {{select_bank}}
+            </button>
+            <button class="btn small" id="btnRenderMidi" style="flex:1" disabled>
+              <svg class="icon"><use href="#i-download"></use> </svg> {{render_midi_wav}}
+            </button>            
+          </div>
+          <div class="inline-actions">
+            <button class="btn small" id="btnShowMidiTimeline" title="{{midi_timeline_title}}" data-i18n-title="midi_timeline_title" style="flex:1" disabled>
+              <svg class="icon"><use href="#i-chart"></use></svg> {{midi_timeline_btn}}
+            </button>
+            <button class="btn small" id="btnShowMidiUsedPatches" disabled title="{{midi_used_patches_title}}" data-i18n-title="midi_used_patches_title" style="flex:1">
+              <svg class="icon"><use href="#i-chart"></use></svg> {{midi_used_patches_btn}}
+            </button>
+          </div>
           <div id="midiStatus">{{select_project_load_midi}}</div>
         </div>
       </div>
@@ -318,6 +341,16 @@
                placeholder="{{search_patch_name}}" data-i18n-placeholder="search_patch_name">
 
         <div class="list patch-list" id="patchList"></div>
+        
+        <div id="libraryCountLabel">&nbsp;</div>
+
+        <div class="inline-actions library-actions">
+          <button class="btn small" id="btnShowGmMap" style="flex:1"
+                  title="{{gm_map_btn}}" data-i18n-title="gm_map_btn">
+            <svg class="icon"><use href="#i-chart"></use></svg> {{gm_map_btn}}
+          </button>
+        </div>
+        
         <div class="inline-actions library-actions">
           <button class="btn small" id="btnExportAll" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
@@ -515,6 +548,18 @@
 
           <div class="divider"></div>
 
+          <div id="sampleRegenerateSection" hidden>
+            <h3 class="editor-subsection-heading">{{regenerate_sample}}</h3>
+            <p class="hint">{{regenerate_sample_hint}}</p>
+            <div class="toolbar" id="regenerateWaveformRow">
+              <button class="btn small" type="button" data-waveform="default">{{sample_variant_a}}</button>
+              <button class="btn small" type="button" data-waveform="sine">{{sample_variant_b}}</button>
+              <button class="btn small" type="button" data-waveform="triangle">{{sample_variant_c}}</button>
+              <button class="btn small" type="button" data-waveform="saw">{{sample_variant_d}}</button>
+              <button class="btn small" type="button" data-waveform="square">{{sample_variant_e}}</button>
+            </div>
+          </div>    
+
           <h3 class="editor-subsection-heading editor-subsection-heading-compact">{{sample_properties}}</h3>
           <div class="grid g6">
             <div class="field"><label>{{wave_name_7}}</label><input id="sName" maxlength="7"></div>
@@ -549,6 +594,8 @@
 
           <h3 class="editor-subsection-heading">{{sample_modes}}</h3>
           <div class="check-row" id="modesRow"></div>
+
+      
 
           <h3 class="editor-subsection-heading">{{sound_test_keyboard}}</h3>
           <div class="hint">{{keyboard_test_hint}}</div>
@@ -737,6 +784,36 @@
               </div>
               <div id="addSampleRecordingStatus" class="sample-source-status" aria-live="polite"></div>
             </section>
+            <section class="sample-source-card">
+              <h3>{{sample_from_generator}}</h3>
+              <p class="hint">{{sample_from_generator_hint}}</p>
+              
+              <div class="field">
+                <label for="addSampleGeneratorType">{{instrument_type}}</label>
+                <select id="addSampleGeneratorType">
+                  <option value="melodic">{{non_drum}}</option>
+                  <option value="drum">{{drum}}</option>
+                </select>
+              </div>
+              
+              <div class="field">
+                <label for="addSampleGeneratorProgram">{{instrument_program}}</label>
+                <select id="addSampleGeneratorProgram"></select>
+              </div>
+
+              <div class="field">
+                <label for="addSampleWaveform">{{wave_form}}</label>
+                <select id="addSampleWaveform">
+                  <option value="default">{{sample_variant_a}}</option>
+                  <option value="sine">{{sample_variant_b}}</option>
+                  <option value="triangle">{{sample_variant_c}}</option>
+                  <option value="saw">{{sample_variant_d}}</option>
+                  <option value="square">{{sample_variant_e}}</option>
+                </select>
+              </div>
+              <button class="btn primary" id="btnGenerateSampleWaveform" type="button">{{generate_sample}}</button>
+              <div id="addSampleGeneratorStatus" class="sample-source-status" aria-live="polite"></div>
+            </section>
           </div>
 
           <div id="addSamplePreview" class="sample-preview" hidden>
@@ -911,6 +988,128 @@
     </section>
   </div>
 
+  <div id="projectPropertiesDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true"
+            aria-labelledby="projectPropertiesTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="projectPropertiesTitle">{{project_properties_title}}</h2>
+          <button class="icon-btn" id="btnCloseProjectProperties" type="button"
+                  aria-label="{{close}}" data-i18n-aria-label="close">
+            <svg class="icon"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="field">
+            <label for="projectPropName">{{project_name}}</label>
+            <input id="projectPropName" name="project_name" type="text"
+                  maxlength="100" autocomplete="off"
+                  placeholder="{{project_name_placeholder}}"
+                  data-i18n-placeholder="project_name_placeholder">
+          </div>
+
+          <div class="field">
+            <label for="projectPropAuthor">{{project_author}}</label>
+            <input id="projectPropAuthor" name="project_author" type="text"
+                  maxlength="100" autocomplete="off"
+                  placeholder="{{project_author_placeholder}}"
+                  data-i18n-placeholder="project_author_placeholder">
+          </div>
+
+          <div class="field">
+            <label for="projectPropSource">{{project_source}}</label>
+            <input id="projectPropSource" name="project_source" type="text"
+                  maxlength="200" autocomplete="off"
+                  placeholder="{{project_source_placeholder}}"
+                  data-i18n-placeholder="project_source_placeholder">
+          </div>
+
+          <div class="grid g2">
+            <div class="field">
+              <label for="projectPropStartDate">{{project_start_date}}</label>
+              <input id="projectPropStartDate" name="project_start_date" type="date">
+            </div>
+            <div class="field">
+              <label for="projectPropEndDate">{{project_end_date}}</label>
+              <input id="projectPropEndDate" name="project_end_date" type="date">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="projectPropDescription">{{project_description}}</label>
+            <textarea id="projectPropDescription" name="project_description"
+                      rows="3" maxlength="500"
+                      style="resize:vertical;min-height:60px;width:100%;box-sizing:border-box;"
+                      placeholder="{{project_description_placeholder}}"
+                      data-i18n-placeholder="project_description_placeholder"></textarea>
+          </div>
+
+          <div id="projectPropertiesError" class="modal-error"
+              role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="btnCancelProjectProperties" type="button">{{cancel}}</button>
+          <button class="btn primary" id="btnSaveProjectProperties" type="button">{{save}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="gmMapDialog" class="modal-overlay" hidden>
+    <section class="modal-panel gm-map-modal" role="dialog" aria-modal="true"
+            aria-labelledby="gmMapTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="gmMapTitle">{{gm_map_title}}</h2>
+          <button class="icon-btn" id="btnCloseGmMapX" type="button"
+                  aria-label="{{close}}" data-i18n-aria-label="close">
+            <svg class="icon"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-message">{{gm_map_desc}}</p>
+
+          <h3 class="gm-map-section-title">
+            <svg class="icon"><use href="#i-music"></use></svg>
+            {{gm_map_melodic}}
+          </h3>
+          <div class="gm-map-table-wrapper">
+            <table class="gm-map-table">
+              <thead>
+                <tr>
+                  <th class="gm-map-col-num">#</th>
+                  <th>{{gm_map_instrument}}</th>
+                  <th class="gm-map-col-status">{{gm_map_status}}</th>
+                </tr>
+              </thead>
+              <tbody id="gmMapMelodicBody"></tbody>
+            </table>
+          </div>
+
+          <h3 class="gm-map-section-title">
+            <svg class="icon"><use href="#i-drum"></use></svg>
+            {{gm_map_drum}}
+          </h3>
+          <div class="gm-map-table-wrapper">
+            <table class="gm-map-table">
+              <thead>
+                <tr>
+                  <th class="gm-map-col-num">#</th>
+                  <th>{{gm_map_instrument}}</th>
+                  <th class="gm-map-col-status">{{gm_map_status}}</th>
+                </tr>
+              </thead>
+              <tbody id="gmMapDrumBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btnCloseGmMap" type="button">{{close}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div id="customPromptDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true"
             aria-labelledby="customPromptTitle" aria-describedby="customPromptMessage">
@@ -970,8 +1169,13 @@
 
   <script src="timidity-player/timidity-player.min.js"></script>
   <script src="timidity-player/libtimidity.min.js"></script>
-  <script src="JSGUS/GUSPatchGenerator.min.js"></script>
-  <script src="assets/js/project-patch-generator.min.js"></script>
+  <script src="JSGUS/ProjectPatchGenerator.js"></script>
+  <script src="assets/js/application-controller.js"></script>
+  <script src="assets/js/patch-data-service.js"></script>
+  <script src="assets/js/bank-controller.js"></script>
+  <script src="assets/js/editor-controller.js"></script>
+  <script src="assets/js/project-controller.js"></script>
+  <script src="assets/js/midi-controller.js"></script>
   <script src="assets/js/script.js"></script>
 </body>
 

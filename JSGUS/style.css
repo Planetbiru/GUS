@@ -102,7 +102,7 @@ button:disabled {
 .layout {
     display: grid;
     grid-template-columns: 320px 1fr;
-    height: calc(100vh - 66px);
+    height: calc(100vh - 92px);
 }
 
 aside {
