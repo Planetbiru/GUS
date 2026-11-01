@@ -465,7 +465,7 @@
   "project_author": "Author",
   "project_author_placeholder": "Author or creator of this project",
   "project_source": "Source File",
-  "project_source_placeholder": "e.g. Roland SC-55, Yamaha XG, SoundFont MyBank.sf2, SFZ MyInstrument.sfz",
+  "project_source_placeholder": "",
   "project_start_date": "Start Date",
   "project_end_date": "End Date",
   "project_description": "Description",

@@ -465,7 +465,7 @@
   "project_author": "Penulis / Author",
   "project_author_placeholder": "Nama penulis atau pembuat proyek",
   "project_source": "Sumber File",
-  "project_source_placeholder": "Mis. Roland SC-55, Yamaha XG, SoundFont MyBank.sf2, SFZ MyInstrument.sfz",
+  "project_source_placeholder": "",
   "project_start_date": "Tanggal Mulai",
   "project_end_date": "Tanggal Selesai",
   "project_description": "Deskripsi",
