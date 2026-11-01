@@ -1847,6 +1847,7 @@ class MidiController {
   }
 
   static async createMidiDemoProject(buttons,projectName){
+    
     if(isDemoGenerating)return;
     isDemoGenerating=true;
     buttons.forEach(button=>button.disabled=true);
@@ -1916,10 +1917,20 @@ class MidiController {
   
       const entries=[];
       let completed=tasks.length-missingTasks.length;
-      const melodicPitchRanges=Array.from({length:7},(_,index)=>({
-        pitchFrom:Math.floor(index*128/7),
-        pitchTo:Math.floor((index+1)*128/7)-1
+
+      const melodicSampleCount = 7;
+      const melodicPitchRanges=Array.from({length:melodicSampleCount},(_,index)=>({
+        pitchFrom:Math.floor(index*128/melodicSampleCount),
+        pitchTo:Math.floor((index+1)*128/melodicSampleCount)-1
       }));
+
+      // Default waveform for each instrument: ('sine', 'triangle', 'square' or 'saw')
+      const defaultWaveform = {
+        "0"  : "saw", // Acoustic Grand Piano use saw for demo
+        "24" : "saw", // Nylon Guitar
+        "25" : "saw", // Steel Guitar
+      };
+      
       showStatus(t("demo_generation_progress",{completed,total:tasks.length}));
       for(let index=0;index<missingTasks.length;index++){
         const {instrument,isDrum,bank}=missingTasks[index];
@@ -1928,10 +1939,12 @@ class MidiController {
           : melodicPitchRanges;
         const generatedSamples=[];
         let generated;
+
         for(const [sampleIndex,pitchRange] of pitchRanges.entries()){
           const result=projectPatchGenerator.generate({
             isDrum,
             program:instrument.id,
+            waveform:defaultWaveform[instrument.id] || null,
             ...pitchRange
           });
           if(!generated)generated=result;

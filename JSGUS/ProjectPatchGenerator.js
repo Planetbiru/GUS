@@ -62,7 +62,7 @@ class ProjectPatchGenerator {
         if (!harm) {
             throw new Error(
             `Unknown waveform: ${waveform}. ` +
-            `Gunakan 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
+            `Use 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
             );
         }
         preset = { ...preset, harm };
@@ -623,6 +623,9 @@ class MelodicRenderer {
         const out = new Float32Array(length);
         const noiseBuf    = (isLoop && noiseAmt > 0) ? this._buildLoopNoise(cs) : null;
         const fadeSamples = isLoop ? cs : 0;
+        const loopAttackSamples = isLoop && p.loopAttack
+            ? Math.min(loopStart, Math.max(1, Math.round(SR * p.loopAttack)))
+            : 0;
 
         for (let i = 0; i < length; i++) {
             const t = i / SR;
@@ -675,7 +678,9 @@ class MelodicRenderer {
                 sample = sample * (1 - noiseAmt) + n * noiseAmt;
             }
 
-            out[i] = sample * this._envelope(t, length, env, isLoop, i, fadeSamples);
+            out[i] = sample * this._envelope(
+                t, length, env, isLoop, i, fadeSamples, loopAttackSamples
+            );
         }
 
         // Transient loop hanya berada di bagian awal, di luar area loop periodik.
@@ -745,8 +750,15 @@ class MelodicRenderer {
         return { pcm: out, length, loopStart, loopEnd, loop: isLoop, SR, naturalFreq };
     }
 
-    _envelope(t, length, env, isLoop, i, fadeSamples) {
-        if (isLoop) return i < fadeSamples ? (i / fadeSamples) : 1.0;
+    _envelope(t, length, env, isLoop, i, fadeSamples, loopAttackSamples) {
+        if (isLoop) {
+            if (loopAttackSamples > 0) {
+                return i < loopAttackSamples
+                    ? 0.5 * (1 - Math.cos(Math.PI * i / loopAttackSamples))
+                    : 1.0;
+            }
+            return i < fadeSamples ? (i / fadeSamples) : 1.0;
+        }
 
         // Exponential attack/decay — jauh lebih natural dari linear
         let e;
@@ -1643,8 +1655,40 @@ class InstrumentLibrary {
                     { freq: 4000, q: 3.5, gain: 1 }
                 ]
             })],
-            ['Ensemble', 'SynthStrings 1', P('pad', { harm: [1, .5, .3, .2, .1, .05], detune: [-10, 10] })],
-            ['Ensemble', 'SynthStrings 2', P('pad', { harm: [1, .6, .4, .3, .2, .15, .1], detune: [-15, 0, 15] })],
+            ['Ensemble', 'SynthStrings 1', P('pad', {
+                harm: [1, .62, .42, .28, .18, .11, .065, .035, .018],
+                phases: [0, .06, .16, .29, .45, .64, .85, .09, .35],
+                detune: [0],
+                loopSkip: 20,
+                cycles: 34,
+                loopAttack: .025,
+                loopAttackNoise: { amp: .018, duration: .02 },
+                noise: 0,
+                drive: 1.08,
+                formants: [
+                    { freq: 420, q: 1.1, gain: 1.5 },
+                    { freq: 1250, q: 1.4, gain: 2 },
+                    { freq: 3200, q: 1.8, gain: 1.5 }
+                ],
+                vibrato: { rate: 4.8, depth: .003, sweep: 24 }
+            })],
+            ['Ensemble', 'SynthStrings 2', P('pad', {
+                harm: [1, .78, .58, .42, .3, .21, .14, .09, .055, .03],
+                phases: [0, .1, .24, .42, .63, .87, .14, .43, .76, .12],
+                detune: [0],
+                loopSkip: 24,
+                cycles: 38,
+                loopAttack: .04,
+                loopAttackNoise: { amp: .012, duration: .03 },
+                noise: 0,
+                drive: 1.04,
+                formants: [
+                    { freq: 300, q: 1, gain: 2 },
+                    { freq: 850, q: 1.3, gain: 2.5 },
+                    { freq: 2100, q: 1.7, gain: 1.5 }
+                ],
+                vibrato: { rate: 4.2, depth: .004, sweep: 30 }
+            })],
             
             ['Ensemble', 'Choir Aahs', P('voice', {
                 harm: [1, .85, .7, .55, .42, .3, .22, .16, .11, .07, .04],
@@ -1694,12 +1738,98 @@ class InstrumentLibrary {
             ['Ensemble', 'Orchestra Hit', P('brass', { env: { a: .001, d: .4, s: 0, r: .2 }, length: 4410, loop: false, harm: [1, .7, .5, .4, .3, .25, .2, .15] })],
 
             // 56-63 Brass
-            ['Brass', 'Trumpet', P('brass', { vibrato: { rate: 5.5, depth: .005, sweep: 15 } })],
-            ['Brass', 'Trombone', P('brass', { vibrato: { rate: 5, depth: .004, sweep: 15 }, harm: [1, .8, .6, .45, .35, .25, .2, .15] })],
-            ['Brass', 'Tuba', P('brass', { freq: 220, vibrato: { rate: 4.5, depth: .003, sweep: 15 }, harm: [1, .7, .5, .35, .25, .18] })],
-            ['Brass', 'Muted Trpt', P('brass', { harm: [1, .5, .7, .3, .4, .25, .3, .15], vibrato: { rate: 6, depth: .008, sweep: 15 } })],
-            ['Brass', 'French Horn', P('brass', { vibrato: { rate: 5, depth: .004, sweep: 15 }, harm: [1, .6, .4, .3, .2, .15, .1] })],
-            ['Brass', 'Brass Section', P('brass', { detune: [-8, 8] })],
+            ['Brass', 'Trumpet', P('brass', {
+                harm: [1, .78, .65, .52, .4, .31, .23, .17, .12, .08],
+                loopSkip: 12,
+                cycles: 24,
+                loopAttack: .01,
+                loopAttackNoise: { amp: .045, duration: .012 },
+                noise: 0,
+                drive: 1.15,
+                formants: [
+                    { freq: 1400, q: 1.2, gain: 2.5 },
+                    { freq: 2800, q: 1.8, gain: 3 },
+                    { freq: 4200, q: 2.2, gain: 1.5 }
+                ],
+                vibrato: { rate: 5.2, depth: .004, sweep: 22 }
+            })],
+            ['Brass', 'Trombone', P('brass', {
+                harm: [1, .72, .55, .4, .29, .2, .13, .08, .045],
+                loopSkip: 16,
+                cycles: 26,
+                loopAttack: .018,
+                loopAttackNoise: { amp: .035, duration: .016 },
+                noise: 0,
+                drive: 1.08,
+                formants: [
+                    { freq: 550, q: 1.1, gain: 2 },
+                    { freq: 1150, q: 1.5, gain: 2.5 },
+                    { freq: 2400, q: 2, gain: 1 }
+                ],
+                vibrato: { rate: 4.8, depth: .003, sweep: 24 }
+            })],
+            ['Brass', 'Tuba', P('brass', {
+                freq: 220,
+                harm: [1, .62, .38, .23, .14, .08, .045, .025],
+                loopSkip: 10,
+                cycles: 28,
+                loopAttack: .025,
+                loopAttackNoise: { amp: .025, duration: .02 },
+                noise: 0,
+                drive: 1.05,
+                formants: [
+                    { freq: 320, q: 1, gain: 2.5 },
+                    { freq: 700, q: 1.2, gain: 2 },
+                    { freq: 1400, q: 1.8, gain: 1 }
+                ],
+                vibrato: { rate: 4.2, depth: .0025, sweep: 28 }
+            })],
+            ['Brass', 'Muted Trpt', P('brass', {
+                harm: [1, .42, .62, .3, .48, .25, .34, .18, .22],
+                loopSkip: 12,
+                cycles: 24,
+                loopAttack: .007,
+                loopAttackNoise: { amp: .06, duration: .009 },
+                noise: 0,
+                drive: 1.2,
+                formants: [
+                    { freq: 1700, q: 1.6, gain: 2.5 },
+                    { freq: 3100, q: 2, gain: 3 },
+                    { freq: 4600, q: 2.3, gain: 1.5 }
+                ],
+                vibrato: { rate: 5.5, depth: .004, sweep: 20 }
+            })],
+            ['Brass', 'French Horn', P('brass', {
+                harm: [1, .68, .43, .28, .18, .11, .065, .035],
+                loopSkip: 18,
+                cycles: 28,
+                loopAttack: .022,
+                loopAttackNoise: { amp: .02, duration: .018 },
+                noise: 0,
+                drive: 1.04,
+                formants: [
+                    { freq: 500, q: 1, gain: 2 },
+                    { freq: 950, q: 1.3, gain: 2.5 },
+                    { freq: 1900, q: 1.8, gain: 1 }
+                ],
+                vibrato: { rate: 4.8, depth: .003, sweep: 26 }
+            })],
+            ['Brass', 'Brass Section', P('brass', {
+                harm: [1, .82, .66, .5, .37, .27, .19, .13, .085, .05],
+                phases: [0, .08, .19, .32, .47, .63, .8, .98, .17, .4],
+                loopSkip: 16,
+                cycles: 26,
+                loopAttack: .02,
+                loopAttackNoise: { amp: .045, duration: .018 },
+                noise: 0,
+                drive: 1.12,
+                formants: [
+                    { freq: 750, q: 1, gain: 1.5 },
+                    { freq: 1550, q: 1.3, gain: 2 },
+                    { freq: 3000, q: 1.8, gain: 1.5 }
+                ],
+                vibrato: { rate: 5, depth: .0035, sweep: 24 }
+            })],
             ['Brass', 'SynthBrass 1', P('brass', {
                 harm: [1, .65, .55, .3, .18, .1, .05, .025],
                 drive: 1.7,
@@ -1709,7 +1839,7 @@ class InstrumentLibrary {
                     { freq: 3800, q: 2.5, gain: 1.5 },
                 ],
                 vibrato: { rate: 5, depth: .003, sweep: 15 },
-                gain: 0.85                                     // ← 85% dari peak (≈ −1.4 dB)
+                gain: 0.5,
             })],
 
             ['Brass', 'SynthBrass 2', P('brass', {
@@ -1720,7 +1850,7 @@ class InstrumentLibrary {
                     { freq: 1800, q: 2.0, gain: 2.5 },
                 ],
                 vibrato: { rate: 5.5, depth: .004, sweep: 15 },
-                gain: 0.85                                     // ← 85% dari peak
+                gain: 0.5,
             })],
 
             // 64-71 Reed
@@ -1732,7 +1862,8 @@ class InstrumentLibrary {
                     { freq: 2000, q: 2.0, gain: 4 },
                     { freq: 3800, q: 2.5, gain: 2 },
                 ],
-                vibrato: { rate: 5.5, depth: .008, sweep: 15 }
+                vibrato: { rate: 5.5, depth: .008, sweep: 15 },
+                gain: 0.85
             })],
             ['Reed', 'Alto Sax', P('reed', {
                 harm: [1, .72, .58, .4, .28, .18, .1, .05],    // referensi alto
@@ -1742,7 +1873,8 @@ class InstrumentLibrary {
                     { freq: 1600, q: 2.0, gain: 4 },
                     { freq: 3200, q: 2.5, gain: 2 },
                 ],
-                vibrato: { rate: 5, depth: .008, sweep: 15 }
+                vibrato: { rate: 5, depth: .008, sweep: 15 },
+                gain: 0.85
             })],
             ['Reed', 'Tenor Sax', P('reed', {
                 harm: [1, .78, .55, .38, .25, .15, .09, .04],  // full low-mid, top lebih tipis
@@ -1752,7 +1884,8 @@ class InstrumentLibrary {
                     { freq: 1400, q: 2.0, gain: 4 },
                     { freq: 2800, q: 2.5, gain: 2 },
                 ],
-                vibrato: { rate: 4.5, depth: .007, sweep: 15 }
+                vibrato: { rate: 4.5, depth: .007, sweep: 15 },
+                gain: 0.85
             })],
             ['Reed', 'Bari Sax', P('reed', {
                 freq: 300,                                     // fundamental lebih rendah
@@ -1763,7 +1896,8 @@ class InstrumentLibrary {
                     { freq: 1200, q: 2.0, gain: 4 },
                     { freq: 2400, q: 2.5, gain: 2 },
                 ],
-                vibrato: { rate: 4, depth: .006, sweep: 15 }
+                vibrato: { rate: 4, depth: .006, sweep: 15 },
+                gain: 0.85
             })],
             ['Reed', 'Oboe', P('reed', {
                 harm: [.85, 1, .8, .65, .45, .28, .15, .08],   // nasal, 2nd & 3rd paling kuat
@@ -1798,9 +1932,36 @@ class InstrumentLibrary {
 
             // 72-79 Pipe
             ['Pipe', 'Piccolo', P('pipe', { freq: 880, vibrato: { rate: 6, depth: .01, sweep: 15 } })],
-            ['Pipe', 'Flute', P('pipe', { freq: 880, vibrato: { rate: 5.5, depth: .008, sweep: 15 } })],
-            ['Pipe', 'Recorder', P('pipe', { freq: 880, harm: [1, .2, .4, .1, .2, .05], vibrato: { rate: 5, depth: .006, sweep: 15 } })],
-            ['Pipe', 'Pan Flute', P('pipe', { freq: 880, vibrato: { rate: 6, depth: .015, sweep: 15 }, noise: .08 })],
+            ['Pipe', 'Flute', P('pipe', {
+                freq: 880,
+                harm: [1, .28, .1, .04, .018, .008, .003],
+                loopSkip: 16,
+                cycles: 28,
+                loopAttack: .012,
+                loopAttackNoise: { amp: .035, duration: .012 },
+                noise: 0,
+                vibrato: { rate: 5.2, depth: .004, sweep: 20 }
+            })],
+            ['Pipe', 'Recorder', P('pipe', {
+                freq: 880,
+                harm: [1, .34, .18, .12, .07, .035, .018],
+                loopSkip: 14,
+                cycles: 26,
+                loopAttack: .01,
+                loopAttackNoise: { amp: .025, duration: .01 },
+                noise: 0,
+                vibrato: { rate: 4.8, depth: .002, sweep: 18 }
+            })],
+            ['Pipe', 'Pan Flute', P('pipe', {
+                freq: 880,
+                harm: [1, .4, .22, .11, .06, .03, .015],
+                loopSkip: 16,
+                cycles: 28,
+                loopAttack: .018,
+                loopAttackNoise: { amp: .07, duration: .018 },
+                noise: 0,
+                vibrato: { rate: 5.5, depth: .003, sweep: 22 }
+            })],
             ['Pipe', 'Blown Bottle', P('pipe', { noise: .15, harm: [1, .1, .05, .02] })],
             ['Pipe', 'Shakuhachi', P('pipe', { freq: 660, noise: .1, vibrato: { rate: 5, depth: .02, sweep: 15 } })],
             ['Pipe', 'Whistle', P('pipe', { freq: 880, harm: [1, .05, .02] })],
