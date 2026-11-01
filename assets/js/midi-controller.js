@@ -1110,6 +1110,8 @@ class MidiController {
       showAlert("midi_timeline_empty");
       return;
     }
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const projectPatches = project ? getProjectPatches(project) : [];
   
     container.innerHTML = "";
   
@@ -1237,19 +1239,27 @@ class MidiController {
   
         const gmName = GM_MELODIC_NAMES[seg.program]
           || t("unknown_instrument", { program: seg.program });
+        const patch = MidiController.findTimelinePatch(seg, projectPatches);
+        const missingInstrument = !patch;
   
         bar.title =
           t("timeline_tooltip_channel", { channel: seg.channel }) +
           (seg.isDrum ? ` ${t("timeline_tooltip_drum")}` : "") + `\n` +
           t("timeline_tooltip_program", { program: seg.program }) + `\n` +
           t("timeline_tooltip_instrument", { name: gmName }) + `\n` +
+          (missingInstrument ? `${t("midi_timeline_instrument_missing")}\n` : "") +
           t("timeline_tooltip_bank", { bank: seg.bank }) + `\n` +
           t("timeline_tooltip_tick", {
             start: seg.startTick.toLocaleString(),
             end: seg.endTick.toLocaleString()
           });
   
-        if (widthPct > 2) bar.textContent = String(seg.program);
+        if (missingInstrument || widthPct > 2) {
+          bar.textContent = missingInstrument
+            ? `${seg.program} ${t("midi_timeline_instrument_missing")}`
+            : String(seg.program);
+        }
+        if (missingInstrument) bar.classList.add("is-missing");
   
         bar.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -1445,49 +1455,40 @@ class MidiController {
     const project = state.projects.find(p => p.id === state.currentProjectId);
     if (!project) return;
     const patches = getProjectPatches(project);
-  
-  
+    const target = MidiController.findTimelinePatch(seg, patches);
+
+    if (!target) {
+      if (seg.isDrum) {
+        showStatus(t("midi_timeline_drum_kit_not_found", { bank: seg.bank }), "bad");
+      } else {
+        showStatus(t("midi_timeline_patch_not_found", {
+          program: seg.program, bank: seg.bank, channel: seg.channel
+        }), "bad");
+      }
+      return;
+    }
+
+    selectPatch(target.id);
+    closeMidiTimelineDialog();
+    setTimeout(() => {
+      const activeLi = document.querySelector("#patchList .li.active");
+      if (activeLi) activeLi.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 100);
+  }
+
+  static findTimelinePatch(seg, patches) {
     if (seg.isDrum) {
-      // Drum: patch dikunci per note (35..81), jadi pencocokan program
-      // tidak cocok. Cari kit berdasarkan targetBank.
       const drumPatches = patches.filter(p =>
         (p.gmBank ?? 0) === 128 && (p.targetBank ?? 0) === seg.bank
       );
-      if (drumPatches.length === 0) {
-        showStatus(t("midi_timeline_drum_kit_not_found", { bank: seg.bank }), "bad");
-        return;
-      }
-      // Prioritaskan patch dengan gmProgram = program (jarang, tapi mungkin),
-      // jika tidak ada, ambil patch pertama dari kit tersebut.
-      const match = drumPatches.find(p => p.gmProgram === seg.program) || drumPatches[0];
-      selectPatch(match.id);
-      closeMidiTimelineDialog();
-      setTimeout(() => {
-        const activeLi = document.querySelector("#patchList .li.active");
-        if (activeLi) activeLi.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 100);
-      return;
+      return drumPatches.find(p => p.gmProgram === seg.program) || drumPatches[0];
     }
-  
-    // Melodic: match by program + bank
-    const target = patches.find(p => {
-      if ((p.gmBank ?? 0) === 128) return false;
-      if ((p.gmProgram ?? -1) !== seg.program) return false;
-      return (p.targetBank ?? 0) === seg.bank;
-    });
-  
-    if (target) {
-      selectPatch(target.id);
-      closeMidiTimelineDialog();
-      setTimeout(() => {
-        const activeLi = document.querySelector("#patchList .li.active");
-        if (activeLi) activeLi.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 100);
-    } else {
-      showStatus(t("midi_timeline_patch_not_found", {
-        program: seg.program, bank: seg.bank, channel: seg.channel
-      }), "bad");
-    }
+
+    return patches.find(p =>
+      (p.gmBank ?? 0) !== 128 &&
+      (p.gmProgram ?? -1) === seg.program &&
+      (p.targetBank ?? 0) === seg.bank
+    );
   }
 
   static populateMidiUsedPatchesFromScan() {
@@ -1988,7 +1989,11 @@ class MidiController {
   }
 
   static findPatchInBank0(isDrum, program) {
+    const project = state.projects.find(p => p.id === state.currentProjectId);
+    if (!project) return undefined;
+    const projectPatchIds = new Set(project.patchIds || []);
     return state.patches.find(p => {
+      if (!projectPatchIds.has(p.id)) return false;
       const pIsDrum = (p.gmBank ?? 0) === 128;
       if (pIsDrum !== isDrum) return false;
       if (p.gmProgram !== program) return false;

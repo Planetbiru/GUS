@@ -445,6 +445,7 @@
   "midi_timeline_empty": "No program changes were found in this MIDI file.",
   "midi_timeline_patch_not_found": "Patch not found for Program {program}, Bank {bank}, Channel {channel}.",
   "midi_timeline_drum_kit_not_found": "Drum kit not found for Bank {bank}.",
+  "midi_timeline_instrument_missing": "Instrument not available",
   "timeline_tooltip_channel": "Channel {channel}",
   "timeline_tooltip_drum": "(Drum)",
   "timeline_tooltip_program": "Program: {program}",
