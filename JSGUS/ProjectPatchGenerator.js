@@ -861,33 +861,28 @@ class DrumFactory {
     }
 
     static cymbal(o = {}) {
+        const decay = o.noiseDecay || 0.65;
         return {
             duration: o.duration || 1.4,
-            metallic: {
-                baseFreq: 380,
-                partials: [1, 1.42, 1.89, 2.34, 2.81, 3.29, 3.76, 4.24, 4.81, 5.42, 6.05, 6.78],
-                decay: o.noiseDecay || 0.65,
-                amp: 0.35,
-            },
-            noise: {
-                amp: 0.9, decay: o.noiseDecay || 0.7,
-                type: 'pink',
-                bandpass: { center: 6500, q: 0.4 },
-            },
+            noiseLayers: [
+                { amp: 0.9, decay, type: 'white', bandpass: { center: 8500, q: 0.45 } },
+                { amp: 0.7, decay: decay * 0.8, type: 'white', bandpass: { center: 6200, q: 0.5 } },
+                { amp: 0.45, decay: decay * 0.55, type: 'pink', bandpass: { center: 3900, q: 0.6 } },
+                { amp: 0.3, decay: decay * 0.35, type: 'white', bandpass: { center: 10200, q: 0.7 } }
+            ],
             highpass: o.highpass || 3000,
         };
     }
 
     static ride(o = {}) {
+        const decay = o.noiseDecay || o.decay || 0.5;
         return {
             duration: o.duration || 1.0,
-            metallic: {
-                baseFreq: 480,
-                partials: [1, 1.37, 1.78, 2.21, 2.64, 3.11, 3.58, 4.05, 4.51],
-                decay: o.decay || 0.5,
-                amp: 0.5,
-            },
-            noise: { amp: 0.35, decay: 0.5, type: 'pink', bandpass: { center: 5500, q: 0.5 } },
+            noiseLayers: [
+                { amp: 0.85, decay: Math.min(0.035, decay * 0.15), type: 'white', bandpass: { center: 9000, q: 0.5 } },
+                { amp: 0.7, decay, type: 'white', bandpass: { center: 6500, q: 0.48 } },
+                { amp: 0.4, decay: decay * 0.65, type: 'pink', bandpass: { center: 4200, q: 0.6 } }
+            ],
             highpass: 2500,
         };
     }

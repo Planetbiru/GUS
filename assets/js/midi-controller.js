@@ -2121,7 +2121,7 @@ class MidiController {
 
       note.player = timidityPlayer;
       if (!note.player) throw new Error("TiMidity player is unavailable.");
-      await note.player.noteOn(9, 0, pitch, 100, {bank, pan: 64});
+      await note.player.noteOn(9, 0, pitch, 120, {bank, pan: 64});
       note.started = true;
 
       if (note.cancelled || activeDrumPreviewNotes.get(key) !== note ||
