@@ -46,7 +46,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Microphone recording** — record audio directly via MediaRecorder and convert to 16-bit mono PCM
 - **Auto-parameter estimation** on import — root frequency via autocorrelation, envelope via RMS analysis
 - **Frequency range map** — visualize sample coverage across the keyboard to detect overlaps
-- **Generated sample variants and key zones** — choose A to restore the original instrument sound, or B–E for alternate waveforms; set MIDI pitch ranges when generating melodic samples and add multiple non-overlapping zones to build multi-sample instruments. Demo melodic patches contain seven samples covering MIDI pitches 0–127.
+- **Generated sample variants and key zones** — choose A to restore the original instrument sound, or B–E for alternate waveforms; generate melodic samples for MIDI pitch ranges 0–127 and add multiple non-overlapping zones to build multi-sample instruments. Each Demo melodic patch contains seven samples covering the full MIDI range.
 
 ### File Import
 | Format | Extension | Description |
@@ -64,6 +64,9 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Real-time Playhead** — a synchronized vertical line that smoothly tracks the current playback position across the entire timeline
 - **Timeline Playback Controls** — play, pause, and seek directly from the Timeline modal, with synchronized UI updates
 - **Interactive Segments** — click any instrument bar in the timeline to instantly jump to and select the corresponding patch in the library
+- **Loaded MIDI libraries** — inspect patches loaded by the player after playback starts
+- **Drum kit preview** — audition individual drum notes from a selected project's kit
+- **GM Map** — check which General MIDI melodic programs and drum sounds are available in the active project
 - **Bank selection** — switch which target bank each channel uses
 - **Volume control** — safe API-based volume, no crash-prone MIDI CC injection
 - **Seek / pause / resume** — precise tempo-map-aware duration calculation
@@ -72,6 +75,8 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 
 ### Project Management
 - Multiple projects, each with its own patch list
+- **Demo project** — generate 128 melodic GM patches and 47 drum-note patches; melodic patches use seven samples covering MIDI pitches 0–127
+- **Project properties** — edit project name, author, source, dates, and description
 - Patches are automatically shared between projects if referenced by multiple projects
 - **Recovered Library** — patches whose project assignment was lost are recovered automatically
 - **Clearing library** — wipes all patches while preserving projects
@@ -225,8 +230,8 @@ Every pass through this chain preserves the following:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/planetbiru-instrument-editor.git
-cd planetbiru-instrument-editor
+git clone https://github.com/Planetbiru/GUS.git
+cd GUS
 
 # Start a simple HTTP server (any of these work)
 python3 -m http.server 8000
@@ -240,7 +245,7 @@ Then open **http://localhost:8000** in your browser.
 
 ### First Run
 
-1. Click **Load Demo** to generate a full 128-program GM demo bank (requires ~10–30 seconds on first run)
+1. Click **Demo** or **Load Demo** to generate a demo project with 128 melodic GM patches and 47 drum-note patches. Each melodic patch has seven samples spanning MIDI pitches 0–127; the first generation can take longer than subsequent opens.
 2. Or click **Add Project** → **Open a .PAT file** to import your own patch
 3. Once patches exist, use the **MIDI Preview** panel to load a `.mid` file and hear your patches
 
@@ -296,13 +301,15 @@ When adding a sample, open **Generate Automatically**, choose the instrument typ
 
 | Variant | Result |
 |---|---|
-| **A — Original** | The instrument's original generated sound, matching the sound used by the Demo project |
+| **A — Original** | The default generated instrument sound used for Demo samples |
 | **B — Sine** | Replace the instrument sound with a sine waveform |
 | **C — Triangle** | Replace it with a triangle waveform |
 | **D — Sawtooth** | Replace it with a sawtooth waveform |
 | **E — Square** | Replace it with a square waveform |
 
 The same A–E choices appear in the sample editor for generated samples. Select **A — Original** to restore the saved original sample after trying another waveform. This restores the original PCM rather than generating it again, so any noise in the original sound is preserved exactly.
+
+For melodic samples, set **Pitch From** and **Pitch To** to MIDI note numbers from 0 to 127. Each generation creates one sample for the selected range; create additional samples with adjacent, non-overlapping ranges to cover more notes. Leaving the default range at 0–127 makes that sample cover the full keyboard. Drum samples use the full range automatically. If Demo generation is run again, incomplete generated melodic patches are upgraded to seven full-coverage zones.
 
 ### Playing MIDI & Using the Timeline
 
@@ -315,6 +322,9 @@ The same A–E choices appear in the sample editor for generated samples. Select
    - The red vertical line is the **Playhead**, tracking the current position in real-time.
    - Use the **Play/Pause** and **Seek** controls directly in the modal footer to navigate the song without closing the timeline.
    - Click any colored instrument segment to instantly jump to that patch in the library.
+6. Start playback, then use **View Libraries** to inspect the patches loaded by the MIDI player.
+7. Open **Test Drums** to select a kit and preview its individual MIDI-note sounds through the MIDI player.
+8. Open **GM Map** from the library to see which General MIDI instruments and drum sounds are available in the active project. Click an available melodic instrument to open its patch.
 
 ### Exporting
 
@@ -437,7 +447,7 @@ All data lives in **IndexedDB**, database name `gus-patch-editor-2` (inherited f
 | `patches` | `id` | Patch entries with full instrument/sample tree |
 | `projects` | `id` | Project metadata with ordered patch ID list |
 
-No server communication. No cloud sync. No telemetry.
+There is no application backend, cloud sync, or telemetry. Importing a MIDI.js soundfont from a URL makes a browser request to the URL selected by the user.
 
 ### PCM Handling
 
