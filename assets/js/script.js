@@ -9,7 +9,6 @@ const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const midiToFreq = n => 440 * Math.pow(2, (n-69)/12);
 let editingProjectPropertiesId = null;
 
-
 /* ---------- GM Instrument Name Lists ---------- */
 const GM_MELODIC_NAMES = [
   "Acoustic Grand Piano", "Bright Acoustic Piano", "Electric Grand Piano", "Honky-tonk Piano",
@@ -79,13 +78,6 @@ let currentBankStatusTranslation = null;
 let currentBankStatusElement = null;
 let currentBank = null;
 
-
-
-
-
-
-
-
 /* ---------- State ---------- */
 const state = {
   patch:null, selInst:0, selSample:null, selStart:0, selEnd:0,
@@ -133,71 +125,23 @@ let sampleImportGeneration = 0;
 
 /* ---------- Utilitas ---------- */
 
-
-
-
-
-
-
-
 // Fungsi sanitasi nama file yang konsisten
 
 
 /* ---------- IndexedDB ---------- */
 const DB_NAME="gus-patch-editor-2", DB_VER=2, STORE="patches", STORE_PROJECTS="projects";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Parse PAT ---------- */
-
-
-
-
 
 /* ---------- Write PAT ---------- */
 
-
 /* ---------- PCM <-> Float ---------- */
-
-
-
-
-
-
-
-
-
-
 
 /* ---------- WAV ---------- */
 
-
-
-
 /* ---------- SF2 Parser ---------- */
 
-
-
-
 /* ---------- Bank Management ---------- */
-
-
-
-
-
-
-
 
 // Perbarui fungsi refresh agar hanya mereset urutan pada program yang sedang aktif
 
@@ -207,165 +151,30 @@ let bankDragSource = null;
 let bankConfigSaveTimer = null;
 let pendingBankConfigPatches = new Set();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Audio Engine ---------- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ---------- Canvas ---------- */
 let cctx=null;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Auto-generate waveform sample (BARU) ---------- */
-
-
-
 
 /* ---------- Regenerate sample (BARU) ---------- */
 
-
-
-
 /* ---------- Library ---------- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ---------- Custom Prompt (replaces window.prompt) ---------- */
 let activeCustomPrompt = null;
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Projects ---------- */
 
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Project Properties Modal ---------- */
-
-
-
-
-
 
 /**
  * Deteksi otomatis nama file sumber dari daftar patch dalam proyek.
  * Mengembalikan string gabungan nama file (tanpa prefix "sf2:", "zip:", dst).
  */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Validasi Patch untuk TiMidity ---------- */
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 const patchBufferCache = new Map(); // Tambahkan di dekat deklarasi state
@@ -373,16 +182,8 @@ const patchBufferCache = new Map(); // Tambahkan di dekat deklarasi state
 
 
 
-
-
-
 /* ---------- MIDI Preview ---------- */
 // Ganti fungsi loadMidiFile lama dengan yang ini:
-
-
-
-
-
 
 /* ---------- MIDI Preview State ---------- */
 const midiProgress = {
@@ -396,20 +197,9 @@ const midiProgress = {
 };
 
 
-
 let midiUsedPatchesRerenderScheduled = false;
 
-
-
-
-
-
-
-
-
-
 /* ---------- MIDI Timeline ---------- */
-
 
 /**
  * Parse MIDI untuk timeline: menggabungkan semua track, mengumpulkan event
@@ -421,88 +211,31 @@ let midiUsedPatchesRerenderScheduled = false;
  *   sudah aktif), atau akhir lagu.
  */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Seek ke posisi tick tertentu menggunakan API goTo() dari player.
  * Tick → posisi audio dan UI, tanpa konversi ke detik untuk seek-nya.
  * @param {number} tick - Posisi tick absolut pada MIDI saat ini
  */
 
-
 /**
  * Memperbarui posisi playhead berdasarkan tick saat ini.
  * @param {number} tick - Posisi tick absolut dari timidityPlayer
  */
-
 
 /**
  * Dipanggil saat user klik bar di timeline. Mencari patch di proyek aktif
  * yang cocok dengan (isDrum, program, bank) pada segmen, lalu memilihnya.
  */
 
-
-
-
 // Parser durasi MIDI (menghitung tempo, tick, dan waktu secara akurat)
-
-
-
-
-
-
-
-
-
 
 /* ---------- Mute / Solo Helper ---------- */
 
-
-
-
 /** Debounce — hindari spam saat user drag slider/seek cepat. */
-
 
 /** Debounce — hindari spam CC 7 saat user drag slider/seek cepat. */
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Export ---------- */
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ---------- ZIP Writer (No Compression) ---------- */
 const crcTable = new Uint32Array(256);
@@ -513,24 +246,12 @@ for (let i = 0; i < 256; i++) {
 }
 
 
-
-
-
-
-
-
 let lastBank = 0;
 
 
 const MIN_PAT_SIZE = 100;
 
-
-
-
-
 // Fungsi baru untuk menghapus patch dari Rincian Bank
-
-
 
 
 
@@ -546,11 +267,6 @@ let applyBankGeneration = 0;
  */
 
 
-
-
-
-
-
 let bankSwitchTimer = null;
 let isLoadingBank = false;
 
@@ -560,71 +276,9 @@ let isLoadingBank = false;
 
 /* ---------- Rendering ---------- */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- MIDI Demo Project ---------- */
 
-
-
-
-
-
-
-
 /* ---------- ZIP Reader & TiMidity CFG Parser ---------- */
-
-
-
-
-
-
-
-
 
 /**
  * Ambil direktori dari path file di dalam ZIP (dengan trailing slash).
@@ -632,7 +286,6 @@ let isLoadingBank = false;
  * "wrapper/timidity.cfg"-> "wrapper/"
  * "a/b/c/cfg.ini"       -> "a/b/c/"
  */
-
 
 /**
  * Deteksi folder wrapper: bila root ZIP hanya berisi folder (tidak ada file
@@ -647,9 +300,6 @@ let isLoadingBank = false;
  * Jika root punya file (mis. timidity.cfg langsung di root), fungsi
  * mengembalikan "" karena tidak ada wrapper yang perlu ditembus.
  */
-
-
-
 
 /**
  * Parse file ultramid.ini (UltraMID / GUS patch collection).
@@ -668,12 +318,9 @@ let isLoadingBank = false;
  * abaikan ekstensi).
  */
 
-
 /* ---------- ZIP filename helpers (case-insensitive, extension-agnostic) ---------- */
 
-
 // "Piano.PAT" -> "piano", "sub/Drums.pat" -> "drums"
-
 
 /**
  * Kandidat file konfigurasi (urut prioritas):
@@ -684,7 +331,6 @@ let isLoadingBank = false;
  * Setiap kandidat = { name, format }.
  */
 
-
 /**
  * Cari file patch di dalam ZIP yang cocok dengan path yang direferensikan
  * oleh cfg. Pencocokan dilakukan berlapis (paling ketat → paling longgar):
@@ -694,20 +340,11 @@ let isLoadingBank = false;
  *   4. Basename tanpa ekstensi (case-insensitive), preferensi .pat
  */
 
-
 /* ---------- SFZ Import ---------- */
-
-
-
-
 
 /** Gabungkan opcode dari global + master + group + region (prioritas region tertinggi). */
 
-
 /** Heuristik: apakah SFZ ini sebuah drum kit? */
-
-
-
 
 /**
  * Terapkan opcode SFZ ke sample GUS.
@@ -715,15 +352,7 @@ let isLoadingBank = false;
  * modes=M16|MENV dan envelope estimasi). Opcode SFZ menimpa bagian yang relevan.
  */
 
-
-
-
-
-
-
-
 /* ---------- File Detection & Handler ---------- */
-
 
 /**
  * Nama untuk entry hasil import ZIP.
@@ -731,47 +360,15 @@ let isLoadingBank = false;
  * Semua hasil dipotong 16 karakter sesuai konvensi nama instrumen PAT.
  */
 
-
-
-
-
-
-
-
 /* ---------- Save current patch ---------- */
-
 
 /* ---------- WAV Handlers ---------- */
 
-
-
-
 /* ---------- MIDI ---------- */
-
-
-
-
 
 /* ---------- Sample JSON (Base64 PCM) ---------- */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- MIDI.js Soundfont Import ---------- */
-
-
-
 
 /**
  * Parse file .js MIDI.js secara aman (tanpa eval).
@@ -782,28 +379,17 @@ let isLoadingBank = false;
  * dengan menghormati string literal (tanda kutip) dan escape.
  */
 
-
-
-
-
-
-
-
 /**
  * Konversi satu instrumen MIDI.js menjadi entry patch GUS.
  */
-
 
 /**
  * Handler utama: parse teks MIDI.js, decode semua note, lalu tambahkan ke proyek.
  */
 
-
 /**
  * Impor dari URL (mis. CDN jsDelivr). Dipicu oleh tombol #btnMidiJsUrl.
  */
-
-
 
 /* ---------- General MIDI Map ---------- */
 /**
@@ -813,22 +399,9 @@ let isLoadingBank = false;
  * @returns {object|undefined}
  */
 
-
-
-
-
-
-
-
 /* ---------- Bind UI ---------- */
 
-
 /* ---------- Draggable Modals (header + footer only) ---------- */
-
-
-
-
-
 
 /* ---------- Class delegates ---------- */
 function t(...args) { return ApplicationController.t.apply(this, args); }
@@ -1129,7 +702,6 @@ function hideAppLoadingOverlay(...args) { return ApplicationController.hideAppLo
       if (typeof entry.exportSelected !== "boolean") entry.exportSelected = true;
       // userOrder dibiarkan kosong → akan diisi oleh initBankFields per proyek
     }
-
 
     state.patches=entries;
     
