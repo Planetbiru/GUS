@@ -559,11 +559,23 @@ class MelodicRenderer {
         const pDecay    = isLoop ? null : (p.partialDecay || null);
 
         const nP = harm.length;
-        const voices = detunes.map(c => ({
-            phases: new Float32Array(nP),
-            modPhase: 0,
-            ratio: Math.pow(2, c / 1200),
-        }));
+        const voices = detunes.map(c => {
+            // Fase awal per harmonik.
+            // Default 0 (pulse simetris). Untuk voice, `p.phases` berisi
+            // profil kuadratik yang membentuk gelombang glottal asimetris.
+            const phases = new Float32Array(nP);
+            if (Array.isArray(p.phases)) {
+                for (let k = 0; k < nP; k++) {
+                    const v = p.phases[k];
+                    phases[k] = (typeof v === 'number') ? (v - Math.floor(v)) : 0;
+                }
+            }
+            return {
+                phases,
+                modPhase: 0,
+                ratio: Math.pow(2, c / 1200),
+            };
+        });
         const out = new Float32Array(length);
         const noiseBuf    = (isLoop && noiseAmt > 0) ? this._buildLoopNoise(cs) : null;
         const fadeSamples = isLoop ? cs : 0;
@@ -1169,7 +1181,7 @@ class DrumRenderer {
 class InstrumentLibrary {
     constructor() {
         this.families = {
-            piano:   { harm: [1, .55, .35, .22, .14, .09, .05, .03], env: { a: .003, d: .9, s: .15, r: .4 }, length: 66150, freq: 441 },
+            piano:   { harm: [1, .75, .55, .4, .28, .2, .14, .1, .07, .05], env: { a: .002, d: 3.5, s: 0, r: .5 }, length: 66150, freq: 441 },
             epiano:  { harm: [1, .2, .08, .03], fm: { ratio: 3, index: 1.8 }, env: { a: .005, d: 1.2, s: .1, r: .5 }, length: 55125, freq: 441 },
             bell:    { harm: [1, .5, .25, .12, .06], env: { a: .001, d: 1.5, s: 0, r: .6 }, length: 55125, freq: 441 },
             organ:   { harm: [1, 0, .5, 0, .3, 0, .2, 0, .1], env: { a: .02, d: .1, s: 1, r: .1 }, loop: 1, cycles: 12 },
@@ -1182,6 +1194,7 @@ class InstrumentLibrary {
             pipe:    { harm: [1, .15, .4, .05, .15, .03, .08], env: { a: .08, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .008 }, noise: .05 },
             lead:    { harm: [1, .5, .33, .25, .2, .16, .14, .12, .1], env: { a: .01, d: .2, s: .85, r: .15 }, loop: 1, cycles: 12 },
             pad:     { harm: [1, .4, .2, .1, .05], env: { a: .3, d: .3, s: .95, r: .5 }, loop: 1, cycles: 16, detune: [-15, 0, 15], vibrato: { rate: 2, depth: .003 } },
+            voice:   { harm: [1, .85, .7, .55, .42, .32, .24, .18, .13, .09, .06, .04], env: { a: .12, d: .25, s: .9, r: .35 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .006, sweep: 20 } },
             fx:      { harm: [1, .5, .33, .25, .2], fm: { ratio: 1.5, index: 3 }, env: { a: .05, d: .5, s: .5, r: .4 }, length: 44100, noise: .2 },
             ethnic:  { harm: [1, .6, .4, .25, .15, .1, .05], env: { a: .005, d: .7, s: .2, r: .35 }, length: 44100, freq: 441, vibrato: { rate: 5, depth: .01 } },
             perc:    { harm: [1, .4, .2, .1], env: { a: .001, d: .3, s: 0, r: .15 }, length: 22050, freq: 441, noise: .3 },
@@ -1194,10 +1207,11 @@ class InstrumentLibrary {
 
     _piano(o = {}) {
         return {
-            inharmonicity: 0.0004,
-            attackNoise: { amp: 0.09, duration: 0.008 },
-            brightness: { start: 9000, end: 1800 },
-            partialDecay: [3.5, 2.5, 1.8, 1.2, 0.9, 0.7, 0.5, 0.4],
+            inharmonicity: 0.00035,
+            attackNoise: { amp: 0.15, duration: 0.015 },   // hammer thump lebih nyata
+            brightness: { start: 8000, end: 2000 },        // spectrum meredup natural
+            pitchScoop: { depth: 0.003, time: 0.012 },     // pitch drop halus di onset
+            partialDecay: [4.5, 3.0, 2.0, 1.4, 1.0, 0.75, 0.55, 0.4, 0.3, 0.22],
             ...o
         };
     }
@@ -1237,6 +1251,36 @@ class InstrumentLibrary {
                 { freq:  900, q: 1.5, gain: 4 },
                 { freq: 1800, q: 2.0, gain: 3 },
                 { freq: 3200, q: 2.5, gain: 1.5 },
+            ],
+            ...o
+        };
+    }
+    _voice(o = {}) {
+        // Human voice (choir aahs, voice oohs, solo voice).
+        //
+        // KUNCI REALISME: profil fase glottal.
+        // Pita suara manusia menghasilkan pulse asimetris (buka pelan,
+        // tutup cepat). Dalam domain harmonik, ini setara dengan fase
+        // yang naik secara kuadratik terhadap orde harmonik.
+        //
+        // Profil fase kuadratik φ(k) ≈ -c·k² menghasilkan "pulse spread":
+        // puncak gelombang di waktu-domain melebar, sehingga terdengar
+        // seperti "aaah" yang bernafas, bukan beep sintetis.
+        const numHarm = (o.harm || [1]).length;
+        const phaseScale = (typeof o.phaseScale === 'number') ? o.phaseScale : 0.012;
+        const defaultPhases = new Array(numHarm);
+        for (let k = 1; k <= numHarm; k++) {
+            defaultPhases[k - 1] = -phaseScale * k * k;
+        }
+        return {
+            drive: 1.5,
+            vibratoOnset: 0.20,
+            phases: defaultPhases,
+            formants: [
+                { freq:  730, q: 3.0, gain: 6 },   // F1 (default: "ah")
+                { freq: 1090, q: 3.5, gain: 5 },   // F2
+                { freq: 2440, q: 4.0, gain: 3 },   // F3
+                { freq: 3400, q: 4.5, gain: 2 },   // F4 (singer's formant)
             ],
             ...o
         };
@@ -1287,6 +1331,7 @@ class InstrumentLibrary {
                 case 'brass':
                 case 'pipe':   base = this._wind(base);   break;
                 case 'reed':   base = this._reed(base);   break;
+                case 'voice':  base = this._voice(base);  break;
                 case 'lead':   base = { ...base, drive: 1.4, brightness: { start: 8000, end: 2500 } }; break;
                 case 'pad':    base = this._strings(base); break;
             }
@@ -1294,8 +1339,15 @@ class InstrumentLibrary {
         };
         return [
             // 0-7 Piano
-            ['Piano', 'Acoustic Grand', P('piano')],
-            ['Piano', 'Bright Piano', P('piano', { harm: [1, .8, .6, .4, .25, .15, .09, .05] })],
+            ['Piano', 'Acoustic Grand', P('piano', {
+                length: 44100,           // 2 detik — decay natural
+                gain: 1.0
+            })],
+            ['Piano', 'Bright Piano', P('piano', {
+                length: 44100,           // 2 detik — decay natural
+                harm: [1, .85, .7, .55, .42, .3, .2, .13, .08, .05],
+                gain: 1.0
+            })],
             ['Piano', 'Electric Grand', P('epiano')],
             ['Piano', 'Honky-tonk', P('piano', { harm: [1, .7, .5, .4, .3, .2, .12, .08, .05], detune: [0, -10] })],
             ['Piano', 'E.Piano 1', P('epiano')],
@@ -1354,8 +1406,8 @@ class InstrumentLibrary {
             ['Bass', 'Fretless Bass',  P('bass', { vibrato: { rate: 5, depth: .01 }, loop: 1, cycles: 14, loopSkip: 2 })],
             ['Bass', 'Slap Bass 1',    P('bass', { harm: [1, .8, .6, .45, .35, .25, .2, .15], loop: 1, cycles: 14, loopSkip: 2 })],
             ['Bass', 'Slap Bass 2',    P('bass', { harm: [1, .7, .5, .4, .3, .22, .18], noise: .05, loop: 1, cycles: 14, loopSkip: 2 })],
-            ['Bass', 'Synth Bass 1',   P('bass', { harm: [1, .7, .5, .4, .3, .2], loop: 1, cycles: 14, loopSkip: 2 })],
-            ['Bass', 'Synth Bass 2',   P('bass', { detune: [-5, 5], harm: [1, .5, .3, .2], loop: 1, cycles: 14, loopSkip: 2 })],
+            ['Bass', 'Synth Bass 1',   P('bass', { harm: [1, .7, .5, .4, .3, .2], loop: 1, cycles: 14, loopSkip: 2, gain: .75 })],
+            ['Bass', 'Synth Bass 2',   P('bass', { detune: [-5, 5], harm: [1, .5, .3, .2], loop: 1, cycles: 14, loopSkip: 2, gain: .75 })],
 
             // 40-47 Strings
             ['Strings', 'Violin', P('strings', { vibrato: { rate: 6, depth: .008, sweep: 15 }, detune: [0] })],
@@ -1372,9 +1424,52 @@ class InstrumentLibrary {
             ['Ensemble', 'Strings 2', P('ensemble', { detune: [-18, 0, 18] })],
             ['Ensemble', 'SynthStrings 1', P('pad', { harm: [1, .5, .3, .2, .1, .05], detune: [-10, 10] })],
             ['Ensemble', 'SynthStrings 2', P('pad', { harm: [1, .6, .4, .3, .2, .15, .1], detune: [-15, 0, 15] })],
-            ['Ensemble', 'Choir Aahs', P('pad', { harm: [1, .3, .15, .08, .04], vibrato: { rate: 5, depth: .01, sweep: 15 }, detune: [-10, 0, 10] })],
-            ['Ensemble', 'Voice Oohs', P('pad', { harm: [1, .2, .1, .05], vibrato: { rate: 5.5, depth: .012, sweep: 15 }, detune: [-8, 0, 8] })],
-            ['Ensemble', 'Synth Voice', P('pad', { harm: [1, .4, .2, .1, .05], fm: { ratio: 2, index: .5 } })],
+            
+            ['Ensemble', 'Choir Aahs', P('voice', {
+                harm: [1, .85, .7, .55, .42, .3, .22, .16, .11, .07, .04],
+                drive: 1.3,
+                noise: 0.04,
+                phaseScale: 0.012,           // glottal pulse — sedikit lebih "terbuka"
+                formants: [
+                    { freq:  700, q: 2.5, gain: 7 },   // F1 "ah" — jaw terbuka
+                    { freq: 1150, q: 3.0, gain: 5 },   // F2 "ah"
+                    { freq: 2500, q: 3.5, gain: 3 },   // F3 — warna vowel
+                    { freq: 3500, q: 4.0, gain: 2 },   // F4 singer's formant
+                ],
+                vibrato: { rate: 4.5, depth: .005, sweep: 25 },
+                gain: 0.8
+            })],
+
+            ['Ensemble', 'Voice Oohs', P('voice', {
+                harm: [1, .9, .75, .6, .45, .32, .22, .14, .09, .05],
+                drive: 1.5,
+                noise: 0.02,
+                phaseScale: 0.015,           // sedikit lebih "tertutup" — pulse lebih sempit
+                formants: [
+                    { freq:  320, q: 2.5, gain: 8 },   // F1 "oo" — sangat rendah
+                    { freq:  850, q: 3.0, gain: 7 },   // F2 "oo" — rendah
+                    { freq: 2300, q: 3.5, gain: 4 },   // F3
+                    { freq: 3200, q: 4.0, gain: 2 },   // F4
+                ],
+                vibrato: { rate: 5, depth: .007, sweep: 15 },
+                gain: 0.85
+            })],
+
+            ['Ensemble', 'Synth Voice', P('voice', {
+                harm: [1, .8, .65, .5, .4, .3, .22, .16, .12, .09, .07, .05],
+                drive: 1.8,
+                noise: 0.02,
+                phaseScale: 0.010,           // lebih dekat ke synth — pulse lebih tajam
+                formants: [
+                    { freq:  600, q: 2.0, gain: 4 },
+                    { freq: 1050, q: 2.5, gain: 3.5 },
+                    { freq: 2500, q: 3.0, gain: 2.5 },
+                    { freq: 4000, q: 3.5, gain: 1.5 }, // top lebih terang → digital
+                ],
+                vibrato: { rate: 5.5, depth: .008, sweep: 15 },
+                gain: 0.85
+            })],  
+
             ['Ensemble', 'Orchestra Hit', P('brass', { env: { a: .001, d: .4, s: 0, r: .2 }, length: 4410, loop: false, harm: [1, .7, .5, .4, .3, .25, .2, .15] })],
 
             // 56-63 Brass
