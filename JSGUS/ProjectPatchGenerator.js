@@ -793,20 +793,51 @@ class DrumFactory {
     }
 
     static hihat(o = {}) {
+        const type = o.type || 'closed';
+        const profiles = {
+            closed: {
+                duration: 0.14,
+                noiseLayers: [
+                    { amp: .95, decay: .008, type: 'white', bandpass: { center: 8200, q: .48 } },
+                    { amp: .68, decay: .024, type: 'pink', bandpass: { center: 6100, q: .52 } },
+                    { amp: .38, decay: .032, type: 'white', bandpass: { center: 9300, q: .72 } }
+                ],
+                highpass: 3600,
+                lowpass: 10200
+            },
+            pedal: {
+                duration: 0.16,
+                noiseLayers: [
+                    { amp: .78, decay: .006, type: 'white', bandpass: { center: 7400, q: .52 } },
+                    { amp: .7, decay: .019, type: 'pink', bandpass: { center: 4800, q: .55 } },
+                    { amp: .34, decay: .028, type: 'pink', bandpass: { center: 2900, q: .68 } }
+                ],
+                highpass: 1800,
+                lowpass: 9600
+            },
+            open: {
+                duration: 0.62,
+                noiseLayers: [
+                    { amp: 1, decay: .14, type: 'white', bandpass: { center: 10200, q: .6 } },
+                    { amp: .62, decay: .13, type: 'white', bandpass: { center: 9000, q: .65 } },
+                    { amp: .18, decay: .11, type: 'pink', bandpass: { center: 4600, q: .65 } }
+                ],
+                highpass: 3700,
+                lowpass: 10200
+            }
+        };
+        const profile = profiles[type] || profiles.closed;
+        const duration = o.duration || profile.duration;
         return {
-            duration: o.duration || 0.08,
-            metallic: {
-                baseFreq: 350,
-                partials: [1, 1.34, 1.71, 2.04, 2.42, 2.83, 3.17, 3.62, 4.15, 4.68, 5.21, 5.87],
-                decay: o.decay || 0.03,
-                amp: 0.55,
-            },
-            noise: {
-                amp: 0.85, decay: o.decay || 0.025,
-                type: 'white',
-                bandpass: { center: 9500, q: 0.7 },
-            },
-            highpass: o.highpass || 7000,
+            duration,
+            noiseLayers: profile.noiseLayers.map(layer => ({
+                ...layer,
+                decay: o.decay
+                    ? layer.decay * o.decay / (type === 'open' ? .32 : type === 'pedal' ? .035 : .02)
+                    : layer.decay
+            })),
+            highpass: o.highpass || profile.highpass,
+            lowpass: profile.lowpass
         };
     }
 
@@ -885,13 +916,15 @@ class DrumFactory {
 
     static sideStick() {
         return {
-            duration: 0.13,
-            tones: [
-                { fStart: 1400, fEnd: 900,  pitchDecay: 0.004, decay: 0.035, amp: 0.6 },
-                { fStart: 2600, fEnd: 1700, pitchDecay: 0.004, decay: 0.025, amp: 0.4 },
+            duration: 0.11,
+            noiseLayers: [
+                { amp: .95, decay: .005, type: 'white', bandpass: { center: 2600, q: .75 } },
+                { amp: .7, decay: .018, type: 'white', bandpass: { center: 1100, q: .7 } },
+                { amp: .35, decay: .003, type: 'white', bandpass: { center: 6000, q: .65 } }
             ],
-            noise: { amp: 0.35, decay: 0.02, type: 'pink' },
-            highpass: 1000,
+            click: { duration: .0015, amp: .25 },
+            highpass: 350,
+            lowpass: 8500
         };
     }
 
@@ -1073,6 +1106,10 @@ class DrumRenderer {
         const membrane  = p.membrane  ? this._setupMembrane(p.membrane, SR) : null;
         const metallic  = p.metallic  ? this._setupMetallic(p.metallic)     : null;
         const noiseBuf  = p.noise     ? this._buildNoise(p.noise, length, SR) : null;
+        const noiseLayers = (p.noiseLayers || []).map(cfg => ({
+            cfg,
+            buffer: this._buildNoise(cfg, length, SR)
+        }));
 
         for (let i = 0; i < length; i++) {
             const t = i / SR;
@@ -1081,6 +1118,9 @@ class DrumRenderer {
             if (membrane) sample += this._membrane(t, membrane);
             if (metallic) sample += this._metallic(t, metallic);
             if (noiseBuf) sample += this._noise(t, noiseBuf, p.noise);
+            for (const layer of noiseLayers) {
+                sample += this._noise(t, layer.buffer, layer.cfg);
+            }
             sample += this._click(t);
             sample = this._bursts(t, sample);
             out[i] = sample;
@@ -1812,11 +1852,11 @@ class InstrumentLibrary {
             [39, 'Hand Clap', D.clap()],
             [40, 'Electric Snare', D.snare({ fStart: 180, noiseDecay: 0.22, highpass: 600 })],
             [41, 'Low Floor Tom', D.tom(75, { duration: 0.65, decay: 0.5 })],
-            [42, 'Closed Hi-Hat', D.hihat({ duration: 0.07, decay: 0.02, highpass: 8000 })],
+            [42, 'Closed Hi-Hat', D.hihat({ type: 'closed' })],
             [43, 'High Floor Tom', D.tom(105, { duration: 0.6 })],
-            [44, 'Pedal Hi-Hat', D.hihat({ duration: 0.1, decay: 0.035, highpass: 5500 })],
+            [44, 'Pedal Hi-Hat', D.hihat({ type: 'pedal' })],
             [45, 'Low Tom', D.tom(140, { duration: 0.55 })],
-            [46, 'Open Hi-Hat', D.hihat({ duration: 0.55, decay: 0.32, highpass: 6000 })],
+            [46, 'Open Hi-Hat', D.hihat({ type: 'open' })],
             [47, 'Low-Mid Tom', D.tom(180)],
             [48, 'Hi-Mid Tom', D.tom(220)],
             [49, 'Crash Cymbal 1', D.cymbal({ duration: 1.5 })],
