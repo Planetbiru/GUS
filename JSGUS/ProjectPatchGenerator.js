@@ -92,9 +92,20 @@ class ProjectPatchGenerator {
     }
 
     // --- sisa kode lama: konversi PCM, perakitan sample/patch, dst. ---
+    //
+    // OUTPUT GAIN PER-PRESET
+    // Preset boleh men-set `gain: 0..1` untuk menyeimbangkan volume
+    // relatif antar program (mis. SynthBrass lebih "tipis" daripada
+    // Brass Section agar tidak mendominasi mix).
+    // Perkalian konstan tidak merusak periodisitas loop karena
+    // loopStart dan loopEnd sama-sama dikalikan faktor yang sama.
+    const outputGain = (preset && typeof preset.gain === 'number')
+        ? Math.max(0, Math.min(1, preset.gain))
+        : 1.0;
+
     const pcm = new Uint8Array(rendered.pcm.length * 2);
     for (let i = 0; i < rendered.pcm.length; i++) {
-        let v = Math.round(Math.max(-1, Math.min(1, rendered.pcm[i])) * 32768);
+        let v = Math.round(Math.max(-1, Math.min(1, rendered.pcm[i] * outputGain)) * 32768);
         if (v >  32767) v =  32767;
         if (v < -32768) v = -32768;
         if (v < 0) v += 65536;
@@ -1167,7 +1178,7 @@ class InstrumentLibrary {
             strings: { harm: [1, .5, .33, .25, .2, .16, .14, .12], env: { a: .15, d: .2, s: .9, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .005 }, detune: [0, 8] },
             ensemble:{ harm: [1, .5, .33, .25, .2, .16, .14], env: { a: .2, d: .2, s: .95, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 4.5, depth: .004 }, detune: [-12, 0, 12] },
             brass:   { harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], env: { a: .06, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .003 } },
-            reed:    { harm: [1, .3, .7, .2, .4, .15, .2, .1], env: { a: .05, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5.5, depth: .006 } },
+            reed:    { harm: [1, .72, .58, .4, .28, .18, .1, .05], env: { a: .05, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5.5, depth: .006 } },
             pipe:    { harm: [1, .15, .4, .05, .15, .03, .08], env: { a: .08, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .008 }, noise: .05 },
             lead:    { harm: [1, .5, .33, .25, .2, .16, .14, .12, .1], env: { a: .01, d: .2, s: .85, r: .15 }, loop: 1, cycles: 12 },
             pad:     { harm: [1, .4, .2, .1, .05], env: { a: .3, d: .3, s: .95, r: .5 }, loop: 1, cycles: 16, detune: [-15, 0, 15], vibrato: { rate: 2, depth: .003 } },
@@ -1211,6 +1222,22 @@ class InstrumentLibrary {
             pitchScoop: { depth: 0.02, time: 0.03 },
             vibratoOnset: 0.18,
             brightness: { start: 7000, end: 2500 },
+            ...o,
+        }
+    }
+    _reed(o = {}) {
+        // Reed instruments: sax, oboe, english horn, bassoon.
+        // - Formant bell: karakter nasal khas double/single reed.
+        // - Drive: saturasi reed ringan (analog "buzz" tanpa harsh).
+        // - vibratoOnset: hanya berlaku untuk non-loop (saat ini semua reed loop).
+        return {
+            vibratoOnset: 0.20,
+            drive: 1.5,
+            formants: [
+                { freq:  900, q: 1.5, gain: 4 },
+                { freq: 1800, q: 2.0, gain: 3 },
+                { freq: 3200, q: 2.5, gain: 1.5 },
+            ],
             ...o
         };
     }
@@ -1258,8 +1285,8 @@ class InstrumentLibrary {
                 case 'strings':
                 case 'ensemble': base = this._strings(base); break;
                 case 'brass':
-                case 'reed':
                 case 'pipe':   base = this._wind(base);   break;
+                case 'reed':   base = this._reed(base);   break;
                 case 'lead':   base = { ...base, drive: 1.4, brightness: { start: 8000, end: 2500 } }; break;
                 case 'pad':    base = this._strings(base); break;
             }
@@ -1357,17 +1384,100 @@ class InstrumentLibrary {
             ['Brass', 'Muted Trpt', P('brass', { harm: [1, .5, .7, .3, .4, .25, .3, .15], vibrato: { rate: 6, depth: .008, sweep: 15 } })],
             ['Brass', 'French Horn', P('brass', { vibrato: { rate: 5, depth: .004, sweep: 15 }, harm: [1, .6, .4, .3, .2, .15, .1] })],
             ['Brass', 'Brass Section', P('brass', { detune: [-8, 8] })],
-            ['Brass', 'SynthBrass 1', P('brass', { harm: [1, .9, .7, .5, .4, .3, .25, .2, .15, .1] })],
-            ['Brass', 'SynthBrass 2', P('brass', { harm: [1, .7, .5, .4, .3, .25, .2, .15], detune: [-12, 12] })],
+            ['Brass', 'SynthBrass 1', P('brass', {
+                harm: [1, .65, .55, .3, .18, .1, .05, .025],
+                drive: 1.7,
+                formants: [
+                    { freq:  900, q: 1.5, gain: 4 },
+                    { freq: 2200, q: 2.0, gain: 3 },
+                    { freq: 3800, q: 2.5, gain: 1.5 },
+                ],
+                vibrato: { rate: 5, depth: .003, sweep: 15 },
+                gain: 0.85                                     // ← 85% dari peak (≈ −1.4 dB)
+            })],
+
+            ['Brass', 'SynthBrass 2', P('brass', {
+                harm: [1, .55, .4, .2, .1, .05, .025],
+                drive: 1.4,
+                formants: [
+                    { freq:  700, q: 1.5, gain: 3 },
+                    { freq: 1800, q: 2.0, gain: 2.5 },
+                ],
+                vibrato: { rate: 5.5, depth: .004, sweep: 15 },
+                gain: 0.85                                     // ← 85% dari peak
+            })],
 
             // 64-71 Reed
-            ['Reed', 'Soprano Sax', P('reed', { vibrato: { rate: 5.5, depth: .008, sweep: 15 } })],
-            ['Reed', 'Alto Sax', P('reed', { vibrato: { rate: 5, depth: .008, sweep: 15 } })],
-            ['Reed', 'Tenor Sax', P('reed', { vibrato: { rate: 4.5, depth: .007, sweep: 15 }, harm: [1, .4, .6, .3, .4, .2, .3, .15] })],
-            ['Reed', 'Bari Sax', P('reed', { vibrato: { rate: 4, depth: .006, sweep: 15 }, freq: 300 })],
-            ['Reed', 'Oboe', P('reed', { harm: [1, .2, .8, .1, .6, .05, .4, .03], vibrato: { rate: 5.5, depth: .007, sweep: 15 } })],
-            ['Reed', 'English Horn', P('reed', { vibrato: { rate: 5, depth: .006, sweep: 15 }, harm: [1, .3, .6, .2, .4, .1, .3] })],
-            ['Reed', 'Bassoon', P('reed', { freq: 220, vibrato: { rate: 4, depth: .004, sweep: 15 }, harm: [1, .5, .4, .3, .25, .2, .15] })],
+            ['Reed', 'Soprano Sax', P('reed', {
+                harm: [1, .6, .65, .45, .35, .25, .15, .08],   // lebih cerah, tipis
+                drive: 1.3,
+                formants: [
+                    { freq: 1100, q: 1.5, gain: 5 },           // bell lebih tinggi
+                    { freq: 2000, q: 2.0, gain: 4 },
+                    { freq: 3800, q: 2.5, gain: 2 },
+                ],
+                vibrato: { rate: 5.5, depth: .008, sweep: 15 }
+            })],
+            ['Reed', 'Alto Sax', P('reed', {
+                harm: [1, .72, .58, .4, .28, .18, .1, .05],    // referensi alto
+                drive: 1.6,
+                formants: [
+                    { freq:  900, q: 1.5, gain: 5 },
+                    { freq: 1600, q: 2.0, gain: 4 },
+                    { freq: 3200, q: 2.5, gain: 2 },
+                ],
+                vibrato: { rate: 5, depth: .008, sweep: 15 }
+            })],
+            ['Reed', 'Tenor Sax', P('reed', {
+                harm: [1, .78, .55, .38, .25, .15, .09, .04],  // full low-mid, top lebih tipis
+                drive: 1.8,
+                formants: [
+                    { freq:  800, q: 1.5, gain: 5 },           // formant lebih hangat
+                    { freq: 1400, q: 2.0, gain: 4 },
+                    { freq: 2800, q: 2.5, gain: 2 },
+                ],
+                vibrato: { rate: 4.5, depth: .007, sweep: 15 }
+            })],
+            ['Reed', 'Bari Sax', P('reed', {
+                freq: 300,                                      // fundamental lebih rendah
+                harm: [1, .8, .5, .32, .2, .12, .06, .03],     // rolloff lebih cepat, gelap
+                drive: 2.0,
+                formants: [
+                    { freq:  650, q: 1.5, gain: 5 },
+                    { freq: 1200, q: 2.0, gain: 4 },
+                    { freq: 2400, q: 2.5, gain: 2 },
+                ],
+                vibrato: { rate: 4, depth: .006, sweep: 15 }
+            })],
+            ['Reed', 'Oboe', P('reed', {
+                harm: [.85, 1, .8, .65, .45, .28, .15, .08],   // nasal, 2nd & 3rd paling kuat
+                drive: 1.4,
+                formants: [
+                    { freq: 1500, q: 1.8, gain: 6 },           // peak nasal khas oboe
+                    { freq: 3000, q: 2.0, gain: 4 },
+                    { freq: 4500, q: 2.5, gain: 2 },
+                ],
+                vibrato: { rate: 5.5, depth: .007, sweep: 15 }
+            })],
+            ['Reed', 'English Horn', P('reed', {
+                harm: [1, .8, .6, .45, .3, .18, .1],
+                drive: 1.5,
+                formants: [
+                    { freq: 1100, q: 1.5, gain: 5 },
+                    { freq: 2200, q: 2.0, gain: 3 },
+                ],
+                vibrato: { rate: 5, depth: .006, sweep: 15 }
+            })],
+            ['Reed', 'Bassoon', P('reed', {
+                freq: 220,
+                harm: [1, .7, .5, .35, .22, .12, .06],
+                drive: 1.8,
+                formants: [
+                    { freq: 500, q: 1.5, gain: 4 },
+                    { freq: 1200, q: 2.0, gain: 3 },
+                ],
+                vibrato: { rate: 4, depth: .004, sweep: 15 }
+            })],
             ['Reed', 'Clarinet', P('pipe', { harm: [1, 0, .5, 0, .3, 0, .15, 0, .08], vibrato: { rate: 5, depth: .005, sweep: 15 } })],
 
             // 72-79 Pipe
