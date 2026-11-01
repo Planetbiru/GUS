@@ -1114,11 +1114,17 @@ class ApplicationController {
       const waveform = document.getElementById("addSampleWaveform").value;
       const isDrum = document.getElementById("addSampleGeneratorType").value === "drum";
       const program = parseInt(document.getElementById("addSampleGeneratorProgram").value, 10);
+      const pitchFromInput = document.getElementById("addSamplePitchFrom").value.trim();
+      const pitchToInput = document.getElementById("addSamplePitchTo").value.trim();
+      const pitchFrom = isDrum ? 0 : (pitchFromInput === "" ? NaN : Number(pitchFromInput));
+      const pitchTo = isDrum ? 127 : (pitchToInput === "" ? NaN : Number(pitchToInput));
       
       try {
         const draft = generateWaveformDraft(waveform, {
           program: isNaN(program) ? null : program,
-          isDrum: isDrum
+          isDrum,
+          pitchFrom,
+          pitchTo
         });
   
         pendingSampleDraft = draft;

@@ -46,7 +46,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Microphone recording** — record audio directly via MediaRecorder and convert to 16-bit mono PCM
 - **Auto-parameter estimation** on import — root frequency via autocorrelation, envelope via RMS analysis
 - **Frequency range map** — visualize sample coverage across the keyboard to detect overlaps
-- **Generated sample variants** — choose A to restore the original instrument sound, or B–E for sine, triangle, sawtooth, and square waveforms
+- **Generated sample variants and key zones** — choose A to restore the original instrument sound, or B–E for alternate waveforms; set MIDI pitch ranges when generating melodic samples and add multiple non-overlapping zones to build multi-sample instruments. Demo melodic patches contain seven samples covering MIDI pitches 0–127.
 
 ### File Import
 | Format | Extension | Description |

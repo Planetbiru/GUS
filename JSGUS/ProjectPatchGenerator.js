@@ -21,11 +21,13 @@ class ProjectPatchGenerator {
     return this.library.melodic.map(([, name], id) => ({id, name}));
   }
 
-  generate({isDrum, program, waveform = null}) {
+  generate({isDrum, program, waveform = null, pitchFrom = 0, pitchTo = 127}) {
     const id = Number(program);
     if (!Number.isInteger(id)) {
         throw new Error("Instrument program must be an integer.");
     }
+
+    ({ pitchFrom, pitchTo } = ProjectPatchGenerator.normalizePitchRange(pitchFrom, pitchTo));
 
     let name;
     let rendered;
@@ -69,7 +71,11 @@ class ProjectPatchGenerator {
         // ---------------------------------------------------
 
         name = instrumentName;
-        rootFreq = preset.freq || 441;
+        const isFullPitchRange = pitchFrom === 0 && pitchTo === 127;
+        const rootNote = Math.round((pitchFrom + pitchTo) / 2);
+        rootFreq = isFullPitchRange
+            ? (preset.freq || 441)
+            : ProjectPatchGenerator.midiPitchToFrequency(rootNote);
         rendered = new MelodicRenderer(preset, {
         sampleRate: this.sampleRate,
         freq: rootFreq,
@@ -105,8 +111,12 @@ class ProjectPatchGenerator {
     }
 
     const sampleName = this.slugify(name).slice(0, 7) || "PATCH";
-    const lowFreq    = Math.round(8.1757989156 * 1000);
-    const highFreq   = Math.round(12543.853951 * 1000);
+    const lowFreq = isDrum || (pitchFrom === 0 && pitchTo === 127)
+        ? Math.round(8.1757989156 * 1000)
+        : Math.floor(ProjectPatchGenerator.midiPitchToFrequency(pitchFrom) * 1000);
+    const highFreq = isDrum || (pitchFrom === 0 && pitchTo === 127)
+        ? Math.round(12543.853951 * 1000)
+        : Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(pitchTo) * 1000);
 
     let modes = ProjectPatchGenerator.MODE_16BIT;
     if (rendered.loop) {
@@ -164,11 +174,32 @@ class ProjectPatchGenerator {
         }]
     };
 
-    return { patch, name, program: id, isDrum, waveform: appliedWaveform };
+    return { patch, name, program: id, isDrum, waveform: appliedWaveform, pitchFrom, pitchTo };
     }
 
   slugify(value) {
     return String(value).replace(/[^A-Za-z0-9]/g, "_");
+  }
+
+  static midiPitchToFrequency(pitch) {
+    return 440 * Math.pow(2, (pitch - 69) / 12);
+  }
+
+  static normalizePitchRange(pitchFrom = 0, pitchTo = 127) {
+    const from = Number(pitchFrom);
+    const to = Number(pitchTo);
+    if (!Number.isInteger(from) || from < 0 || from > 127
+        || !Number.isInteger(to) || to < 0 || to > 127
+        || from > to) {
+      throw new Error("Pitch range must be MIDI notes from 0 to 127, with pitchFrom no greater than pitchTo.");
+    }
+    return { pitchFrom: from, pitchTo: to };
+  }
+
+  static frequencyToMidiPitch(milliHz) {
+    const frequency = Number(milliHz) / 1000;
+    if (!(frequency > 0) || !Number.isFinite(frequency)) return null;
+    return Math.max(0, Math.min(127, Math.round(69 + 12 * Math.log2(frequency / 440))));
   }
 
   /**

@@ -751,6 +751,17 @@
             <label for="patchGeneratorProgram">{{instrument_program}}</label>
             <select id="patchGeneratorProgram"></select>
           </div>
+          <div class="grid g3" id="patchGeneratorPitchRange">
+            <div class="field">
+              <label for="patchGeneratorPitchFrom">{{pitch_from_midi}}</label>
+              <input id="patchGeneratorPitchFrom" type="number" min="0" max="127" step="1" value="0">
+            </div>
+            <div class="field">
+              <label for="patchGeneratorPitchTo">{{pitch_to_midi}}</label>
+              <input id="patchGeneratorPitchTo" type="number" min="0" max="127" step="1" value="127">
+            </div>
+          </div>
+          <p class="hint" id="patchGeneratorPitchHint">{{pitch_range_generator_hint}}</p>
           <div id="addPatchError" class="modal-error" role="alert" aria-live="polite"></div>
         </div>
         <div class="modal-footer">
@@ -816,6 +827,17 @@
                   <option value="square">{{sample_variant_e}}</option>
                 </select>
               </div>
+              <div class="grid g3" id="addSamplePitchRange">
+                <div class="field">
+                  <label for="addSamplePitchFrom">{{pitch_from_midi}}</label>
+                  <input id="addSamplePitchFrom" type="number" min="0" max="127" step="1" value="0">
+                </div>
+                <div class="field">
+                  <label for="addSamplePitchTo">{{pitch_to_midi}}</label>
+                  <input id="addSamplePitchTo" type="number" min="0" max="127" step="1" value="127">
+                </div>
+              </div>
+              <p class="hint" id="addSamplePitchHint">{{pitch_range_generator_hint}}</p>
               <button class="btn primary" id="btnGenerateSampleWaveform" type="button">{{generate_sample}}</button>
               <div id="addSampleGeneratorStatus" class="sample-source-status" aria-live="polite"></div>
             </section>
