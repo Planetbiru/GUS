@@ -1439,7 +1439,7 @@ class InstrumentLibrary {
                 vibrato: { rate: 4.5, depth: .007, sweep: 15 }
             })],
             ['Reed', 'Bari Sax', P('reed', {
-                freq: 300,                                      // fundamental lebih rendah
+                freq: 300,                                     // fundamental lebih rendah
                 harm: [1, .8, .5, .32, .2, .12, .06, .03],     // rolloff lebih cepat, gelap
                 drive: 2.0,
                 formants: [
