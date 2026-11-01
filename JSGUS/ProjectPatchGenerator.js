@@ -1188,7 +1188,14 @@ class InstrumentLibrary {
             guitar:  { harm: [1, .7, .5, .35, .2, .12, .08, .05, .03], env: { a: .002, d: .8, s: .1, r: .3 }, length: 44100, freq: 441 },
             bass:    { harm: [1, .7, .5, .3, .2, .1, .05], env: { a: .005, d: .5, s: .2, r: .3 }, length: 33075, freq: 220 },
             strings: { harm: [1, .5, .33, .25, .2, .16, .14, .12], env: { a: .15, d: .2, s: .9, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .005 }, detune: [0, 8] },
-            ensemble:{ harm: [1, .5, .33, .25, .2, .16, .14], env: { a: .2, d: .2, s: .95, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 4.5, depth: .004 }, detune: [-12, 0, 12] },
+            ensemble:{ 
+                harm: [1, .65, .5, .4, .3, .25, .2, .15, .1], 
+                env: { a: .2, d: .2, s: .95, r: .3 }, 
+                loop: 1, cycles: 14, 
+                vibrato: { rate: 4.5, depth: .004 },
+                drive: 1.1,
+                phases: [0, 0.1, 0.3, 0.6, 0.2, 0.8, 0.4, 0.9, 0.5] // Phase acak = efek ensemble
+            },
             brass:   { harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], env: { a: .06, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .003 } },
             reed:    { harm: [1, .72, .58, .4, .28, .18, .1, .05], env: { a: .05, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5.5, depth: .006 } },
             pipe:    { harm: [1, .15, .4, .05, .15, .03, .08], env: { a: .08, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .008 }, noise: .05 },
@@ -1217,9 +1224,15 @@ class InstrumentLibrary {
     }
     _guitar(o = {}) {
         return {
-            attackNoise: { amp: 0.10, duration: 0.010 },
-            brightness: { start: 8000, end: 1500 },
-            partialDecay: [2.5, 2.0, 1.5, 1.1, 0.8, 0.6, 0.5, 0.4, 0.3],
+            attackNoise: { amp: 0.12, duration: 0.012 },
+            brightness: { start: 7000, end: 1200 },
+            partialDecay: [3.0, 2.2, 1.6, 1.2, 0.9, 0.7, 0.5, 0.4, 0.3],
+            formants: [
+                { freq: 100,  q: 1.5, gain: 4 },  // Resonansi rongga udara (Helmholtz)
+                { freq: 220,  q: 2.0, gain: 5 },  // Getaran soundboard (papan kayu)
+                { freq: 450,  q: 2.5, gain: 4 },  // Resonansi badan gitar
+                { freq: 1200, q: 3.0, gain: 2 },  // Resonansi jembatan (bridge)
+            ],
             ...o
         };
     }
@@ -1287,13 +1300,14 @@ class InstrumentLibrary {
     }
     _strings(o = {}) {
         return {
-            attackNoise: { amp: 0.04, duration: 0.025 },
             vibratoOnset: 0.20,
-            brightness: { start: 6000, end: 2500 },
+            drive: 1.15, // Menggantikan attackNoise (karena loop tidak bisa pakai attackNoise)
             formants: [
-                { freq: 400, q: 1.5, gain: 3 },
-                { freq: 1200, q: 2.0, gain: 2 },
-                { freq: 2800, q: 2.5, gain: 1.5 },
+                { freq: 250, q: 1.5, gain: 4 },   // Resonansi badan kayu
+                { freq: 450, q: 2.0, gain: 5 },   // Resonansi utama
+                { freq: 1100, q: 2.5, gain: 4 },  // Resonansi jembatan
+                { freq: 2800, q: 3.0, gain: 3 },  // Kecerahan senar
+                { freq: 4500, q: 3.5, gain: 1.5 } // Gesekan busur (rosin)
             ],
             ...o
         };
@@ -1341,12 +1355,12 @@ class InstrumentLibrary {
             // 0-7 Piano
             ['Piano', 'Acoustic Grand', P('piano', {
                 length: 44100,           // 2 detik — decay natural
-                gain: 1.0
+                gain: 2.0
             })],
             ['Piano', 'Bright Piano', P('piano', {
                 length: 44100,           // 2 detik — decay natural
                 harm: [1, .85, .7, .55, .42, .3, .2, .13, .08, .05],
-                gain: 1.0
+                gain: 2.0
             })],
             ['Piano', 'Electric Grand', P('epiano')],
             ['Piano', 'Honky-tonk', P('piano', { harm: [1, .7, .5, .4, .3, .2, .12, .08, .05], detune: [0, -10] })],
@@ -1376,8 +1390,23 @@ class InstrumentLibrary {
             ['Organ', 'Tango Accordion', P('reed')],
 
             // 24-31 Guitar
-            ['Guitar', 'Nylon Guitar', P('guitar')],
-            ['Guitar', 'Steel Guitar', P('guitar', { harm: [1, .8, .6, .45, .3, .2, .12, .08] })],
+            ['Guitar', 'Nylon Guitar', P('guitar', {
+                // SENAR NYLON: Harmonisa lebih sedikit, meluruh dengan lembut
+                harm: [1, .8, .6, .4, .25, .15, .08, .04, .02], 
+                env: { a: .002, d: 1.5, s: 0, r: .5 },          
+                length: 66150,                                  
+                gain: 0.9,
+                attackNoise: { amp: 0.10, duration: 0.015 } // Petikan jari (lembut)
+            })],
+            
+            ['Guitar', 'Steel Guitar', P('guitar', {
+                // SENAR BAJA: Harmonisa lebih kaya (tajam), decay sedikit lebih cepat
+                harm: [1, .9, .8, .7, .55, .4, .3, .2, .15, .1, .05], 
+                env: { a: .001, d: 1.2, s: 0, r: .4 },          
+                length: 66150,                                  
+                gain: 0.85, // Sedikit dikecilkan karena frekuensi tinggi lebih menusuk telinga
+                attackNoise: { amp: 0.15, duration: 0.008 } // Petikan pick (tajam & cepat)
+            })],
             ['Guitar', 'Jazz Guitar', P('guitar', { harm: [1, .5, .3, .2, .1], loop: 1, cycles: 14, loopSkip: 2 })],
             ['Guitar', 'Clean Guitar', P('guitar', { harm: [1, .6, .4, .25, .15, .08], loop: 1, cycles: 14, loopSkip: 2 })],
 
@@ -1406,8 +1435,8 @@ class InstrumentLibrary {
             ['Bass', 'Fretless Bass',  P('bass', { vibrato: { rate: 5, depth: .01 }, loop: 1, cycles: 14, loopSkip: 2 })],
             ['Bass', 'Slap Bass 1',    P('bass', { harm: [1, .8, .6, .45, .35, .25, .2, .15], loop: 1, cycles: 14, loopSkip: 2 })],
             ['Bass', 'Slap Bass 2',    P('bass', { harm: [1, .7, .5, .4, .3, .22, .18], noise: .05, loop: 1, cycles: 14, loopSkip: 2 })],
-            ['Bass', 'Synth Bass 1',   P('bass', { harm: [1, .7, .5, .4, .3, .2], loop: 1, cycles: 14, loopSkip: 2, gain: .75 })],
-            ['Bass', 'Synth Bass 2',   P('bass', { detune: [-5, 5], harm: [1, .5, .3, .2], loop: 1, cycles: 14, loopSkip: 2, gain: .75 })],
+            ['Bass', 'Synth Bass 1',   P('bass', { harm: [1, .7, .5, .4, .3, .2], loop: 1, cycles: 14, loopSkip: 2, gain: .60 })],
+            ['Bass', 'Synth Bass 2',   P('bass', { detune: [-5, 5], harm: [1, .5, .3, .2], loop: 1, cycles: 14, loopSkip: 2, gain: .60 })],
 
             // 40-47 Strings
             ['Strings', 'Violin', P('strings', { vibrato: { rate: 6, depth: .008, sweep: 15 }, detune: [0] })],
@@ -1420,8 +1449,29 @@ class InstrumentLibrary {
             ['Strings', 'Timpani', P('perc', { harm: [1, .7, .4, .2], env: { a: .002, d: .7, s: 0, r: .3 }, length: 6615, noise: .1 })],
 
             // 48-55 Ensemble
-            ['Ensemble', 'Strings 1', P('ensemble')],
-            ['Ensemble', 'Strings 2', P('ensemble', { detune: [-18, 0, 18] })],
+            ['Ensemble', 'Strings 1', P('ensemble', {
+                gain: 0.8,
+                harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], // Lebih cerah (Biola)
+                formants: [
+                    { freq: 280, q: 1.5, gain: 4 },
+                    { freq: 500, q: 2.0, gain: 5 },
+                    { freq: 1200, q: 2.5, gain: 4 },
+                    { freq: 3000, q: 3.0, gain: 3 },
+                    { freq: 5000, q: 3.5, gain: 2 }
+                ]
+            })],
+
+            ['Ensemble', 'Strings 2', P('ensemble', {
+                gain: 0.8,
+                harm: [1, .6, .45, .35, .25, .18, .12, .08], // Lebih gelap (Viola/Cello)
+                formants: [
+                    { freq: 220, q: 1.5, gain: 5 },
+                    { freq: 400, q: 2.0, gain: 6 },
+                    { freq: 900, q: 2.5, gain: 4 },
+                    { freq: 2500, q: 3.0, gain: 2 },
+                    { freq: 4000, q: 3.5, gain: 1 }
+                ]
+            })],
             ['Ensemble', 'SynthStrings 1', P('pad', { harm: [1, .5, .3, .2, .1, .05], detune: [-10, 10] })],
             ['Ensemble', 'SynthStrings 2', P('pad', { harm: [1, .6, .4, .3, .2, .15, .1], detune: [-15, 0, 15] })],
             
