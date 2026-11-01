@@ -46,6 +46,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Microphone recording** — record audio directly via MediaRecorder and convert to 16-bit mono PCM
 - **Auto-parameter estimation** on import — root frequency via autocorrelation, envelope via RMS analysis
 - **Frequency range map** — visualize sample coverage across the keyboard to detect overlaps
+- **Generated sample variants** — choose A to restore the original instrument sound, or B–E for sine, triangle, sawtooth, and square waveforms
 
 ### File Import
 | Format | Extension | Description |
@@ -289,6 +290,20 @@ Header → MIDI.js URL → paste a jsDelivr URL
 3. Apply DSP operations from the toolbar
 4. Set loop points, mode flags, envelope values, or click a key on the test keyboard
 
+### Generating or Restoring a Sample
+
+When adding a sample, open **Generate Automatically**, choose the instrument type and program, then select a variant:
+
+| Variant | Result |
+|---|---|
+| **A — Original** | The instrument's original generated sound, matching the sound used by the Demo project |
+| **B — Sine** | Replace the instrument sound with a sine waveform |
+| **C — Triangle** | Replace it with a triangle waveform |
+| **D — Sawtooth** | Replace it with a sawtooth waveform |
+| **E — Square** | Replace it with a square waveform |
+
+The same A–E choices appear in the sample editor for generated samples. Select **A — Original** to restore the saved original sample after trying another waveform. This restores the original PCM rather than generating it again, so any noise in the original sound is preserved exactly.
+
 ### Playing MIDI & Using the Timeline
 
 1. Select a project
@@ -375,18 +390,25 @@ planetbiru-instrument-editor/
 ├── index.html                       # Single-page app shell
 ├── assets/
 │   ├── css/
-│   │   └── style.css                # All styling
+│   │   ├── style.css                # Application styling
+│   │   └── style.min.css
 │   ├── js/
-│   │   ├── script.js                # Main application (single ~7000-line file)
-│   │   └── project-patch-generator.js  # Generator for demo project patches
+│   │   ├── script.js                # Shared state, initialization, and compatibility delegates
+│   │   ├── application-controller.js
+│   │   ├── patch-data-service.js
+│   │   ├── bank-controller.js
+│   │   ├── editor-controller.js     # Sample editing and generated waveform variants
+│   │   ├── project-controller.js
+│   │   ├── midi-controller.js
+│   │   └── zip.js
 │   └── locales/
 │       ├── id.json                  # Indonesian strings
 │       └── en.json                  # English strings
 ├── JSGUS/
-│   └── GUSPatchGenerator.js         # Procedural GUS patch generator
+│   └── ProjectPatchGenerator.js     # Procedural instrument and demo patch generator
 └── timidity-player/
-    ├── timidity-player.js           # LibTiMidityPlayer wrapper
-    └── libtimidity.js               # LibTiMidity WASM loader
+    ├── timidity-player.min.js       # LibTiMidityPlayer wrapper
+    └── libtimidity.min.js           # LibTiMidity WASM loader
 ```
 
 ### Data Flow
