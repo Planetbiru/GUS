@@ -1114,8 +1114,19 @@ class ApplicationController {
         document.getElementById("addSamplePreview").hidden = false;
         
         const instName = isDrum ? GM_DRUM_NAMES[program] : GM_MELODIC_NAMES[program];
+        const variantKey = {
+          default: "sample_variant_a",
+          sine: "sample_variant_b",
+          triangle: "sample_variant_c",
+          saw: "sample_variant_d",
+          square: "sample_variant_e"
+        }[waveform];
         document.getElementById("addSampleGeneratorStatus").textContent =
-          `Siap: ${instName} - ${waveform} (${draft.duration.toFixed(2)}s)`;
+          t("sample_generator_ready", {
+            instrument: instName,
+            variant: t(variantKey),
+            duration: draft.duration.toFixed(2)
+          });
         document.getElementById("btnConfirmAddSample").disabled = false;
       } catch (err) {
         console.error("Generate waveform error:", err);

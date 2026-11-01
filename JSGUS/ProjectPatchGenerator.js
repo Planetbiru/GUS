@@ -645,33 +645,6 @@ class MelodicRenderer {
     }
 
     _envelope(t, length, env, isLoop, i, fadeSamples) {
-        if (isLoop) {
-            // Fade-in kosinus → nilai tepat 1.0 di i = fadeSamples
-            // (fade linear lama berakhir di ~0.98 lalu lompat ke 1.0 →
-            //  potensi klik halus di sampel ke-`cs`)
-            if (i < fadeSamples) return 0.5 * (1 - Math.cos(Math.PI * i / fadeSamples));
-            return 1.0;
-        }
-
-        let e;
-        if (t < env.a) {
-            const tau = Math.max(env.a / 3, 0.001);
-            e = 1 - Math.exp(-t / tau);
-        } else if (t < env.a + env.d) {
-            const dt = t - env.a;
-            const tau = Math.max(env.d / 3, 0.001);
-            e = env.s + (1 - env.s) * Math.exp(-dt / tau);
-        } else {
-            e = env.s;
-        }
-        if (env.r > 0) {
-            const relStart = length / this.SR - env.r;
-            if (t > relStart) e *= Math.exp(-3 * ((t - relStart) / env.r));
-        }
-        return e;
-    }
-
-    _envelope(t, length, env, isLoop, i, fadeSamples) {
         if (isLoop) return i < fadeSamples ? (i / fadeSamples) : 1.0;
 
         // Exponential attack/decay — jauh lebih natural dari linear

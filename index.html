@@ -552,10 +552,11 @@
             <h3 class="editor-subsection-heading">{{regenerate_sample}}</h3>
             <p class="hint">{{regenerate_sample_hint}}</p>
             <div class="toolbar" id="regenerateWaveformRow">
-              <button class="btn small" type="button" data-waveform="sine">{{sine}}</button>
-              <button class="btn small" type="button" data-waveform="triangle">{{triangle}}</button>
-              <button class="btn small" type="button" data-waveform="saw">{{saw}}</button>
-              <button class="btn small" type="button" data-waveform="square">{{square}}</button>
+              <button class="btn small" type="button" data-waveform="default">{{sample_variant_a}}</button>
+              <button class="btn small" type="button" data-waveform="sine">{{sample_variant_b}}</button>
+              <button class="btn small" type="button" data-waveform="triangle">{{sample_variant_c}}</button>
+              <button class="btn small" type="button" data-waveform="saw">{{sample_variant_d}}</button>
+              <button class="btn small" type="button" data-waveform="square">{{sample_variant_e}}</button>
             </div>
           </div>    
 
@@ -803,10 +804,11 @@
               <div class="field">
                 <label for="addSampleWaveform">{{wave_form}}</label>
                 <select id="addSampleWaveform">
-                  <option value="sine">{{sine}}</option>
-                  <option value="triangle">{{triangle}}</option>
-                  <option value="saw">{{saw}}</option>
-                  <option value="square">{{square}}</option>
+                  <option value="default">{{sample_variant_a}}</option>
+                  <option value="sine">{{sample_variant_b}}</option>
+                  <option value="triangle">{{sample_variant_c}}</option>
+                  <option value="saw">{{sample_variant_d}}</option>
+                  <option value="square">{{sample_variant_e}}</option>
                 </select>
               </div>
               <button class="btn primary" id="btnGenerateSampleWaveform" type="button">{{generate_sample}}</button>
