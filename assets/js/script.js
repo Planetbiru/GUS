@@ -103,6 +103,7 @@ const state = {
 };
 
 let timidityPlayer = null;
+const activeDrumPreviewNotes = new Map();
 let timelinePlayheadEl = null; // Hanya satu playhead
 let timelineTotalTicks = 0;     // Total tick dari lagu yang sedang ditampilkan
 let isMidiRendering = false;
@@ -292,6 +293,10 @@ function scheduleMidiUsedPatchesRerender(...args) { return MidiController.schedu
 function renderMidiUsedPatchesList(...args) { return MidiController.renderMidiUsedPatchesList.apply(this, args); }
 function openMidiUsedPatchesDialog(...args) { return MidiController.openMidiUsedPatchesDialog.apply(this, args); }
 function closeMidiUsedPatchesDialog(...args) { return MidiController.closeMidiUsedPatchesDialog.apply(this, args); }
+function openDrumKitPreviewDialog(...args) { return MidiController.openDrumKitPreviewDialog.apply(this, args); }
+function closeDrumKitPreviewDialog(...args) { return MidiController.closeDrumKitPreviewDialog.apply(this, args); }
+function renderDrumKitPreviewNotes(...args) { return MidiController.renderDrumKitPreviewNotes.apply(this, args); }
+function handleDrumKitPreviewClick(...args) { return MidiController.handleDrumKitPreviewClick.apply(this, args); }
 function getUsedMidiPrograms(...args) { return MidiController.getUsedMidiPrograms.apply(this, args); }
 function getNiceTickStep(...args) { return MidiController.getNiceTickStep.apply(this, args); }
 function parseMidiTimeline(...args) { return MidiController.parseMidiTimeline.apply(this, args); }

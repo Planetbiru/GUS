@@ -1988,6 +1988,190 @@ class MidiController {
     }
   }
 
+  static openDrumKitPreviewDialog() {
+    const dialog = $("drumKitPreviewDialog");
+    const bankSelect = $("drumKitPreviewBank");
+    if (!dialog || !bankSelect) {
+      console.error("[Drum Preview] Modal elements are missing from the DOM.");
+      return;
+    }
+
+    closeDrumKitPreviewDialog();
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    bankSelect.replaceChildren();
+    bankSelect.disabled = true;
+    $("drumKitPreviewBody").replaceChildren();
+
+    if (!project) {
+      $("drumKitPreviewStatus").textContent = t("drum_kit_preview_no_project");
+      dialog.hidden = false;
+      return;
+    }
+
+    const drumEntries = getProjectPatches(project).filter(entry => {
+      const pitch = Number(entry.gmProgram);
+      const bank = Number(entry.targetBank ?? 0);
+      return Number(entry.gmBank ?? 0) === 128 &&
+        entry.gmProgram != null && entry.gmProgram !== "" &&
+        Number.isInteger(pitch) && pitch >= 0 && pitch <= 127 &&
+        Number.isInteger(bank) && bank >= 0 && bank <= 127;
+    });
+    const banks = [...new Set(drumEntries.map(entry => Number(entry.targetBank ?? 0)))]
+      .sort((a, b) => a - b);
+
+    if (banks.length === 0) {
+      $("drumKitPreviewStatus").textContent = t("drum_kit_preview_no_sounds");
+      dialog.hidden = false;
+      return;
+    }
+
+    for (const bank of banks) {
+      const option = document.createElement("option");
+      option.value = String(bank);
+      option.textContent = t("drum_kit_preview_bank", {bank});
+      bankSelect.appendChild(option);
+    }
+    bankSelect.disabled = banks.length < 2;
+    $("drumKitPreviewStatus").textContent = t("drum_kit_preview_hint");
+    dialog.hidden = false;
+    renderDrumKitPreviewNotes();
+  }
+
+  static renderDrumKitPreviewNotes() {
+    MidiController.stopDrumKitPreviewNotes();
+    const body = $("drumKitPreviewBody");
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const bank = Number($("drumKitPreviewBank").value);
+    if (!project || !Number.isInteger(bank)) {
+      body.replaceChildren();
+      $("drumKitPreviewStatus").textContent = t("drum_kit_preview_no_project");
+      return;
+    }
+
+    const notesByPitch = new Map();
+    for (const entry of getProjectPatches(project)) {
+      if (Number(entry.gmBank ?? 0) !== 128 || Number(entry.targetBank ?? 0) !== bank) continue;
+      if (entry.gmProgram == null || entry.gmProgram === "") continue;
+      const pitch = Number(entry.gmProgram);
+      if (!Number.isInteger(pitch) || pitch < 0 || pitch > 127 || notesByPitch.has(pitch)) continue;
+      notesByPitch.set(pitch, entry);
+    }
+
+    body.replaceChildren();
+    const notes = [...notesByPitch.entries()].sort(([a], [b]) => a - b);
+    for (const [pitch, entry] of notes) {
+      const row = document.createElement("tr");
+      const noteCell = document.createElement("td");
+      noteCell.className = "gm-map-col-num";
+      noteCell.textContent = String(pitch);
+
+      const soundCell = document.createElement("td");
+      soundCell.textContent = GM_DRUM_NAMES[pitch] || entry.name || `MIDI ${pitch}`;
+      if (entry.name) soundCell.title = entry.name;
+
+      const actionCell = document.createElement("td");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "btn small";
+      button.dataset.pitch = String(pitch);
+      button.dataset.bank = String(bank);
+      button.textContent = t("drum_kit_preview_action");
+      button.setAttribute("aria-label", `${t("drum_kit_preview_action")}: ${soundCell.textContent}`);
+      actionCell.appendChild(button);
+      row.append(noteCell, soundCell, actionCell);
+      body.appendChild(row);
+    }
+
+    $("drumKitPreviewStatus").textContent = notes.length
+      ? t("drum_kit_preview_hint")
+      : t("drum_kit_preview_no_sounds");
+  }
+
+  static handleDrumKitPreviewClick(event) {
+    const button = event.target.closest("button[data-pitch][data-bank]");
+    if (!button || !event.currentTarget.contains(button)) return;
+    MidiController.playDrumKitPreviewNote(button);
+  }
+
+  static async playDrumKitPreviewNote(button) {
+    const pitch = Number(button.dataset.pitch);
+    const bank = Number(button.dataset.bank);
+    if (!Number.isInteger(pitch) || pitch < 0 || pitch > 127 ||
+        !Number.isInteger(bank) || bank < 0 || bank > 127) {
+      console.error("[Drum Preview] Invalid MIDI note or drum kit bank.");
+      return;
+    }
+
+    const key = `${bank}:${pitch}`;
+    MidiController.releaseDrumPreviewNote(key);
+    const note = {
+      pitch,
+      player: null,
+      started: false,
+      cancelled: false,
+      timer: null
+    };
+    activeDrumPreviewNotes.set(key, note);
+    button.disabled = true;
+    $("drumKitPreviewStatus").textContent = t("drum_kit_preview_loading");
+
+    try {
+      await ensureTimidityPlayer();
+      if (note.cancelled) return;
+
+      note.player = timidityPlayer;
+      if (!note.player) throw new Error("TiMidity player is unavailable.");
+      await note.player.noteOn(9, 0, pitch, 100, {bank, pan: 64});
+      note.started = true;
+
+      if (note.cancelled || activeDrumPreviewNotes.get(key) !== note ||
+          $("drumKitPreviewDialog").hidden) {
+        note.player.noteOff(9, pitch);
+        note.started = false;
+        return;
+      }
+
+      $("drumKitPreviewStatus").textContent =
+        `${GM_DRUM_NAMES[pitch] || `MIDI ${pitch}`} · ${t("drum_kit_preview_hint")}`;
+      note.timer = setTimeout(() => MidiController.releaseDrumPreviewNote(key, note), 900);
+    } catch (error) {
+      console.error("[Drum Preview] Failed to play drum note:", error);
+      if (activeDrumPreviewNotes.get(key) === note) {
+        MidiController.releaseDrumPreviewNote(key, note);
+        $("drumKitPreviewStatus").textContent =
+          t("drum_kit_preview_failed", {message: error.message || String(error)});
+      }
+    } finally {
+      if (button.isConnected) button.disabled = false;
+    }
+  }
+
+  static releaseDrumPreviewNote(key, note = activeDrumPreviewNotes.get(key)) {
+    if (!note) return;
+    note.cancelled = true;
+    if (note.timer) clearTimeout(note.timer);
+    if (note.started && note.player) {
+      try {
+        note.player.noteOff(9, note.pitch);
+      } catch (error) {
+        console.error("[Drum Preview] Failed to stop drum note:", error);
+      }
+      note.started = false;
+    }
+    if (activeDrumPreviewNotes.get(key) === note) activeDrumPreviewNotes.delete(key);
+  }
+
+  static stopDrumKitPreviewNotes() {
+    for (const [key, note] of activeDrumPreviewNotes) {
+      MidiController.releaseDrumPreviewNote(key, note);
+    }
+  }
+
+  static closeDrumKitPreviewDialog() {
+    MidiController.stopDrumKitPreviewNotes();
+    $("drumKitPreviewDialog").hidden = true;
+  }
+
   static findPatchInBank0(isDrum, program) {
     const project = state.projects.find(p => p.id === state.currentProjectId);
     if (!project) return undefined;
