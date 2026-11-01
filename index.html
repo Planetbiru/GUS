@@ -786,6 +786,20 @@
             <section class="sample-source-card">
               <h3>{{sample_from_generator}}</h3>
               <p class="hint">{{sample_from_generator_hint}}</p>
+              
+              <div class="field">
+                <label for="addSampleGeneratorType">{{instrument_type}}</label>
+                <select id="addSampleGeneratorType">
+                  <option value="melodic">{{non_drum}}</option>
+                  <option value="drum">{{drum}}</option>
+                </select>
+              </div>
+              
+              <div class="field">
+                <label for="addSampleGeneratorProgram">{{instrument_program}}</label>
+                <select id="addSampleGeneratorProgram"></select>
+              </div>
+
               <div class="field">
                 <label for="addSampleWaveform">{{wave_form}}</label>
                 <select id="addSampleWaveform">
