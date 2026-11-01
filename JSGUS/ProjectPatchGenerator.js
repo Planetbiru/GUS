@@ -363,6 +363,24 @@ class GUSPatchGenerator {
         for (let i = 0; i < buf.length; i++) buf[i] = Math.tanh(buf[i] * drive) / k;
     }
 
+    static guitarAmp(buf, config, SR) {
+        const preampCutoff = config.preampCutoff || 0;
+        if (preampCutoff > 0) this.highpass(buf, preampCutoff, SR);
+
+        const drive = Math.max(0.1, config.drive || 1);
+        const bias = config.bias || 0;
+        const mix = Math.max(0, Math.min(1, config.mix == null ? 1 : config.mix));
+        const biasOffset = Math.tanh(bias * drive);
+        for (let i = 0; i < buf.length; i++) {
+            const dry = buf[i];
+            const saturated = Math.tanh((dry + bias) * drive) - biasOffset;
+            buf[i] = dry * (1 - mix) + saturated * mix;
+        }
+
+        const cabinetCutoff = config.cabinetCutoff || 0;
+        if (cabinetCutoff > 0) this.lowpass(buf, cabinetCutoff, SR);
+    }
+
     /** Bandpass noise (white/pink/brown) — untuk snare wire, cymbal wash */
     static bandpassNoise(len, centerFreq, q, SR, type = 'white') {
         let buf;
@@ -530,6 +548,7 @@ class MelodicRenderer {
         // (vibrato, detune, FM, inharmonicity, pitchScoop, attack burst,
         // partialDecay) DIMATIKAN untuk loop. Kalau tidak, fasa drift →
         // klik/pop atau modulasi amplitudo ("patah-patah").
+        // `loopAttackNoise` hanya ditambahkan sebelum loopStart.
         // Vibrato/tremolo tetap bisa diberikan lewat header GUS
         // (vibratoRate/vibratoDepth/tremolo*) supaya pemutar yang
         // men-modulasi, bukan sample-nya.
@@ -541,7 +560,11 @@ class MelodicRenderer {
         const fm        = isLoop ? null : (p.fm || null);
         const harm      = p.harm || [1];
         const inharmB   = isLoop ? 0    : (p.inharmonicity || 0);
-        const atk       = isLoop ? null : (p.attackNoise || null);
+        const atk       = isLoop ? (p.loopAttackNoise || null) : (p.attackNoise || null);
+        const pluck     = isLoop ? null : (p.pluckTransient || null);
+        const pluckPosition = Number.isFinite(p.pluckPosition)
+            ? Math.max(0.01, Math.min(0.49, p.pluckPosition))
+            : null;
         const scoop     = isLoop ? null : (p.pitchScoop || null);
         const scoopTime  = scoop ? (scoop.time  || 0.03) : 0;
         const scoopDepth = scoop ? (scoop.depth || 0.05) : 0;
@@ -605,6 +628,10 @@ class MelodicRenderer {
                         v.phases[k] += (f0 * stretch) / SR;
                         v.phases[k] -= Math.floor(v.phases[k]);
                         let pAmp = a;
+                        if (pluckPosition !== null) {
+                            const fundamentalExcitation = Math.max(0.01, Math.abs(Math.sin(Math.PI * pluckPosition)));
+                            pAmp *= Math.abs(Math.sin(Math.PI * order * pluckPosition)) / fundamentalExcitation;
+                        }
                         if (pDecay) pAmp *= Math.exp(-t / (pDecay[k] || 1));
                         sample += pAmp * Math.sin(Math.PI * 2 * v.phases[k]);
                     }
@@ -620,15 +647,33 @@ class MelodicRenderer {
             out[i] = sample * this._envelope(t, length, env, isLoop, i, fadeSamples);
         }
 
-        // Attack transient (hanya non-loop)
-        if (atk && !isLoop) {
+        // Transient loop hanya berada di bagian awal, di luar area loop periodik.
+        if (atk) {
             const dur = Math.max(1, Math.round(SR * (atk.duration || 0.015)));
-            const L   = Math.min(length, dur);
+            const L   = Math.min(length, dur, isLoop ? loopStart : length);
             const burst = GUSPatchGenerator.pinkNoise(L);
             const amp = atk.amp || 0.1;
             for (let i = 0; i < L; i++) {
                 const e = Math.exp(-i / (SR * (atk.duration || 0.015) * 0.3));
                 out[i] += burst[i] * amp * e;
+            }
+        }
+
+        if (pluck && !isLoop) {
+            const dur = Math.max(1, Math.round(SR * (pluck.duration || 0.012)));
+            const L = Math.min(length, dur);
+            const burst = GUSPatchGenerator.bandpassNoise(
+                L,
+                pluck.freq || 2500,
+                pluck.q || 1,
+                SR,
+                pluck.type || 'pink'
+            );
+            const amp = pluck.amp || 0.03;
+            for (let i = 0; i < L; i++) {
+                const t = i / SR;
+                const envelope = Math.exp(-t / (pluck.decay || dur / SR * 0.45));
+                out[i] += burst[i] * amp * envelope;
             }
         }
 
@@ -655,6 +700,7 @@ class MelodicRenderer {
                 p.brightness.end || 1200,
                 SR);
         }
+        if (p.guitarAmp) GUSPatchGenerator.guitarAmp(out, p.guitarAmp, SR);
         if (p.formants) GUSPatchGenerator.applyFormants(out, p.formants, SR);
         if (p.drive)    GUSPatchGenerator.softClip(out, p.drive);
 
@@ -1344,8 +1390,10 @@ class InstrumentLibrary {
         return [
             // 0-7 Piano
             ['Piano', 'Acoustic Grand', P('piano', {
-                length: 44100,           // 2 detik — decay natural
-                gain: 2.0
+                length: 44100,
+                env: { a: .002, d: 1.8, s: 0, r: .25 },
+                partialDecay: [2.6, 1.7, 1.15, .82, .6, .44, .32, .24, .18, .14],
+                gain: 1.0
             })],
             ['Piano', 'Bright Piano', P('piano', {
                 length: 44100,           // 2 detik — decay natural
@@ -1381,21 +1429,46 @@ class InstrumentLibrary {
 
             // 24-31 Guitar
             ['Guitar', 'Nylon Guitar', P('guitar', {
-                // SENAR NYLON: Harmonisa lebih sedikit, meluruh dengan lembut
-                harm: [1, .8, .6, .4, .25, .15, .08, .04, .02], 
-                env: { a: .002, d: 1.5, s: 0, r: .5 },          
-                length: 66150,                                  
+                // Soft finger pluck, warm body resonance, and quick upper-partial decay.
+                harm: [1, .8, .6, .4, .25, .15, .08, .04, .02],
+                pluckPosition: .16,
+                pluckTransient: { freq: 1700, q: .8, amp: .035, duration: .024, decay: .011 },
+                inharmonicity: .00004,
+                partialDecay: [3.2, 1.9, 1.15, .78, .52, .36, .25, .18, .13],
+                formants: [
+                    { freq: 105, q: 1.2, gain: 3 },
+                    { freq: 210, q: 1.8, gain: 5 },
+                    { freq: 390, q: 2.1, gain: 4 },
+                    { freq: 850, q: 1.6, gain: 2 },
+                    { freq: 2300, q: 1.3, gain: -2 }
+                ],
+                pitchScoop: { depth: .0012, time: .014 },
+                env: { a: .002, d: 1.5, s: 0, r: .5 },
+                length: 66150,
                 gain: 0.9,
-                attackNoise: { amp: 0.10, duration: 0.015 } // Petikan jari (lembut)
+                attackNoise: { amp: 0.055, duration: .018 }
             })],
             
             ['Guitar', 'Steel Guitar', P('guitar', {
-                // SENAR BAJA: Harmonisa lebih kaya (tajam), decay sedikit lebih cepat
-                harm: [1, .9, .8, .7, .55, .4, .3, .2, .15, .1, .05], 
-                env: { a: .001, d: 1.2, s: 0, r: .4 },          
-                length: 66150,                                  
-                gain: 0.85, // Sedikit dikecilkan karena frekuensi tinggi lebih menusuk telinga
-                attackNoise: { amp: 0.15, duration: 0.008 } // Petikan pick (tajam & cepat)
+                // Brighter pick attack, a different pluck point, and a more metallic string decay.
+                harm: [1, .9, .8, .7, .55, .4, .3, .2, .15, .1, .05],
+                pluckPosition: .105,
+                pluckTransient: { freq: 3400, q: 1.1, amp: .065, duration: .016, decay: .006 },
+                inharmonicity: .00012,
+                partialDecay: [2.8, 1.9, 1.35, 1.0, .74, .55, .4, .3, .23, .17, .12],
+                formants: [
+                    { freq: 115, q: 1.2, gain: 2 },
+                    { freq: 230, q: 1.8, gain: 4 },
+                    { freq: 520, q: 2.2, gain: 4 },
+                    { freq: 1150, q: 1.7, gain: 3 },
+                    { freq: 2900, q: 1.2, gain: 2 },
+                    { freq: 4800, q: 1.0, gain: -1 }
+                ],
+                pitchScoop: { depth: .0022, time: .009 },
+                env: { a: .001, d: 1.2, s: 0, r: .4 },
+                length: 66150,
+                gain: 0.85,
+                attackNoise: { amp: .09, duration: .009 }
             })],
             ['Guitar', 'Jazz Guitar', P('guitar', { harm: [1, .5, .3, .2, .1], loop: 1, cycles: 14, loopSkip: 2 })],
             ['Guitar', 'Clean Guitar', P('guitar', { harm: [1, .6, .4, .25, .15, .08], loop: 1, cycles: 14, loopSkip: 2 })],
@@ -1403,16 +1476,31 @@ class InstrumentLibrary {
             ['Guitar', 'Muted Guitar', P('guitar', { env: { a: .001, d: .2, s: .05, r: .1 } })],
             
             ['Guitar', 'Overdriven Gtr', P('guitar', {
-                harm: [1, .7, .5, .4, .3, .25, .2, .15],
-                env:  { a: .005, d: 1, s: .3, r: .3 },
-                loop: 1, cycles: 16, loopSkip: 2,
-                vibrato: { rate: 5.5, depth: .006, sweep: 15 }
+                harm: [1, .86, .72, .6, .49, .39, .31, .24, .18, .13, .09, .06, .04],
+                guitarAmp: { drive: 2.1, bias: .035, mix: .82, preampCutoff: 95, cabinetCutoff: 5200 },
+                formants: [
+                    { freq: 150, q: .8, gain: 2 },
+                    { freq: 720, q: 1.1, gain: 3 },
+                    { freq: 1700, q: 1.4, gain: 2 },
+                    { freq: 3400, q: 1.1, gain: -2 }
+                ],
+                loop: 1, cycles: 18, loopSkip: 10,
+                loopAttackNoise: { amp: .12, duration: .02 },
+                vibrato: { rate: 5.2, depth: .004, sweep: 12 }
             })],
             ['Guitar', 'Distortion Gtr', P('guitar', {
-                harm: [1, .8, .6, .5, .4, .35, .3, .25, .2, .15],
-                env:  { a: .005, d: 1.2, s: .4, r: .3 },
-                loop: 1, cycles: 16, loopSkip: 2,
-                vibrato: { rate: 5.5, depth: .006, sweep: 15 }
+                harm: [1, .92, .82, .72, .62, .53, .44, .36, .29, .23, .18, .14, .1, .07, .05],
+                guitarAmp: { drive: 3.4, bias: .02, mix: .94, preampCutoff: 115, cabinetCutoff: 4600 },
+                formants: [
+                    { freq: 180, q: .9, gain: 2 },
+                    { freq: 520, q: 1.1, gain: 3 },
+                    { freq: 1350, q: 1.3, gain: 3 },
+                    { freq: 2500, q: 1.4, gain: 2 },
+                    { freq: 3800, q: 1.2, gain: -3 }
+                ],
+                loop: 1, cycles: 20, loopSkip: 10,
+                loopAttackNoise: { amp: .08, duration: .018 },
+                vibrato: { rate: 5.5, depth: .003, sweep: 10 }
             })],
             
             ['Guitar', 'Gtr Harmonics', P('guitar', { harm: [1, 0, 0, 0, .3, 0, 0, 0, .1] })],
