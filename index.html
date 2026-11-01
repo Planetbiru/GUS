@@ -319,6 +319,11 @@
               <svg class="icon"><use href="#i-chart"></use></svg> {{midi_used_patches_btn}}
             </button>
           </div>
+          <div class="inline-actions">
+            <button class="btn small" id="btnShowDrumKitPreview" title="{{drum_kit_preview_title}}" data-i18n-title="drum_kit_preview_title" style="flex:1">
+              <svg class="icon"><use href="#i-drum"></use></svg> {{drum_kit_preview_btn}}
+            </button>
+          </div>
           <div id="midiStatus">{{select_project_load_midi}}</div>
         </div>
       </div>
@@ -746,6 +751,17 @@
             <label for="patchGeneratorProgram">{{instrument_program}}</label>
             <select id="patchGeneratorProgram"></select>
           </div>
+          <div class="grid g3" id="patchGeneratorPitchRange">
+            <div class="field">
+              <label for="patchGeneratorPitchFrom">{{pitch_from_midi}}</label>
+              <input id="patchGeneratorPitchFrom" type="number" min="0" max="127" step="1" value="0">
+            </div>
+            <div class="field">
+              <label for="patchGeneratorPitchTo">{{pitch_to_midi}}</label>
+              <input id="patchGeneratorPitchTo" type="number" min="0" max="127" step="1" value="127">
+            </div>
+          </div>
+          <p class="hint" id="patchGeneratorPitchHint">{{pitch_range_generator_hint}}</p>
           <div id="addPatchError" class="modal-error" role="alert" aria-live="polite"></div>
         </div>
         <div class="modal-footer">
@@ -811,6 +827,17 @@
                   <option value="square">{{sample_variant_e}}</option>
                 </select>
               </div>
+              <div class="grid g3" id="addSamplePitchRange">
+                <div class="field">
+                  <label for="addSamplePitchFrom">{{pitch_from_midi}}</label>
+                  <input id="addSamplePitchFrom" type="number" min="0" max="127" step="1" value="0">
+                </div>
+                <div class="field">
+                  <label for="addSamplePitchTo">{{pitch_to_midi}}</label>
+                  <input id="addSamplePitchTo" type="number" min="0" max="127" step="1" value="127">
+                </div>
+              </div>
+              <p class="hint" id="addSamplePitchHint">{{pitch_range_generator_hint}}</p>
               <button class="btn primary" id="btnGenerateSampleWaveform" type="button">{{generate_sample}}</button>
               <div id="addSampleGeneratorStatus" class="sample-source-status" aria-live="polite"></div>
             </section>
@@ -983,6 +1010,44 @@
         </div>
         <div class="modal-footer">
           <button class="btn primary" id="btnCloseMidiUsedPatches" type="button">{{close}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="drumKitPreviewDialog" class="modal-overlay" hidden>
+    <section class="modal-panel drum-kit-preview-panel" role="dialog" aria-modal="true"
+             aria-labelledby="drumKitPreviewTitle" aria-describedby="drumKitPreviewDesc">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="drumKitPreviewTitle">{{drum_kit_preview_title}}</h2>
+          <button class="icon-btn" id="btnCloseDrumKitPreviewX" type="button"
+                  aria-label="{{close}}" data-i18n-aria-label="close">
+            <svg class="icon"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="drumKitPreviewDesc" class="modal-message">{{drum_kit_preview_desc}}</p>
+          <div class="field">
+            <label for="drumKitPreviewBank">{{drum_kit_preview_select_kit}}</label>
+            <select id="drumKitPreviewBank"></select>
+          </div>
+          <div id="drumKitPreviewStatus" class="drum-kit-preview-status" role="status" aria-live="polite"></div>
+          <div class="gm-map-table-wrapper drum-kit-preview-table-wrapper">
+            <table class="gm-map-table drum-kit-preview-table">
+              <thead>
+                <tr>
+                  <th class="gm-map-col-num">{{drum_kit_preview_note}}</th>
+                  <th>{{drum_kit_preview_sound}}</th>
+                  <th class="drum-kit-preview-action">{{drum_kit_preview_action}}</th>
+                </tr>
+              </thead>
+              <tbody id="drumKitPreviewBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btnCloseDrumKitPreview" type="button">{{close}}</button>
         </div>
       </div>
     </section>

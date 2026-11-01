@@ -21,11 +21,13 @@ class ProjectPatchGenerator {
     return this.library.melodic.map(([, name], id) => ({id, name}));
   }
 
-  generate({isDrum, program, waveform = null}) {
+  generate({isDrum, program, waveform = null, pitchFrom = 0, pitchTo = 127}) {
     const id = Number(program);
     if (!Number.isInteger(id)) {
         throw new Error("Instrument program must be an integer.");
     }
+
+    ({ pitchFrom, pitchTo } = ProjectPatchGenerator.normalizePitchRange(pitchFrom, pitchTo));
 
     let name;
     let rendered;
@@ -69,7 +71,11 @@ class ProjectPatchGenerator {
         // ---------------------------------------------------
 
         name = instrumentName;
-        rootFreq = preset.freq || 441;
+        const isFullPitchRange = pitchFrom === 0 && pitchTo === 127;
+        const rootNote = Math.round((pitchFrom + pitchTo) / 2);
+        rootFreq = isFullPitchRange
+            ? (preset.freq || 441)
+            : ProjectPatchGenerator.midiPitchToFrequency(rootNote);
         rendered = new MelodicRenderer(preset, {
         sampleRate: this.sampleRate,
         freq: rootFreq,
@@ -105,8 +111,12 @@ class ProjectPatchGenerator {
     }
 
     const sampleName = this.slugify(name).slice(0, 7) || "PATCH";
-    const lowFreq    = Math.round(8.1757989156 * 1000);
-    const highFreq   = Math.round(12543.853951 * 1000);
+    const lowFreq = isDrum || (pitchFrom === 0 && pitchTo === 127)
+        ? Math.round(8.1757989156 * 1000)
+        : Math.floor(ProjectPatchGenerator.midiPitchToFrequency(pitchFrom) * 1000);
+    const highFreq = isDrum || (pitchFrom === 0 && pitchTo === 127)
+        ? Math.round(12543.853951 * 1000)
+        : Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(pitchTo) * 1000);
 
     let modes = ProjectPatchGenerator.MODE_16BIT;
     if (rendered.loop) {
@@ -164,11 +174,32 @@ class ProjectPatchGenerator {
         }]
     };
 
-    return { patch, name, program: id, isDrum, waveform: appliedWaveform };
+    return { patch, name, program: id, isDrum, waveform: appliedWaveform, pitchFrom, pitchTo };
     }
 
   slugify(value) {
     return String(value).replace(/[^A-Za-z0-9]/g, "_");
+  }
+
+  static midiPitchToFrequency(pitch) {
+    return 440 * Math.pow(2, (pitch - 69) / 12);
+  }
+
+  static normalizePitchRange(pitchFrom = 0, pitchTo = 127) {
+    const from = Number(pitchFrom);
+    const to = Number(pitchTo);
+    if (!Number.isInteger(from) || from < 0 || from > 127
+        || !Number.isInteger(to) || to < 0 || to > 127
+        || from > to) {
+      throw new Error("Pitch range must be MIDI notes from 0 to 127, with pitchFrom no greater than pitchTo.");
+    }
+    return { pitchFrom: from, pitchTo: to };
+  }
+
+  static frequencyToMidiPitch(milliHz) {
+    const frequency = Number(milliHz) / 1000;
+    if (!(frequency > 0) || !Number.isFinite(frequency)) return null;
+    return Math.max(0, Math.min(127, Math.round(69 + 12 * Math.log2(frequency / 440))));
   }
 
   /**
@@ -363,6 +394,24 @@ class GUSPatchGenerator {
         for (let i = 0; i < buf.length; i++) buf[i] = Math.tanh(buf[i] * drive) / k;
     }
 
+    static guitarAmp(buf, config, SR) {
+        const preampCutoff = config.preampCutoff || 0;
+        if (preampCutoff > 0) this.highpass(buf, preampCutoff, SR);
+
+        const drive = Math.max(0.1, config.drive || 1);
+        const bias = config.bias || 0;
+        const mix = Math.max(0, Math.min(1, config.mix == null ? 1 : config.mix));
+        const biasOffset = Math.tanh(bias * drive);
+        for (let i = 0; i < buf.length; i++) {
+            const dry = buf[i];
+            const saturated = Math.tanh((dry + bias) * drive) - biasOffset;
+            buf[i] = dry * (1 - mix) + saturated * mix;
+        }
+
+        const cabinetCutoff = config.cabinetCutoff || 0;
+        if (cabinetCutoff > 0) this.lowpass(buf, cabinetCutoff, SR);
+    }
+
     /** Bandpass noise (white/pink/brown) — untuk snare wire, cymbal wash */
     static bandpassNoise(len, centerFreq, q, SR, type = 'white') {
         let buf;
@@ -530,6 +579,7 @@ class MelodicRenderer {
         // (vibrato, detune, FM, inharmonicity, pitchScoop, attack burst,
         // partialDecay) DIMATIKAN untuk loop. Kalau tidak, fasa drift →
         // klik/pop atau modulasi amplitudo ("patah-patah").
+        // `loopAttackNoise` hanya ditambahkan sebelum loopStart.
         // Vibrato/tremolo tetap bisa diberikan lewat header GUS
         // (vibratoRate/vibratoDepth/tremolo*) supaya pemutar yang
         // men-modulasi, bukan sample-nya.
@@ -541,7 +591,11 @@ class MelodicRenderer {
         const fm        = isLoop ? null : (p.fm || null);
         const harm      = p.harm || [1];
         const inharmB   = isLoop ? 0    : (p.inharmonicity || 0);
-        const atk       = isLoop ? null : (p.attackNoise || null);
+        const atk       = isLoop ? (p.loopAttackNoise || null) : (p.attackNoise || null);
+        const pluck     = isLoop ? null : (p.pluckTransient || null);
+        const pluckPosition = Number.isFinite(p.pluckPosition)
+            ? Math.max(0.01, Math.min(0.49, p.pluckPosition))
+            : null;
         const scoop     = isLoop ? null : (p.pitchScoop || null);
         const scoopTime  = scoop ? (scoop.time  || 0.03) : 0;
         const scoopDepth = scoop ? (scoop.depth || 0.05) : 0;
@@ -605,6 +659,10 @@ class MelodicRenderer {
                         v.phases[k] += (f0 * stretch) / SR;
                         v.phases[k] -= Math.floor(v.phases[k]);
                         let pAmp = a;
+                        if (pluckPosition !== null) {
+                            const fundamentalExcitation = Math.max(0.01, Math.abs(Math.sin(Math.PI * pluckPosition)));
+                            pAmp *= Math.abs(Math.sin(Math.PI * order * pluckPosition)) / fundamentalExcitation;
+                        }
                         if (pDecay) pAmp *= Math.exp(-t / (pDecay[k] || 1));
                         sample += pAmp * Math.sin(Math.PI * 2 * v.phases[k]);
                     }
@@ -620,15 +678,33 @@ class MelodicRenderer {
             out[i] = sample * this._envelope(t, length, env, isLoop, i, fadeSamples);
         }
 
-        // Attack transient (hanya non-loop)
-        if (atk && !isLoop) {
+        // Transient loop hanya berada di bagian awal, di luar area loop periodik.
+        if (atk) {
             const dur = Math.max(1, Math.round(SR * (atk.duration || 0.015)));
-            const L   = Math.min(length, dur);
+            const L   = Math.min(length, dur, isLoop ? loopStart : length);
             const burst = GUSPatchGenerator.pinkNoise(L);
             const amp = atk.amp || 0.1;
             for (let i = 0; i < L; i++) {
                 const e = Math.exp(-i / (SR * (atk.duration || 0.015) * 0.3));
                 out[i] += burst[i] * amp * e;
+            }
+        }
+
+        if (pluck && !isLoop) {
+            const dur = Math.max(1, Math.round(SR * (pluck.duration || 0.012)));
+            const L = Math.min(length, dur);
+            const burst = GUSPatchGenerator.bandpassNoise(
+                L,
+                pluck.freq || 2500,
+                pluck.q || 1,
+                SR,
+                pluck.type || 'pink'
+            );
+            const amp = pluck.amp || 0.03;
+            for (let i = 0; i < L; i++) {
+                const t = i / SR;
+                const envelope = Math.exp(-t / (pluck.decay || dur / SR * 0.45));
+                out[i] += burst[i] * amp * envelope;
             }
         }
 
@@ -655,6 +731,7 @@ class MelodicRenderer {
                 p.brightness.end || 1200,
                 SR);
         }
+        if (p.guitarAmp) GUSPatchGenerator.guitarAmp(out, p.guitarAmp, SR);
         if (p.formants) GUSPatchGenerator.applyFormants(out, p.formants, SR);
         if (p.drive)    GUSPatchGenerator.softClip(out, p.drive);
 
@@ -747,20 +824,51 @@ class DrumFactory {
     }
 
     static hihat(o = {}) {
+        const type = o.type || 'closed';
+        const profiles = {
+            closed: {
+                duration: 0.14,
+                noiseLayers: [
+                    { amp: .95, decay: .008, type: 'white', bandpass: { center: 8200, q: .48 } },
+                    { amp: .68, decay: .024, type: 'pink', bandpass: { center: 6100, q: .52 } },
+                    { amp: .38, decay: .032, type: 'white', bandpass: { center: 9300, q: .72 } }
+                ],
+                highpass: 3600,
+                lowpass: 10200
+            },
+            pedal: {
+                duration: 0.16,
+                noiseLayers: [
+                    { amp: .78, decay: .006, type: 'white', bandpass: { center: 7400, q: .52 } },
+                    { amp: .7, decay: .019, type: 'pink', bandpass: { center: 4800, q: .55 } },
+                    { amp: .34, decay: .028, type: 'pink', bandpass: { center: 2900, q: .68 } }
+                ],
+                highpass: 1800,
+                lowpass: 9600
+            },
+            open: {
+                duration: 0.62,
+                noiseLayers: [
+                    { amp: 1, decay: .14, type: 'white', bandpass: { center: 10200, q: .6 } },
+                    { amp: .62, decay: .13, type: 'white', bandpass: { center: 9000, q: .65 } },
+                    { amp: .18, decay: .11, type: 'pink', bandpass: { center: 4600, q: .65 } }
+                ],
+                highpass: 3700,
+                lowpass: 10200
+            }
+        };
+        const profile = profiles[type] || profiles.closed;
+        const duration = o.duration || profile.duration;
         return {
-            duration: o.duration || 0.08,
-            metallic: {
-                baseFreq: 350,
-                partials: [1, 1.34, 1.71, 2.04, 2.42, 2.83, 3.17, 3.62, 4.15, 4.68, 5.21, 5.87],
-                decay: o.decay || 0.03,
-                amp: 0.55,
-            },
-            noise: {
-                amp: 0.85, decay: o.decay || 0.025,
-                type: 'white',
-                bandpass: { center: 9500, q: 0.7 },
-            },
-            highpass: o.highpass || 7000,
+            duration,
+            noiseLayers: profile.noiseLayers.map(layer => ({
+                ...layer,
+                decay: o.decay
+                    ? layer.decay * o.decay / (type === 'open' ? .32 : type === 'pedal' ? .035 : .02)
+                    : layer.decay
+            })),
+            highpass: o.highpass || profile.highpass,
+            lowpass: profile.lowpass
         };
     }
 
@@ -784,33 +892,28 @@ class DrumFactory {
     }
 
     static cymbal(o = {}) {
+        const decay = o.noiseDecay || 0.65;
         return {
             duration: o.duration || 1.4,
-            metallic: {
-                baseFreq: 380,
-                partials: [1, 1.42, 1.89, 2.34, 2.81, 3.29, 3.76, 4.24, 4.81, 5.42, 6.05, 6.78],
-                decay: o.noiseDecay || 0.65,
-                amp: 0.35,
-            },
-            noise: {
-                amp: 0.9, decay: o.noiseDecay || 0.7,
-                type: 'pink',
-                bandpass: { center: 6500, q: 0.4 },
-            },
+            noiseLayers: [
+                { amp: 0.9, decay, type: 'white', bandpass: { center: 8500, q: 0.45 } },
+                { amp: 0.7, decay: decay * 0.8, type: 'white', bandpass: { center: 6200, q: 0.5 } },
+                { amp: 0.45, decay: decay * 0.55, type: 'pink', bandpass: { center: 3900, q: 0.6 } },
+                { amp: 0.3, decay: decay * 0.35, type: 'white', bandpass: { center: 10200, q: 0.7 } }
+            ],
             highpass: o.highpass || 3000,
         };
     }
 
     static ride(o = {}) {
+        const decay = o.noiseDecay || o.decay || 0.5;
         return {
             duration: o.duration || 1.0,
-            metallic: {
-                baseFreq: 480,
-                partials: [1, 1.37, 1.78, 2.21, 2.64, 3.11, 3.58, 4.05, 4.51],
-                decay: o.decay || 0.5,
-                amp: 0.5,
-            },
-            noise: { amp: 0.35, decay: 0.5, type: 'pink', bandpass: { center: 5500, q: 0.5 } },
+            noiseLayers: [
+                { amp: 0.85, decay: Math.min(0.035, decay * 0.15), type: 'white', bandpass: { center: 9000, q: 0.5 } },
+                { amp: 0.7, decay, type: 'white', bandpass: { center: 6500, q: 0.48 } },
+                { amp: 0.4, decay: decay * 0.65, type: 'pink', bandpass: { center: 4200, q: 0.6 } }
+            ],
             highpass: 2500,
         };
     }
@@ -839,13 +942,15 @@ class DrumFactory {
 
     static sideStick() {
         return {
-            duration: 0.13,
-            tones: [
-                { fStart: 1400, fEnd: 900,  pitchDecay: 0.004, decay: 0.035, amp: 0.6 },
-                { fStart: 2600, fEnd: 1700, pitchDecay: 0.004, decay: 0.025, amp: 0.4 },
+            duration: 0.11,
+            noiseLayers: [
+                { amp: .95, decay: .005, type: 'white', bandpass: { center: 2600, q: .75 } },
+                { amp: .7, decay: .018, type: 'white', bandpass: { center: 1100, q: .7 } },
+                { amp: .35, decay: .003, type: 'white', bandpass: { center: 6000, q: .65 } }
             ],
-            noise: { amp: 0.35, decay: 0.02, type: 'pink' },
-            highpass: 1000,
+            click: { duration: .0015, amp: .25 },
+            highpass: 350,
+            lowpass: 8500
         };
     }
 
@@ -1027,6 +1132,10 @@ class DrumRenderer {
         const membrane  = p.membrane  ? this._setupMembrane(p.membrane, SR) : null;
         const metallic  = p.metallic  ? this._setupMetallic(p.metallic)     : null;
         const noiseBuf  = p.noise     ? this._buildNoise(p.noise, length, SR) : null;
+        const noiseLayers = (p.noiseLayers || []).map(cfg => ({
+            cfg,
+            buffer: this._buildNoise(cfg, length, SR)
+        }));
 
         for (let i = 0; i < length; i++) {
             const t = i / SR;
@@ -1035,6 +1144,9 @@ class DrumRenderer {
             if (membrane) sample += this._membrane(t, membrane);
             if (metallic) sample += this._metallic(t, metallic);
             if (noiseBuf) sample += this._noise(t, noiseBuf, p.noise);
+            for (const layer of noiseLayers) {
+                sample += this._noise(t, layer.buffer, layer.cfg);
+            }
             sample += this._click(t);
             sample = this._bursts(t, sample);
             out[i] = sample;
@@ -1179,12 +1291,12 @@ class InstrumentLibrary {
             bass:    { harm: [1, .7, .5, .3, .2, .1, .05], env: { a: .005, d: .5, s: .2, r: .3 }, length: 33075, freq: 220 },
             strings: { harm: [1, .5, .33, .25, .2, .16, .14, .12], env: { a: .15, d: .2, s: .9, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .005 }, detune: [0, 8] },
             ensemble:{ 
-                harm: [1, .65, .5, .4, .3, .25, .2, .15, .1], 
-                env: { a: .2, d: .2, s: .95, r: .3 }, 
+                harm: [1, .85, .7, .55, .4, .28, .18, .1, .05, .02], // Spektrum lebih padat dan hangat
+                env: { a: .3, d: .2, s: .95, r: .4 },                // Attack lebih lambat (swell)
                 loop: 1, cycles: 14, 
                 vibrato: { rate: 4.5, depth: .004 },
-                drive: 1.1,
-                phases: [0, 0.1, 0.3, 0.6, 0.2, 0.8, 0.4, 0.9, 0.5] // Phase acak = efek ensemble
+                drive: 1.05,                                         // Sangat sedikit, hanya untuk "lemak" analog
+                phases: [0, 0.1, 0.3, 0.6, 0.2, 0.8, 0.4, 0.9, 0.5]  // Phase tersebar (Ensemble effect)
             },
             brass:   { harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], env: { a: .06, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .003 } },
             reed:    { harm: [1, .72, .58, .4, .28, .18, .1, .05], env: { a: .05, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5.5, depth: .006 } },
@@ -1344,8 +1456,10 @@ class InstrumentLibrary {
         return [
             // 0-7 Piano
             ['Piano', 'Acoustic Grand', P('piano', {
-                length: 44100,           // 2 detik — decay natural
-                gain: 2.0
+                length: 44100,
+                env: { a: .002, d: 1.8, s: 0, r: .25 },
+                partialDecay: [2.6, 1.7, 1.15, .82, .6, .44, .32, .24, .18, .14],
+                gain: 1.0
             })],
             ['Piano', 'Bright Piano', P('piano', {
                 length: 44100,           // 2 detik — decay natural
@@ -1381,21 +1495,46 @@ class InstrumentLibrary {
 
             // 24-31 Guitar
             ['Guitar', 'Nylon Guitar', P('guitar', {
-                // SENAR NYLON: Harmonisa lebih sedikit, meluruh dengan lembut
-                harm: [1, .8, .6, .4, .25, .15, .08, .04, .02], 
-                env: { a: .002, d: 1.5, s: 0, r: .5 },          
-                length: 66150,                                  
+                // Soft finger pluck, warm body resonance, and quick upper-partial decay.
+                harm: [1, .8, .6, .4, .25, .15, .08, .04, .02],
+                pluckPosition: .16,
+                pluckTransient: { freq: 1700, q: .8, amp: .035, duration: .024, decay: .011 },
+                inharmonicity: .00004,
+                partialDecay: [3.2, 1.9, 1.15, .78, .52, .36, .25, .18, .13],
+                formants: [
+                    { freq: 105, q: 1.2, gain: 3 },
+                    { freq: 210, q: 1.8, gain: 5 },
+                    { freq: 390, q: 2.1, gain: 4 },
+                    { freq: 850, q: 1.6, gain: 2 },
+                    { freq: 2300, q: 1.3, gain: -2 }
+                ],
+                pitchScoop: { depth: .0012, time: .014 },
+                env: { a: .002, d: 1.5, s: 0, r: .5 },
+                length: 66150,
                 gain: 0.9,
-                attackNoise: { amp: 0.10, duration: 0.015 } // Petikan jari (lembut)
+                attackNoise: { amp: 0.055, duration: .018 }
             })],
             
             ['Guitar', 'Steel Guitar', P('guitar', {
-                // SENAR BAJA: Harmonisa lebih kaya (tajam), decay sedikit lebih cepat
-                harm: [1, .9, .8, .7, .55, .4, .3, .2, .15, .1, .05], 
-                env: { a: .001, d: 1.2, s: 0, r: .4 },          
-                length: 66150,                                  
-                gain: 0.85, // Sedikit dikecilkan karena frekuensi tinggi lebih menusuk telinga
-                attackNoise: { amp: 0.15, duration: 0.008 } // Petikan pick (tajam & cepat)
+                // Brighter pick attack, a different pluck point, and a more metallic string decay.
+                harm: [1, .9, .8, .7, .55, .4, .3, .2, .15, .1, .05],
+                pluckPosition: .105,
+                pluckTransient: { freq: 3400, q: 1.1, amp: .065, duration: .016, decay: .006 },
+                inharmonicity: .00012,
+                partialDecay: [2.8, 1.9, 1.35, 1.0, .74, .55, .4, .3, .23, .17, .12],
+                formants: [
+                    { freq: 115, q: 1.2, gain: 2 },
+                    { freq: 230, q: 1.8, gain: 4 },
+                    { freq: 520, q: 2.2, gain: 4 },
+                    { freq: 1150, q: 1.7, gain: 3 },
+                    { freq: 2900, q: 1.2, gain: 2 },
+                    { freq: 4800, q: 1.0, gain: -1 }
+                ],
+                pitchScoop: { depth: .0022, time: .009 },
+                env: { a: .001, d: 1.2, s: 0, r: .4 },
+                length: 66150,
+                gain: 0.85,
+                attackNoise: { amp: .09, duration: .009 }
             })],
             ['Guitar', 'Jazz Guitar', P('guitar', { harm: [1, .5, .3, .2, .1], loop: 1, cycles: 14, loopSkip: 2 })],
             ['Guitar', 'Clean Guitar', P('guitar', { harm: [1, .6, .4, .25, .15, .08], loop: 1, cycles: 14, loopSkip: 2 })],
@@ -1403,16 +1542,31 @@ class InstrumentLibrary {
             ['Guitar', 'Muted Guitar', P('guitar', { env: { a: .001, d: .2, s: .05, r: .1 } })],
             
             ['Guitar', 'Overdriven Gtr', P('guitar', {
-                harm: [1, .7, .5, .4, .3, .25, .2, .15],
-                env:  { a: .005, d: 1, s: .3, r: .3 },
-                loop: 1, cycles: 16, loopSkip: 2,
-                vibrato: { rate: 5.5, depth: .006, sweep: 15 }
+                harm: [1, .86, .72, .6, .49, .39, .31, .24, .18, .13, .09, .06, .04],
+                guitarAmp: { drive: 2.1, bias: .035, mix: .82, preampCutoff: 95, cabinetCutoff: 5200 },
+                formants: [
+                    { freq: 150, q: .8, gain: 2 },
+                    { freq: 720, q: 1.1, gain: 3 },
+                    { freq: 1700, q: 1.4, gain: 2 },
+                    { freq: 3400, q: 1.1, gain: -2 }
+                ],
+                loop: 1, cycles: 18, loopSkip: 10,
+                loopAttackNoise: { amp: .12, duration: .02 },
+                vibrato: { rate: 5.2, depth: .004, sweep: 12 }
             })],
             ['Guitar', 'Distortion Gtr', P('guitar', {
-                harm: [1, .8, .6, .5, .4, .35, .3, .25, .2, .15],
-                env:  { a: .005, d: 1.2, s: .4, r: .3 },
-                loop: 1, cycles: 16, loopSkip: 2,
-                vibrato: { rate: 5.5, depth: .006, sweep: 15 }
+                harm: [1, .92, .82, .72, .62, .53, .44, .36, .29, .23, .18, .14, .1, .07, .05],
+                guitarAmp: { drive: 3.4, bias: .02, mix: .94, preampCutoff: 115, cabinetCutoff: 4600 },
+                formants: [
+                    { freq: 180, q: .9, gain: 2 },
+                    { freq: 520, q: 1.1, gain: 3 },
+                    { freq: 1350, q: 1.3, gain: 3 },
+                    { freq: 2500, q: 1.4, gain: 2 },
+                    { freq: 3800, q: 1.2, gain: -3 }
+                ],
+                loop: 1, cycles: 20, loopSkip: 10,
+                loopAttackNoise: { amp: .08, duration: .018 },
+                vibrato: { rate: 5.5, depth: .003, sweep: 10 }
             })],
             
             ['Guitar', 'Gtr Harmonics', P('guitar', { harm: [1, 0, 0, 0, .3, 0, 0, 0, .1] })],
@@ -1467,7 +1621,7 @@ class InstrumentLibrary {
 
             // 48-55 Ensemble
             ['Ensemble', 'Strings 1', P('ensemble', {
-                gain: 0.8,
+                gain: 0.6,
                 harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], // Lebih cerah (Biola)
                 formants: [
                     { freq: 280, q: 1.5, gain: 4 },
@@ -1479,7 +1633,7 @@ class InstrumentLibrary {
             })],
 
             ['Ensemble', 'Strings 2', P('ensemble', {
-                gain: 0.8,
+                gain: 0.6,
                 harm: [1, .6, .45, .35, .25, .18, .12, .08], // Lebih gelap (Viola/Cello)
                 formants: [
                     { freq: 220, q: 1.5, gain: 5 },
@@ -1724,11 +1878,11 @@ class InstrumentLibrary {
             [39, 'Hand Clap', D.clap()],
             [40, 'Electric Snare', D.snare({ fStart: 180, noiseDecay: 0.22, highpass: 600 })],
             [41, 'Low Floor Tom', D.tom(75, { duration: 0.65, decay: 0.5 })],
-            [42, 'Closed Hi-Hat', D.hihat({ duration: 0.07, decay: 0.02, highpass: 8000 })],
+            [42, 'Closed Hi-Hat', D.hihat({ type: 'closed' })],
             [43, 'High Floor Tom', D.tom(105, { duration: 0.6 })],
-            [44, 'Pedal Hi-Hat', D.hihat({ duration: 0.1, decay: 0.035, highpass: 5500 })],
+            [44, 'Pedal Hi-Hat', D.hihat({ type: 'pedal' })],
             [45, 'Low Tom', D.tom(140, { duration: 0.55 })],
-            [46, 'Open Hi-Hat', D.hihat({ duration: 0.55, decay: 0.32, highpass: 6000 })],
+            [46, 'Open Hi-Hat', D.hihat({ type: 'open' })],
             [47, 'Low-Mid Tom', D.tom(180)],
             [48, 'Hi-Mid Tom', D.tom(220)],
             [49, 'Crash Cymbal 1', D.cymbal({ duration: 1.5 })],

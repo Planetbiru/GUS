@@ -1974,6 +1974,21 @@ footer {
 
 /* ── GM Map Modal ───────────────────────────── */
 .gm-map-modal { width: min(640px, 94vw); }
+.drum-kit-preview-panel {
+  width: min(680px, 94vw);
+  max-height: 90vh;
+  overflow: auto;
+}
+.drum-kit-preview-status {
+  min-height: 1.4em;
+  margin: 8px 0;
+  color: var(--dim, #94a3b8);
+  font-size: 12px;
+}
+.drum-kit-preview-table-wrapper { max-height: 48vh; }
+.drum-kit-preview-action { width: 90px; text-align: right !important; }
+.drum-kit-preview-table tbody td:last-child { text-align: right; }
+.drum-kit-preview-table .btn { min-width: 76px; }
 .gm-map-section-title {
   margin: 14px 0 8px;
   font-size: 13px;
@@ -2043,4 +2058,3 @@ footer {
   color: #64748b;
 }
 .gm-map-row-available td:nth-child(2) { color: #e2e8f0; }
-

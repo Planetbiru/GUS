@@ -991,7 +991,19 @@ class ApplicationController {
     $("midiUsedPatchesDialog").addEventListener("keydown", e => {
       if (e.key === "Escape") closeMidiUsedPatchesDialog();
     });
-  
+
+    $("btnShowDrumKitPreview").addEventListener("click", openDrumKitPreviewDialog);
+    $("btnCloseDrumKitPreview").addEventListener("click", closeDrumKitPreviewDialog);
+    $("btnCloseDrumKitPreviewX").addEventListener("click", closeDrumKitPreviewDialog);
+    $("drumKitPreviewBank").addEventListener("change", renderDrumKitPreviewNotes);
+    $("drumKitPreviewBody").addEventListener("click", handleDrumKitPreviewClick);
+    $("drumKitPreviewDialog").addEventListener("click", e => {
+      if (e.target === $("drumKitPreviewDialog")) closeDrumKitPreviewDialog();
+    });
+    $("drumKitPreviewDialog").addEventListener("keydown", e => {
+      if (e.key === "Escape") closeDrumKitPreviewDialog();
+    });
+
     // Tambahkan di dalam bind()
     $("btnExportProjectSf2").addEventListener("click", async () => {
       const project = state.projects.find(p => p.id === state.currentProjectId);
@@ -1102,11 +1114,17 @@ class ApplicationController {
       const waveform = document.getElementById("addSampleWaveform").value;
       const isDrum = document.getElementById("addSampleGeneratorType").value === "drum";
       const program = parseInt(document.getElementById("addSampleGeneratorProgram").value, 10);
+      const pitchFromInput = document.getElementById("addSamplePitchFrom").value.trim();
+      const pitchToInput = document.getElementById("addSamplePitchTo").value.trim();
+      const pitchFrom = isDrum ? 0 : (pitchFromInput === "" ? NaN : Number(pitchFromInput));
+      const pitchTo = isDrum ? 127 : (pitchToInput === "" ? NaN : Number(pitchToInput));
       
       try {
         const draft = generateWaveformDraft(waveform, {
           program: isNaN(program) ? null : program,
-          isDrum: isDrum
+          isDrum,
+          pitchFrom,
+          pitchTo
         });
   
         pendingSampleDraft = draft;
