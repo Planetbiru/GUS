@@ -1179,12 +1179,12 @@ class InstrumentLibrary {
             bass:    { harm: [1, .7, .5, .3, .2, .1, .05], env: { a: .005, d: .5, s: .2, r: .3 }, length: 33075, freq: 220 },
             strings: { harm: [1, .5, .33, .25, .2, .16, .14, .12], env: { a: .15, d: .2, s: .9, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .005 }, detune: [0, 8] },
             ensemble:{ 
-                harm: [1, .65, .5, .4, .3, .25, .2, .15, .1], 
-                env: { a: .2, d: .2, s: .95, r: .3 }, 
+                harm: [1, .85, .7, .55, .4, .28, .18, .1, .05, .02], // Spektrum lebih padat dan hangat
+                env: { a: .3, d: .2, s: .95, r: .4 },                // Attack lebih lambat (swell)
                 loop: 1, cycles: 14, 
                 vibrato: { rate: 4.5, depth: .004 },
-                drive: 1.1,
-                phases: [0, 0.1, 0.3, 0.6, 0.2, 0.8, 0.4, 0.9, 0.5] // Phase acak = efek ensemble
+                drive: 1.05,                                         // Sangat sedikit, hanya untuk "lemak" analog
+                phases: [0, 0.1, 0.3, 0.6, 0.2, 0.8, 0.4, 0.9, 0.5]  // Phase tersebar (Ensemble effect)
             },
             brass:   { harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], env: { a: .06, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .003 } },
             reed:    { harm: [1, .72, .58, .4, .28, .18, .1, .05], env: { a: .05, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5.5, depth: .006 } },
@@ -1467,7 +1467,7 @@ class InstrumentLibrary {
 
             // 48-55 Ensemble
             ['Ensemble', 'Strings 1', P('ensemble', {
-                gain: 0.8,
+                gain: 0.6,
                 harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], // Lebih cerah (Biola)
                 formants: [
                     { freq: 280, q: 1.5, gain: 4 },
@@ -1479,7 +1479,7 @@ class InstrumentLibrary {
             })],
 
             ['Ensemble', 'Strings 2', P('ensemble', {
-                gain: 0.8,
+                gain: 0.6,
                 harm: [1, .6, .45, .35, .25, .18, .12, .08], // Lebih gelap (Viola/Cello)
                 formants: [
                     { freq: 220, q: 1.5, gain: 5 },
