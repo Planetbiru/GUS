@@ -25,6 +25,7 @@ class ProjectController {
     else render();
     renderProjects();
     renderBankManager();
+    if(entries.length>0) selectProject(state.currentProjectId);
     return true;
   }
 
