@@ -3,10 +3,10 @@
 // =================================================================
 
 class ProjectPatchGenerator {
-  static MODE_16BIT         = 0x01;   // BARU
+  static MODE_16BIT         = 0x01;
   static MODE_UNSIGNED_PCM  = 0x02;
   static MODE_LOOP          = 0x04;
-  static MODE_ENVELOPE      = 0x40;   // BARU — dipakai untuk loop
+  static MODE_ENVELOPE      = 0x40;
 
   constructor({sampleRate = 22050, duration = 0.25} = {}) {
     this.sampleRate = sampleRate;
@@ -36,18 +36,17 @@ class ProjectPatchGenerator {
     if (isDrum) {
         const drum = this.library.findDrum(id);
         if (!drum) throw new Error(`Unknown drum instrument: ${id}.`);
-        const [note, drumName, drumPreset] = drum;    // ← RENAME, tanpa "preset"
+        const [note, drumName, drumPreset] = drum;
         name = drumName;
-        preset = drumPreset;                           // ← ASSIGN ke outer
+        preset = drumPreset;
         rendered = new DrumRenderer(preset, this.sampleRate).render();
         rootFreq = this.library.drumToFreq(note);
     } else {
         const instrument = this.library.melodic[id];
         if (!instrument) throw new Error(`Unknown melodic instrument: ${id}.`);
-        let [, instrumentName, melodicPreset] = instrument;  // ← RENAME
-        preset = melodicPreset;                              // ← ASSIGN ke outer
+        let [, instrumentName, melodicPreset] = instrument;
+        preset = melodicPreset;
 
-        // ---------- BARU: override bentuk gelombang ----------
         if (waveform != null) {
         let harm;
         if (Array.isArray(waveform)) {
@@ -64,7 +63,7 @@ class ProjectPatchGenerator {
             `Gunakan 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
             );
         }
-        preset = { ...preset, harm };   // ← reassign outer `preset` (OK, `let`)
+        preset = { ...preset, harm };
         instrumentName = `${instrumentName} (${appliedWaveform})`;
         }
         // ---------------------------------------------------
@@ -86,19 +85,11 @@ class ProjectPatchGenerator {
     if (rendered.loop && vibDef && (vibDef.rate > 0)) {
         const rateHz     = Math.max(0, Math.min(25,  vibDef.rate  || 5));
         const depthRatio = Math.max(0, Math.min(0.02, vibDef.depth || 0.005));
-        gusVibratoRate  = Math.round(rateHz     * 255 / 25);   // 5 Hz → 51
-        gusVibratoDepth = Math.round(depthRatio * 500);        // 0.005 → 3  (10% dari sebelumnya)
+        gusVibratoRate  = Math.round(rateHz     * 255 / 25);
+        gusVibratoDepth = Math.round(depthRatio * 500);
         gusVibratoSweep = Math.max(0, Math.min(255, vibDef.sweep || 0));
     }
 
-    // --- sisa kode lama: konversi PCM, perakitan sample/patch, dst. ---
-    //
-    // OUTPUT GAIN PER-PRESET
-    // Preset boleh men-set `gain: 0..1` untuk menyeimbangkan volume
-    // relatif antar program (mis. SynthBrass lebih "tipis" daripada
-    // Brass Section agar tidak mendominasi mix).
-    // Perkalian konstan tidak merusak periodisitas loop karena
-    // loopStart dan loopEnd sama-sama dikalikan faktor yang sama.
     const outputGain = (preset && typeof preset.gain === 'number')
         ? Math.max(0, Math.min(1, preset.gain))
         : 1.0;
@@ -173,7 +164,6 @@ class ProjectPatchGenerator {
         }]
     };
 
-    // BARU: sertakan info waveform di hasil
     return { patch, name, program: id, isDrum, waveform: appliedWaveform };
     }
 
@@ -1439,8 +1429,35 @@ class InstrumentLibrary {
             ['Bass', 'Synth Bass 2',   P('bass', { detune: [-5, 5], harm: [1, .5, .3, .2], loop: 1, cycles: 14, loopSkip: 2, gain: .60 })],
 
             // 40-47 Strings
-            ['Strings', 'Violin', P('strings', { vibrato: { rate: 6, depth: .008, sweep: 15 }, detune: [0] })],
-            ['Strings', 'Viola', P('strings', { vibrato: { rate: 6, depth: .007, sweep: 15 }, harm: [1, .4, .25, .15, .1, .07, .05] })],
+            ['Strings', 'Violin', P('strings', {
+                harm: [1, .85, .7, .55, .4, .3, .22, .15, .1, .06], // Spektrum kaya & tajam
+                noise: 0.03,           // Simulasi gesekan busur (rosin)
+                phases: [0, 0.2, 0.5, 0.8, 0.1, 0.4, 0.7, 0.9, 0.3, 0.6], // Sebaran fase agar tidak kaku
+                vibrato: { rate: 6, depth: .008, sweep: 15 },
+                formants: [
+                    { freq: 300, q: 1.5, gain: 4 },   // Resonansi badan kayu
+                    { freq: 550, q: 2.0, gain: 5 },   // Resonansi utama
+                    { freq: 1400, q: 2.5, gain: 4 },  // Resonansi jembatan
+                    { freq: 3500, q: 3.0, gain: 3 },  // Kecerahan senar
+                    { freq: 5500, q: 3.5, gain: 2 }   // Desis busur
+                ],
+                gain: 0.75 // Sedikit diturunkan karena spektrum lebih padat
+            })],
+
+            ['Strings', 'Viola', P('strings', {
+                harm: [1, .75, .6, .45, .35, .25, .18, .12, .08, .04], // Sedikit lebih gelap dari biola
+                noise: 0.02,           // Gesekan busur (lebih halus)
+                phases: [0, 0.3, 0.6, 0.2, 0.7, 0.1, 0.5, 0.9, 0.4, 0.8],
+                vibrato: { rate: 5.5, depth: .007, sweep: 15 },
+                formants: [
+                    { freq: 250, q: 1.5, gain: 5 },   // Body kayu lebih tebal
+                    { freq: 450, q: 2.0, gain: 6 },   // Resonansi utama hangat
+                    { freq: 1200, q: 2.5, gain: 4 },  // Jembatan
+                    { freq: 3000, q: 3.0, gain: 2.5 },
+                    { freq: 4500, q: 3.5, gain: 1.5 }
+                ],
+                gain: 0.8
+            })],
             ['Strings', 'Cello', P('strings', { vibrato: { rate: 5.5, depth: .006, sweep: 15 }, harm: [1, .5, .3, .2, .14, .1, .07, .05] })],
             ['Strings', 'Contrabass', P('strings', { vibrato: { rate: 5, depth: .005, sweep: 15 }, freq: 220, harm: [1, .6, .4, .3, .2, .15] })],
             ['Strings', 'Tremolo Str', P('strings', { vibrato: { rate: 12, depth: .02, sweep: 15 } })],
