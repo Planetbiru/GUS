@@ -475,6 +475,10 @@ class GusPatchEncoder {
 // 1.3  MelodicRenderer — render preset melodis → PCM
 // ----------------------------------------------------------------
 class MelodicRenderer {
+    static DEFAULT_LOOP_CYCLES = 4;   // sebelumnya: 12–16
+    static DEFAULT_LOOP_SKIP   = 2;   // sebelumnya: 3
+    static DEFAULT_TAIL_CYCLES = 3;   // sebelumnya: 4
+
     constructor(preset, override = {}) {
         this.p = preset;
         this.o = override;
@@ -492,12 +496,12 @@ class MelodicRenderer {
             const targetFreq = o.freq || p.freq || 441;
             cs = p.cycleSamples || Math.max(2, Math.round(SR / targetFreq));
             naturalFreq = SR / cs;
-            const cycles = p.cycles || 12;
-            const tailCycles = p.tailCycles || 4;
-            loopStart = (p.loopSkip || 3) * cs;
-            loopEnd = cs * cycles;
-            length = loopEnd + cs * tailCycles;
-            baseFreq = naturalFreq;
+            const cycles     = p.cycles     || MelodicRenderer.DEFAULT_LOOP_CYCLES;
+            const tailCycles = p.tailCycles || MelodicRenderer.DEFAULT_TAIL_CYCLES;
+            loopStart = (p.loopSkip || MelodicRenderer.DEFAULT_LOOP_SKIP) * cs;
+            loopEnd   = cs * cycles;
+            length    = loopEnd + cs * tailCycles;
+            baseFreq  = naturalFreq;
         } else {
             length = p.length
                 ? Math.round(p.length * SR / 22050)
@@ -1173,16 +1177,16 @@ class InstrumentLibrary {
             piano:   { harm: [1, .55, .35, .22, .14, .09, .05, .03], env: { a: .003, d: .9, s: .15, r: .4 }, length: 66150, freq: 441 },
             epiano:  { harm: [1, .2, .08, .03], fm: { ratio: 3, index: 1.8 }, env: { a: .005, d: 1.2, s: .1, r: .5 }, length: 55125, freq: 441 },
             bell:    { harm: [1, .5, .25, .12, .06], env: { a: .001, d: 1.5, s: 0, r: .6 }, length: 55125, freq: 441 },
-            organ:   { harm: [1, 0, .5, 0, .3, 0, .2, 0, .1], env: { a: .02, d: .1, s: 1, r: .1 }, loop: 1, cycles: 12 },
+            organ:   { harm: [1, 0, .5, 0, .3, 0, .2, 0, .1], env: { a: .02, d: .1, s: 1, r: .1 }, loop: 1, cycles: 4  },
             guitar:  { harm: [1, .7, .5, .35, .2, .12, .08, .05, .03], env: { a: .002, d: .8, s: .1, r: .3 }, length: 44100, freq: 441 },
             bass:    { harm: [1, .7, .5, .3, .2, .1, .05], env: { a: .005, d: .5, s: .2, r: .3 }, length: 33075, freq: 220 },
-            strings: { harm: [1, .5, .33, .25, .2, .16, .14, .12], env: { a: .15, d: .2, s: .9, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .005 }, detune: [0, 8] },
-            ensemble:{ harm: [1, .5, .33, .25, .2, .16, .14], env: { a: .2, d: .2, s: .95, r: .3 }, loop: 1, cycles: 14, vibrato: { rate: 4.5, depth: .004 }, detune: [-12, 0, 12] },
-            brass:   { harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], env: { a: .06, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .003 } },
-            reed:    { harm: [1, .3, .7, .2, .4, .15, .2, .1], env: { a: .05, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5.5, depth: .006 } },
-            pipe:    { harm: [1, .15, .4, .05, .15, .03, .08], env: { a: .08, d: .1, s: .9, r: .2 }, loop: 1, cycles: 14, vibrato: { rate: 5, depth: .008 }, noise: .05 },
-            lead:    { harm: [1, .5, .33, .25, .2, .16, .14, .12, .1], env: { a: .01, d: .2, s: .85, r: .15 }, loop: 1, cycles: 12 },
-            pad:     { harm: [1, .4, .2, .1, .05], env: { a: .3, d: .3, s: .95, r: .5 }, loop: 1, cycles: 16, detune: [-15, 0, 15], vibrato: { rate: 2, depth: .003 } },
+            strings: { harm: [1, .5, .33, .25, .2, .16, .14, .12], env: { a: .15, d: .2, s: .9, r: .3 }, loop: 1, cycles: 4, vibrato: { rate: 5, depth: .005 }, detune: [0, 8] },
+            ensemble:{ harm: [1, .5, .33, .25, .2, .16, .14], env: { a: .2, d: .2, s: .95, r: .3 }, loop: 1, cycles: 4, vibrato: { rate: 4.5, depth: .004 }, detune: [-12, 0, 12] },
+            brass:   { harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], env: { a: .06, d: .1, s: .9, r: .2 }, loop: 1, cycles: 4, vibrato: { rate: 5, depth: .003 } },
+            reed:    { harm: [1, .3, .7, .2, .4, .15, .2, .1], env: { a: .05, d: .1, s: .9, r: .2 }, loop: 1, cycles: 4, vibrato: { rate: 5.5, depth: .006 } },
+            pipe:    { harm: [1, .15, .4, .05, .15, .03, .08], env: { a: .08, d: .1, s: .9, r: .2 }, loop: 1, cycles: 4, vibrato: { rate: 5, depth: .008 }, noise: .05 },
+            lead:    { harm: [1, .5, .33, .25, .2, .16, .14, .12, .1], env: { a: .01, d: .2, s: .85, r: .15 }, loop: 1, cycles: 4 },
+            pad:     { harm: [1, .4, .2, .1, .05], env: { a: .3, d: .3, s: .95, r: .5 }, loop: 1, cycles: 4, detune: [-15, 0, 15], vibrato: { rate: 2, depth: .003 } },
             fx:      { harm: [1, .5, .33, .25, .2], fm: { ratio: 1.5, index: 3 }, env: { a: .05, d: .5, s: .5, r: .4 }, length: 44100, noise: .2 },
             ethnic:  { harm: [1, .6, .4, .25, .15, .1, .05], env: { a: .005, d: .7, s: .2, r: .35 }, length: 44100, freq: 441, vibrato: { rate: 5, depth: .01 } },
             perc:    { harm: [1, .4, .2, .1], env: { a: .001, d: .3, s: 0, r: .15 }, length: 22050, freq: 441, noise: .3 },
