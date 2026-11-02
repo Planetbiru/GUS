@@ -4,6 +4,7 @@ class MidiController {
   static patchPreviewActiveNote = null;
   static patchPreviewAnalyser = null;
   static patchPreviewAnalyserSource = null;
+  static patchPreviewAnalyserSink = null;
   static patchPreviewWaveformFrame = null;
 
   static generateProjectTimidityCfg(project, bankFilter = null) {
@@ -2241,9 +2242,14 @@ class MidiController {
         MidiController.stopPatchPreviewWaveform();
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 1024;
+        const silentSink = audioContext.createGain();
+        silentSink.gain.value = 0;
         source.connect(analyser);
+        analyser.connect(silentSink);
+        silentSink.connect(audioContext.destination);
         MidiController.patchPreviewAnalyser = analyser;
         MidiController.patchPreviewAnalyserSource = source;
+        MidiController.patchPreviewAnalyserSink = silentSink;
       }
 
       const analyser = MidiController.patchPreviewAnalyser;
@@ -2263,7 +2269,7 @@ class MidiController {
         context.strokeStyle = "#38bdf8";
         context.lineWidth = 1.5;
         const centerY = height / 2;
-        const gain = 3.6; // sesuaikan
+        const gain = 2; // sesuaikan
 
         for (let i = 0; i < samples.length; i++) {
             const x = i * width / (samples.length - 1);
@@ -2300,6 +2306,10 @@ class MidiController {
         MidiController.patchPreviewAnalyserSource.disconnect(
           MidiController.patchPreviewAnalyser
         );
+        MidiController.patchPreviewAnalyser.disconnect(
+          MidiController.patchPreviewAnalyserSink
+        );
+        MidiController.patchPreviewAnalyserSink.disconnect();
       } catch (error) {
         console.error("[Patch Preview] Failed to disconnect waveform analyser:", error);
       }
