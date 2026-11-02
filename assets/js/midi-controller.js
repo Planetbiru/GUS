@@ -1887,11 +1887,19 @@ class MidiController {
         ...melodic.map(instrument=>({instrument, isDrum:false, bank:melodicBank})),
         ...drums.map(instrument=>({instrument, isDrum:true, bank:128}))
       ];
+      const melodicPitchRanges=[
+        {pitchFrom:0,pitchTo:47},
+        {pitchFrom:48,pitchTo:59},
+        {pitchFrom:60,pitchTo:71},
+        {pitchFrom:72,pitchTo:83},
+        {pitchFrom:84,pitchTo:95},
+        {pitchFrom:96,pitchTo:127}
+      ];
       const hasCompleteMelodicPitchCoverage=entry=>{
         const samples=entry.patch.instruments.flatMap(inst=>
           inst.layers.flatMap(layer=>layer.samples)
         );
-        if(samples.length!==7)return false;
+        if(samples.length!==melodicPitchRanges.length)return false;
         const ranges=samples.map(sample=>({
           from:sample._generatorInfo?.pitchFrom
             ?? ProjectPatchGenerator.frequencyToMidiPitch(sample.lowFreq),
@@ -1926,12 +1934,6 @@ class MidiController {
   
       const entries=[];
       let completed=tasks.length-missingTasks.length;
-
-      const melodicSampleCount = 7;
-      const melodicPitchRanges=Array.from({length:melodicSampleCount},(_,index)=>({
-        pitchFrom:Math.floor(index*128/melodicSampleCount),
-        pitchTo:Math.floor((index+1)*128/melodicSampleCount)-1
-      }));
 
       // Default waveform for each instrument: ('sine', 'triangle', 'square' or 'saw')
       const defaultWaveform = {
