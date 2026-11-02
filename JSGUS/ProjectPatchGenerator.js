@@ -1429,13 +1429,13 @@ class InstrumentLibrary {
     _strings(o = {}) {
         return {
             vibratoOnset: 0.20,
-            drive: 1.15, // Menggantikan attackNoise (karena loop tidak bisa pakai attackNoise)
+            drive: 1.15,
             formants: [
-                { freq: 250, q: 1.5, gain: 4 },   // Resonansi badan kayu
-                { freq: 450, q: 2.0, gain: 5 },   // Resonansi utama
-                { freq: 1100, q: 2.5, gain: 4 },  // Resonansi jembatan
-                { freq: 2800, q: 3.0, gain: 3 },  // Kecerahan senar
-                { freq: 4500, q: 3.5, gain: 1.5 } // Gesekan busur (rosin)
+                { freq: 250, q: 1.5, gain: 4 },
+                { freq: 450, q: 2.0, gain: 5 },
+                { freq: 1100, q: 2.5, gain: 4 },
+                { freq: 2800, q: 3.0, gain: 3 },
+                { freq: 4500, q: 3.5, gain: 1.5 }
             ],
             ...o
         };
@@ -1629,64 +1629,122 @@ class InstrumentLibrary {
 
             // 40-47 Strings
             ['Strings', 'Violin', P('strings', {
-                harm: [1, .85, .7, .55, .4, .3, .22, .15, .1, .06], // Spektrum kaya & tajam
-                noise: 0.03,           // Simulasi gesekan busur (rosin)
-                phases: [0, 0.2, 0.5, 0.8, 0.1, 0.4, 0.7, 0.9, 0.3, 0.6], // Sebaran fase agar tidak kaku
-                vibrato: { rate: 6, depth: .008, sweep: 15 },
+                harm: [1, .62, .38, .22, .12, .07, .04, .022, .012, .006],
+                noise: 0.008,
+                phases: [0, .08, .2, .36, .55, .76, .98, .22, .48, .75],
+                drive: 0,
+                loopSkip: 8,
+                cycles: 22,
+                vibrato: { rate: 5.2, depth: .0055, sweep: 22 },
                 formants: [
-                    { freq: 300, q: 1.5, gain: 4 },   // Resonansi badan kayu
-                    { freq: 550, q: 2.0, gain: 5 },   // Resonansi utama
-                    { freq: 1400, q: 2.5, gain: 4 },  // Resonansi jembatan
-                    { freq: 3500, q: 3.0, gain: 3 },  // Kecerahan senar
-                    { freq: 5500, q: 3.5, gain: 2 }   // Desis busur
+                    { freq: 300, q: 1.2, gain: 1.5 },
+                    { freq: 550, q: 1.6, gain: 1.5 },
+                    { freq: 1400, q: 2, gain: 1 },
+                    { freq: 3500, q: 2.2, gain: -1 },
+                    { freq: 5500, q: 2.5, gain: -3 }
                 ],
-                gain: 0.75 // Sedikit diturunkan karena spektrum lebih padat
+                gain: 0.55
             })],
 
             ['Strings', 'Viola', P('strings', {
-                harm: [1, .75, .6, .45, .35, .25, .18, .12, .08, .04], // Sedikit lebih gelap dari biola
-                noise: 0.02,           // Gesekan busur (lebih halus)
+                harm: [1, .58, .34, .2, .12, .07, .04, .022, .012],
+                noise: 0.006,
                 phases: [0, 0.3, 0.6, 0.2, 0.7, 0.1, 0.5, 0.9, 0.4, 0.8],
-                vibrato: { rate: 5.5, depth: .007, sweep: 15 },
+                drive: 0,
+                loopSkip: 8,
+                cycles: 22,
+                vibrato: { rate: 4.8, depth: .0045, sweep: 24 },
                 formants: [
-                    { freq: 250, q: 1.5, gain: 5 },   // Body kayu lebih tebal
-                    { freq: 450, q: 2.0, gain: 6 },   // Resonansi utama hangat
-                    { freq: 1200, q: 2.5, gain: 4 },  // Jembatan
-                    { freq: 3000, q: 3.0, gain: 2.5 },
-                    { freq: 4500, q: 3.5, gain: 1.5 }
+                    { freq: 250, q: 1.2, gain: 1.5 },
+                    { freq: 450, q: 1.5, gain: 1.5 },
+                    { freq: 1200, q: 1.8, gain: 1 },
+                    { freq: 3000, q: 2.2, gain: -1 },
+                    { freq: 4500, q: 2.5, gain: -2.5 }
                 ],
-                gain: 0.8
+                gain: 0.58
             })],
-            ['Strings', 'Cello', P('strings', { vibrato: { rate: 5.5, depth: .006, sweep: 15 }, harm: [1, .5, .3, .2, .14, .1, .07, .05] })],
-            ['Strings', 'Contrabass', P('strings', { vibrato: { rate: 5, depth: .005, sweep: 15 }, freq: 220, harm: [1, .6, .4, .3, .2, .15] })],
-            ['Strings', 'Tremolo Str', P('strings', { vibrato: { rate: 12, depth: .02, sweep: 15 } })],
+            ['Strings', 'Cello', P('strings', {
+                vibrato: { rate: 4.6, depth: .004, sweep: 26 },
+                harm: [1, .58, .34, .2, .12, .07, .04, .022],
+                drive: 0,
+                loopSkip: 8,
+                cycles: 22,
+                formants: [
+                    { freq: 180, q: 1.1, gain: 1.5 },
+                    { freq: 320, q: 1.4, gain: 2 },
+                    { freq: 750, q: 1.8, gain: 1 },
+                    { freq: 1900, q: 2.2, gain: -1 },
+                    { freq: 3600, q: 2.5, gain: -2.5 }
+                ],
+                noise: 0.005,
+                gain: 0.62
+            })],
+            ['Strings', 'Contrabass', P('strings', {
+                vibrato: { rate: 4.2, depth: .003, sweep: 28 },
+                freq: 220,
+                harm: [1, .52, .3, .18, .1, .055, .03],
+                drive: 0,
+                loopSkip: 8,
+                cycles: 22,
+                formants: [
+                    { freq: 100, q: 1, gain: 1.5 },
+                    { freq: 220, q: 1.3, gain: 2 },
+                    { freq: 500, q: 1.7, gain: 1 },
+                    { freq: 1300, q: 2, gain: -1 },
+                    { freq: 2600, q: 2.4, gain: -2.5 }
+                ],
+                noise: 0.004,
+                gain: 0.58
+            })],
+            ['Strings', 'Tremolo Str', P('strings', {
+                harm: [1, .58, .36, .22, .13, .075, .04, .02],
+                noise: 0.006,
+                drive: 0,
+                loopSkip: 8,
+                cycles: 22,
+                vibrato: { rate: 8, depth: .008, sweep: 18 },
+                formants: [
+                    { freq: 300, q: 1.2, gain: 1.5 },
+                    { freq: 550, q: 1.5, gain: 1.5 },
+                    { freq: 1300, q: 1.8, gain: .5 },
+                    { freq: 3200, q: 2.2, gain: -1.5 },
+                    { freq: 5000, q: 2.5, gain: -3 }
+                ],
+                gain: 0.55
+            })],
             ['Strings', 'Pizzicato', P('guitar', { env: { a: .001, d: .3, s: 0, r: .1 }, length: 4410, detune: [-8, 8] })],
             ['Strings', 'Harp', P('guitar', { env: { a: .002, d: 1.5, s: .05, r: .6 } })],
             ['Strings', 'Timpani', P('perc', { harm: [1, .7, .4, .2], env: { a: .002, d: .7, s: 0, r: .3 }, length: 6615, noise: .1 })],
 
             // 48-55 Ensemble
             ['Ensemble', 'Strings 1', P('ensemble', {
-                gain: 0.6,
-                harm: [1, .7, .5, .4, .3, .22, .18, .14, .1], // Lebih cerah (Biola)
+                gain: 0.52,
+                harm: [1, .62, .42, .29, .19, .12, .075, .045, .025],
+                loopSkip: 8,
+                cycles: 22,
                 formants: [
-                    { freq: 280, q: 1.5, gain: 4 },
-                    { freq: 500, q: 2.0, gain: 5 },
-                    { freq: 1200, q: 2.5, gain: 4 },
-                    { freq: 3000, q: 3.0, gain: 3 },
-                    { freq: 5000, q: 3.5, gain: 2 }
-                ]
+                    { freq: 280, q: 1.2, gain: 1.5 },
+                    { freq: 500, q: 1.5, gain: 1.5 },
+                    { freq: 1200, q: 1.8, gain: 1 },
+                    { freq: 3000, q: 2.2, gain: -1 },
+                    { freq: 5000, q: 2.5, gain: -2 }
+                ],
+                drive: 0
             })],
 
             ['Ensemble', 'Strings 2', P('ensemble', {
-                gain: 0.6,
-                harm: [1, .6, .45, .35, .25, .18, .12, .08], // Lebih gelap (Viola/Cello)
+                gain: 0.52,
+                harm: [1, .55, .34, .2, .12, .07, .04, .02],
+                loopSkip: 8,
+                cycles: 22,
                 formants: [
-                    { freq: 220, q: 1.5, gain: 5 },
-                    { freq: 400, q: 2.0, gain: 6 },
-                    { freq: 900, q: 2.5, gain: 4 },
-                    { freq: 2500, q: 3.0, gain: 2 },
-                    { freq: 4000, q: 3.5, gain: 1 }
-                ]
+                    { freq: 220, q: 1.2, gain: 1.5 },
+                    { freq: 400, q: 1.5, gain: 2 },
+                    { freq: 900, q: 1.8, gain: 1 },
+                    { freq: 2500, q: 2.2, gain: -1 },
+                    { freq: 4000, q: 2.5, gain: -2 }
+                ],
+                drive: 0
             })],
             ['Ensemble', 'SynthStrings 1', P('pad', {
                 harm: [1, .62, .42, .28, .18, .11, .065, .035, .018],
