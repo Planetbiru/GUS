@@ -297,6 +297,10 @@ function openDrumKitPreviewDialog(...args) { return MidiController.openDrumKitPr
 function closeDrumKitPreviewDialog(...args) { return MidiController.closeDrumKitPreviewDialog.apply(this, args); }
 function renderDrumKitPreviewNotes(...args) { return MidiController.renderDrumKitPreviewNotes.apply(this, args); }
 function handleDrumKitPreviewClick(...args) { return MidiController.handleDrumKitPreviewClick.apply(this, args); }
+function openPatchPreviewDialog(...args) { return MidiController.openPatchPreviewDialog.apply(this, args); }
+function closePatchPreviewDialog(...args) { return MidiController.closePatchPreviewDialog.apply(this, args); }
+function handlePatchPreviewPadClick(...args) { return MidiController.handlePatchPreviewPadClick.apply(this, args); }
+function togglePatchPreviewAutoPlay(...args) { return MidiController.togglePatchPreviewAutoPlay.apply(this, args); }
 function getUsedMidiPrograms(...args) { return MidiController.getUsedMidiPrograms.apply(this, args); }
 function getNiceTickStep(...args) { return MidiController.getNiceTickStep.apply(this, args); }
 function parseMidiTimeline(...args) { return MidiController.parseMidiTimeline.apply(this, args); }

@@ -1004,6 +1004,18 @@ class ApplicationController {
       if (e.key === "Escape") closeDrumKitPreviewDialog();
     });
 
+    $("btnPreviewPatch").addEventListener("click", openPatchPreviewDialog);
+    $("btnClosePatchPreview").addEventListener("click", closePatchPreviewDialog);
+    $("btnClosePatchPreviewX").addEventListener("click", closePatchPreviewDialog);
+    $("btnAutoPlayPatchPreview").addEventListener("click", togglePatchPreviewAutoPlay);
+    $("patchPreviewPads").addEventListener("click", handlePatchPreviewPadClick);
+    $("patchPreviewDialog").addEventListener("click", event => {
+      if (event.target === $("patchPreviewDialog")) closePatchPreviewDialog();
+    });
+    $("patchPreviewDialog").addEventListener("keydown", event => {
+      if (event.key === "Escape") closePatchPreviewDialog();
+    });
+
     // Tambahkan di dalam bind()
     $("btnExportProjectSf2").addEventListener("click", async () => {
       const project = state.projects.find(p => p.id === state.currentProjectId);

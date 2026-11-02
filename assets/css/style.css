@@ -1989,6 +1989,52 @@ footer {
 .drum-kit-preview-action { width: 90px; text-align: right !important; }
 .drum-kit-preview-table tbody td:last-child { text-align: right; }
 .drum-kit-preview-table .btn { min-width: 76px; }
+.instrument-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+.patch-preview-panel {
+  width: min(900px, 94vw);
+  max-height: 90vh;
+  overflow: auto;
+}
+.patch-preview-status {
+  min-height: 1.4em;
+  margin: 8px 0;
+  color: var(--dim, #94a3b8);
+  font-size: 12px;
+}
+.patch-preview-pad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 7px;
+  max-height: 55vh;
+  overflow: auto;
+  padding: 2px;
+}
+.patch-preview-pad {
+  min-height: 42px;
+  padding: 5px 3px;
+  font-size: 12px;
+}
+.patch-preview-pad.drum {
+  min-height: 62px;
+  font-size: 10px;
+  line-height: 1.25;
+}
+.patch-preview-waveform {
+  display: block;
+  width: min(240px, 30vw);
+  height: 36px;
+  flex: 0 1 240px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0a1222;
+}
+.patch-preview-panel #btnAutoPlayPatchPreview {
+  height: 36px;
+}
 .gm-map-section-title {
   margin: 14px 0 8px;
   font-size: 13px;
@@ -2058,3 +2104,8 @@ footer {
   color: #64748b;
 }
 .gm-map-row-available td:nth-child(2) { color: #e2e8f0; }
+
+
+#btnAutoPlayPatchPreview{
+    width: 140px;
+}

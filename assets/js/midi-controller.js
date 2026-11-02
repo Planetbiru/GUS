@@ -1,4 +1,11 @@
 class MidiController {
+  static patchPreviewSession = null;
+  static patchPreviewRunId = 0;
+  static patchPreviewActiveNote = null;
+  static patchPreviewAnalyser = null;
+  static patchPreviewAnalyserSource = null;
+  static patchPreviewWaveformFrame = null;
+
   static generateProjectTimidityCfg(project, bankFilter = null) {
     const allPatches = getProjectPatches(project);
   
@@ -2046,6 +2053,326 @@ class MidiController {
       showStatus(t("midijs_failed", { message: err.message }), "bad");
       showAlert("midijs_alert", { message: err.message });
     }
+  }
+
+  static openPatchPreviewDialog() {
+    MidiController.closePatchPreviewDialog();
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const patch = state.patches.find(entry => entry.id === state.currentPatchId);
+    const dialog = $("patchPreviewDialog");
+    const pads = $("patchPreviewPads");
+    const status = $("patchPreviewStatus");
+    pads.replaceChildren();
+    $("btnAutoPlayPatchPreview").disabled = true;
+
+    if (!project || !patch || !(project.patchIds || []).includes(patch.id)) {
+      status.textContent = t("patch_preview_no_project");
+      dialog.hidden = false;
+      return;
+    }
+
+    const isDrum = Number(patch.gmBank ?? 0) === 128;
+    const program = patch.gmProgram == null || patch.gmProgram === ""
+      ? NaN
+      : Number(patch.gmProgram);
+    const bank = patch.targetBank == null || patch.targetBank === ""
+      ? 0
+      : Number(patch.targetBank);
+    if (!Number.isInteger(program) || program < 0 || program > 127 ||
+        !Number.isInteger(bank) || bank < 0 || bank > 127) {
+      status.textContent = t("patch_preview_invalid_program");
+      dialog.hidden = false;
+      return;
+    }
+
+    let pitches;
+    if (isDrum) {
+      const drumPatches = getProjectPatches(project)
+        .filter(entry => Number(entry.gmBank ?? 0) === 128
+          && Number(entry.targetBank ?? 0) === bank
+          && entry.gmProgram != null
+          && entry.gmProgram !== ""
+          && Number.isInteger(Number(entry.gmProgram))
+          && Number(entry.gmProgram) >= 0
+          && Number(entry.gmProgram) <= 127);
+      pitches = [...new Set(drumPatches.map(entry => Number(entry.gmProgram)))]
+        .sort((a, b) => a - b);
+      if (!pitches.length) {
+        status.textContent = t("patch_preview_no_drum_pads");
+        dialog.hidden = false;
+        return;
+      }
+    } else {
+      pitches = Array.from({length: 128}, (_, pitch) => pitch);
+    }
+
+    MidiController.patchPreviewSession = {
+      projectId: project.id,
+      patchId: patch.id,
+      isDrum,
+      bank,
+      program,
+      pitches,
+      autoPlaying: false
+    };
+    $("patchPreviewTitle").textContent = patch.name || t("patch_preview_title");
+    $("patchPreviewDescription").textContent = isDrum
+      ? `${patch.name || t("patch_preview_title")} · ${t("drum_kit_preview_bank", {bank})}`
+      : `${patch.name || t("patch_preview_title")} · ${t("patch_preview_description")}`;
+    status.textContent = t("patch_preview_ready");
+
+    const melodicNoteNames = ["C", "C#", "D", "D#", "E", "F",
+      "F#", "G", "G#", "A", "A#", "B"];
+    for (const pitch of pitches) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `btn patch-preview-pad${isDrum ? " drum" : ""}`;
+      button.dataset.pitch = String(pitch);
+      const noteName = `${melodicNoteNames[pitch % 12]}${Math.floor(pitch / 12) - 1}`;
+      button.textContent = isDrum
+        ? `${pitch}\n${GM_DRUM_NAMES[pitch] || `MIDI ${pitch}`}`
+        : noteName;
+      button.setAttribute("aria-label", isDrum
+        ? `${GM_DRUM_NAMES[pitch] || `MIDI ${pitch}`} (${pitch})`
+        : `${noteName} (MIDI ${pitch})`);
+      pads.appendChild(button);
+    }
+    $("btnAutoPlayPatchPreview").disabled = false;
+    $("btnAutoPlayPatchPreview").innerHTML =
+      `<svg class="icon"><use href="#i-play"></use></svg> ${t("auto_play")}`;
+    dialog.hidden = false;
+  }
+
+  static async handlePatchPreviewPadClick(event) {
+    const button = event.target.closest("button[data-pitch]");
+    if (!button || !event.currentTarget.contains(button)) return;
+    const session = MidiController.patchPreviewSession;
+    if (!session) return;
+    if (session.autoPlaying) MidiController.stopPatchPreviewAutoPlay();
+    await MidiController.playPatchPreviewNote(Number(button.dataset.pitch), session, button);
+  }
+
+  static async playPatchPreviewNote(pitch, session, button = null, autoPlay = false, runId = 0) {
+    if (!session || !Number.isInteger(pitch) || pitch < 0 || pitch > 127) return false;
+    MidiController.releasePatchPreviewNote();
+    const status = $("patchPreviewStatus");
+    if (button) button.disabled = true;
+    status.textContent = t("patch_preview_loading");
+    try {
+      await ensureTimidityPlayer();
+      if (MidiController.patchPreviewSession !== session ||
+          state.currentProjectId !== session.projectId ||
+          $("patchPreviewDialog").hidden ||
+          (autoPlay && runId !== MidiController.patchPreviewRunId)) return false;
+
+      const player = timidityPlayer;
+      if (!player) throw new Error("TiMidity player is unavailable.");
+      const channel = session.isDrum ? 9 : 0;
+      const program = session.isDrum ? 0 : session.program;
+      await player.noteOn(channel, program, pitch, 100, {bank: session.bank, pan: 64});
+      if (MidiController.patchPreviewSession !== session ||
+          state.currentProjectId !== session.projectId ||
+          $("patchPreviewDialog").hidden ||
+          (autoPlay && runId !== MidiController.patchPreviewRunId)) {
+        player.noteOff(channel, pitch);
+        return false;
+      }
+
+      MidiController.startPatchPreviewWaveform(player);
+      const activeNote = {player, channel, pitch, timer: null};
+      MidiController.patchPreviewActiveNote = activeNote;
+      status.textContent = t("patch_preview_playing", {note: pitch});
+      const duration = autoPlay ? (session.isDrum ? 150 : 190) : 650;
+      if (autoPlay) {
+        await new Promise(resolve => {
+          activeNote.resolve = resolve;
+          activeNote.timer = setTimeout(() => {
+            MidiController.releasePatchPreviewNote(activeNote);
+          }, duration);
+        });
+      } else {
+        activeNote.timer = setTimeout(
+          () => MidiController.releasePatchPreviewNote(activeNote),
+          duration
+        );
+      }
+      return true;
+    } catch (error) {
+      console.error("[Patch Preview] Failed to play MIDI note:", error);
+      status.textContent = t("patch_preview_failed", {
+        message: error.message || String(error)
+      });
+      return false;
+    } finally {
+      if (button && button.isConnected) button.disabled = false;
+    }
+  }
+
+  static releasePatchPreviewNote(note = MidiController.patchPreviewActiveNote) {
+    if (!note) return;
+    if (note.timer) clearTimeout(note.timer);
+    if (note.resolve) {
+      const resolve = note.resolve;
+      note.resolve = null;
+      resolve();
+    }
+    try {
+      note.player.noteOff(note.channel, note.pitch);
+    } catch (error) {
+      console.error("[Patch Preview] Failed to stop MIDI note:", error);
+    }
+    if (MidiController.patchPreviewActiveNote === note) {
+      MidiController.patchPreviewActiveNote = null;
+    }
+  }
+
+  static startPatchPreviewWaveform(player) {
+    const canvas = $("patchPreviewWaveform");
+    const context = canvas && canvas.getContext("2d");
+    const audioContext = player.audioContext;
+    const source = player.gainNode;
+    if (!canvas || !context || !audioContext || !source) {
+      console.error("[Patch Preview] Player audio output is unavailable for waveform display.");
+      return;
+    }
+
+    try {
+      if (MidiController.patchPreviewAnalyserSource !== source) {
+        MidiController.stopPatchPreviewWaveform();
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        source.connect(analyser);
+        MidiController.patchPreviewAnalyser = analyser;
+        MidiController.patchPreviewAnalyserSource = source;
+      }
+
+      const analyser = MidiController.patchPreviewAnalyser;
+      const samples = new Uint8Array(analyser.fftSize);
+      const draw = () => {
+        if ($("patchPreviewDialog").hidden ||
+            MidiController.patchPreviewAnalyser !== analyser) {
+          MidiController.stopPatchPreviewWaveform();
+          return;
+        }
+
+        const width = canvas.width;
+        const height = canvas.height;
+        analyser.getByteTimeDomainData(samples);
+        context.clearRect(0, 0, width, height);
+        context.beginPath();
+        context.strokeStyle = "#38bdf8";
+        context.lineWidth = 1.5;
+        const centerY = height / 2;
+        const gain = 3.6; // sesuaikan
+
+        for (let i = 0; i < samples.length; i++) {
+            const x = i * width / (samples.length - 1);
+
+            const normalized = (samples[i] - 128) / 128;
+            const y = centerY + normalized * centerY * gain;
+
+            if (i === 0) {
+                context.moveTo(x, y);
+            } else {
+                context.lineTo(x, y);
+            }
+        }
+        context.stroke();
+        MidiController.patchPreviewWaveformFrame = requestAnimationFrame(draw);
+      };
+
+      if (MidiController.patchPreviewWaveformFrame === null) {
+        MidiController.patchPreviewWaveformFrame = requestAnimationFrame(draw);
+      }
+    } catch (error) {
+      console.error("[Patch Preview] Failed to visualize player audio:", error);
+      MidiController.stopPatchPreviewWaveform();
+    }
+  }
+
+  static stopPatchPreviewWaveform() {
+    if (MidiController.patchPreviewWaveformFrame !== null) {
+      cancelAnimationFrame(MidiController.patchPreviewWaveformFrame);
+      MidiController.patchPreviewWaveformFrame = null;
+    }
+    if (MidiController.patchPreviewAnalyserSource && MidiController.patchPreviewAnalyser) {
+      try {
+        MidiController.patchPreviewAnalyserSource.disconnect(
+          MidiController.patchPreviewAnalyser
+        );
+      } catch (error) {
+        console.error("[Patch Preview] Failed to disconnect waveform analyser:", error);
+      }
+    }
+    MidiController.patchPreviewAnalyser = null;
+    MidiController.patchPreviewAnalyserSource = null;
+    const canvas = $("patchPreviewWaveform");
+    const context = canvas && canvas.getContext("2d");
+    if (canvas && context) context.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  static async togglePatchPreviewAutoPlay() {
+    const session = MidiController.patchPreviewSession;
+    if (!session) return;
+    if (session.autoPlaying) {
+      MidiController.stopPatchPreviewAutoPlay();
+      return;
+    }
+
+    session.autoPlaying = true;
+    const runId = ++MidiController.patchPreviewRunId;
+    const autoPlayButton = $("btnAutoPlayPatchPreview");
+    autoPlayButton.innerHTML =
+      `<svg class="icon"><use href="#i-stop"></use></svg> ${t("stop_auto_play")}`;
+    try {
+      for (const pitch of session.pitches) {
+        if (MidiController.patchPreviewSession !== session ||
+            !session.autoPlaying ||
+            runId !== MidiController.patchPreviewRunId) break;
+        const button = [...$("patchPreviewPads").querySelectorAll("button[data-pitch]")]
+          .find(candidate => Number(candidate.dataset.pitch) === pitch);
+        const played = await MidiController.playPatchPreviewNote(
+          pitch,
+          session,
+          button,
+          true,
+          runId
+        );
+        if (!played) break;
+      }
+    } finally {
+      if (MidiController.patchPreviewSession === session &&
+          runId === MidiController.patchPreviewRunId) {
+        session.autoPlaying = false;
+        autoPlayButton.innerHTML =
+          `<svg class="icon"><use href="#i-play"></use></svg> ${t("auto_play")}`;
+        if (!$("patchPreviewDialog").hidden) {
+          $("patchPreviewStatus").textContent = t("patch_preview_ready");
+        }
+      }
+    }
+  }
+
+  static stopPatchPreviewAutoPlay() {
+    const session = MidiController.patchPreviewSession;
+    if (session) session.autoPlaying = false;
+    MidiController.patchPreviewRunId++;
+    MidiController.releasePatchPreviewNote();
+    const button = $("btnAutoPlayPatchPreview");
+    if (button) {
+      button.innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("auto_play")}`;
+    }
+    if ($("patchPreviewDialog") && !$("patchPreviewDialog").hidden) {
+      $("patchPreviewStatus").textContent = t("patch_preview_ready");
+    }
+  }
+
+  static closePatchPreviewDialog() {
+    MidiController.stopPatchPreviewAutoPlay();
+    MidiController.stopPatchPreviewWaveform();
+    MidiController.patchPreviewSession = null;
+    const dialog = $("patchPreviewDialog");
+    if (dialog) dialog.hidden = true;
   }
 
   static openDrumKitPreviewDialog() {
