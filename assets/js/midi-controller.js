@@ -2287,9 +2287,11 @@ class MidiController {
         MidiController.patchPreviewWaveformFrame = requestAnimationFrame(draw);
       };
 
-      if (MidiController.patchPreviewWaveformFrame === null) {
-        MidiController.patchPreviewWaveformFrame = requestAnimationFrame(draw);
+      if (MidiController.patchPreviewWaveformFrame !== null) {
+        cancelAnimationFrame(MidiController.patchPreviewWaveformFrame);
       }
+      MidiController.patchPreviewWaveformFrame = null;
+      draw();
     } catch (error) {
       console.error("[Patch Preview] Failed to visualize player audio:", error);
       MidiController.stopPatchPreviewWaveform();
