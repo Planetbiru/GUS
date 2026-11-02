@@ -423,27 +423,103 @@ planetbiru-instrument-editor/
     └── libtimidity.min.js             # LibTiMidity WASM loader
 ```
 
-The melodic preset list is stored separately as `{ program, family, name, preset }`
-objects in `JSGUS/melodic-presets.js`. Set `program` explicitly from `0` to `127`;
-the loader uses that field rather than the object's position in the array.
-The file defines the global `GUS_MELODIC_PRESETS` array.
-Load this data script before `ProjectPatchGenerator.js`; deployments can point its
-script URL to a compatible hosted preset file without changing the generator.
+## Preset Data Reference
 
-The drum preset list is stored separately as `{ note, name, preset }` objects in
-`JSGUS/drum-presets.js`. Set `note` explicitly to the GM percussion MIDI note
-(currently 35–81); the loader validates that notes are unique. The file defines
-the global `GUS_DRUM_PRESETS` array and, like the melodic preset file, must be
-loaded before `ProjectPatchGenerator.js`. Its script URL can also be changed to
-load compatible hosted preset data.
+The generator's instrument data is kept separately from its rendering code:
 
-For melodic presets, `length` controls one-shot samples only. Looping samples
-derive their length from `cycleSamples` (or `freq`), `cycles`, and `tailCycles`;
-`length` is ignored for them. Loop rendering also ignores `attackNoise`,
-`partialDecay`, `pitchScoop`, and `brightness`, since they break loop
-periodicity. Use `loopAttackNoise` for a transient before the loop instead.
-Preset `gain` may be greater than `1`; the rendered PCM is clipped to its
-supported range.
+- `JSGUS/melodic-presets.js` defines the global `GUS_MELODIC_PRESETS` array.
+  Each entry has the shape `{ program, family, name, preset }`.
+- `JSGUS/drum-presets.js` defines the global `GUS_DRUM_PRESETS` array. Each
+  entry has the shape `{ note, name, preset }`.
+
+Both files contain editable plain JavaScript objects (no preset factory calls).
+The HTML pages load the data scripts before `ProjectPatchGenerator.js`. Keep
+that order if you use a custom script URL or host the data separately.
+
+### Editing melodic presets
+
+There must be exactly one entry for every General MIDI melodic program, from
+`0` to `127`. The loader uses the explicit `program` value, not the array
+position, and rejects missing or duplicate programs.
+
+```js
+{
+  program: 24,
+  family: "Guitar",
+  name: "Nylon Guitar",
+  preset: {
+    freq: 441,
+    harm: [1, 0.7, 0.4, 0.2],
+    env: { a: 0.005, d: 0.5, s: 0, r: 0.2 },
+    length: 33075
+  }
+}
+```
+
+Common melodic `preset` properties:
+
+| Property | Meaning |
+| --- | --- |
+| `freq` | Default/root frequency in hertz. |
+| `harm` | Relative amplitude of each harmonic, starting with the fundamental. |
+| `phases` | Optional starting phase for each harmonic, expressed in cycles. |
+| `env` | One-shot amplitude envelope: attack `a`, decay `d`, release `r` in seconds; sustain `s` is a level from 0 to 1. |
+| `length` | One-shot sample length in samples at the 22,050 Hz reference rate; it is scaled when rendered at another sample rate. |
+| `loop` | Enable a periodic sample loop when truthy. |
+| `cycleSamples` | Explicit number of samples in one loop cycle. If omitted, the cycle is derived from `freq` and the render sample rate. |
+| `cycles` | Number of cycles before the loop end (default 12). |
+| `loopSkip` | Number of initial cycles skipped before the loop start (default 3). |
+| `tailCycles` | Number of cycles rendered after the loop end for the release tail (default 4). |
+| `loopAttack` | Loop attack/fade-in time in seconds. |
+| `sustainLoop` | Set to `false` to disable the GUS sustain-loop flag while retaining the sample loop. |
+| `patchEnvelope` | Optional GUS patch envelope with six raw `rates` and six `offsets` values. These are written to the patch header. |
+| `gain` | Non-negative output multiplier applied during patch generation. Values above 1 are allowed; final 16-bit PCM clips at its limits. |
+| `noise` | Blend amount for noise in the oscillator signal. Looping presets use a repeating noise cycle. |
+| `fm` | Frequency modulation settings: `ratio` is the modulator/carrier frequency ratio; `index` is modulation depth. Looping presets require an integer `ratio` for FM to be used. |
+| `detune` | Voice detuning values in cents; used for one-shot rendering. |
+| `vibrato` | `{ rate, depth, sweep }`: rate in hertz and depth as a fractional pitch variation. For loops, vibrato is encoded in the GUS header rather than rendered into the loop waveform. |
+| `vibratoOnset` | Time in seconds for vibrato to reach full depth in a one-shot. |
+| `inharmonicity` | Inharmonic partial-stretch coefficient; used for one-shots. |
+| `attackNoise`, `pluckTransient` | One-shot attack transients. Their `duration`/`decay` values are seconds; transient amplitude and optional filter settings shape the burst. |
+| `loopAttackNoise` | Noise transient added before the loop region; use this instead of `attackNoise` for looped presets. |
+| `pitchScoop` | One-shot pitch onset bend: `time` in seconds and `depth` as a fractional pitch change. |
+| `partialDecay` | Per-harmonic decay times in seconds; used for one-shots. |
+| `brightness` | One-shot low-pass sweep; `start` and `end` are cutoff frequencies in hertz. |
+| `formants` | Optional peaking filters `{ freq, q, gain }`; frequency is in hertz and gain in decibels. |
+| `drive` | Optional soft-saturation amount. |
+| `guitarAmp` | Optional guitar processing: `preampCutoff` and `cabinetCutoff` in hertz, plus `drive`, `bias`, and `mix` controls. |
+
+If `loop` is enabled, sample length is derived from the loop cycle, `cycles`,
+and `tailCycles`; `length` is ignored. For a stable loop, time-varying one-shot
+features such as `attackNoise`, `pluckTransient`, `pitchScoop`, `partialDecay`,
+`inharmonicity`, `detune`, and `brightness` are not applied. The exception for
+attack is `loopAttackNoise`, which is placed before the loop start. `env` is
+also not used for the rendered loop waveform; release behavior is encoded in
+the GUS patch envelope.
+
+### Editing drum presets
+
+The drum array currently contains 47 General MIDI percussion notes, from 35
+through 81. Each `note` must be a unique MIDI note number from 0 to 127; the
+loader rejects duplicate notes and invalid entries.
+
+Drum `preset` properties are combined by `DrumRenderer`:
+
+| Property | Meaning |
+| --- | --- |
+| `duration` | Render length in seconds. |
+| `tones` | Array of decaying sine tones. Each tone supports `fStart`/`fEnd` in hertz, `pitchDecay`/`decay` in seconds, `amp`, and optional `fm: { ratio, index }`. |
+| `membrane` | Tuned membrane sound with base `freq` in hertz, `pitchDecay` and `decay` in seconds, and optional `modes`. Each mode has a frequency `ratio`, relative `amp`, optional `startRatio`, and a `decay` multiplier. |
+| `metallic` | Inharmonic ringing sound: `baseFreq` in hertz, optional partial frequency `ratios`, `amp`, and `decay` in seconds. |
+| `noise` | One noise layer with `amp`, `decay` in seconds, and `type` (`white`, `pink`, or `brown`). |
+| `noiseLayers` | Array of noise layers with the same properties as `noise`. A layer may also specify `bandpass: { center, q }`, where `center` is in hertz. |
+| `click` | Short attack click with `duration` in seconds and `amp`. |
+| `bursts` | Array of noise-burst start times in seconds. |
+| `highpass`, `lowpass` | Optional filter cutoff frequencies in hertz. |
+
+Tone, membrane, metallic, and noise components can be combined in one drum
+preset. The renderer applies the configured filters, fades the sample edges,
+and normalizes the result before patch encoding.
 
 ### Data Flow
 

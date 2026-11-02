@@ -1807,12 +1807,17 @@ class MidiController {
 
   static requestMidiDemoProject(buttons){
     if(isDemoGenerating)return;
-    if(state.projects.some(entry=>entry.demoGenerated===true)){
-      createMidiDemoProject(buttons);
-      return;
-    }
     $("demoProjectError").textContent="";
-    $("demoProjectName").value=t("demo_project_name");
+    const baseName=t("demo_project_name");
+    let projectName=baseName;
+    let suffix=2;
+    while(state.projects.some(project=>
+      String(project.name || "").trim().toLocaleLowerCase()
+        === projectName.trim().toLocaleLowerCase()
+    )){
+      projectName=`${baseName} (${suffix++})`;
+    }
+    $("demoProjectName").value=projectName;
     $("demoProjectDialog").hidden=false;
     $("demoProjectName").focus();
     $("demoProjectName").select();
@@ -1846,11 +1851,14 @@ class MidiController {
     }
   }
 
-  static async createMidiDemoProject(buttons,projectName){
+  static async createMidiDemoProject(buttons, projectName){
     
-    if(isDemoGenerating)return;
-    isDemoGenerating=true;
+    if(isDemoGenerating) return;
+    isDemoGenerating = true;
     buttons.forEach(button=>button.disabled=true);
+    
+    const melodicBank = 0; // Default melodic bank
+
     try{
       if(!projectPatchGenerator)projectPatchGenerator=new ProjectPatchGenerator();
       const melodic=projectPatchGenerator.getPrograms(false);
@@ -1859,21 +1867,17 @@ class MidiController {
         throw new Error("The demo instrument library is incomplete.");
       }
   
-      let project=state.projects.find(entry=>entry.demoGenerated===true);
-      const isNewProject=!project;
-      if(!project){
-        project={
-          id:uid("demo-project"),
-          name:projectName || t("demo_project_name"),
-          patchIds:[],
-          demoGenerated:true
-        };
-      }
+      const project={
+        id:uid("demo-project"),
+        name:projectName || t("demo_project_name"),
+        patchIds:[],
+        demoGenerated:true
+      };
   
       const existingPatches=getProjectPatches(project);
       const tasks=[
-        ...melodic.map(instrument=>({instrument,isDrum:false,bank:0})),
-        ...drums.map(instrument=>({instrument,isDrum:true,bank:128}))
+        ...melodic.map(instrument=>({instrument, isDrum:false, bank:melodicBank})),
+        ...drums.map(instrument=>({instrument, isDrum:true, bank:128}))
       ];
       const hasCompleteMelodicPitchCoverage=entry=>{
         const samples=entry.patch.instruments.flatMap(inst=>
@@ -1909,10 +1913,7 @@ class MidiController {
       });
   
       if(missingTasks.length===0){
-        if(isNewProject)throw new Error("No demo instruments were generated.");
-        selectProject(project.id);
-        showStatus(t("demo_project_ready",{count:tasks.length}),"ok");
-        return;
+        throw new Error("No demo instruments were generated.");
       }
   
       const entries=[];
@@ -1991,8 +1992,7 @@ class MidiController {
         demoGenerated:true
       };
       await dbSaveProjectAndPatches(updatedProject,entries);
-      if(isNewProject)state.projects.push(updatedProject);
-      else state.projects=state.projects.map(entry=>entry.id===updatedProject.id ? updatedProject : entry);
+      state.projects.push(updatedProject);
       const updatedEntries=new Map(entries.map(entry=>[entry.id,entry]));
       state.patches=state.patches.map(entry=>updatedEntries.get(entry.id)||entry);
       const currentPatchIds=new Set(state.patches.map(entry=>entry.id));

@@ -242,7 +242,7 @@
   <div class="app">
     <aside>
       <!-- PROYEK -->
-      <div class="card">
+      <div class="card card-projects">
         <h3>{{projects}} <span class="pill" id="projCount">0</span></h3>
         <div class="list project-list" id="projectList"></div>
         <div class="inline-actions project-actions">
@@ -266,7 +266,7 @@
       </div>
 
       <!-- MIDI PREVIEW -->
-      <div class="card">
+      <div class="card card-midi-preview">
         <h3>{{midi_preview}}</h3>
         <input type="file" id="midiFile" accept=".mid,.midi,audio/midi" hidden>
         <div class="midi-preview-controls">
@@ -328,7 +328,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card card-library">
         <h3>{{library}} <span class="pill" id="libCount">0</span></h3>
         <button class="btn small" id="btnLibraryScope">{{show_all_library}}</button>
 
@@ -364,7 +364,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card card-patch-stats">
         <h3>{{patch}} <span class="pill" id="patchNameSide">—</span></h3>
         <div class="stats">
           <div class="stat"><label>{{instruments}}</label><b id="statInst">0</b></div>
@@ -373,7 +373,7 @@
           <div class="stat"><label>{{master_volume_short}}</label><b id="statVol">—</b></div>
         </div>
       </div>
-      <div class="card">
+      <div class="card card-instrument-list">
         <h3>{{instruments}}</h3>
         <div class="list" id="instrumentList"></div>
         <button class="btn small" id="btnExportInst"><svg class="icon">
@@ -406,7 +406,7 @@
       </section>
 
 
-      <section class="card" id="bankManagerCard" hidden>
+      <section class="card card-bank-manager" id="bankManagerCard" hidden>
         <div class="subhead">
           <h2>{{bank_management}}</h2>
           <span class="pill" id="bankSummaryPill">—</span>
@@ -427,7 +427,7 @@
       </section>
 
       <div id="workspace" hidden>
-        <section class="card">
+        <section class="card card-patch-properties">
           <h3>{{patch_properties}}</h3>
           <div class="grid g6">
             <div class="field"><label>{{magic_label}}</label><input id="pMagic" readonly></div>
@@ -445,7 +445,7 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card card-instrument-properties">
           <div class="subhead">
             <h2 id="instTitle">{{instruments}}</h2>
             <span class="pill" id="instPill">—</span>
@@ -458,7 +458,7 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card card-sample-properties">
           <div class="subhead">
             <h2>{{samples}}</h2>
             <span class="pill" id="sampleCountPill">0</span>
@@ -479,7 +479,7 @@
           <div class="samples" id="sampleList"></div>
         </section>
 
-        <section class="card" id="sampleEditor" hidden>
+        <section class="card card-sample-editor" id="sampleEditor" hidden>
           <div class="subhead">
             <h2 id="sampleTitle">{{sample_editor}}</h2>
             <span class="pill" id="sampleFormatPill">—</span>
