@@ -397,29 +397,53 @@ Tested on:
 
 ```
 planetbiru-instrument-editor/
-├── index.html                       # Single-page app shell
+├── index.html                         # Single-page app shell
 ├── assets/
 │   ├── css/
-│   │   ├── style.css                # Application styling
+│   │   ├── style.css                  # Application styling
 │   │   └── style.min.css
 │   ├── js/
-│   │   ├── script.js                # Shared state, initialization, and compatibility delegates
+│   │   ├── script.js                  # Shared state, initialization, and compatibility delegates
 │   │   ├── application-controller.js
 │   │   ├── patch-data-service.js
 │   │   ├── bank-controller.js
-│   │   ├── editor-controller.js     # Sample editing and generated waveform variants
+│   │   ├── editor-controller.js       # Sample editing and generated waveform variants
 │   │   ├── project-controller.js
 │   │   ├── midi-controller.js
 │   │   └── zip.js
 │   └── locales/
-│       ├── id.json                  # Indonesian strings
-│       └── en.json                  # English strings
+│       ├── id.json                    # Indonesian strings
+│       └── en.json                    # English strings
 ├── JSGUS/
-│   └── ProjectPatchGenerator.js     # Procedural instrument and demo patch generator
+│   ├── melodic-presets.js             # Plain-object GM melodic preset data
+│   ├── drum-presets.js                # Plain-object GM drum preset data
+│   └── ProjectPatchGenerator.js       # Procedural instrument and demo patch generator
 └── timidity-player/
-    ├── timidity-player.min.js       # LibTiMidityPlayer wrapper
-    └── libtimidity.min.js           # LibTiMidity WASM loader
+    ├── timidity-player.min.js         # LibTiMidityPlayer wrapper
+    └── libtimidity.min.js             # LibTiMidity WASM loader
 ```
+
+The melodic preset list is stored separately as `{ program, family, name, preset }`
+objects in `JSGUS/melodic-presets.js`. Set `program` explicitly from `0` to `127`;
+the loader uses that field rather than the object's position in the array.
+The file defines the global `GUS_MELODIC_PRESETS` array.
+Load this data script before `ProjectPatchGenerator.js`; deployments can point its
+script URL to a compatible hosted preset file without changing the generator.
+
+The drum preset list is stored separately as `{ note, name, preset }` objects in
+`JSGUS/drum-presets.js`. Set `note` explicitly to the GM percussion MIDI note
+(currently 35–81); the loader validates that notes are unique. The file defines
+the global `GUS_DRUM_PRESETS` array and, like the melodic preset file, must be
+loaded before `ProjectPatchGenerator.js`. Its script URL can also be changed to
+load compatible hosted preset data.
+
+For melodic presets, `length` controls one-shot samples only. Looping samples
+derive their length from `cycleSamples` (or `freq`), `cycles`, and `tailCycles`;
+`length` is ignored for them. Loop rendering also ignores `attackNoise`,
+`partialDecay`, `pitchScoop`, and `brightness`, since they break loop
+periodicity. Use `loopAttackNoise` for a transient before the loop instead.
+Preset `gain` may be greater than `1`; the rendered PCM is clipped to its
+supported range.
 
 ### Data Flow
 
