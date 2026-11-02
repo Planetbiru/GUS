@@ -242,7 +242,7 @@
   <div class="app">
     <aside>
       <!-- PROYEK -->
-      <div class="card">
+      <div class="card card-projects">
         <h3>{{projects}} <span class="pill" id="projCount">0</span></h3>
         <div class="list project-list" id="projectList"></div>
         <div class="inline-actions project-actions">
@@ -266,7 +266,7 @@
       </div>
 
       <!-- MIDI PREVIEW -->
-      <div class="card">
+      <div class="card card-midi-preview">
         <h3>{{midi_preview}}</h3>
         <input type="file" id="midiFile" accept=".mid,.midi,audio/midi" hidden>
         <div class="midi-preview-controls">
@@ -328,7 +328,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card card-library">
         <h3>{{library}} <span class="pill" id="libCount">0</span></h3>
         <button class="btn small" id="btnLibraryScope">{{show_all_library}}</button>
 
@@ -364,7 +364,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card card-patch-stats">
         <h3>{{patch}} <span class="pill" id="patchNameSide">—</span></h3>
         <div class="stats">
           <div class="stat"><label>{{instruments}}</label><b id="statInst">0</b></div>
@@ -373,7 +373,7 @@
           <div class="stat"><label>{{master_volume_short}}</label><b id="statVol">—</b></div>
         </div>
       </div>
-      <div class="card">
+      <div class="card card-instrument-list">
         <h3>{{instruments}}</h3>
         <div class="list" id="instrumentList"></div>
         <button class="btn small" id="btnExportInst"><svg class="icon">
@@ -406,7 +406,7 @@
       </section>
 
 
-      <section class="card" id="bankManagerCard" hidden>
+      <section class="card card-bank-manager" id="bankManagerCard" hidden>
         <div class="subhead">
           <h2>{{bank_management}}</h2>
           <span class="pill" id="bankSummaryPill">—</span>
@@ -427,7 +427,7 @@
       </section>
 
       <div id="workspace" hidden>
-        <section class="card">
+        <section class="card card-patch-properties">
           <h3>{{patch_properties}}</h3>
           <div class="grid g6">
             <div class="field"><label>{{magic_label}}</label><input id="pMagic" readonly></div>
@@ -445,7 +445,7 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card card-instrument-properties">
           <div class="subhead">
             <h2 id="instTitle">{{instruments}}</h2>
             <span class="pill" id="instPill">—</span>
@@ -456,9 +456,14 @@
             <div class="field grid-span-2"><label>{{name_16_chars}}</label><input id="iName"
                 maxlength="16"></div>
           </div>
+          <div class="instrument-preview-actions">
+            <button class="btn small" id="btnPreviewPatch" type="button">
+              <svg class="icon"><use href="#i-play"></use></svg> {{preview_patch}}
+            </button>
+          </div>
         </section>
 
-        <section class="card">
+        <section class="card card-sample-properties">
           <div class="subhead">
             <h2>{{samples}}</h2>
             <span class="pill" id="sampleCountPill">0</span>
@@ -479,7 +484,7 @@
           <div class="samples" id="sampleList"></div>
         </section>
 
-        <section class="card" id="sampleEditor" hidden>
+        <section class="card card-sample-editor" id="sampleEditor" hidden>
           <div class="subhead">
             <h2 id="sampleTitle">{{sample_editor}}</h2>
             <span class="pill" id="sampleFormatPill">—</span>
@@ -1053,6 +1058,36 @@
     </section>
   </div>
 
+  <div id="patchPreviewDialog" class="modal-overlay" hidden>
+    <section class="modal-panel patch-preview-panel" role="dialog" aria-modal="true"
+             aria-labelledby="patchPreviewTitle" aria-describedby="patchPreviewDescription">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="patchPreviewTitle">{{patch_preview_title}}</h2>
+          <button class="icon-btn" id="btnClosePatchPreviewX" type="button"
+                  aria-label="{{close}}" data-i18n-aria-label="close">
+            <svg class="icon"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="patchPreviewDescription" class="modal-message">{{patch_preview_description}}</p>
+          <div id="patchPreviewStatus" class="patch-preview-status" role="status" aria-live="polite"></div>
+          <div id="patchPreviewPads" class="patch-preview-pad-grid"></div>
+        </div>
+        <div class="modal-footer">
+          <canvas id="patchPreviewWaveform" class="patch-preview-waveform"
+                  width="240" height="36" role="img"
+                  aria-label="{{patch_preview_waveform}}"></canvas>
+          <button class="btn" id="btnAutoPlayPatchPreview" type="button">
+            <svg class="icon"><use href="#i-play"></use></svg> {{auto_play}}
+          </button>
+          <div class="spacer"></div>
+          <button class="btn primary" id="btnClosePatchPreview" type="button">{{close}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div id="projectPropertiesDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="dialog" aria-modal="true"
             aria-labelledby="projectPropertiesTitle">
@@ -1234,6 +1269,8 @@
 
   <script src="timidity-player/timidity-player.min.js"></script>
   <script src="timidity-player/libtimidity.min.js"></script>
+  <script src="JSGUS/melodic-presets.js"></script>
+  <script src="JSGUS/drum-presets.js"></script>
   <script src="JSGUS/ProjectPatchGenerator.js"></script>
   <script src="assets/js/application-controller.js"></script>
   <script src="assets/js/patch-data-service.js"></script>

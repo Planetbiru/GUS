@@ -100,7 +100,7 @@ class GusPatchApp {
         let lastFamily = '';
 
         // Melodic 128
-        this.lib.melodic.forEach(([family, name], i) => {
+        this.lib.melodic.forEach(({family, name}, i) => {
             if (family !== lastFamily) {
                 const h = document.createElement('div');
                 h.className = 'family';
@@ -122,7 +122,7 @@ class GusPatchApp {
             listEl.appendChild(h);
         }
 
-        this.lib.drums.forEach(([note, name]) => {
+        this.lib.drums.forEach(({note, name}) => {
             listEl.appendChild(this._makeItem({
                 type: 'drum', midi: note, name, num: note
             }));
@@ -185,13 +185,13 @@ class GusPatchApp {
         });
 
         if (type === 'melodic') {
-            const [family, name, p] = this.lib.melodic[midi];
+            const {family, name, preset: p} = this.lib.melodic[midi];
             this.$('title').textContent = `${String(midi).padStart(3, '0')} — ${name}`;
             this.$('familyLabel').textContent = `Family: ${family}`;
             this.$('root').value = p.freq || 441;
             this.$('wave').disabled = false;
         } else {
-            const [note, name] = this.lib.findDrum(midi);
+            const {note, name} = this.lib.findDrum(midi);
             this.$('title').textContent = `Drum ${note} — ${name}`;
             this.$('familyLabel').textContent = 'Family: Drum Kit (GM Channel 10)';
             this.$('root').value = this.lib.drumToFreq(note);
@@ -207,11 +207,11 @@ class GusPatchApp {
         const dur = +this.$('dur').value;
 
         if (this.currentType === 'drum') {
-            const [, , p] = this.lib.findDrum(this.currentMidi);
+            const {preset: p} = this.lib.findDrum(this.currentMidi);
             return new DrumRenderer(p, SR).render();
         }
 
-        const [, , basePreset] = this.lib.melodic[this.currentMidi];
+        const {preset: basePreset} = this.lib.melodic[this.currentMidi];
         const p2 = { ...basePreset };
         const waveOverride = this.$('wave').value;
         if (waveOverride !== 'preset') {
@@ -267,7 +267,7 @@ class GusPatchApp {
         this.audio.play(r.pcm, r.SR, rate);
         const label = this.currentType === 'drum'
             ? 'Drum ' + this.currentMidi
-            : this.lib.melodic[this.currentMidi][1];
+            : this.lib.melodic[this.currentMidi].name;
         this.log(`Preview: ${label} @ ${rate.toFixed(2)}x`);
     }
 
@@ -291,7 +291,7 @@ class GusPatchApp {
         const SR = +this.$('sr').value;
 
         if (this.currentType === 'drum') {
-            const [note, name, p] = this.lib.findDrum(this.currentMidi);
+            const {note, name, preset: p} = this.lib.findDrum(this.currentMidi);
             const r = new DrumRenderer(p, SR).render();
             const rootFreq = this.lib.drumToFreq(note);
             const buf = GusPatchEncoder.encode({
@@ -306,7 +306,7 @@ class GusPatchApp {
             };
         }
 
-        const [, name, basePreset] = this.lib.melodic[this.currentMidi];
+        const {name, preset: basePreset} = this.lib.melodic[this.currentMidi];
         const freq = +this.$('root').value || basePreset.freq || 441;
         const dur = +this.$('dur').value;
         // ...render melodic...
@@ -317,6 +317,9 @@ class GusPatchApp {
             loopStart: r.loopStart, loopEnd: r.loopEnd, isLoop: r.loop,
             rootFreq: r.naturalFreq,    // ← BUKAN freq
             sampleRate: SR,
+            sustainLoop: basePreset.sustainLoop !== false,
+            envRates: basePreset.patchEnvelope && basePreset.patchEnvelope.rates,
+            envOffsets: basePreset.patchEnvelope && basePreset.patchEnvelope.offsets,
         });
         return {
             buf, r,
@@ -346,13 +349,16 @@ class GusPatchApp {
         this.log('Membangun 128 patch melodic...', 'info');
         const melodicNames = [];   // ← simpan nama file untuk timidity.cfg
         for (let i = 0; i < 128; i++) {
-            const [, name, p] = this.lib.melodic[i];
+            const {name, preset: p} = this.lib.melodic[i];
             const freq = p.freq || 441;
             const r = new MelodicRenderer(p, { sampleRate: SR, freq, duration: dur }).render();
             const buf = GusPatchEncoder.encode({
                 name: this.slugify(name).slice(0, 15) || `gm${i}`,
                 pcm: r.pcm, loopStart: r.loopStart, loopEnd: r.loopEnd,
                 isLoop: r.loop, rootFreq: r.naturalFreq, sampleRate: SR,   // ← naturalFreq
+                sustainLoop: p.sustainLoop !== false,
+                envRates: p.patchEnvelope && p.patchEnvelope.rates,
+                envOffsets: p.patchEnvelope && p.patchEnvelope.offsets,
             });
             const fname = `${String(i).padStart(3, '0')}_${this.slugify(name)}.pat`;
             zip.folder('melodic').file(fname, buf);
@@ -365,7 +371,7 @@ class GusPatchApp {
         this.log('Membangun 47 patch drum...', 'info');
         const drumNames = [];      // ← simpan note + nama file untuk timidity.cfg
         for (let i = 0; i < this.lib.drums.length; i++) {
-            const [note, name, p] = this.lib.drums[i];
+            const {note, name, preset: p} = this.lib.drums[i];
             const r = new DrumRenderer(p, SR).render();
             const rootFreq = this.lib.drumToFreq(note);
             const buf = GusPatchEncoder.encode({
@@ -489,4 +495,3 @@ class GusPatchApp {
     }
 
 }
-
