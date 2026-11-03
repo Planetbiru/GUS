@@ -1,6 +1,6 @@
 # Planetbiru Instrument Editor
 
-A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
+A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2` and `.sf3`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
 
 Built with vanilla JavaScript and no build step. Runs entirely in the browser. All data is stored locally in IndexedDB.
 
@@ -28,7 +28,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 
 ### Instrument & Patch Editing
 - **Full GUS `.PAT` support** — parse, inspect, edit, and export Gravis Ultrasound patches
-- **SoundFont (`.sf2`) support** — import presets into editable patches, and export projects back to standard SF2
+- **SoundFont (`.sf2` / `.sf3`) support** — import presets into editable patches, including Ogg Vorbis-compressed SF3 samples, and export projects to standard SF2
 - **SFZ package support** — import `.sfz` instruments and their audio samples directly from `.zip` archives
 - **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
 - **Instrument management** — add, rename, reorder, and export individual instruments
@@ -52,7 +52,8 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 | Format | Extension | Description |
 |---|---|---|
 | GUS Patch | `.pat` | Native Gravis Ultrasound patch format |
-| SoundFont | `.sf2` | Extracts all presets, including drum kits (split per MIDI note) |
+| SoundFont 2 | `.sf2` | Extracts all presets, including drum kits (split per MIDI note) |
+| SoundFont 3 | `.sf3` | Decodes mono Ogg Vorbis samples and extracts all presets; mixed PCM/compressed files are supported |
 | Timidity package | `.zip` | Timidity distribution packages containing `timidity.cfg` |
 | SFZ Package | `.zip` | Instruments containing `.sfz` files and their audio samples (`.wav`, `.mp3`, etc.) |
 | MIDI.js soundfont | `.js` | FluidR3_GM-style OGG/MP3 soundfonts from jsDelivr and similar CDNs |
@@ -163,9 +164,9 @@ The editor can parse and import `.sfz` instrument definitions, provided they are
 - **Drum kits** (detected via naming or group routing) are split into one GUS patch per MIDI note.
 - Supported audio formats depend entirely on the browser's `decodeAudioData` capability (usually WAV, MP3, and OGG).
 
-### `.sf2` (SoundFont 2)
+### `.sf2` and `.sf3` (SoundFonts)
 
-**Import.** A single `.sf2` may contain dozens of presets. Each one is turned into its own GUS patch:
+**Import.** A single SoundFont may contain dozens of presets. Each one is turned into its own GUS patch. SF2 PCM samples are imported directly; SF3 Ogg Vorbis samples are decoded by the browser's Web Audio implementation. SF3 compressed samples must be mono and use Ogg Vorbis.
 
 - Melodic presets (`bank 0`–`127`) → one patch each. `gmProgram = preset` and `gmBank = bank`.
 - Drum kits (`bank 128`) → **one patch per MIDI note** covered by the kit's key ranges. Every patch in the same kit shares a `drumSet` ID.
@@ -262,24 +263,24 @@ Projects sidebar → Add Patch → Open a .PAT file
 
 **From a SoundFont:**
 ```
-Projects sidebar → Import Package → select .sf2
+Projects sidebar → Import Package → select .sf2 or .sf3
 ```
-Each preset becomes a separate GUS patch. Drum kits (`bank 128`) are split into one patch per MIDI note.
+SF2 and SF3 SoundFonts can also be opened from the header file picker. Each preset becomes a separate GUS patch. Drum kits (`bank 128`) are split into one patch per MIDI note.
 
 **From a Timidity ZIP:**
 ```
-Header → Open .PAT / .SF2 → select a ZIP produced by this editor or a compatible Timidity package
+Header → Open .PAT / .SF2 / .SF3 → select a ZIP produced by this editor or a compatible Timidity package
 ```
 
 **From an SFZ Package (ZIP):**
 ```
-Header → Open .PAT / .SF2 → select a ZIP containing .sfz and audio files
+Header → Open .PAT / .SF2 / .SF3 → select a ZIP containing .sfz and audio files
 ```
 The ZIP file must contain the `.sfz` file(s) and all referenced audio samples. Melodic SFZ files are combined into a single patch, while drum kits are split per MIDI note.
 
 **From a MIDI.js soundfont:**
 ```
-Header → Open .PAT / .SF2 → select an .js file
+Header → Open .PAT / .SF2 / .SF3 → select an .js file
 # or
 Header → MIDI.js URL → paste a jsDelivr URL
 ```
@@ -602,7 +603,7 @@ Placeholders use `{name}` syntax and are substituted from the `values` argument 
 - **Browsers only** — no desktop build; a modern browser is required
 - **RAM usage** — converting a large SoundFont or an SFZ package with hundreds of samples can hold hundreds of megabytes in memory during conversion; browsers may crash on low-RAM devices
 - **Storage limits** — IndexedDB quotas vary by browser (usually 10% of disk); large libraries may hit the quota
-- **SF2 import** — parsed in the main thread; the UI may freeze during conversion of large files
+- **SoundFont import** — parsed and decoded in the main thread; the UI may freeze during conversion of large files. SF3 compressed sample decoding requires browser support for Ogg Vorbis.
 - **SF2 roundtrip** — PCM, loop points, sample rate, root frequency, key ranges, and preset metadata are preserved. Envelopes, tremolo, vibrato, and loop fractions are **not** part of the SF2 export format and are lost after a roundtrip; use a `.pat`-only export if you need those settings
 - **SFZ import** — Only basic SFZ opcodes are supported (key ranges, loops, tuning). Advanced opcodes (filters, complex modulation, keyswitches) are ignored. The `.sfz` file must be bundled inside a `.zip` along with its audio samples.
 - **MIDI.js import** — decoding ~88 notes at 22050 Hz takes 20–60 seconds depending on the file and device

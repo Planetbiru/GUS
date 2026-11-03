@@ -404,9 +404,68 @@ class PatchDataService {
     return {shdr,phdr,pbag,pgen,inst,ibag,igen,smplData};
   }
 
-  static sf2ToGusPatches(sf2, fileName){
+  static async sf2ToGusPatches(sf2, fileName){
     const {shdr,phdr,pbag,pgen,inst,ibag,igen,smplData}=sf2;
     const s16=v=>v>32767?v-65536:v;
+
+    const compressedSamples = new Map();
+    const decodeContexts = new Map();
+    try {
+      const sampleIndices = new Set(
+        igen.filter(gen => gen.genOper === 53).map(gen => gen.genAmount)
+      );
+      for (const sampleIndex of sampleIndices) {
+        const sample = shdr[sampleIndex];
+        if (!sample || (sample.sfSampleType & 0x10) === 0) continue;
+        if (sample.dwStart > sample.dwEnd || sample.dwEnd >= smplData.length) {
+          throw new Error(t("soundfont_invalid_compressed_sample", { name: sample.name }));
+        }
+
+        const sampleBytes = smplData.subarray(sample.dwStart, sample.dwEnd + 1);
+        if (sampleBytes.length < 4
+          || sampleBytes[0] !== 0x4f
+          || sampleBytes[1] !== 0x67
+          || sampleBytes[2] !== 0x67
+          || sampleBytes[3] !== 0x53) {
+          throw new Error(t("soundfont_unsupported_compression", { name: sample.name }));
+        }
+
+        const targetRate = clamp(sample.dwSampleRate || 22050, 4000, 192000);
+        let decodeContext = decodeContexts.get(targetRate);
+        if (!decodeContext) {
+          decodeContext = PatchDataService.createDecodeContext(targetRate);
+          decodeContexts.set(targetRate, decodeContext);
+        }
+
+        let audioBuffer;
+        try {
+          audioBuffer = await decodeContext.decodeAudioData(sampleBytes.slice().buffer);
+        } catch (error) {
+          throw new Error(t("soundfont_sample_decode_failed", {
+            name: sample.name,
+            message: error.message
+          }));
+        }
+        if (audioBuffer.numberOfChannels !== 1) {
+          throw new Error(t("soundfont_compressed_sample_must_be_mono", { name: sample.name }));
+        }
+
+        const channel = audioBuffer.getChannelData(0);
+        const pcm = new Uint8Array(channel.length * 2);
+        const pcmView = new DataView(pcm.buffer);
+        for (let i = 0; i < channel.length; i++) {
+          pcmView.setInt16(i * 2, Math.round(clamp(channel[i], -1, 1) * 32767), true);
+        }
+        compressedSamples.set(sampleIndex, {
+          pcm,
+          sampleRate: audioBuffer.sampleRate
+        });
+      }
+    } finally {
+      await Promise.all([...decodeContexts.values()]
+        .filter(context => typeof context.close === "function" && context.state !== "closed")
+        .map(context => context.close()));
+    }
   
     function getGens(genArr,startIdx,endIdx){
       const out=[];
@@ -429,16 +488,31 @@ class PatchDataService {
       
       if (!cached) {
         const sh=shdr[sIdx]; if(!sh)return null;
-        const startByte = sh.dwStart * 2;
-        const endByte = Math.min(sh.dwEnd * 2, smplData.length);
-        if (endByte <= startByte) return null;
-  
-        const pcm = smplData.slice(startByte, endByte); 
-        const start=sh.dwStart, end=endByte / 2;
-        const loopStartSmp=sh.dwStartloop-start, loopEndSmp=sh.dwEndloop-start;
+        const compressedSample = compressedSamples.get(sIdx);
+        let pcm;
+        let sampleRate;
+        let loopStartSmp;
+        let loopEndSmp;
+        if (compressedSample) {
+          pcm = compressedSample.pcm;
+          sampleRate = compressedSample.sampleRate;
+          const loopScale = sampleRate / clamp(sh.dwSampleRate || sampleRate, 1, 192000);
+          loopStartSmp = Math.round(sh.dwStartloop * loopScale);
+          loopEndSmp = Math.round(sh.dwEndloop * loopScale);
+        } else {
+          const startByte = sh.dwStart * 2;
+          const endByte = Math.min(sh.dwEnd * 2, smplData.length);
+          if (endByte <= startByte) return null;
+          pcm = smplData.slice(startByte, endByte);
+          sampleRate = sh.dwSampleRate || 22050;
+          loopStartSmp = sh.dwStartloop - sh.dwStart;
+          loopEndSmp = sh.dwEndloop - sh.dwStart;
+        }
+        const frameCount = pcm.length / 2;
         const hasLoop = loopFromZone === true
           && loopEndSmp > loopStartSmp
-          && loopStartSmp >= 0;
+          && loopStartSmp >= 0
+          && loopEndSmp <= frameCount;
   
         let rootNote = (overrideRoot !== undefined && overrideRoot > 0 && overrideRoot < 128)
                  ? overrideRoot
@@ -474,7 +548,7 @@ class PatchDataService {
         cached = {
           name:safeName, fractions:0, dataSize:pcm.length,
           loopStart:hasLoop?loopStartSmp*2:0, loopEnd:hasLoop?loopEndSmp*2:0,
-          sampleRate:clamp(sh.dwSampleRate||22050,1,192000),
+          sampleRate:clamp(sampleRate,1,192000),
           lowFreq, highFreq,
           rootFreq, tune:0, balance:7,
           envRates,
@@ -659,9 +733,9 @@ class PatchDataService {
       };
   
       entries.push({
-        id: uid("sf2drum"),
+        id: uid("soundfontdrum"),
         name: `drum_${String(note).padStart(2, "0")}_${preset.name||"Kit"}`.substring(0, 48),
-        source: "sf2:" + fileName,
+        source: "soundfont:" + fileName,
         gmProgram: note,
         gmBank: 128,
         drumSet: preset.preset,  
@@ -685,9 +759,9 @@ class PatchDataService {
       if(preset.preset!==undefined) displayName+=" #"+preset.preset;
   
       entries.push({
-        id: uid("sf2"),
+        id: uid("soundfont"),
         name: displayName.substring(0,48),
-        source: "sf2:"+fileName,
+        source: "soundfont:"+fileName,
         gmProgram: preset.preset,
         gmBank: preset.bank,
         originalOrder: preset.bank,
@@ -1952,24 +2026,24 @@ class PatchDataService {
             showStatus(t("file_loading", { filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", { count }) }), "ok");
           }
         } else if (type === "sf2") {
-          showStatus(t("converting_sf2"));
+          showStatus(t("converting_soundfont"));
           setTimeout(async () => {
             try {
               const sf2 = parseSF2(ab);
-              const entries = sf2ToGusPatches(sf2, file.name);
+              const entries = await sf2ToGusPatches(sf2, file.name);
               if (entries.length === 0) {
-                showStatus(t("sf2_no_preset"), "bad");
+                showStatus(t("soundfont_no_preset"), "bad");
                 showAlert("sf2_no_samples_alert");
               } else {
                 if (await addPatchEntries(entries)) {
                   const count = entries.length;
-                  showStatus(t("sf2_added_to_project", { filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count }) }), "ok");
+                  showStatus(t("soundfont_added_to_project", { filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count }) }), "ok");
                 }
               }
             } catch (err) {
               console.error(err);
-              showStatus(t("sf2_conversion_failed", { message: err.message }), "bad");
-              showAlert("sf2_conversion_alert", { message: err.message });
+              showStatus(t("soundfont_conversion_failed", { message: err.message }), "bad");
+              showAlert("soundfont_conversion_alert", { message: err.message });
             }
           }, 100);
         } else {
@@ -2028,28 +2102,28 @@ class PatchDataService {
           
         } else if (type === "sf2") {
           // Menangani file SF2 (SoundFont)
-          showStatus(t("converting_sf2"));
+          showStatus(t("converting_soundfont"));
           await new Promise(resolve => setTimeout(resolve, 50));
           try {
             const sf2 = parseSF2(ab);
-            const entries = sf2ToGusPatches(sf2, file.name);
+            const entries = await sf2ToGusPatches(sf2, file.name);
             if (entries.length === 0) {
-              showStatus(t("sf2_no_preset"), "bad");
+              showStatus(t("soundfont_no_preset"), "bad");
               showAlert("sf2_no_samples_alert");
             } else {
               const added = await addPatchEntries(entries);
               if (added) {
                 const count = entries.length;
-                showStatus(t("sf2_added_to_project", {
+                showStatus(t("soundfont_added_to_project", {
                   filename: file.name,
                   patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count })
                 }), "ok");
               }
             }
           } catch (err) {
-            console.error("SF2 conversion error:", err);
-            showStatus(t("sf2_conversion_failed", { message: err.message }), "bad");
-            showAlert("sf2_conversion_alert", { message: err.message });
+            console.error("SoundFont conversion error:", err);
+            showStatus(t("soundfont_conversion_failed", { message: err.message }), "bad");
+            showAlert("soundfont_conversion_alert", { message: err.message });
           }
   
         } else if (type === "midijs") {
