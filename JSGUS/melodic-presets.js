@@ -6,80 +6,45 @@ var GUS_MELODIC_PRESETS = {
     "family": "Piano",
     "name": "Acoustic Grand",
     "preset": {
-      "inharmonicity": 0.00035,
+      "inharmonicity": 0.0005,
       "attackNoise": {
-        "amp": 0.15,
-        "duration": 0.015
+        "amp": 0.9,
+        "duration": 0.007
+      },
+      "pluckTransient": {
+        "freq": 3800,
+        "q": 1.4,
+        "amp": 0.12,
+        "duration": 0.02,
+        "decay": 0.006,
+        "type": "pink"
       },
       "brightness": {
-        "start": 8000,
-        "end": 2000
+        "start": 10000,
+        "end": 3800
       },
       "pitchScoop": {
         "depth": 0.003,
-        "time": 0.012
+        "time": 0.006
       },
       "partialDecay": [
-        2.6,
-        1.7,
-        1.15,
-        0.82,
-        0.6,
-        0.44,
-        0.32,
-        0.24,
-        0.18,
-        0.14
+        4.5, 2.8, 1.7, 1.15, 0.82, 0.6, 0.44, 0.32, 0.23, 0.17, 0.12, 0.085
       ],
       "harm": [
-        1,
-        0.75,
-        0.55,
-        0.4,
-        0.28,
-        0.2,
-        0.14,
-        0.1,
-        0.07,
-        0.05
+        1, 0.68, 0.48, 0.34, 0.24, 0.17, 0.12, 0.085, 0.06, 0.042, 0.03, 0.021
+      ],
+      "phases": [
+        0, 0.06, 0.16, 0.29, 0.44, 0.6, 0.78, 0.97, 0.18, 0.4, 0.63, 0.87
       ],
       "env": {
-        "a": 0.002,
-        "d": 1.8,
+        "a": 0.001,
+        "d": 3.0,
         "s": 0,
-        "r": 0.25
+        "r": 0.35
       },
-      "length": 44100,
+      "length": 55125,
       "freq": 441,
-      "loop": 1,
-      "cycles": 36,
-      "loopSkip": 16,
-      "tailCycles": 180,
-      "loopAttack": 0.01,
-      "sustainLoop": true,
-      "loopAttackNoise": {
-        "amp": 0.08,
-        "duration": 0.014
-      },
-      "patchEnvelope": {
-        "rates": [
-          12,
-          132,
-          0,
-          137,
-          0,
-          0
-        ],
-        "offsets": [
-          255,
-          135,
-          135,
-          0,
-          0,
-          0
-        ]
-      },
-      "gain": 0.20
+      "gain": 0.35
     }
   },
   {
