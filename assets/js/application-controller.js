@@ -818,6 +818,7 @@ class ApplicationController {
       renderSampleEditor(); render();
       showStatus(t("loop_set_all"),"ok");
     });
+    $("btnCreateLoop").addEventListener("click",createSampleLoop);
   
     $("btnPlay").addEventListener("click",()=>{
       const s=state.selSample; if(!s)return;

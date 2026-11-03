@@ -1,4 +1,7 @@
 class EditorController {
+  static loopThresholdStorageKey = "gus-patch-editor-loop-thresholds";
+  static defaultLoopThresholds = {variation: 50, drift: 25, boundary: 45};
+
   static ensureAudio(){
     if(!state.audio.ctx){
       const AC=window.AudioContext||window.webkitAudioContext;
@@ -35,6 +38,186 @@ class EditorController {
     if(!f||f<=0)f=s.sampleRate||22050;
     if(f>100000)f/=1000;
     return clamp(f,1,200000);
+  }
+
+  static minimumLoopFrames(s){
+    const sampleRate=clamp(Number(s.sampleRate)||22050,4000,192000);
+    return Math.max(64,Math.ceil(sampleRate*0.02));
+  }
+
+  static readLoopThresholds(){
+    const read=(id,fallback)=>{
+      const value=Number($(id)?.value);
+      return clamp(Number.isFinite(value)?value:fallback,1,200)/100;
+    };
+    return {
+      variation: read("loopVariationThreshold",EditorController.defaultLoopThresholds.variation),
+      drift: read("loopDriftThreshold",EditorController.defaultLoopThresholds.drift),
+      boundary: read("loopBoundaryThreshold",EditorController.defaultLoopThresholds.boundary)
+    };
+  }
+
+  static updateLoopThresholdLabels(){
+    for(const [inputId,outputId] of [
+      ["loopVariationThreshold","loopVariationThresholdValue"],
+      ["loopDriftThreshold","loopDriftThresholdValue"],
+      ["loopBoundaryThreshold","loopBoundaryThresholdValue"]
+    ]){
+      const input=$(inputId), output=$(outputId);
+      if(input&&output)output.value=`${input.value}%`;
+    }
+  }
+
+  static bindLoopThresholdControls(){
+    const controls=[
+      $("loopVariationThreshold"),
+      $("loopDriftThreshold"),
+      $("loopBoundaryThreshold")
+    ];
+    if(controls.some(control=>!control)||controls[0].dataset.bound==="true")return;
+
+    try{
+      const saved=JSON.parse(localStorage.getItem(EditorController.loopThresholdStorageKey)||"{}");
+      const values=[
+        clamp(Number(saved.variation)||EditorController.defaultLoopThresholds.variation,1,200),
+        clamp(Number(saved.drift)||EditorController.defaultLoopThresholds.drift,1,200),
+        clamp(Number(saved.boundary)||EditorController.defaultLoopThresholds.boundary,1,200)
+      ];
+      controls.forEach((control,index)=>control.value=String(values[index]));
+    }catch(error){
+      console.warn("Unable to load loop detection thresholds:",error);
+    }
+
+    const save=()=>{
+      const values=EditorController.readLoopThresholds();
+      try{
+        localStorage.setItem(EditorController.loopThresholdStorageKey,JSON.stringify({
+          variation:values.variation*100,
+          drift:values.drift*100,
+          boundary:values.boundary*100
+        }));
+      }catch(error){
+        console.warn("Unable to save loop detection thresholds:",error);
+      }
+    };
+    controls.forEach(control=>{
+      control.dataset.bound="true";
+      control.addEventListener("input",EditorController.updateLoopThresholdLabels);
+      control.addEventListener("change",save);
+    });
+    EditorController.updateLoopThresholdLabels();
+  }
+
+  static sampleHasValidLoop(s){
+    if(!s?.pcm?.length||(s.modes&MLOOP)===0)return false;
+    const bps=fmt(s).bps, total=Math.floor(s.pcm.length/bps), loop=loopInfo(s);
+    return s.loopStart>=0
+      && s.loopEnd>s.loopStart
+      && s.loopEnd<=s.pcm.length
+      && loop.start>=0
+      && loop.end<=total
+      && loop.end-loop.start>=EditorController.minimumLoopFrames(s);
+  }
+
+  static findStableLoop(s){
+    const samples=ensureFloat(s), total=samples.length;
+    const thresholds=EditorController.readLoopThresholds();
+    const minLoop=EditorController.minimumLoopFrames(s);
+    const sampleRate=clamp(Number(s.sampleRate)||22050,4000,192000);
+    const blockFrames=Math.max(16,Math.round(sampleRate*0.01));
+    const minStableBlocks=Math.max(4,Math.ceil(sampleRate*0.1/blockFrames));
+    if(total<minLoop+Math.ceil(sampleRate*0.1))return null;
+
+    const blockRms=[];
+    for(let start=0;start<total;start+=blockFrames){
+      const end=Math.min(total,start+blockFrames);
+      let sum=0;
+      for(let i=start;i<end;i++)sum+=samples[i]*samples[i];
+      blockRms.push(Math.sqrt(sum/(end-start)));
+    }
+
+    let stableStart=-1, stableEnd=-1;
+    const maxStableBlocks=Math.min(blockRms.length,Math.ceil(sampleRate*0.5/blockFrames));
+    for(let span=maxStableBlocks;span>=minStableBlocks;span--){
+      let bestVariation=Infinity, bestMean=0, bestBlock=-1;
+      for(let start=0;start+span<=blockRms.length;start++){
+        let min=Infinity, max=0, sum=0, weightedSum=0;
+        for(let i=start;i<start+span;i++){
+          const value=blockRms[i];
+          min=Math.min(min,value);
+          max=Math.max(max,value);
+          sum+=value;
+          weightedSum+=(i-start)*value;
+        }
+        const mean=sum/span;
+        const variation=(max-min)/Math.max(mean,1e-8);
+        const meanIndex=(span-1)/2;
+        const slope=(weightedSum-meanIndex*sum)/(span*(span*span-1)/12);
+        const drift=Math.abs(slope)*(span-1)/Math.max(mean,1e-8);
+        if(mean>0.0015&&variation<=thresholds.variation&&drift<=thresholds.drift
+          &&(variation<bestVariation||(variation===bestVariation&&mean>bestMean))){
+          bestVariation=variation;
+          bestMean=mean;
+          bestBlock=start;
+        }
+      }
+      if(bestBlock>=0){
+        stableStart=bestBlock*blockFrames;
+        stableEnd=Math.min(total,(bestBlock+span)*blockFrames);
+        break;
+      }
+    }
+    if(stableStart<0)return null;
+
+    const signatureFrames=Math.min(32,Math.max(8,Math.floor(minLoop/4)));
+    const loopEnd=stableEnd-signatureFrames;
+    const maxStart=loopEnd-minLoop;
+    if(maxStart<stableStart)return null;
+
+    let bestStart=-1, bestError=Infinity;
+    for(let start=stableStart;start<=maxStart;start++){
+      let error=0, energy=0;
+      for(let offset=0;offset<signatureFrames;offset++){
+        const a=samples[start+offset], b=samples[loopEnd+offset];
+        const difference=a-b;
+        error+=difference*difference;
+        energy+=a*a+b*b;
+      }
+      const normalizedError=error/Math.max(energy,1e-8);
+      if(normalizedError<bestError){
+        bestError=normalizedError;
+        bestStart=start;
+      }
+    }
+    if(bestStart<0||Math.sqrt(bestError)>thresholds.boundary)return null;
+    return {start:bestStart,end:loopEnd};
+  }
+
+  static createSampleLoop(){
+    const sample=state.selSample;
+    if(!sample)return;
+    openConfirmationDialog(
+      t("create_loop_confirmation_title"),
+      t("create_loop_confirmation_message",{name:sample.name||t("sample")}),
+      t("create_loop"),
+      ()=>EditorController.applySampleLoop(sample)
+    );
+  }
+
+  static applySampleLoop(sample){
+    const loop=EditorController.findStableLoop(sample);
+    if(!loop){
+      showStatus(t("loop_detection_failed"),"bad");
+      return;
+    }
+    const bps=fmt(sample).bps;
+    sample.loopStart=loop.start*bps;
+    sample.loopEnd=loop.end*bps;
+    sample.fractions=0;
+    sample.modes|=MLOOP;
+    renderSampleEditor();
+    render();
+    showStatus(t("loop_created",{start:loop.start.toLocaleString(),end:loop.end.toLocaleString()}),"ok");
   }
 
   static playSample(s, note=60, velocity=100, hold=false){
@@ -571,6 +754,7 @@ class EditorController {
   }
 
   static bindCanvas(){
+    EditorController.bindLoopThresholdControls();
     const cv=$("waveCanvas");
     cv.addEventListener("wheel",e=>{
       if(!state.selSample)return;
@@ -670,6 +854,7 @@ class EditorController {
     $("sLoopStart").value=Math.round(li.start);
     $("sLoopEnd").value=Math.round(li.end);
     $("sLoopStart").max=total; $("sLoopEnd").max=total;
+    $("btnCreateLoop").hidden=EditorController.sampleHasValidLoop(s);
     $("sFractions").value=s.fractions??0;
     $("sTune").value=s.tune??0;
     $("sScaleFreq").value=s.scaleFreq??60;

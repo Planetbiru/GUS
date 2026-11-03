@@ -313,7 +313,6 @@
             <span id="midiVolVal" class="midi-volume-value">100%</span>
           </div>
 
-
           <div class="inline-actions">
             <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon">
               <use href="#i-folder"></use></svg> {{select_bank}}
@@ -415,7 +414,6 @@
           <button class="btn" id="btnDemo2">{{load_demo}}</button>
         </div>
       </section>
-
 
       <section class="card card-bank-manager" id="bankManagerCard" hidden>
         <div class="subhead">
@@ -539,6 +537,7 @@
               </svg> {{undo}}</button>
             <button class="btn small" id="btnLoopSel">{{loop_selection}}</button>
             <button class="btn small" id="btnLoopAll">{{loop_all}}</button>
+            <button class="btn small primary" id="btnCreateLoop" type="button" hidden>{{create_loop}}</button>
           </div>
 
           <div class="play-row">
@@ -597,6 +596,32 @@
             <div class="field"><label>{{scale_factor_label}}</label><input id="sScaleFactor" type="number" min="0" max="65535">
             </div>
           </div>
+          <p class="hint">{{loop_minimum_hint}}</p>
+          <h3 class="editor-subsection-heading">{{loop_detection_thresholds}}</h3>
+          <p class="hint">{{loop_thresholds_hint}}</p>
+          <div class="grid loop-threshold-grid">
+            <div class="field">
+              <label for="loopVariationThreshold">{{loop_variation_threshold}}</label>
+              <div class="range-value-row">
+                <input id="loopVariationThreshold" type="range" min="1" max="200" step="1" value="50">
+                <output id="loopVariationThresholdValue" for="loopVariationThreshold">50%</output>
+              </div>
+            </div>
+            <div class="field">
+              <label for="loopDriftThreshold">{{loop_drift_threshold}}</label>
+              <div class="range-value-row">
+                <input id="loopDriftThreshold" type="range" min="1" max="200" step="1" value="25">
+                <output id="loopDriftThresholdValue" for="loopDriftThreshold">25%</output>
+              </div>
+            </div>
+            <div class="field">
+              <label for="loopBoundaryThreshold">{{loop_boundary_threshold}}</label>
+              <div class="range-value-row">
+                <input id="loopBoundaryThreshold" type="range" min="1" max="200" step="1" value="45">
+                <output id="loopBoundaryThresholdValue" for="loopBoundaryThreshold">45%</output>
+              </div>
+            </div>
+          </div>
 
           <h3 class="editor-subsection-heading">{{envelope_rates}}</h3>
           <div class="grid g6" id="envRatesGrid"></div>
@@ -615,8 +640,6 @@
 
           <h3 class="editor-subsection-heading">{{sample_modes}}</h3>
           <div class="check-row" id="modesRow"></div>
-
-      
 
           <h3 class="editor-subsection-heading">{{sound_test_keyboard}}</h3>
           <div class="hint">{{keyboard_test_hint}}</div>

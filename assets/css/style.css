@@ -404,6 +404,32 @@ main {
     grid-template-columns: repeat(3, 1fr)
 }
 
+.loop-threshold-grid {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.range-value-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-value-row input[type="range"] {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--accent);
+    background: transparent;
+    border: 0;
+    padding: 0;
+}
+
+.range-value-row output {
+    min-width: 38px;
+    color: var(--text);
+    font: 11px ui-monospace, monospace;
+    text-align: right;
+}
+
 .g4 {
     grid-template-columns: repeat(4, 1fr)
 }
