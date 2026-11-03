@@ -1653,6 +1653,7 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    padding: 6px 0;
 }
 
 .midi-seek,
@@ -1734,6 +1735,7 @@ footer {
     align-items: center;
     gap: 2px;
     color: var(--dim);
+    padding: 6px 0;
 }
 
 .midi-volume-value {
