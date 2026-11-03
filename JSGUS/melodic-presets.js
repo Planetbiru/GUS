@@ -3644,45 +3644,19 @@ var GUS_MELODIC_PRESETS = [
       "vibratoOnset": 0.2,
       "drive": 1.3,
       "formants": [
-        {
-          "freq": 1100,
-          "q": 1.5,
-          "gain": 5
-        },
-        {
-          "freq": 2000,
-          "q": 2,
-          "gain": 4
-        },
-        {
-          "freq": 3800,
-          "q": 2.5,
-          "gain": 2
-        }
+        { "freq": 1400, "q": 1.5, "gain": 5 },
+        { "freq": 2600, "q": 2,   "gain": 5 },
+        { "freq": 4300, "q": 2.5, "gain": 6 }
       ],
-      "harm": [
-        1,
-        0.6,
-        0.65,
-        0.45,
-        0.35,
-        0.25,
-        0.15,
-        0.08
-      ],
-      "env": {
-        "a": 0.05,
-        "d": 0.1,
-        "s": 0.9,
-        "r": 0.2
-      },
+      "harm": [1, 0.68, 0.55, 0.42, 0.30, 0.21, 0.14, 0.09, 0.06, 0.04],
+      "phases": [0, 0.1, 0.22, 0.4, 0.6, 0.8, 0.05, 0.28, 0.5, 0.7],
+      "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
       "loop": 1,
       "cycles": 14,
-      "vibrato": {
-        "rate": 5.5,
-        "depth": 0.008,
-        "sweep": 15
-      },
+      "loopSkip": 8,
+      "loopAttack": 0.008,
+      "vibrato": { "rate": 6, "depth": 0.006, "sweep": 12 },
+      "freq": 620,
       "gain": 0.11
     }
   },
@@ -3692,47 +3666,21 @@ var GUS_MELODIC_PRESETS = [
     "name": "Alto Sax",
     "preset": {
       "vibratoOnset": 0.2,
-      "drive": 1.6,
+      "drive": 1.9,
       "formants": [
-        {
-          "freq": 900,
-          "q": 1.5,
-          "gain": 5
-        },
-        {
-          "freq": 1600,
-          "q": 2,
-          "gain": 4
-        },
-        {
-          "freq": 3200,
-          "q": 2.5,
-          "gain": 2
-        }
+        { "freq": 1050, "q": 1.5, "gain": 5   },
+        { "freq": 1950, "q": 2,   "gain": 4   },
+        { "freq": 3650, "q": 2.5, "gain": 5   }
       ],
       "harm": [
-        1,
-        0.72,
-        0.58,
-        0.4,
-        0.28,
-        0.18,
-        0.1,
-        0.05
+        1, 0.62, 0.70, 0.42, 0.36, 0.20, 0.15, 0.08, 0.05
       ],
-      "env": {
-        "a": 0.05,
-        "d": 0.1,
-        "s": 0.9,
-        "r": 0.2
-      },
+      "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
       "loop": 1,
       "cycles": 14,
-      "vibrato": {
-        "rate": 5,
-        "depth": 0.008,
-        "sweep": 15
-      },
+      "vibrato": { "rate": 5.5, "depth": 0.007, "sweep": 15 },
+      "brightness": { "start": 10000, "end": 5500 },
+      "freq": 460,
       "gain": 0.11
     }
   },
@@ -3742,47 +3690,22 @@ var GUS_MELODIC_PRESETS = [
     "name": "Tenor Sax",
     "preset": {
       "vibratoOnset": 0.2,
-      "drive": 1.8,
+      "drive": 1.4,
       "formants": [
-        {
-          "freq": 800,
-          "q": 1.5,
-          "gain": 5
-        },
-        {
-          "freq": 1400,
-          "q": 2,
-          "gain": 4
-        },
-        {
-          "freq": 2800,
-          "q": 2.5,
-          "gain": 2
-        }
+        { "freq": 680,  "q": 1.4, "gain": 6 },
+        { "freq": 1300, "q": 1.8, "gain": 4 },
+        { "freq": 2400, "q": 2.2, "gain": 4 }
       ],
-      "harm": [
-        1,
-        0.78,
-        0.55,
-        0.38,
-        0.25,
-        0.15,
-        0.09,
-        0.04
-      ],
-      "env": {
-        "a": 0.05,
-        "d": 0.1,
-        "s": 0.9,
-        "r": 0.2
-      },
+      "harm": [1, 0.88, 0.45, 0.28, 0.16, 0.09, 0.05, 0.03],
+      "phases": [0, 0.08, 0.18, 0.3, 0.45, 0.6, 0.75, 0.9],
+      "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
       "loop": 1,
       "cycles": 14,
-      "vibrato": {
-        "rate": 4.5,
-        "depth": 0.007,
-        "sweep": 15
-      },
+      "loopSkip": 8,
+      "loopAttack": 0.012,
+      "vibrato": { "rate": 4, "depth": 0.011, "sweep": 18 },
+      "freq": 320,
+      "noise": 0.012,
       "gain": 0.11
     }
   },
@@ -3792,48 +3715,21 @@ var GUS_MELODIC_PRESETS = [
     "name": "Bari Sax",
     "preset": {
       "vibratoOnset": 0.2,
-      "drive": 2,
+      "drive": 1.9,
       "formants": [
-        {
-          "freq": 650,
-          "q": 1.5,
-          "gain": 5
-        },
-        {
-          "freq": 1200,
-          "q": 2,
-          "gain": 4
-        },
-        {
-          "freq": 2400,
-          "q": 2.5,
-          "gain": 2
-        }
+        { "freq": 1100, "q": 1.5, "gain": 5 },
+        { "freq": 2000, "q": 2,   "gain": 5 },
+        { "freq": 3400, "q": 2.5, "gain": 6 }
       ],
-      "harm": [
-        1,
-        0.8,
-        0.5,
-        0.32,
-        0.2,
-        0.12,
-        0.06,
-        0.03
-      ],
-      "env": {
-        "a": 0.05,
-        "d": 0.1,
-        "s": 0.9,
-        "r": 0.2
-      },
+      "harm": [1, 0.60, 0.72, 0.42, 0.34, 0.20, 0.13, 0.08, 0.05],
+      "phases": [0, 0.2, 0.4, 0.6, 0.8, 0.1, 0.35, 0.6, 0.85],
+      "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
       "loop": 1,
       "cycles": 14,
-      "vibrato": {
-        "rate": 4,
-        "depth": 0.006,
-        "sweep": 15
-      },
-      "freq": 300,
+      "loopSkip": 8,
+      "loopAttack": 0.01,
+      "vibrato": { "rate": 5.5, "depth": 0.007, "sweep": 15 },
+      "freq": 460,
       "gain": 0.11
     }
   },
@@ -3884,6 +3780,7 @@ var GUS_MELODIC_PRESETS = [
         "depth": 0.007,
         "sweep": 15
       },
+      "brightness": { "start": 9000, "end": 4800 },
       "gain": 0.11
     }
   },
@@ -3904,6 +3801,11 @@ var GUS_MELODIC_PRESETS = [
           "freq": 2200,
           "q": 2,
           "gain": 3
+        },
+        { 
+          "freq": 3300, 
+          "q": 2, 
+          "gain": 4 
         }
       ],
       "harm": [
@@ -3928,6 +3830,7 @@ var GUS_MELODIC_PRESETS = [
         "depth": 0.006,
         "sweep": 15
       },
+      "brightness": { "start": 9000, "end": 4800 },
       "gain": 0.11
     }
   },
@@ -3948,6 +3851,10 @@ var GUS_MELODIC_PRESETS = [
           "freq": 1200,
           "q": 2,
           "gain": 3
+        },
+        { "freq": 2600, 
+          "q": 2, 
+          "gain": 3.5 
         }
       ],
       "harm": [
@@ -3972,6 +3879,7 @@ var GUS_MELODIC_PRESETS = [
         "depth": 0.004,
         "sweep": 15
       },
+      "brightness": { "start": 9000, "end": 4800 },
       "freq": 220,
       "gain": 0.11
     }
@@ -4018,6 +3926,7 @@ var GUS_MELODIC_PRESETS = [
         "depth": 0.005,
         "sweep": 15
       },
+      "brightness": { "start": 9000, "end": 5200 },
       "noise": 0.05,
       "gain": 0.11
     }
@@ -4081,10 +3990,7 @@ var GUS_MELODIC_PRESETS = [
         "time": 0.03
       },
       "vibratoOnset": 0.18,
-      "brightness": {
-        "start": 7000,
-        "end": 2500
-      },
+      "brightness": { "start": 9000, "end": 5200 },
       "harm": [
         1,
         0.28,
@@ -4133,8 +4039,8 @@ var GUS_MELODIC_PRESETS = [
       },
       "vibratoOnset": 0.18,
       "brightness": {
-        "start": 7000,
-        "end": 2500
+        "start": 9000,
+        "end": 5200
       },
       "harm": [
         1,
@@ -4184,8 +4090,8 @@ var GUS_MELODIC_PRESETS = [
       },
       "vibratoOnset": 0.18,
       "brightness": {
-        "start": 7000,
-        "end": 2500
+        "start": 9000,
+        "end": 5200
       },
       "harm": [
         1,
@@ -4235,8 +4141,8 @@ var GUS_MELODIC_PRESETS = [
       },
       "vibratoOnset": 0.18,
       "brightness": {
-        "start": 7000,
-        "end": 2500
+        "start": 9000,
+        "end": 5200
       },
       "harm": [
         1,
@@ -4275,8 +4181,8 @@ var GUS_MELODIC_PRESETS = [
       },
       "vibratoOnset": 0.18,
       "brightness": {
-        "start": 7000,
-        "end": 2500
+        "start": 9000,
+        "end": 5200
       },
       "harm": [
         1,
@@ -4320,8 +4226,8 @@ var GUS_MELODIC_PRESETS = [
       },
       "vibratoOnset": 0.18,
       "brightness": {
-        "start": 7000,
-        "end": 2500
+        "start": 9000,
+        "end": 5200
       },
       "harm": [
         1,
@@ -4360,8 +4266,8 @@ var GUS_MELODIC_PRESETS = [
       },
       "vibratoOnset": 0.18,
       "brightness": {
-        "start": 7000,
-        "end": 2500
+        "start": 9000,
+        "end": 5200
       },
       "harm": [
         1,
