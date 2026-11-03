@@ -2245,7 +2245,7 @@ class MidiController {
     }
   }
 
-  static openPatchPreviewDialog() {
+  static async openPatchPreviewDialog() {
     MidiController.closePatchPreviewDialog();
     const project = state.projects.find(entry => entry.id === state.currentProjectId);
     const patch = state.patches.find(entry => entry.id === state.currentPatchId);
@@ -2262,12 +2262,51 @@ class MidiController {
     }
 
     const isDrum = Number(patch.gmBank ?? 0) === 128;
-    const program = patch.gmProgram == null || patch.gmProgram === ""
+    let program = patch.gmProgram == null || patch.gmProgram === ""
       ? NaN
       : Number(patch.gmProgram);
-    const bank = patch.targetBank == null || patch.targetBank === ""
+    let bank = patch.targetBank == null || patch.targetBank === ""
       ? 0
       : Number(patch.targetBank);
+    if ((!Number.isInteger(program) || program < 0 || program > 127) &&
+        !isDrum && String(patch.source || "").startsWith("fxp:")) {
+      if (midiProgress.playing) {
+        status.textContent = t("patch_preview_stop_midi_first");
+        dialog.hidden = false;
+        return;
+      }
+
+      const usedPrograms = new Set(
+        getProjectPatches(project)
+          .filter(entry => entry.id !== patch.id
+            && (entry.gmBank ?? 0) !== 128
+            && Number(entry.targetBank ?? 0) === bank)
+          .map(entry => Number(entry.gmProgram))
+          .filter(value => Number.isInteger(value) && value >= 0 && value <= 127)
+      );
+      program = Array.from({length: 128}, (_, value) => value)
+        .find(value => !usedPrograms.has(value));
+      if (program === undefined) {
+        status.textContent = t("patch_preview_no_program_slot");
+        dialog.hidden = false;
+        return;
+      }
+
+      const updatedPatch = {...patch, gmProgram: program, targetBank: bank};
+      try {
+        await dbSaveProjectAndPatches(project, [updatedPatch]);
+      } catch (error) {
+        console.error("[Patch Preview] Failed to assign a MIDI program to FXP patch:", error);
+        status.textContent = t("patch_preview_assignment_failed", {message: error.message});
+        dialog.hidden = false;
+        return;
+      }
+      Object.assign(patch, updatedPatch);
+      if (timidityPlayer) invalidateTimidityPlayer();
+      renderLibrary();
+      renderBankManager();
+    }
+
     if (!Number.isInteger(program) || program < 0 || program > 127 ||
         !Number.isInteger(bank) || bank < 0 || bank > 127) {
       status.textContent = t("patch_preview_invalid_program");

@@ -1934,6 +1934,7 @@ class PatchDataService {
     for (let i = 0; i < 12; i++) s += String.fromCharCode(b[i]);
     if (s.startsWith("GF1PATCH")) return "pat";
     if (s.startsWith("RIFF") && s.substring(8, 12) === "sfbk") return "sf2";
+    if (s.startsWith("CcnK") && s.substring(8, 12) === "FPCh") return "fxp";
     if (b[0] === 0x50 && b[1] === 0x4B) return "zip"; // ZIP signature 'PK'
   
     // MIDI.js Soundfont: file teks yang mengandung "MIDI.Soundfont"
@@ -1942,6 +1943,178 @@ class PatchDataService {
     if (head.includes("MIDI.Soundfont") || head.includes("MIDI.SoundFont")) return "midijs";
   
     return null;
+  }
+
+  static surgeFxpToGusEntry(ab, fileName) {
+    const bytes = new Uint8Array(ab);
+    const dv = new DataView(ab);
+    const readTag = (offset, length) =>
+      String.fromCharCode(...bytes.subarray(offset, offset + length));
+    const fail = key => { throw new Error(t(key)); };
+    if (bytes.length < 92 || readTag(0, 4) !== "CcnK" || readTag(8, 4) !== "FPCh") {
+      fail("fxp_invalid_file");
+    }
+    if (readTag(16, 4) !== "cjs3") fail("fxp_unsupported_plugin");
+
+    const chunkSize = dv.getUint32(56, false);
+    const chunkEnd = 60 + chunkSize;
+    if (chunkSize < 32 || chunkEnd > bytes.length || readTag(60, 4) !== "sub3") {
+      fail("fxp_invalid_file");
+    }
+
+    const xmlSize = dv.getUint32(64, true);
+    const wavetableSizes = Array.from({ length: 6 }, (_, index) =>
+      dv.getUint32(68 + index * 4, true)
+    );
+    const wavetableOffset = 92 + xmlSize;
+    if (xmlSize === 0 || xmlSize > 1024 * 1024
+      || wavetableOffset > chunkEnd
+      || wavetableOffset + wavetableSizes.reduce((sum, size) => sum + size, 0) !== chunkEnd) {
+      fail("fxp_invalid_file");
+    }
+
+    const xml = new TextDecoder("utf-8", { fatal: true })
+      .decode(bytes.subarray(92, wavetableOffset));
+    const Parser = window.DOMParser;
+    if (!Parser) fail("fxp_xml_parser_unavailable");
+    const document = new Parser().parseFromString(xml, "application/xml");
+    if (document.querySelector("parsererror") || document.documentElement?.localName !== "patch") {
+      fail("fxp_invalid_file");
+    }
+
+    const rawPatchName = document.getElementsByTagName("meta")[0]?.getAttribute("name")
+      || fileName.replace(/\.fxp$/i, "");
+    const patchName = rawPatchName.replace(/[^\x20-\x7E]/g, " ").trim().substring(0, 60)
+      || fileName.replace(/\.fxp$/i, "").substring(0, 60);
+    const layers = [];
+    let dataOffset = wavetableOffset;
+    for (let slot = 0; slot < 6; slot++) {
+      const blockSize = wavetableSizes[slot];
+      if (blockSize === 0) continue;
+      if (blockSize < 12 || dataOffset + blockSize > chunkEnd) fail("fxp_invalid_file");
+
+      const scene = Math.floor(slot / 3);
+      const oscillator = slot % 3;
+      const prefix = `${String.fromCharCode(97 + scene)}_osc${oscillator + 1}`;
+      const typeNode = document.getElementsByTagName(`${prefix}_type`)[0];
+      const oscillatorType = Number(typeNode?.getAttribute("value"));
+      if (oscillatorType !== 2 && oscillatorType !== 7) {
+        dataOffset += blockSize;
+        continue;
+      }
+
+      const blockView = new DataView(ab, dataOffset, blockSize);
+      const frameSize = blockView.getUint32(4, true);
+      const frameCount = blockView.getUint16(8, true);
+      const flags = blockView.getUint16(10, true);
+      const isInt16 = (flags & 4) !== 0;
+      const isSample = (flags & 1) !== 0;
+      const shouldLoop = !isSample || (flags & 2) !== 0;
+      const bytesPerValue = isInt16 ? 2 : 4;
+      const expectedDataSize = frameSize * frameCount * bytesPerValue;
+      if (frameSize < 16 || frameSize > 4096 || frameCount < 1 || frameCount > 512
+        || expectedDataSize + 12 !== blockSize) {
+        fail("fxp_invalid_wavetable");
+      }
+
+      const valueCount = isSample ? frameSize * frameCount : frameSize;
+      const pcm = new Uint8Array(valueCount * 2);
+      const pcmView = new DataView(pcm.buffer);
+      for (let index = 0; index < valueCount; index++) {
+        const value = isInt16
+          ? blockView.getInt16(12 + index * 2, true) / ((flags & 8) ? 32768 : 16384)
+          : blockView.getFloat32(12 + index * 4, true);
+        if (!Number.isFinite(value)) fail("fxp_invalid_wavetable");
+        pcmView.setInt16(index * 2, Math.round(clamp(value, -1, 32767 / 32768) * 32768), true);
+      }
+
+      const octaveNode = document.getElementsByTagName(`${prefix}_octave`)[0];
+      const octave = Number(octaveNode?.getAttribute("value")) || 0;
+      const oscillatorName = document.getElementsByTagName(`osc_extra_sc${scene}_osc${oscillator}`)[0]
+        ?.getAttribute("wavetable_display_name") || `${patchName} ${oscillator + 1}`;
+      const sampleRate = isSample ? 44100 : 22050;
+      const pitchRatio = Math.pow(2, -clamp(octave, -8, 8));
+      const hasLoop = shouldLoop && pcm.length >= 8;
+      const sampleName = oscillatorName.replace(/[^\x20-\x7E]/g, "").trim().substring(0, 7) || "FXP";
+      const sample = {
+        name: sampleName,
+        fractions: 0,
+        dataSize: pcm.length,
+        loopStart: 0,
+        loopEnd: hasLoop ? pcm.length : 0,
+        sampleRate,
+        lowFreq: 0,
+        highFreq: 20000000,
+        rootFreq: Math.round((hasLoop ? sampleRate / frameSize : 261.625565) * pitchRatio * 1000),
+        tune: 0,
+        balance: 7,
+        envRates: hasLoop ? [9, 0, 0, 69, 0, 0] : [0, 0, 0, 0, 0, 0],
+        envOffsets: [255, 255, 255, 0, 0, 0],
+        tremoloSweep: 0,
+        tremoloRate: 0,
+        tremoloDepth: 0,
+        vibratoSweep: 0,
+        vibratoRate: 0,
+        vibratoDepth: 0,
+        modes: M16 | (hasLoop ? MLOOP | MENV : 0),
+        scaleFreq: 60,
+        scaleFactor: 1024,
+        reserved: new Uint8Array(36),
+        pcm,
+        _float: null
+      };
+      layers.push({
+        duplicate: 0,
+        layer: layers.length,
+        layerSize: 0,
+        reserved: new Uint8Array(40),
+        samples: [sample]
+      });
+      dataOffset += blockSize;
+    }
+
+    if (layers.length === 0) fail("fxp_no_embedded_wavetables");
+    const description = patchName.substring(0, 60);
+    const patch = {
+      header: {
+        magic: MAGIC,
+        gravisId: GRAVIS_ID,
+        description,
+        voices: 14,
+        channels: 0,
+        waveForms: 0,
+        masterVolume: 127,
+        dataSize: 0,
+        reserved: new Uint8Array(36)
+      },
+      instruments: [{
+        instrument: 0,
+        name: patchName.substring(0, 16),
+        size: 0,
+        reserved: new Uint8Array(40),
+        layers
+      }]
+    };
+
+    const project = state.projects.find(item => item.id === state.currentProjectId);
+    const usedPrograms = new Set(
+      project ? getProjectPatches(project)
+        .filter(entry => (entry.gmBank ?? 0) !== 128 && (entry.targetBank ?? 0) === 0)
+        .map(entry => Number(entry.gmProgram))
+        .filter(program => Number.isInteger(program) && program >= 0 && program <= 127)
+        : []
+    );
+    const gmProgram = Array.from({length: 128}, (_, program) => program)
+      .find(program => !usedPrograms.has(program)) ?? -1;
+
+    return {
+      id: uid("fxp"),
+      name: patchName.substring(0, 48),
+      source: `fxp:${fileName}`,
+      gmProgram,
+      gmBank: 0,
+      patch
+    };
   }
 
   static getImportedPatchName(patch, cfgItem, fallbackFilename) {
@@ -2025,6 +2198,20 @@ class PatchDataService {
             const count = allSamples().length;
             showStatus(t("file_loading", { filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", { count }) }), "ok");
           }
+        } else if (type === "fxp") {
+          showStatus(t("converting_fxp"));
+          setTimeout(async () => {
+            try {
+              const entry = PatchDataService.surgeFxpToGusEntry(ab, file.name);
+              if (await addPatchEntries([entry])) {
+                showStatus(t("fxp_imported", { filename: file.name }), "ok");
+              }
+            } catch (err) {
+              console.error("FXP conversion error:", err);
+              showStatus(t("fxp_conversion_failed", { message: err.message }), "bad");
+              showAlert("fxp_conversion_alert", { message: err.message });
+            }
+          }, 100);
         } else if (type === "sf2") {
           showStatus(t("converting_soundfont"));
           setTimeout(async () => {
@@ -2100,6 +2287,20 @@ class PatchDataService {
             }), "ok");
           }
           
+        } else if (type === "fxp") {
+          showStatus(t("converting_fxp"));
+          await new Promise(resolve => setTimeout(resolve, 50));
+          try {
+            const entry = PatchDataService.surgeFxpToGusEntry(ab, file.name);
+            if (await addPatchEntries([entry])) {
+              showStatus(t("fxp_imported", { filename: file.name }), "ok");
+            }
+          } catch (err) {
+            console.error("FXP conversion error:", err);
+            showStatus(t("fxp_conversion_failed", { message: err.message }), "bad");
+            showAlert("fxp_conversion_alert", { message: err.message });
+          }
+
         } else if (type === "sf2") {
           // Menangani file SF2 (SoundFont)
           showStatus(t("converting_soundfont"));

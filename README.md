@@ -1,6 +1,6 @@
 # Planetbiru Instrument Editor
 
-A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2` and `.sf3`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
+A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2` and `.sf3`)**, **Surge VST2 presets (`.fxp`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
 
 Built with vanilla JavaScript and no build step. Runs entirely in the browser. All data is stored locally in IndexedDB.
 
@@ -29,6 +29,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 ### Instrument & Patch Editing
 - **Full GUS `.PAT` support** — parse, inspect, edit, and export Gravis Ultrasound patches
 - **SoundFont (`.sf2` / `.sf3`) support** — import presets into editable patches, including Ogg Vorbis-compressed SF3 samples, and export projects to standard SF2
+- **Surge VST2 `.fxp` import** — converts embedded Surge wavetable/sample data into an approximate playable GUS patch
 - **SFZ package support** — import `.sfz` instruments and their audio samples directly from `.zip` archives
 - **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
 - **Instrument management** — add, rename, reorder, and export individual instruments
@@ -54,6 +55,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 | GUS Patch | `.pat` | Native Gravis Ultrasound patch format |
 | SoundFont 2 | `.sf2` | Extracts all presets, including drum kits (split per MIDI note) |
 | SoundFont 3 | `.sf3` | Decodes mono Ogg Vorbis samples and extracts all presets; mixed PCM/compressed files are supported |
+| Surge VST2 preset | `.fxp` | Converts embedded wavetable and sample oscillator data to a playable GUS patch |
 | Timidity package | `.zip` | Timidity distribution packages containing `timidity.cfg` |
 | SFZ Package | `.zip` | Instruments containing `.sfz` files and their audio samples (`.wav`, `.mp3`, etc.) |
 | MIDI.js soundfont | `.js` | FluidR3_GM-style OGG/MP3 soundfonts from jsDelivr and similar CDNs |
@@ -203,6 +205,10 @@ Every pass through this chain preserves the following:
 - `scaleFreq` and `scaleFactor` — metadata-only UI fields; `scaleFreq` is rewritten from `rootFreq` on export
 
 > **Tip:** Because pitch is derived from `rootFreq` (via `originalPitch` + `chPitchCorrection`), two patches with identical PCM but different `scaleFreq` will roundtrip to identical pitches. If a patch's `scaleFreq` looks different after a roundtrip, only the UI label changed — the audible pitch did not.
+
+### Surge VST2 `.fxp` presets
+
+Surge VST2 program presets with embedded oscillator wavetable data can be imported as approximate GUS patches. The first frame of each embedded wavetable is converted to a looped sample; embedded sample oscillators retain their sample data as one-shot samples. The conversion retains the preset name and oscillator octave where available, but does not render Surge's filters, envelopes, effects, modulation, or wavetable animation. Other plugin vendors' FXP files and Surge presets without embedded wavetable/sample data are not supported.
 
 ---
 
@@ -604,6 +610,7 @@ Placeholders use `{name}` syntax and are substituted from the `values` argument 
 - **RAM usage** — converting a large SoundFont or an SFZ package with hundreds of samples can hold hundreds of megabytes in memory during conversion; browsers may crash on low-RAM devices
 - **Storage limits** — IndexedDB quotas vary by browser (usually 10% of disk); large libraries may hit the quota
 - **SoundFont import** — parsed and decoded in the main thread; the UI may freeze during conversion of large files. SF3 compressed sample decoding requires browser support for Ogg Vorbis.
+- **FXP import** — only Surge VST2 presets with embedded wavetable/sample data are supported; conversion to GUS is approximate and does not preserve the full synthesizer sound.
 - **SF2 roundtrip** — PCM, loop points, sample rate, root frequency, key ranges, and preset metadata are preserved. Envelopes, tremolo, vibrato, and loop fractions are **not** part of the SF2 export format and are lost after a roundtrip; use a `.pat`-only export if you need those settings
 - **SFZ import** — Only basic SFZ opcodes are supported (key ranges, loops, tuning). Advanced opcodes (filters, complex modulation, keyswitches) are ignored. The `.sfz` file must be bundled inside a `.zip` along with its audio samples.
 - **MIDI.js import** — decoding ~88 notes at 22050 Hz takes 20–60 seconds depending on the file and device
