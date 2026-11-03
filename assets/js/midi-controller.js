@@ -705,10 +705,35 @@ class MidiController {
       $("btnTimelinePlay").disabled = false;
       $("btnTimelinePlay").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg>`;
   
-  
-  
+      // Clear canvas
+      setTimeout(() => {
+        const canvas = $("midiPlaybackWaveform");
+        if(canvas)
+        {
+          const context = canvas.getContext("2d");
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }, 100);
       setMidiStatus("midi_finished");
       updateMidiUI();
+    });
+
+    timidityPlayer.onStop(() => {
+      // ═══════════════════════════════════════════════════════════════
+      // Guard kritis: hanya proses jika kita MASIH di state playing.
+      // Jika playing=false, berarti user baru saja pause/stop/seek —
+      // onStop ini adalah efek samping dari timidityPlayer.stop(),
+      // bukan akhir lagu yang sesungguhnya.
+      // ═══════════════════════════════════════════════════════════════
+      // Clear canvas
+      setTimeout(() => {
+        const canvas = $("midiPlaybackWaveform");
+        if(canvas)
+        {
+          const context = canvas.getContext("2d");
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }, 40);
     });
   
     await timidityPlayer.init();
@@ -1724,7 +1749,7 @@ class MidiController {
       midiProgress.playing = false;
       midiProgress.paused = true;
       MidiController.stopMidiPlaybackWaveform();
-      timidityPlayer.stop();
+      timidityPlayer.pause();
       cancelAnimationFrame(midiProgress.raf);
       
       const btn = $("btnPlayMidi");
