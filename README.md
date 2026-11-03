@@ -416,8 +416,7 @@ planetbiru-instrument-editor/
 │   │   ├── bank-controller.js
 │   │   ├── editor-controller.js       # Sample editing and generated waveform variants
 │   │   ├── project-controller.js
-│   │   ├── midi-controller.js
-│   │   └── zip.js
+│   │   └── midi-controller.js
 │   └── locales/
 │       ├── id.json                    # Indonesian strings
 │       └── en.json                    # English strings

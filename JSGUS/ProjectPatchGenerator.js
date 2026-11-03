@@ -175,22 +175,22 @@ class ProjectPatchGenerator {
         reserved: new Uint8Array(36)
         },
         instruments: [{
-        instrument: 0,
-        name: this.slugify(name).slice(0, 15),
-        size: 0,
-        reserved: new Uint8Array(40),
-        layers: [{
-            duplicate: 0,
-            layer: 0,
-            layerSize: 0,
+            instrument: 0,
+            name: this.slugify(name).slice(0, 15),
+            size: 0,
             reserved: new Uint8Array(40),
-            samples: [sample]
-        }]
+            layers: [{
+                duplicate: 0,
+                layer: 0,
+                layerSize: 0,
+                reserved: new Uint8Array(40),
+                samples: [sample]
+            }]
         }]
     };
 
     return { patch, name, program: id, isDrum, waveform: appliedWaveform, pitchFrom, pitchTo };
-    }
+  }
 
   slugify(value) {
     return String(value).replace(/[^A-Za-z0-9]/g, "_");
