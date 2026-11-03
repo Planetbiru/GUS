@@ -473,7 +473,7 @@ Common melodic `preset` properties:
 | `loopAttack` | Loop attack/fade-in time in seconds. |
 | `sustainLoop` | Set to `false` to disable the GUS sustain-loop flag while retaining the sample loop. |
 | `patchEnvelope` | Optional GUS patch envelope with six raw `rates` and six `offsets` values. These are written to the patch header. |
-| `gain` | Non-negative output multiplier applied during patch generation. Values above 1 are allowed; final 16-bit PCM clips at its limits. |
+| `gain` | Non-negative output multiplier applied after the rendered waveform is normalized. Values below 1 reduce sample level and leave headroom when voices are mixed; values above 1 can clip the final 16-bit PCM. |
 | `noise` | Blend amount for noise in the oscillator signal. Looping presets use a repeating noise cycle. |
 | `fm` | Frequency modulation settings: `ratio` is the modulator/carrier frequency ratio; `index` is modulation depth. Looping presets require an integer `ratio` for FM to be used. |
 | `detune` | Voice detuning values in cents; used for one-shot rendering. |
@@ -508,6 +508,7 @@ Drum `preset` properties are combined by `DrumRenderer`:
 | Property | Meaning |
 | --- | --- |
 | `duration` | Render length in seconds. |
+| `gain` | Non-negative output multiplier applied after drum rendering is normalized. Values below 1 reduce the hit level and leave headroom when percussion is layered; values above 1 can clip the final 16-bit PCM. |
 | `tones` | Array of decaying sine tones. Each tone supports `fStart`/`fEnd` in hertz, `pitchDecay`/`decay` in seconds, `amp`, and optional `fm: { ratio, index }`. |
 | `membrane` | Tuned membrane sound with base `freq` in hertz, `pitchDecay` and `decay` in seconds, and optional `modes`. Each mode has a frequency `ratio`, relative `amp`, optional `startRatio`, and a `decay` multiplier. |
 | `metallic` | Inharmonic ringing sound: `baseFreq` in hertz, optional partial frequency `ratios`, `amp`, and `decay` in seconds. |

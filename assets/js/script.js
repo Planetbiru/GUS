@@ -327,6 +327,7 @@ function updateTimelineMutedVisuals(...args) { return MidiController.updateTimel
 function togglePauseMidi(...args) { return MidiController.togglePauseMidi.apply(this, args); }
 function playMidi(...args) { return MidiController.playMidi.apply(this, args); }
 function stopMidi(...args) { return MidiController.stopMidi.apply(this, args); }
+function toggleMidiWaveformMode(...args) { return MidiController.toggleMidiWaveformMode.apply(this, args); }
 function exportPatchById(...args) { return BankController.exportPatchById.apply(this, args); }
 function exportProject(...args) { return BankController.exportProject.apply(this, args); }
 function openExportBanksDialog(...args) { return BankController.openExportBanksDialog.apply(this, args); }

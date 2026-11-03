@@ -270,6 +270,7 @@ var GUS_DRUM_PRESETS = [
     "note": 42,
     "name": "Closed Hi-Hat",
     "preset": {
+      "gain": 0.35,
       "duration": 0.14,
       "noiseLayers": [
         {
@@ -344,6 +345,7 @@ var GUS_DRUM_PRESETS = [
     "note": 44,
     "name": "Pedal Hi-Hat",
     "preset": {
+      "gain": 0.35,
       "duration": 0.16,
       "noiseLayers": [
         {
@@ -418,6 +420,7 @@ var GUS_DRUM_PRESETS = [
     "note": 46,
     "name": "Open Hi-Hat",
     "preset": {
+      "gain": 0.35,
       "duration": 0.62,
       "noiseLayers": [
         {
@@ -528,6 +531,7 @@ var GUS_DRUM_PRESETS = [
     "note": 49,
     "name": "Crash Cymbal 1",
     "preset": {
+      "gain": 0.35,
       "duration": 1.5,
       "noiseLayers": [
         {
@@ -610,6 +614,7 @@ var GUS_DRUM_PRESETS = [
     "note": 51,
     "name": "Ride Cymbal 1",
     "preset": {
+      "gain": 0.35,
       "duration": 1.1,
       "noiseLayers": [
         {
@@ -647,6 +652,7 @@ var GUS_DRUM_PRESETS = [
     "note": 52,
     "name": "Chinese Cymbal",
     "preset": {
+      "gain": 0.35,
       "duration": 1.8,
       "noiseLayers": [
         {
@@ -693,6 +699,7 @@ var GUS_DRUM_PRESETS = [
     "note": 53,
     "name": "Ride Bell",
     "preset": {
+      "gain": 0.35,
       "duration": 0.9,
       "noiseLayers": [
         {
@@ -760,6 +767,7 @@ var GUS_DRUM_PRESETS = [
     "note": 55,
     "name": "Splash Cymbal",
     "preset": {
+      "gain": 0.35,
       "duration": 0.6,
       "noiseLayers": [
         {
@@ -830,6 +838,7 @@ var GUS_DRUM_PRESETS = [
     "note": 57,
     "name": "Crash Cymbal 2",
     "preset": {
+      "gain": 0.35,
       "duration": 1.4,
       "noiseLayers": [
         {
@@ -902,6 +911,7 @@ var GUS_DRUM_PRESETS = [
     "note": 59,
     "name": "Ride Cymbal 2",
     "preset": {
+      "gain": 0.35,
       "duration": 0.9,
       "noiseLayers": [
         {

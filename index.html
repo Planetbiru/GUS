@@ -293,6 +293,17 @@
               </svg> {{stop}}</button>
           </div>
 
+          <div class="midi-waveform-panel">
+            <canvas id="midiPlaybackWaveform" class="midi-waveform-canvas" width="720" height="96"
+              role="button" tabindex="0" aria-label="{{midi_waveform_toggle_hint}}"
+              title="{{midi_waveform_toggle_hint}}" data-i18n-aria-label="midi_waveform_toggle_hint"
+              data-i18n-title="midi_waveform_toggle_hint"></canvas>
+            <div class="midi-waveform-caption">
+              <span id="midiWaveformReadout">{{midi_waveform_waiting}}</span>
+              <span>{{midi_waveform_click_hint}}</span>
+            </div>
+          </div>
+
           <div class="midi-volume-row">
             <span class="midi-volume-label"><svg class="icon">
                 <use href="#i-volume"></use>

@@ -553,6 +553,13 @@ class ApplicationController {
   
     $("btnStopMidi").addEventListener("click", stopMidi);
     $("btnRenderMidi").addEventListener("click", renderMidiToWav);
+    $("midiPlaybackWaveform").addEventListener("click", toggleMidiWaveformMode);
+    $("midiPlaybackWaveform").addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleMidiWaveformMode();
+      }
+    });
   
       $("midiSeek").addEventListener("input", e => {
       if (!state.midiData) return;

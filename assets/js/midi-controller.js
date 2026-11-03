@@ -1,4 +1,11 @@
 class MidiController {
+  static midiWaveformAnalyser = null;
+  static midiWaveformSource = null;
+  static midiWaveformDestination = null;
+  static midiWaveformFrame = null;
+  static midiWaveformMode = "amplitude";
+  static midiWaveformTimeData = null;
+  static midiWaveformFrequencyData = null;
   static patchPreviewSession = null;
   static patchPreviewRunId = 0;
   static patchPreviewActiveNote = null;
@@ -537,6 +544,7 @@ class MidiController {
   }
 
   static invalidateTimidityPlayer(clearPatchCache = true) {
+    MidiController.stopMidiPlaybackWaveform(true);
     if (timidityPlayer) {
       try { timidityPlayer.shutdown(); } catch (e) {}
       timidityPlayer = null;
@@ -688,6 +696,7 @@ class MidiController {
       midiProgress.paused = false;
       midiProgress.current = midiProgress.duration;
       cancelAnimationFrame(midiProgress.raf);
+      MidiController.stopMidiPlaybackWaveform();
   
       $("btnPlayMidi").disabled = false;
       $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
@@ -1714,6 +1723,7 @@ class MidiController {
       // Aksi Pause
       midiProgress.playing = false;
       midiProgress.paused = true;
+      MidiController.stopMidiPlaybackWaveform();
       timidityPlayer.stop();
       cancelAnimationFrame(midiProgress.raf);
       
@@ -1748,9 +1758,10 @@ class MidiController {
   
       if (timidityPlayer) timidityPlayer.stop();
       await timidityPlayer.loadAndPlay(state.midiData, fromTime);
-  
+
       // ─── Reapply mute/solo setelah patch dimuat ───
       applyMidiMuteSolo();
+      MidiController.startMidiPlaybackWaveform(timidityPlayer);
   
       // ═══════════════════════════════════════════════════════════════
       // Clock UI dimulai SETELAH loadAndPlay selesai.
@@ -1796,6 +1807,7 @@ class MidiController {
     midiProgress.seeking = false;
     midiProgress.current = 0;
     cancelAnimationFrame(midiProgress.raf);
+    MidiController.stopMidiPlaybackWaveform();
     
     if (timidityPlayer) {
       timidityPlayer.stop();
@@ -1811,6 +1823,181 @@ class MidiController {
     setMidiStatus("midi_stopped");
     updateTimelinePlayButton(); // <-- Tambahkan ini
     updateMidiUI();
+  }
+
+  static toggleMidiWaveformMode() {
+    MidiController.midiWaveformMode =
+      MidiController.midiWaveformMode === "amplitude" ? "frequency" : "amplitude";
+    MidiController.drawMidiPlaybackWaveform();
+  }
+
+  static startMidiPlaybackWaveform(player) {
+    const canvas = $("midiPlaybackWaveform");
+    const audioContext = player && player.audioContext;
+    const source = player && player.gainNode;
+    if (!canvas || !audioContext || !source) {
+      console.error("[MIDI Waveform] Player audio output is unavailable.");
+      return;
+    }
+
+    try {
+      if (MidiController.midiWaveformSource !== source) {
+        MidiController.stopMidiPlaybackWaveform(true);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0.8;
+        const destination = audioContext.destination;
+        source.disconnect(destination);
+        try {
+          source.connect(analyser);
+          analyser.connect(destination);
+        } catch (error) {
+          source.disconnect(analyser);
+          source.connect(destination);
+          throw error;
+        }
+        MidiController.midiWaveformAnalyser = analyser;
+        MidiController.midiWaveformSource = source;
+        MidiController.midiWaveformDestination = destination;
+        MidiController.midiWaveformTimeData = new Float32Array(analyser.fftSize);
+        MidiController.midiWaveformFrequencyData =
+          new Uint8Array(analyser.frequencyBinCount);
+      }
+
+      if (MidiController.midiWaveformFrame !== null) {
+        cancelAnimationFrame(MidiController.midiWaveformFrame);
+      }
+      MidiController.drawMidiPlaybackWaveform();
+      MidiController.midiWaveformFrame =
+        requestAnimationFrame(MidiController.updateMidiPlaybackWaveform);
+    } catch (error) {
+      console.error("[MIDI Waveform] Failed to connect audio analyser:", error);
+      MidiController.stopMidiPlaybackWaveform(true);
+    }
+  }
+
+  static updateMidiPlaybackWaveform() {
+    if (!MidiController.midiWaveformAnalyser || !midiProgress.playing) {
+      MidiController.midiWaveformFrame = null;
+      return;
+    }
+    MidiController.drawMidiPlaybackWaveform();
+    MidiController.midiWaveformFrame =
+      requestAnimationFrame(MidiController.updateMidiPlaybackWaveform);
+  }
+
+  static drawMidiPlaybackWaveform() {
+    const canvas = $("midiPlaybackWaveform");
+    const context = canvas && canvas.getContext("2d");
+    const analyser = MidiController.midiWaveformAnalyser;
+    const readout = $("midiWaveformReadout");
+    if (!canvas || !context || !analyser) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    context.clearRect(0, 0, width, height);
+    context.strokeStyle = "#38bdf8";
+    context.fillStyle = "rgba(56, 189, 248, 0.72)";
+    context.lineWidth = 1.5;
+
+    if (MidiController.midiWaveformMode === "frequency") {
+      const data = MidiController.midiWaveformFrequencyData;
+      analyser.getByteFrequencyData(data);
+      const barCount = 96;
+      const barWidth = width / barCount;
+      const nyquist = analyser.context.sampleRate / 2;
+      const minFrequency = 20;
+      const maxFrequency = Math.min(20000, nyquist);
+      let peak = 0;
+      let peakFrequency = 0;
+      for (let bin = 1; bin < data.length; bin++) {
+        const frequency = bin * nyquist / data.length;
+        if (frequency >= minFrequency && data[bin] > peak) {
+          peak = data[bin];
+          peakFrequency = frequency;
+        }
+      }
+      for (let bar = 0; bar < barCount; bar++) {
+        const lowFrequency = minFrequency *
+          Math.pow(maxFrequency / minFrequency, bar / barCount);
+        const highFrequency = minFrequency *
+          Math.pow(maxFrequency / minFrequency, (bar + 1) / barCount);
+        const lowBin = Math.max(1, Math.floor(lowFrequency * data.length / nyquist));
+        const highBin = Math.max(lowBin + 1, Math.ceil(highFrequency * data.length / nyquist));
+        let level = 0;
+        for (let bin = lowBin; bin < Math.min(highBin, data.length); bin++) {
+          level = Math.max(level, data[bin]);
+        }
+        const barHeight = level / 255 * height;
+        context.fillRect(bar * barWidth, height - barHeight, Math.max(1, barWidth - 1), barHeight);
+      }
+      if (readout) {
+        readout.textContent = t("midi_waveform_frequency_readout", {
+          frequency: Math.round(peakFrequency)
+        });
+      }
+      return;
+    }
+
+    const data = MidiController.midiWaveformTimeData;
+    analyser.getFloatTimeDomainData(data);
+    let peak = 0;
+    let sumSquares = 0;
+    for (const sample of data) {
+      peak = Math.max(peak, Math.abs(sample));
+      sumSquares += sample * sample;
+    }
+    const centerY = height / 2;
+    context.beginPath();
+    context.moveTo(0, centerY);
+    context.lineTo(width, centerY);
+    context.strokeStyle = "rgba(148, 163, 184, 0.3)";
+    context.stroke();
+    context.beginPath();
+    for (let index = 0; index < data.length; index++) {
+      const x = index * width / (data.length - 1);
+      const y = centerY - data[index] * centerY;
+      if (index === 0) context.moveTo(x, y);
+      else context.lineTo(x, y);
+    }
+    context.strokeStyle = "#38bdf8";
+    context.stroke();
+    if (readout) {
+      const rms = Math.sqrt(sumSquares / data.length);
+      readout.textContent = t("midi_waveform_amplitude_readout", {
+        peak: peak.toFixed(3),
+        rms: rms.toFixed(3)
+      });
+    }
+  }
+
+  static stopMidiPlaybackWaveform(disconnect = false) {
+    if (MidiController.midiWaveformFrame !== null) {
+      cancelAnimationFrame(MidiController.midiWaveformFrame);
+      MidiController.midiWaveformFrame = null;
+    }
+    if (disconnect && MidiController.midiWaveformSource &&
+        MidiController.midiWaveformAnalyser) {
+      try {
+        MidiController.midiWaveformSource.disconnect(MidiController.midiWaveformAnalyser);
+        MidiController.midiWaveformAnalyser.disconnect(
+          MidiController.midiWaveformDestination
+        );
+        if (MidiController.midiWaveformSource.context.state !== "closed") {
+          MidiController.midiWaveformSource.connect(
+            MidiController.midiWaveformDestination
+          );
+        }
+      } catch (error) {
+        console.error("[MIDI Waveform] Failed to disconnect audio analyser:", error);
+      } finally {
+        MidiController.midiWaveformAnalyser = null;
+        MidiController.midiWaveformSource = null;
+        MidiController.midiWaveformDestination = null;
+        MidiController.midiWaveformTimeData = null;
+        MidiController.midiWaveformFrequencyData = null;
+      }
+    }
   }
 
   static requestMidiDemoProject(buttons){

@@ -77,7 +77,7 @@ var GUS_MELODIC_PRESETS = [
           0
         ]
       },
-      "gain": 1
+      "gain": 0.20
     }
   },
   {
@@ -158,7 +158,7 @@ var GUS_MELODIC_PRESETS = [
           0
         ]
       },
-      "gain": 2
+      "gain": 0.20
     }
   },
   {
@@ -166,6 +166,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Piano",
     "name": "Electric Grand",
     "preset": {
+      "gain": 0.20,
       "harm": [
         1,
         0.2,
@@ -219,6 +220,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Piano",
     "name": "Honky-tonk",
     "preset": {
+      "gain": 0.20,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -302,6 +304,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Piano",
     "name": "E.Piano 1",
     "preset": {
+      "gain": 0.20,
       "harm": [
         1,
         0.2,
@@ -355,6 +358,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Piano",
     "name": "E.Piano 2",
     "preset": {
+      "gain": 0.20,
       "harm": [
         1,
         0.2,
@@ -408,6 +412,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Piano",
     "name": "Harpsichord",
     "preset": {
+      "gain": 0.20,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -458,6 +463,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Piano",
     "name": "Clavinet",
     "preset": {
+      "gain": 0.20,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -776,6 +782,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Drawbar Organ",
     "preset": {
+      "gain": 0.7,
       "harm": [
         1,
         0,
@@ -802,6 +809,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Percussive Organ",
     "preset": {
+      "gain": 0.7,
       "harm": [
         1,
         0,
@@ -830,6 +838,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Rock Organ",
     "preset": {
+      "gain": 0.7,
       "harm": [
         1,
         0,
@@ -858,6 +867,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Church Organ",
     "preset": {
+      "gain": 0.7,
       "harm": [
         1,
         0.7,
@@ -884,6 +894,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Reed Organ",
     "preset": {
+      "gain": 0.7,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -932,6 +943,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Accordion",
     "preset": {
+      "gain": 0.7,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -979,6 +991,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Harmonica",
     "preset": {
+      "gain": 0.7,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -1026,6 +1039,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Organ",
     "name": "Tango Accordion",
     "preset": {
+      "gain": 0.7,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -1152,7 +1166,7 @@ var GUS_MELODIC_PRESETS = [
         "depth": 0.0012,
         "time": 0.014
       },
-      "gain": 0.9
+      "gain": 0.3
     }
   },
   {
@@ -1247,7 +1261,7 @@ var GUS_MELODIC_PRESETS = [
         "depth": 0.0022,
         "time": 0.009
       },
-      "gain": 0.85
+      "gain": 0.3
     }
   },
   {
@@ -1255,6 +1269,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Guitar",
     "name": "Jazz Guitar",
     "preset": {
+      "gain": 0.4,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1321,6 +1336,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Guitar",
     "name": "Clean Guitar",
     "preset": {
+      "gain": 0.4,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1388,6 +1404,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Guitar",
     "name": "Muted Guitar",
     "preset": {
+      "gain": 0.4,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1455,6 +1472,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Guitar",
     "name": "Overdriven Gtr",
     "preset": {
+      "gain": 0.4,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1545,6 +1563,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Guitar",
     "name": "Distortion Gtr",
     "preset": {
+      "gain": 0.4,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1642,6 +1661,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Guitar",
     "name": "Gtr Harmonics",
     "preset": {
+      "gain": 0.4,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -2069,7 +2089,7 @@ var GUS_MELODIC_PRESETS = [
         0.75
       ],
       "loopSkip": 8,
-      "gain": 0.55
+      "gain": 0.20
     }
   },
   {
@@ -2148,7 +2168,7 @@ var GUS_MELODIC_PRESETS = [
         0.8
       ],
       "loopSkip": 8,
-      "gain": 0.58
+      "gain": 0.20
     }
   },
   {
@@ -2214,7 +2234,7 @@ var GUS_MELODIC_PRESETS = [
       ],
       "loopSkip": 8,
       "noise": 0.005,
-      "gain": 0.62
+      "gain": 0.20
     }
   },
   {
@@ -2280,7 +2300,7 @@ var GUS_MELODIC_PRESETS = [
       "freq": 220,
       "loopSkip": 8,
       "noise": 0.004,
-      "gain": 0.58
+      "gain": 0.20
     }
   },
   {
@@ -2346,7 +2366,7 @@ var GUS_MELODIC_PRESETS = [
       ],
       "noise": 0.006,
       "loopSkip": 8,
-      "gain": 0.55
+      "gain": 0.20
     }
   },
   {
@@ -2417,7 +2437,8 @@ var GUS_MELODIC_PRESETS = [
       "detune": [
         -8,
         8
-      ]
+      ],
+      "gain": 0.20
     }
   },
   {
@@ -2484,7 +2505,8 @@ var GUS_MELODIC_PRESETS = [
         "r": 0.6
       },
       "length": 44100,
-      "freq": 441
+      "freq": 441,
+      "gain": 0.20
     }
   },
   {
@@ -2506,7 +2528,8 @@ var GUS_MELODIC_PRESETS = [
       },
       "length": 6615,
       "freq": 441,
-      "noise": 0.1
+      "noise": 0.1,
+      "gain": 0.20
     }
   },
   {
@@ -2577,7 +2600,7 @@ var GUS_MELODIC_PRESETS = [
         0.9,
         0.5
       ],
-      "gain": 0.52,
+      "gain": 0.20,
       "loopSkip": 8
     }
   },
@@ -2648,7 +2671,7 @@ var GUS_MELODIC_PRESETS = [
         0.9,
         0.5
       ],
-      "gain": 0.52,
+      "gain": 0.20,
       "loopSkip": 8
     }
   },
@@ -2657,6 +2680,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Ensemble",
     "name": "SynthStrings 1",
     "preset": {
+      "gain": 0.20,
       "vibratoOnset": 0.2,
       "drive": 1.08,
       "formants": [
@@ -2728,6 +2752,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Ensemble",
     "name": "SynthStrings 2",
     "preset": {
+      "gain": 0.20,
       "vibratoOnset": 0.2,
       "drive": 1.04,
       "formants": [
@@ -2866,7 +2891,7 @@ var GUS_MELODIC_PRESETS = [
       },
       "noise": 0.04,
       "phaseScale": 0.012,
-      "gain": 0.8
+      "gain": 0.65
     }
   },
   {
@@ -2937,7 +2962,7 @@ var GUS_MELODIC_PRESETS = [
       },
       "noise": 0.02,
       "phaseScale": 0.015,
-      "gain": 0.85
+      "gain": 0.65
     }
   },
   {
@@ -3012,7 +3037,7 @@ var GUS_MELODIC_PRESETS = [
       },
       "noise": 0.02,
       "phaseScale": 0.01,
-      "gain": 0.85
+      "gain": 0.65
     }
   },
   {
@@ -3020,6 +3045,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Ensemble",
     "name": "Orchestra Hit",
     "preset": {
+      "gain": 0.65,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3063,6 +3089,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Brass",
     "name": "Trumpet",
     "preset": {
+      "gain": 0.7,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3133,6 +3160,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Brass",
     "name": "Trombone",
     "preset": {
+      "gain": 0.7,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3202,6 +3230,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Brass",
     "name": "Tuba",
     "preset": {
+      "gain": 0.7,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3271,6 +3300,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Brass",
     "name": "Muted Trpt",
     "preset": {
+      "gain": 0.7,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3340,6 +3370,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Brass",
     "name": "French Horn",
     "preset": {
+      "gain": 0.7,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3408,6 +3439,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Brass",
     "name": "Brass Section",
     "preset": {
+      "gain": 0.7,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4594,6 +4626,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (new age)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
@@ -4654,6 +4687,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (warm)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
@@ -4714,6 +4748,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (polysynth)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
@@ -4775,6 +4810,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (choir)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
@@ -4836,6 +4872,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (bowed)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
@@ -4896,6 +4933,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (metallic)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
@@ -4960,6 +4998,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (halo)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
@@ -5021,6 +5060,7 @@ var GUS_MELODIC_PRESETS = [
     "family": "Pad",
     "name": "Pad (sweep)",
     "preset": {
+      "gain": 0.65,
       "vibratoOnset": 0.2,
       "drive": 1.15,
       "formants": [
