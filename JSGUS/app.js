@@ -77,6 +77,20 @@ class GusPatchApp {
     // ---- Utility ----
     slugify(s) { return s.replace(/[^A-Za-z0-9]/g, '_'); }
 
+    applyOutputGain(rendered, preset, masterGain) {
+        const instrumentGain = preset.gain == null ? 1 : preset.gain;
+        if (!Number.isFinite(masterGain) || masterGain < 0
+            || !Number.isFinite(instrumentGain) || instrumentGain < 0) {
+            throw new Error('Invalid output gain.');
+        }
+        const outputGain = masterGain * instrumentGain;
+        if (outputGain === 1) return rendered;
+        return {
+            ...rendered,
+            pcm: rendered.pcm.map(sample => sample * outputGain),
+        };
+    }
+
     log(msg, cls = '') {
         const t = new Date().toTimeString().slice(0, 8);
         this.logEl.innerHTML +=
@@ -208,7 +222,11 @@ class GusPatchApp {
 
         if (this.currentType === 'drum') {
             const {preset: p} = this.lib.findDrum(this.currentMidi);
-            return new DrumRenderer(p, SR).render();
+            return this.applyOutputGain(
+                new DrumRenderer(p, SR).render(),
+                p,
+                this.lib.drumMasterGain
+            );
         }
 
         const {preset: basePreset} = this.lib.melodic[this.currentMidi];
@@ -224,7 +242,11 @@ class GusPatchApp {
             p2.harm = waves[waveOverride];
             delete p2.fm;
         }
-        return new MelodicRenderer(p2, { sampleRate: SR, freq, duration: dur }).render();
+        return this.applyOutputGain(
+            new MelodicRenderer(p2, { sampleRate: SR, freq, duration: dur }).render(),
+            p2,
+            this.lib.melodicMasterGain
+        );
     }
 
     // ---- Gambar waveform ----
@@ -292,7 +314,11 @@ class GusPatchApp {
 
         if (this.currentType === 'drum') {
             const {note, name, preset: p} = this.lib.findDrum(this.currentMidi);
-            const r = new DrumRenderer(p, SR).render();
+            const r = this.applyOutputGain(
+                new DrumRenderer(p, SR).render(),
+                p,
+                this.lib.drumMasterGain
+            );
             const rootFreq = this.lib.drumToFreq(note);
             const buf = GusPatchEncoder.encode({
                 name: this.slugify(name).slice(0, 15) || `drum${note}`,
@@ -310,7 +336,11 @@ class GusPatchApp {
         const freq = +this.$('root').value || basePreset.freq || 441;
         const dur = +this.$('dur').value;
         // ...render melodic...
-        const r = new MelodicRenderer(basePreset, { sampleRate: SR, freq, duration: dur }).render();
+        const r = this.applyOutputGain(
+            new MelodicRenderer(basePreset, { sampleRate: SR, freq, duration: dur }).render(),
+            basePreset,
+            this.lib.melodicMasterGain
+        );
         const buf = GusPatchEncoder.encode({
             name: this.slugify(name).slice(0, 15) || `gm${this.currentMidi}`,
             pcm: r.pcm,
@@ -351,7 +381,11 @@ class GusPatchApp {
         for (let i = 0; i < 128; i++) {
             const {name, preset: p} = this.lib.melodic[i];
             const freq = p.freq || 441;
-            const r = new MelodicRenderer(p, { sampleRate: SR, freq, duration: dur }).render();
+            const r = this.applyOutputGain(
+                new MelodicRenderer(p, { sampleRate: SR, freq, duration: dur }).render(),
+                p,
+                this.lib.melodicMasterGain
+            );
             const buf = GusPatchEncoder.encode({
                 name: this.slugify(name).slice(0, 15) || `gm${i}`,
                 pcm: r.pcm, loopStart: r.loopStart, loopEnd: r.loopEnd,
@@ -372,7 +406,11 @@ class GusPatchApp {
         const drumNames = [];      // ← simpan note + nama file untuk timidity.cfg
         for (let i = 0; i < this.lib.drums.length; i++) {
             const {note, name, preset: p} = this.lib.drums[i];
-            const r = new DrumRenderer(p, SR).render();
+            const r = this.applyOutputGain(
+                new DrumRenderer(p, SR).render(),
+                p,
+                this.lib.drumMasterGain
+            );
             const rootFreq = this.lib.drumToFreq(note);
             const buf = GusPatchEncoder.encode({
                 name: this.slugify(name).slice(0, 15) || `drum${note}`,

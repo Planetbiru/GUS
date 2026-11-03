@@ -1,4 +1,6 @@
-var GUS_MELODIC_PRESETS = [
+var GUS_MELODIC_PRESETS = {
+  "gain": 0.7,
+  "instruments": [
   {
     "program": 0,
     "family": "Piano",
@@ -5998,4 +6000,5 @@ var GUS_MELODIC_PRESETS = [
       "noise": 0.9
     }
   }
-];
+  ]
+};

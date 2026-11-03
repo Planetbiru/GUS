@@ -101,7 +101,11 @@ class ProjectPatchGenerator {
         && (typeof preset.gain !== 'number' || !Number.isFinite(preset.gain) || preset.gain < 0)) {
         throw new Error(`Invalid output gain for instrument: ${name}.`);
     }
-    const outputGain = preset && typeof preset.gain === 'number' ? preset.gain : 1.0;
+    const instrumentGain = preset && typeof preset.gain === 'number' ? preset.gain : 1.0;
+    const masterGain = isDrum
+        ? this.library.drumMasterGain
+        : this.library.melodicMasterGain;
+    const outputGain = masterGain * instrumentGain;
 
     const pcm = new Uint8Array(rendered.pcm.length * 2);
     for (let i = 0; i < rendered.pcm.length; i++) {
@@ -986,9 +990,15 @@ class InstrumentLibrary {
 
     _buildMelodic() {
         if (typeof GUS_MELODIC_PRESETS === 'undefined'
-            || !Array.isArray(GUS_MELODIC_PRESETS)
-            || GUS_MELODIC_PRESETS.length !== 128
-            || GUS_MELODIC_PRESETS.some(instrument =>
+            || !GUS_MELODIC_PRESETS
+            || typeof GUS_MELODIC_PRESETS !== 'object'
+            || Array.isArray(GUS_MELODIC_PRESETS)
+            || typeof GUS_MELODIC_PRESETS.gain !== 'number'
+            || !Number.isFinite(GUS_MELODIC_PRESETS.gain)
+            || GUS_MELODIC_PRESETS.gain < 0
+            || !Array.isArray(GUS_MELODIC_PRESETS.instruments)
+            || GUS_MELODIC_PRESETS.instruments.length !== 128
+            || GUS_MELODIC_PRESETS.instruments.some(instrument =>
                 !instrument
                 || typeof instrument !== 'object'
                 || Array.isArray(instrument)
@@ -1003,8 +1013,9 @@ class InstrumentLibrary {
             )) {
             throw new Error("Melodic preset data is unavailable or invalid.");
         }
+        this.melodicMasterGain = GUS_MELODIC_PRESETS.gain;
         const programs = new Array(128);
-        for (const instrument of GUS_MELODIC_PRESETS) {
+        for (const instrument of GUS_MELODIC_PRESETS.instruments) {
             if (programs[instrument.program]) {
                 throw new Error(`Duplicate melodic preset program: ${instrument.program}.`);
             }
@@ -1018,9 +1029,15 @@ class InstrumentLibrary {
 
     _buildDrums() {
         if (typeof GUS_DRUM_PRESETS === 'undefined'
-            || !Array.isArray(GUS_DRUM_PRESETS)
-            || GUS_DRUM_PRESETS.length !== 47
-            || GUS_DRUM_PRESETS.some(instrument =>
+            || !GUS_DRUM_PRESETS
+            || typeof GUS_DRUM_PRESETS !== 'object'
+            || Array.isArray(GUS_DRUM_PRESETS)
+            || typeof GUS_DRUM_PRESETS.gain !== 'number'
+            || !Number.isFinite(GUS_DRUM_PRESETS.gain)
+            || GUS_DRUM_PRESETS.gain < 0
+            || !Array.isArray(GUS_DRUM_PRESETS.instruments)
+            || GUS_DRUM_PRESETS.instruments.length !== 47
+            || GUS_DRUM_PRESETS.instruments.some(instrument =>
                 !instrument
                 || typeof instrument !== 'object'
                 || Array.isArray(instrument)
@@ -1034,13 +1051,14 @@ class InstrumentLibrary {
             )) {
             throw new Error("Drum preset data is unavailable or invalid.");
         }
+        this.drumMasterGain = GUS_DRUM_PRESETS.gain;
         const notes = new Set();
-        for (const instrument of GUS_DRUM_PRESETS) {
+        for (const instrument of GUS_DRUM_PRESETS.instruments) {
             if (notes.has(instrument.note)) {
                 throw new Error(`Duplicate drum preset note: ${instrument.note}.`);
             }
             notes.add(instrument.note);
         }
-        return GUS_DRUM_PRESETS;
+        return GUS_DRUM_PRESETS.instruments;
     }
 }

@@ -1,4 +1,6 @@
-var GUS_DRUM_PRESETS = [
+var GUS_DRUM_PRESETS = {
+  "gain": 1,
+  "instruments": [
   {
     "note": 35,
     "name": "Acoustic Bass Drum",
@@ -1506,4 +1508,5 @@ var GUS_DRUM_PRESETS = [
       "highpass": 3000
     }
   }
-];
+  ]
+};

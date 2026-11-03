@@ -427,10 +427,16 @@ planetbiru-instrument-editor/
 
 The generator's instrument data is kept separately from its rendering code:
 
-- `JSGUS/melodic-presets.js` defines the global `GUS_MELODIC_PRESETS` array.
-  Each entry has the shape `{ program, family, name, preset }`.
-- `JSGUS/drum-presets.js` defines the global `GUS_DRUM_PRESETS` array. Each
-  entry has the shape `{ note, name, preset }`.
+- `JSGUS/melodic-presets.js` defines the global `GUS_MELODIC_PRESETS` object
+  with a master `gain` and an `instruments` array. Each instrument has the
+  shape `{ program, family, name, preset }`.
+- `JSGUS/drum-presets.js` defines the global `GUS_DRUM_PRESETS` object with a
+  master `gain` and an `instruments` array. Each instrument has the shape
+  `{ note, name, preset }`.
+
+The root `gain` is a mixer-style master level for all generated samples in
+that data set. The generator multiplies it by an instrument's optional
+`preset.gain`; both default to `1` when no per-instrument gain is specified.
 
 Both files contain editable plain JavaScript objects (no preset factory calls).
 The HTML pages load the data scripts before `ProjectPatchGenerator.js`. Keep
@@ -438,9 +444,11 @@ that order if you use a custom script URL or host the data separately.
 
 ### Editing melodic presets
 
-There must be exactly one entry for every General MIDI melodic program, from
-`0` to `127`. The loader uses the explicit `program` value, not the array
-position, and rejects missing or duplicate programs.
+`GUS_MELODIC_PRESETS.instruments` must contain exactly one entry for every
+General MIDI melodic program, from `0` to `127`. The loader uses the explicit
+`program` value, not the array position, and rejects missing or duplicate
+programs. Set `GUS_MELODIC_PRESETS.gain` to adjust the master level of all
+melodic samples generated from this data set.
 
 ```js
 {
@@ -499,9 +507,11 @@ the GUS patch envelope.
 
 ### Editing drum presets
 
-The drum array currently contains 47 General MIDI percussion notes, from 35
-through 81. Each `note` must be a unique MIDI note number from 0 to 127; the
-loader rejects duplicate notes and invalid entries.
+The `GUS_DRUM_PRESETS.instruments` array currently contains 47 General MIDI
+percussion notes, from 35 through 81. Each `note` must be a unique MIDI note
+number from 0 to 127; the loader rejects duplicate notes and invalid entries.
+Set `GUS_DRUM_PRESETS.gain` to adjust the master level of all generated drum
+samples.
 
 Drum `preset` properties are combined by `DrumRenderer`:
 
