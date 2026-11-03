@@ -404,8 +404,60 @@ main {
     grid-template-columns: repeat(3, 1fr)
 }
 
+.loop-controls-panel {
+    margin: 6px 0 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: rgba(8, 15, 30, .55);
+}
+
+.loop-controls-heading {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-bottom: 8px;
+}
+
+.loop-controls-heading h3,
+.loop-controls-layout h4 {
+    margin: 0;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.loop-controls-heading .hint,
+.loop-threshold-panel .hint {
+    margin: 0;
+}
+
+.loop-controls-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, .85fr) minmax(0, 1.6fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.loop-actions-panel,
+.loop-threshold-panel {
+    min-width: 0;
+}
+
+.loop-actions-panel h4,
+.loop-threshold-panel h4 {
+    margin-bottom: 5px;
+}
+
+.loop-action-buttons {
+    margin-bottom: 0;
+}
+
 .loop-threshold-grid {
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    margin-top: 6px;
 }
 
 .range-value-row {
@@ -990,6 +1042,11 @@ footer {
     .g6,
     .g4 {
         grid-template-columns: repeat(2, 1fr)
+    }
+
+    .loop-controls-layout {
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     aside {

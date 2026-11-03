@@ -93,6 +93,8 @@
   "loop_selection": "Loop Selection",
   "loop_all": "Loop All",
   "create_loop": "Create Loop",
+  "loop_controls_title": "Loop Controls",
+  "loop_points": "Loop Points",
   "hold_to_play": "Hold to Play",
   "play_once": "Play Once",
   "waveform_navigation_hint": "Scroll = Zoom, Shift+Scroll / Middle-Click / Alt+Drag = Pan.",

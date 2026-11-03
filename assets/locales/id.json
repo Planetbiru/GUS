@@ -93,6 +93,8 @@
   "loop_selection": "Loop = Seleksi",
   "loop_all": "Loop Semua",
   "create_loop": "Buat Loop",
+  "loop_controls_title": "Kontrol Loop",
+  "loop_points": "Titik Loop",
   "hold_to_play": "Tahan untuk Main",
   "play_once": "Putar Sekali",
   "waveform_navigation_hint": "Scroll = Zoom, Shift+Scroll / Middle-Click / Alt+Drag = Pan.",
