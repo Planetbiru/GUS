@@ -1973,27 +1973,55 @@ class MidiController {
       sumSquares += sample * sample;
     }
     const centerY = height / 2;
+
+    // garis tengah
     context.beginPath();
     context.moveTo(0, centerY);
     context.lineTo(width, centerY);
     context.strokeStyle = "rgba(148, 163, 184, 0.3)";
     context.stroke();
+
+    // --- min/max per kolom piksel (anti-aliasing sub-piksel) ---
+    const columns = Math.max(1, Math.floor(width));
+    const samplesPerColumn = data.length / columns;
+    const topY = new Float32Array(columns);
+    const botY = new Float32Array(columns);
+
+    for (let col = 0; col < columns; col++) {
+      const start = Math.floor(col * samplesPerColumn);
+      const end = Math.min(
+        data.length,
+        Math.max(start + 1, Math.floor((col + 1) * samplesPerColumn))
+      );
+      let min = 1, max = -1;
+      for (let i = start; i < end; i++) {
+        const v = data[i];
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+      if (max < min) { min = 0; max = 0; }        // jaga-jaga bila column kosong
+      topY[col] = centerY - max * centerY;
+      botY[col] = centerY - min * centerY;
+    }
+
+    // area terisi
     context.beginPath();
-    for (let index = 0; index < data.length; index++) {
-      const x = index * width / (data.length - 1);
-      const y = centerY - data[index] * centerY;
-      if (index === 0) context.moveTo(x, y);
-      else context.lineTo(x, y);
-    }
+    context.moveTo(0, topY[0]);
+    for (let col = 1; col < columns; col++) context.lineTo(col, topY[col]);
+    for (let col = columns - 1; col >= 0; col--) context.lineTo(col, botY[col]);
+    context.closePath();
+    context.fillStyle = "rgba(56, 189, 248, 0.35)";
+    context.fill();
+
+    // outline atas & bawah
+    context.beginPath();
+    context.moveTo(0, topY[0]);
+    for (let col = 1; col < columns; col++) context.lineTo(col, topY[col]);
+    context.moveTo(0, botY[0]);
+    for (let col = 1; col < columns; col++) context.lineTo(col, botY[col]);
     context.strokeStyle = "#38bdf8";
+    context.lineWidth = 1.5;
     context.stroke();
-    if (readout) {
-      const rms = Math.sqrt(sumSquares / data.length);
-      readout.textContent = t("midi_waveform_amplitude_readout", {
-        peak: peak.toFixed(3),
-        rms: rms.toFixed(3)
-      });
-    }
   }
 
   static stopMidiPlaybackWaveform(disconnect = false) {
