@@ -15,6 +15,7 @@ class MidiController {
   static patchPreviewWaveformFrame = null;
   static drumPadSelectedPitch = 35;
   static drumPadActiveNotes = new Map();
+  static drumPadPreviewTimers = new Map();
   static drumPadBankLoadGeneration = 0;
 
   static generateProjectTimidityCfg(project, bankFilter = null) {
@@ -793,6 +794,7 @@ class MidiController {
     $("btnPlayMidi").disabled = true;
     $("btnStopMidi").disabled = true;
     $("midiSeek").disabled = true;
+    MidiController.updateTimelinePlayButton();
     try {
       if (midiProgress.playing || midiProgress.paused) stopMidi();
       setMidiStatus("offline_rendering");
@@ -823,6 +825,7 @@ class MidiController {
       setMidiStatus("offline_render_failed", {message: err.message});
     } finally {
       isMidiRendering = false;
+      MidiController.updateTimelinePlayButton();
       $("btnLoadMidi").disabled = false;
       $("btnPlayMidi").disabled = !state.midiData;
       $("btnStopMidi").disabled = true;
@@ -1656,17 +1659,30 @@ class MidiController {
 
   static updateTimelinePlayButton() {
     const btn = $("btnTimelinePlay");
-    if (!btn) return;
-    
-    if (midiProgress.playing) {
-      btn.innerHTML = `<svg class="icon"><use href="#i-pause"></use></svg>`;
-    } else {
-      btn.innerHTML = `<svg class="icon"><use href="#i-play"></use></svg>`;
+    const isPlaying = midiProgress.playing;
+    if (btn) {
+      btn.innerHTML = isPlaying
+        ? `<svg class="icon"><use href="#i-pause"></use></svg>`
+        : `<svg class="icon"><use href="#i-play"></use></svg>`;
     }
+
+    const drumPadsButton = $("btnDrumPadsMidiPlay");
+    if (drumPadsButton) {
+      const actionLabel = isPlaying ? t("pause") : t("play");
+      drumPadsButton.innerHTML = isPlaying
+        ? `<svg class="icon"><use href="#i-pause"></use></svg>`
+        : `<svg class="icon"><use href="#i-play"></use></svg>`;
+      drumPadsButton.disabled = !state.midiData || isMidiRendering;
+      drumPadsButton.setAttribute("aria-label", actionLabel);
+      drumPadsButton.title = actionLabel;
+    }
+    const drumPadsSeek = $("drumPadsMidiSeek");
+    if (drumPadsSeek) drumPadsSeek.disabled = !state.midiData || isMidiRendering;
   }
 
   static updateMidiUI() {
     if (!state.midiData) return;
+    MidiController.updateTimelinePlayButton();
     const dur = midiProgress.duration;
     const cur = midiProgress.seeking
       ? (parseInt($("midiSeek").value, 10) / 1000) * dur
@@ -1674,14 +1690,18 @@ class MidiController {
     
     $("midiTimeCur").textContent = formatTime(cur);
     $("midiTimeTotal").textContent = formatTime(dur);
+    $("drumPadsMidiTimeCur").textContent = formatTime(cur);
+    $("drumPadsMidiTimeTotal").textContent = formatTime(dur);
     
     if (!midiProgress.seeking) {
       if (!midiProgress.playing && !midiProgress.paused) {
         $("midiSeek").value = 0;
+        $("drumPadsMidiSeek").value = 0;
         if ($("timelineSeek")) $("timelineSeek").value = 0;
       } else {
         const pct = Math.floor((cur / dur) * 1000);
         $("midiSeek").value = pct;
+        $("drumPadsMidiSeek").value = pct;
         if ($("timelineSeek")) $("timelineSeek").value = pct;
       }
     }
@@ -2707,37 +2727,9 @@ class MidiController {
     bankSelect.disabled = banks.length < 2;
 
     MidiController.drumPadSelectedPitch = Math.max(35, Math.min(81, MidiController.drumPadSelectedPitch));
-    MidiController.renderDrumPadLibraryOptions();
     MidiController.renderDrumPads();
     dialog.hidden = false;
     MidiController.handleDrumPadBankChange();
-  }
-
-  static renderDrumPadLibraryOptions() {
-    const select = $("drumPadLibraryPatch");
-    if (!select) return;
-    const previousValue = select.value;
-    const patches = [...state.patches]
-      .filter(entry => entry && entry.patch && Array.isArray(entry.patch.instruments) && entry.patch.instruments.length)
-      .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
-    select.replaceChildren();
-
-    if (patches.length === 0) {
-      const option = document.createElement("option");
-      option.value = "";
-      option.textContent = t("drum_pads_no_library_patches");
-      select.appendChild(option);
-      return;
-    }
-
-    for (const entry of patches) {
-      const option = document.createElement("option");
-      option.value = String(entry.id);
-      const type = (entry.gmBank ?? 0) === 128 ? t("drum") : t("non_drum");
-      option.textContent = `${entry.name || t("unnamed")} · ${type} · ${t("drum_kit_preview_bank", {bank: entry.targetBank ?? 0})}`;
-      select.appendChild(option);
-    }
-    if (patches.some(entry => String(entry.id) === previousValue)) select.value = previousValue;
   }
 
   static renderDrumPads() {
@@ -2793,13 +2785,6 @@ class MidiController {
     } else {
       status.textContent = t("drum_pads_status", {missing: missingCount, total: 47});
     }
-    $("drumPadSelectedLabel").textContent = t("drum_pads_selected", {
-      pitch: MidiController.drumPadSelectedPitch,
-      name: GM_DRUM_NAMES[MidiController.drumPadSelectedPitch]
-    });
-    $("drumPadLibraryPatch").disabled = !project || state.patches.length === 0;
-    $("btnAssignDrumPadPatch").disabled =
-      !project || !$("drumPadLibraryPatch").value || state.patches.length === 0;
   }
 
   static async handleDrumPadBankChange() {
@@ -2862,78 +2847,47 @@ class MidiController {
     }
   }
 
-  static handleDrumPadClick(event) {
+  static async handleDrumPadClick(event) {
     const pad = event.target.closest("button[data-pad-pitch]");
     if (!pad || !event.currentTarget.contains(pad)) return;
     const pitch = Number(pad.dataset.padPitch);
     if (!Number.isInteger(pitch) || pitch < 35 || pitch > 81) return;
+    const bank = Number($("drumPadsBank")?.value);
+    if (!Number.isInteger(bank) || bank < 0 || bank > 127) return;
+
     MidiController.drumPadSelectedPitch = pitch;
     MidiController.renderDrumPads();
-  }
 
-  static async assignDrumPadPatch() {
-    const project = state.projects.find(entry => entry.id === state.currentProjectId);
-    const source = state.patches.find(entry => String(entry.id) === $("drumPadLibraryPatch").value);
-    const pitch = MidiController.drumPadSelectedPitch;
-    const bank = Number($("drumPadsBank").value);
-    if (!project || !source || !source.patch || !Number.isInteger(bank) || bank < 0 || bank > 127) {
-      $("drumPadsStatus").textContent = t("drum_pads_assign_failed", {
-        message: t("drum_pads_invalid_selection")
-      });
-      return;
-    }
-
-    const replacedIds = new Set(getProjectPatches(project)
-      .filter(entry => (entry.gmBank ?? 0) === 128 &&
-        Number(entry.targetBank ?? 0) === bank &&
-        Number(entry.gmProgram) === pitch)
-      .map(entry => entry.id));
-    const assignedPatch = {
-      ...source,
-      id: uid("patch"),
-      gmProgram: pitch,
-      gmBank: 128,
-      drumSet: bank,
-      targetBank: bank,
-      patch: cleanPatchForStorage(source.patch)
-    };
-    const updatedProject = {
-      ...project,
-      patchIds: [
-        ...(project.patchIds || []).filter(id => !replacedIds.has(id)),
-        assignedPatch.id
-      ]
-    };
-    const assignButton = $("btnAssignDrumPadPatch");
-    assignButton.disabled = true;
+    const previousTimer = MidiController.drumPadPreviewTimers.get(pitch);
+    if (previousTimer) clearTimeout(previousTimer);
+    MidiController.drumPadPreviewTimers.delete(pitch);
 
     try {
-      await dbSaveProjectAndPatches(updatedProject, [assignedPatch]);
-      project.patchIds = updatedProject.patchIds;
-      state.patches.push(assignedPatch);
-      invalidateTimidityPlayer();
-      renderLibrary();
-      renderProjects();
-      MidiController.renderDrumPadLibraryOptions();
-      MidiController.renderDrumPads();
-      await MidiController.handleDrumPadBankChange();
-      if (state.currentProjectId === project.id &&
-          Number($("drumPadsBank").value) === bank) {
-        $("drumPadsStatus").textContent = t("drum_pads_assigned", {
-          pitch,
-          name: GM_DRUM_NAMES[pitch]
-        });
-      }
+      await ensureTimidityPlayer();
+      const player = timidityPlayer;
+      if (!player) throw new Error("TiMidity player is unavailable.");
+      await player.noteOn(9, 0, pitch, 100, {bank, pan: 64});
+
+      const activeTimer = MidiController.drumPadPreviewTimers.get(pitch);
+      if (activeTimer) clearTimeout(activeTimer);
+      const timer = setTimeout(() => {
+        if (MidiController.drumPadPreviewTimers.get(pitch) !== timer) return;
+        player.noteOff(9, pitch);
+        MidiController.drumPadPreviewTimers.delete(pitch);
+      }, 150);
+      MidiController.drumPadPreviewTimers.set(pitch, timer);
     } catch (error) {
-      console.error("[Drum Pads] Failed to assign library patch:", error);
-      MidiController.renderDrumPads();
-      $("drumPadsStatus").textContent = t("drum_pads_assign_failed", {
+      console.error("[Drum Pads] Failed to preview drum note:", error);
+      $("drumPadsStatus").textContent = t("drum_pads_bank_load_failed", {
+        bank,
         message: error.message || String(error)
       });
     }
   }
 
   static handleDrumPadNoteOn(event) {
+    const dialog = $("drumPadsDialog");
+    if (!dialog || dialog.hidden) return;
     if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
     MidiController.drumPadActiveNotes.set(
       event.pitch,
@@ -2944,6 +2898,8 @@ class MidiController {
   }
 
   static handleDrumPadNoteOff(event) {
+    const dialog = $("drumPadsDialog");
+    if (!dialog || dialog.hidden) return;
     if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
     const activeCount = MidiController.drumPadActiveNotes.get(event.pitch) || 0;
     if (activeCount > 1) {
@@ -2957,6 +2913,8 @@ class MidiController {
 
   static clearDrumPadHighlights() {
     MidiController.drumPadActiveNotes.clear();
+    const dialog = $("drumPadsDialog");
+    if (!dialog || dialog.hidden) return;
     document.querySelectorAll(".drum-pad.is-active").forEach(pad => pad.classList.remove("is-active"));
   }
 

@@ -737,7 +737,7 @@
   </div>
 
   <div id="deleteProjectDialog" class="modal-overlay" hidden>
-    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="deleteProjectTitle" aria-describedby="deleteProjectMessage">
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="deleteProjectTitle" aria-describedby="deleteProjectMessage deleteProjectChallengePrompt">
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="deleteProjectTitle">{{delete_project_title}}</h2>
@@ -745,10 +745,17 @@
         <div class="modal-body">
           <p id="deleteProjectMessage" class="modal-message"></p>
           <div id="deleteProjectError" class="modal-error" role="alert" aria-live="polite"></div>
+          <div class="field">
+            <p id="deleteProjectChallengePrompt" class="modal-message"></p>
+            <label for="deleteProjectChallengeAnswer">{{delete_project_challenge_answer}}</label>
+            <input id="deleteProjectChallengeAnswer" type="number" min="0" step="1"
+                   inputmode="numeric" autocomplete="off"
+                   aria-describedby="deleteProjectChallengePrompt deleteProjectError">
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn" id="btnCancelDeleteProject" type="button">{{cancel}}</button>
-          <button class="btn danger" id="btnConfirmDeleteProject" type="button">{{delete}}</button>
+          <button class="btn danger" id="btnConfirmDeleteProject" type="button" disabled>{{delete}}</button>
         </div>
       </div>
     </section>
@@ -1095,18 +1102,22 @@
           </div>
           <div id="drumPadsStatus" class="drum-pads-status" role="status" aria-live="polite"></div>
           <div class="drum-pad-grid" id="drumPadGrid" aria-label="{{drum_pads_title}}"></div>
-          <div class="drum-pad-assignment">
-            <div class="drum-pad-assignment-label" id="drumPadSelectedLabel"></div>
-            <div class="drum-pad-assignment-controls">
-              <div class="field">
-                <label for="drumPadLibraryPatch">{{drum_pads_library_patch}}</label>
-                <select id="drumPadLibraryPatch"></select>
-              </div>
-              <button class="btn primary" id="btnAssignDrumPadPatch" type="button">{{drum_pads_assign}}</button>
-            </div>
-          </div>
         </div>
         <div class="modal-footer">
+          <div class="drum-pads-midi-controls">
+            <button class="btn small primary" id="btnDrumPadsMidiPlay" type="button"
+                    aria-label="{{play}}" title="{{play}}" disabled>
+              <svg class="icon"><use href="#i-play"></use></svg>
+            </button>
+            <div class="drum-pads-midi-seek-controls">
+              <input type="range" id="drumPadsMidiSeek" min="0" max="1000" value="0" step="1"
+                     class="midi-seek" aria-label="{{midi_preview}}" disabled>
+              <div class="midi-time-labels">
+                <span id="drumPadsMidiTimeCur">00:00</span>
+                <span id="drumPadsMidiTimeTotal">00:00</span>
+              </div>
+            </div>
+          </div>
           <button class="btn primary" id="btnCloseDrumPads" type="button">{{close}}</button>
         </div>
       </div>

@@ -1053,6 +1053,27 @@ footer {
     border-top: 1px solid var(--line);
 }
 
+.drum-pads-midi-controls {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.drum-pads-midi-seek-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.drum-pads-midi-seek-controls .midi-time-labels {
+  font-size: 10px;
+  gap: 8px;
+  white-space: nowrap;
+}
+
 
 .modal-message {
     margin: 0 0 6px 0;
@@ -2233,13 +2254,10 @@ footer {
   cursor: pointer;
   transition: background .12s, border-color .12s, box-shadow .12s;
 }
-.drum-pad:hover,
-.drum-pad.is-selected {
+.drum-pad:hover {
   border-color: var(--accent);
 }
-.drum-pad.is-selected {
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
+
 .drum-pad.is-missing {
   border-style: dashed;
   border-color: var(--bad);
@@ -2268,31 +2286,6 @@ footer {
 .drum-pad-state {
   color: var(--ok);
   font-size: 10px;
-}
-.drum-pad-assignment {
-  margin-top: 12px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: var(--card2);
-}
-.drum-pad-assignment-label {
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.drum-pad-assignment-controls {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-.drum-pad-assignment-controls .field {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
-}
-.drum-pad-assignment-controls select {
-  width: 100%;
 }
 .drum-kit-preview-status {
   min-height: 1.4em;
@@ -2351,12 +2344,14 @@ footer {
   height: 36px;
 }
 @media (max-width: 560px) {
+  .drum-pads-panel .modal-footer {
+    flex-wrap: wrap;
+  }
+  .drum-pads-midi-controls {
+    flex-basis: 100%;
+  }
   .drum-pad-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .drum-pad-assignment-controls {
-    align-items: stretch;
-    flex-direction: column;
   }
 }
 .gm-map-section-title {

@@ -30,8 +30,8 @@ class BankController {
     }
   }
 
-  static getProjectPatchEntries() {
-    const project = state.projects.find(p => p.id === state.currentProjectId);
+  static getProjectPatchEntries(projectId = state.currentProjectId) {
+    const project = state.projects.find(p => p.id === projectId);
     if (!project) return [];
     return project.patchIds
       .map(id => state.patches.find(p => p.id === id))
@@ -547,26 +547,25 @@ class BankController {
   }
 
   static async exportProject(projectId) {
-    // Legacy: dipanggil dari sidebar — buka dialog
     const project = state.projects.find(p => p.id === projectId);
     if (!project) return;
-    if (getProjectPatchEntries().length === 0) {
+    if (getProjectPatchEntries(project.id).length === 0) {
       showStatus(t("empty_project"), "bad");
       return;
     }
-    state.currentProjectId = projectId;
-    openExportBanksDialog();
+    openExportBanksDialog(project.id);
   }
 
-  static openExportBanksDialog() {
+  static openExportBanksDialog(projectId = state.currentProjectId) {
     $("exportBanksError").textContent = "";
     const list = $("exportBanksList");
     list.innerHTML = "";
     
-    const project = state.projects.find(p => p.id === state.currentProjectId);
+    const project = state.projects.find(p => p.id === projectId);
     if (!project) return;
-    
-    const patches = getProjectPatchEntries();
+    $("exportBanksDialog").dataset.projectId = project.id;
+
+    const patches = getProjectPatchEntries(project.id);
   
     // 1. Kelompokkan HANYA berdasarkan Target Bank
     const groups = new Map();
@@ -631,7 +630,7 @@ class BankController {
           scheduleBankConfigSave(p);
         });
         
-        openExportBanksDialog(); 
+        openExportBanksDialog(project.id);
         renderBankManager();
         renderLibrary();
       });
