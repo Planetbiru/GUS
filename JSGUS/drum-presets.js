@@ -524,7 +524,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ride Cymbal 1",
     "description": "Ride Cymbal 1: bright ride strike with a clear, ringing.",
     "preset": {
-      "gain": 0.15,
+      "gain": 0.08,
       "duration": 1.1,
       "noiseLayers": [
         { "amp": 0.85, "decay": 0.035, "type": "white", "bandpass": { "center": 9000, "q": 0.5  } },
@@ -567,7 +567,7 @@ var GUS_DRUM_PRESETS = {
       "highpass": 2500
     }
   },
-    {
+  {
     "note": 54,
     "name": "Tambourine",
     "shortName": "Tambourine",
