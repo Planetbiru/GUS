@@ -1,5 +1,5 @@
 var GUS_DRUM_PRESETS = {
-  "gain": 1,
+  "gain": 0.8,
   "instruments": [
   {
     "note": 25,
@@ -129,7 +129,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ac. Bass Drum",
     "description": "Ac. Bass Drum: deep kick thump with a short beater click.",
     "preset": {
-      "gain": 1.0,
+      "gain": 0.5,
       "duration": 0.55,
       "membrane": {
         "freq": 46,
@@ -156,7 +156,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Bass Drum 1",
     "description": "Bass Drum 1: punchy kick with a focused low end.",
     "preset": {
-      "gain": 1.0,
+      "gain": 0.5,
       "duration": 0.55,
       "membrane": {
         "freq": 52,
@@ -302,17 +302,10 @@ var GUS_DRUM_PRESETS = {
     "note": 42,
     "name": "Closed Hi-Hat",
     "shortName": "Closed Hi-Hat",
-    "description": "Closed Hi-Hat: short hi-hat tick with a crisp, controlled.",
+    "description": "Closed Hi-Hat: dry, short hiss with a crisp cymbal edge.",
     "preset": {
-      "gain": 0.25,
+      "gain": 0.15,
       "duration": 0.14,
-      "metallic": {
-        "baseFreq": 5200,
-        "partials": [1, 1.41, 1.73, 2.08],
-        "decay": 0.026,
-        "amp": 0.12,
-        "randomPhase": true
-      },
       "noiseLayers": [
         { "amp": 0.95, "decay": 0.009, "type": "white", "bandpass": { "center": 8400, "q": 0.52 } },
         { "amp": 0.48, "decay": 0.017, "type": "pink",  "bandpass": { "center": 6500, "q": 0.58 } },
