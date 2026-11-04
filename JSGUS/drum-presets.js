@@ -2,6 +2,128 @@ var GUS_DRUM_PRESETS = {
   "gain": 1,
   "instruments": [
   {
+    "note": 25,
+    "name": "Snare Roll",
+    "short_name": "Snare Roll",
+    "description": "Snare Roll: rapid, evenly spaced snare-wire strokes.",
+    "preset": {
+      "gain": 0.5,
+      "duration": 0.52,
+      "noiseLayers": [
+        { "amp": 0.6, "decay": 0.012, "type": "white", "bandpass": { "center": 2600, "q": 0.75 } },
+        { "amp": 0.38, "decay": 0.025, "type": "pink", "bandpass": { "center": 4800, "q": 0.7 } }
+      ],
+      "bursts": [0, 0.055, 0.11, 0.165, 0.22, 0.275, 0.33, 0.385, 0.44],
+      "highpass": 450,
+      "lowpass": 9000
+    }
+  },
+  {
+    "note": 26,
+    "name": "Snap",
+    "short_name": "Snap",
+    "description": "Snap: dry finger snap with a short broadband crack.",
+    "preset": {
+      "gain": 0.42,
+      "duration": 0.12,
+      "tones": [
+        { "fStart": 1850, "fEnd": 1200, "pitchDecay": 0.012, "decay": 0.025, "amp": 0.65 },
+        { "fStart": 3200, "fEnd": 2200, "pitchDecay": 0.008, "decay": 0.012, "amp": 0.24 }
+      ],
+      "noise": { "amp": 0.55, "decay": 0.008, "type": "white", "bandpass": { "center": 3200, "q": 0.65 } },
+      "click": { "duration": 0.002, "amp": 0.28 },
+      "highpass": 450,
+      "lowpass": 9000
+    }
+  },
+  {
+    "note": 27,
+    "name": "High Q",
+    "short_name": "High Q",
+    "description": "High Q: bright, articulate short percussion hit.",
+    "preset": {
+      "gain": 0.45,
+      "duration": 0.16,
+      "tones": [
+        { "fStart": 720, "fEnd": 620, "pitchDecay": 0.012, "decay": 0.045, "amp": 0.65 },
+        { "fStart": 1450, "fEnd": 1200, "pitchDecay": 0.01, "decay": 0.028, "amp": 0.28 }
+      ],
+      "noise": { "amp": 0.16, "decay": 0.009, "type": "pink" },
+      "click": { "duration": 0.002, "amp": 0.18 },
+      "highpass": 180
+    }
+  },
+  {
+    "note": 31,
+    "name": "Sticks",
+    "short_name": "Sticks",
+    "description": "Sticks: dry crossed-stick click with a woody tone.",
+    "preset": {
+      "gain": 0.42,
+      "duration": 0.12,
+      "tones": [
+        { "fStart": 1650, "fEnd": 1300, "pitchDecay": 0.01, "decay": 0.028, "amp": 0.55 },
+        { "fStart": 2450, "fEnd": 1900, "pitchDecay": 0.008, "decay": 0.016, "amp": 0.26 }
+      ],
+      "noise": { "amp": 0.24, "decay": 0.006, "type": "white", "bandpass": { "center": 2300, "q": 0.7 } },
+      "click": { "duration": 0.002, "amp": 0.25 },
+      "highpass": 500,
+      "lowpass": 8000
+    }
+  },
+  {
+    "note": 32,
+    "name": "Square Click",
+    "short_name": "Square Click",
+    "description": "Square Click: short, electronic metronome-like pulse.",
+    "preset": {
+      "gain": 0.38,
+      "duration": 0.1,
+      "tones": [
+        { "fStart": 1050, "fEnd": 950, "pitchDecay": 0.006, "decay": 0.018, "amp": 0.65 },
+        { "fStart": 3150, "fEnd": 2850, "pitchDecay": 0.006, "decay": 0.012, "amp": 0.25 }
+      ],
+      "click": { "duration": 0.0015, "amp": 0.22 },
+      "highpass": 300,
+      "lowpass": 7000
+    }
+  },
+  {
+    "note": 33,
+    "name": "Metronome Click",
+    "short_name": "Metro. Click",
+    "description": "Metronome Click: clear pitched timing tick.",
+    "preset": {
+      "gain": 0.4,
+      "duration": 0.12,
+      "tones": [
+        { "fStart": 2250, "fEnd": 1850, "pitchDecay": 0.008, "decay": 0.028, "amp": 0.7 },
+        { "fStart": 3400, "fEnd": 2800, "pitchDecay": 0.006, "decay": 0.012, "amp": 0.2 }
+      ],
+      "noise": { "amp": 0.18, "decay": 0.004, "type": "white", "bandpass": { "center": 3000, "q": 0.8 } },
+      "highpass": 800,
+      "lowpass": 9000
+    }
+  },
+  {
+    "note": 34,
+    "name": "Metronome Bell",
+    "short_name": "Metro. Bell",
+    "description": "Metronome Bell: bright single timing bell.",
+    "preset": {
+      "gain": 0.32,
+      "duration": 0.45,
+      "metallic": {
+        "baseFreq": 1750,
+        "partials": [1, 2.4, 3.8, 5.2],
+        "decay": 0.32,
+        "amp": 0.48
+      },
+      "highpass": 500,
+      "lowpass": 10000
+    }
+  },
+  {
     "note": 35,
     "name": "Acoustic Bass Drum",
     "short_name": "Ac. Bass Drum",
@@ -10,19 +132,22 @@ var GUS_DRUM_PRESETS = {
       "gain": 1.0,
       "duration": 0.55,
       "membrane": {
-        "freq": 42,
-        "pitchDecay": 0.05,
-        "decay": 0.35,
+        "freq": 46,
+        "pitchDecay": 0.035,
+        "decay": 0.24,
         "modes": [
-          { "ratio": 1,     "amp": 1,    "decay": 1 },
-          { "ratio": 1.593, "amp": 0.45, "decay": 0.55 },
-          { "ratio": 2.136, "amp": 0.2,  "decay": 0.35 },
-          { "ratio": 2.296, "amp": 0.12, "decay": 0.25 }
+          { "ratio": 1,     "startRatio": 2.5, "amp": 1,    "decay": 1 },
+          { "ratio": 1.593, "startRatio": 1.8, "amp": 0.5,  "decay": 0.55 },
+          { "ratio": 2.136, "amp": 0.24, "decay": 0.35 },
+          { "ratio": 2.296, "amp": 0.14, "decay": 0.25 }
         ]
       },
-      "click": { "duration": 0.006, "amp": 0.55 },
-      "noise": { "amp": 0.18, "decay": 0.012, "type": "brown" },
-      "lowpass": 2500
+      "click": { "duration": 0.003, "amp": 0.28 },
+      "noise": { "amp": 0.1, "decay": 0.025, "type": "brown" },
+      "noiseLayers": [
+        { "amp": 0.32, "decay": 0.014, "type": "white", "bandpass": { "center": 1800, "q": 0.75 } }
+      ],
+      "lowpass": 4200
     }
   },
   {
@@ -34,19 +159,22 @@ var GUS_DRUM_PRESETS = {
       "gain": 1.0,
       "duration": 0.55,
       "membrane": {
-        "freq": 48,
-        "pitchDecay": 0.05,
-        "decay": 0.28,
+        "freq": 52,
+        "pitchDecay": 0.03,
+        "decay": 0.2,
         "modes": [
-          { "ratio": 1,     "amp": 1,    "decay": 1 },
-          { "ratio": 1.593, "amp": 0.45, "decay": 0.55 },
-          { "ratio": 2.136, "amp": 0.2,  "decay": 0.35 },
-          { "ratio": 2.296, "amp": 0.12, "decay": 0.25 }
+          { "ratio": 1,     "startRatio": 2.8, "amp": 1,    "decay": 1 },
+          { "ratio": 1.593, "startRatio": 1.9, "amp": 0.5,  "decay": 0.55 },
+          { "ratio": 2.136, "amp": 0.24, "decay": 0.35 },
+          { "ratio": 2.296, "amp": 0.14, "decay": 0.25 }
         ]
       },
-      "click": { "duration": 0.006, "amp": 0.55 },
-      "noise": { "amp": 0.18, "decay": 0.012, "type": "brown" },
-      "lowpass": 2500
+      "click": { "duration": 0.003, "amp": 0.25 },
+      "noise": { "amp": 0.1, "decay": 0.02, "type": "brown" },
+      "noiseLayers": [
+        { "amp": 0.3, "decay": 0.012, "type": "white", "bandpass": { "center": 2300, "q": 0.8 } }
+      ],
+      "lowpass": 4500
     }
   },
   {
@@ -77,21 +205,22 @@ var GUS_DRUM_PRESETS = {
       "duration": 0.28,
       "membrane": {
         "freq": 180,
-        "pitchDecay": 0.02,
-        "decay": 0.1,
+        "pitchDecay": 0.025,
+        "decay": 0.06,
         "modes": [
-          { "ratio": 1,    "amp": 0.55, "decay": 1 },
-          { "ratio": 1.83, "amp": 0.45, "decay": 0.85 },
-          { "ratio": 2.13, "amp": 0.25, "decay": 0.55 }
+          { "ratio": 1,    "amp": 0.3,  "decay": 0.75 },
+          { "ratio": 1.83, "amp": 0.26, "decay": 0.68 },
+          { "ratio": 2.13, "amp": 0.16, "decay": 0.48 }
         ]
       },
+      "click": { "duration": 0.006, "amp": 0.4 },
       "noise": {
-        "amp": 0.95,
-        "decay": 0.15,
+        "amp": 0.48,
+        "decay": 0.09,
         "type": "pink",
-        "bandpass": { "center": 4200, "q": 0.6 }
+        "bandpass": { "center": 4200, "q": 0.65 }
       },
-      "highpass": 400
+      "highpass": 240
     }
   },
   {
@@ -121,22 +250,23 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.95,
       "duration": 0.28,
       "membrane": {
-        "freq": 180,
-        "pitchDecay": 0.02,
-        "decay": 0.1,
+        "freq": 195,
+        "pitchDecay": 0.025,
+        "decay": 0.055,
         "modes": [
-          { "ratio": 1,    "amp": 0.55, "decay": 1 },
-          { "ratio": 1.83, "amp": 0.45, "decay": 0.85 },
-          { "ratio": 2.13, "amp": 0.25, "decay": 0.55 }
+          { "ratio": 1,    "amp": 0.28, "decay": 0.75 },
+          { "ratio": 1.83, "amp": 0.25, "decay": 0.68 },
+          { "ratio": 2.13, "amp": 0.16, "decay": 0.48 }
         ]
       },
+      "click": { "duration": 0.006, "amp": 0.38 },
       "noise": {
-        "amp": 0.95,
-        "decay": 0.22,
+        "amp": 0.5,
+        "decay": 0.1,
         "type": "pink",
-        "bandpass": { "center": 4200, "q": 0.6 }
+        "bandpass": { "center": 4800, "q": 0.7 }
       },
-      "highpass": 600
+      "highpass": 350
     }
   },
   {
@@ -148,7 +278,7 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.75,
       "duration": 0.65,
       "membrane": {
-        "freq": 75,
+        "freq": 65,
         "pitchDecay": 0.06,
         "decay": 0.5,
         "modes": [
@@ -158,14 +288,14 @@ var GUS_DRUM_PRESETS = {
           { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.28 },
+      "click": { "duration": 0.004, "amp": 0.18 },
       "noise": {
-        "amp": 0.32,
+        "amp": 0.24,
         "decay": 0.024,
         "type": "pink",
-        "bandpass": { "center": 1800, "q": 0.75 }
+        "bandpass": { "center": 1200, "q": 0.75 }
       },
-      "lowpass": 5000
+      "lowpass": 3200
     }
   },
   {
@@ -194,7 +324,7 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.75,
       "duration": 0.6,
       "membrane": {
-        "freq": 105,
+        "freq": 90,
         "pitchDecay": 0.06,
         "decay": 0.42,
         "modes": [
@@ -204,14 +334,14 @@ var GUS_DRUM_PRESETS = {
           { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.30 },
+      "click": { "duration": 0.004, "amp": 0.2 },
       "noise": {
-        "amp": 0.32,
+        "amp": 0.24,
         "decay": 0.022,
         "type": "pink",
-        "bandpass": { "center": 2100, "q": 0.75 }
+        "bandpass": { "center": 1350, "q": 0.75 }
       },
-      "lowpass": 5500
+      "lowpass": 3600
     }
   },
   {
@@ -240,7 +370,7 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.72,
       "duration": 0.55,
       "membrane": {
-        "freq": 140,
+        "freq": 120,
         "pitchDecay": 0.06,
         "decay": 0.42,
         "modes": [
@@ -250,14 +380,14 @@ var GUS_DRUM_PRESETS = {
           { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.30 },
+      "click": { "duration": 0.004, "amp": 0.2 },
       "noise": {
-        "amp": 0.32,
+        "amp": 0.24,
         "decay": 0.020,
         "type": "pink",
-        "bandpass": { "center": 2400, "q": 0.75 }
+        "bandpass": { "center": 1500, "q": 0.75 }
       },
-      "lowpass": 6000
+      "lowpass": 3900
     }
   },
   {
@@ -266,7 +396,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Open Hi-Hat",
     "description": "Open Hi-Hat: open cymbal wash with a sustained metallic.",
     "preset": {
-      "gain": 0.10,
+      "gain": 0.08,
       "duration": 0.62,
       "noiseLayers": [
         { "amp": 1,    "decay": 0.14, "type": "white", "bandpass": { "center": 10200, "q": 0.6  } },
@@ -286,7 +416,7 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.72,
       "duration": 0.55,
       "membrane": {
-        "freq": 180,
+        "freq": 155,
         "pitchDecay": 0.06,
         "decay": 0.42,
         "modes": [
@@ -296,14 +426,14 @@ var GUS_DRUM_PRESETS = {
           { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.32 },
+      "click": { "duration": 0.004, "amp": 0.2 },
       "noise": {
-        "amp": 0.32,
+        "amp": 0.24,
         "decay": 0.019,
         "type": "pink",
-        "bandpass": { "center": 2700, "q": 0.75 }
+        "bandpass": { "center": 1700, "q": 0.75 }
       },
-      "lowpass": 6500
+      "lowpass": 4250
     }
   },
   {
@@ -315,7 +445,7 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.70,
       "duration": 0.55,
       "membrane": {
-        "freq": 220,
+        "freq": 190,
         "pitchDecay": 0.06,
         "decay": 0.42,
         "modes": [
@@ -325,14 +455,14 @@ var GUS_DRUM_PRESETS = {
           { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.34 },
+      "click": { "duration": 0.004, "amp": 0.22 },
       "noise": {
-        "amp": 0.32,
+        "amp": 0.24,
         "decay": 0.018,
         "type": "pink",
-        "bandpass": { "center": 3000, "q": 0.75 }
+        "bandpass": { "center": 1850, "q": 0.75 }
       },
-      "lowpass": 7000
+      "lowpass": 4500
     }
   },
   {
@@ -341,7 +471,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Crash Cymbal 1",
     "description": "Crash Cymbal 1: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.10,
+      "gain": 0.08,
       "duration": 1.5,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.65,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -361,7 +491,7 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.70,
       "duration": 0.55,
       "membrane": {
-        "freq": 280,
+        "freq": 240,
         "pitchDecay": 0.06,
         "decay": 0.42,
         "modes": [
@@ -371,14 +501,14 @@ var GUS_DRUM_PRESETS = {
           { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.36 },
+      "click": { "duration": 0.004, "amp": 0.22 },
       "noise": {
-        "amp": 0.32,
+        "amp": 0.24,
         "decay": 0.017,
         "type": "pink",
-        "bandpass": { "center": 3300, "q": 0.75 }
+        "bandpass": { "center": 2100, "q": 0.75 }
       },
-      "lowpass": 7500
+      "lowpass": 4900
     }
   },
   {
@@ -387,7 +517,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Ride Cymbal 1",
     "description": "Ride Cymbal 1: bright ride strike with a clear, ringing.",
     "preset": {
-      "gain": 0.10,
+      "gain": 0.08,
       "duration": 1.1,
       "noiseLayers": [
         { "amp": 0.85, "decay": 0.035, "type": "white", "bandpass": { "center": 9000, "q": 0.5  } },
@@ -403,7 +533,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Chinese Cymbal",
     "description": "Chinese Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.10,
+      "gain": 0.08,
       "duration": 1.8,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 1,    "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -430,27 +560,29 @@ var GUS_DRUM_PRESETS = {
       "highpass": 2500
     }
   },
-  {
+    {
     "note": 54,
     "name": "Tambourine",
     "short_name": "Tambourine",
     "description": "Tambourine: bright tambourine jingle with a rattling tail.",
     "preset": {
       "gain": 0.42,
-      "duration": 0.28,
+      "duration": 0.30,
       "metallic": {
-        "baseFreq": 900,
-        "partials": [1, 1.83, 2.67, 3.51, 4.35, 5.19],
-        "decay": 0.14,
-        "amp": 0.35
+        "baseFreq": 3600,
+        "partials": [0.83, 1.0, 1.15, 1.31, 1.48, 1.65, 1.82, 1.99, 2.17, 2.38, 2.60, 2.83],
+        "decay": 0.030,
+        "amp": 0.28,
+        "randomPhase": true
       },
-      "noise": {
-        "amp": 0.9,
-        "decay": 0.14,
-        "type": "pink",
-        "bandpass": { "center": 6000, "q": 0.5 }
-      },
-      "highpass": 5500
+      "noiseLayers": [
+        { "amp": 0.9,  "decay": 0.045, "type": "white", "bandpass": { "center": 9500,  "q": 0.55 } },
+        { "amp": 0.62, "decay": 0.10,  "type": "white", "bandpass": { "center": 7000,  "q": 0.6  } },
+        { "amp": 0.42, "decay": 0.15,  "type": "pink",  "bandpass": { "center": 4800,  "q": 0.65 } },
+        { "amp": 0.28, "decay": 0.065, "type": "white", "bandpass": { "center": 10800, "q": 0.72 } }
+      ],
+      "highpass": 3400,
+      "lowpass": 10500
     }
   },
   {
@@ -459,7 +591,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Splash Cymbal",
     "description": "Splash Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.10,
+      "gain": 0.08,
       "duration": 0.6,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.35,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -491,7 +623,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Crash Cymbal 2",
     "description": "Crash Cymbal 2: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.10,
+      "gain": 0.08,
       "duration": 1.4,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.65,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -530,7 +662,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Ride Cymbal 2",
     "description": "Ride Cymbal 2: bright ride strike with a clear, ringing.",
     "preset": {
-      "gain": 0.10,
+      "gain": 0.08,
       "duration": 0.9,
       "noiseLayers": [
         { "amp": 0.85, "decay": 0.035, "type": "white", "bandpass": { "center": 9000, "q": 0.5  } },
@@ -550,15 +682,21 @@ var GUS_DRUM_PRESETS = {
       "duration": 0.27,
       "membrane": {
         "freq": 400,
-        "pitchDecay": 0.03,
-        "decay": 0.18,
+        "pitchDecay": 0.018,
+        "decay": 0.06,
         "modes": [
-          { "ratio": 1,     "amp": 1,   "decay": 1   },
-          { "ratio": 1.593, "amp": 0.4, "decay": 0.6 }
+          { "ratio": 1,     "amp": 0.52, "decay": 0.72 },
+          { "ratio": 1.593, "amp": 0.3,  "decay": 0.45 }
         ]
       },
-      "noise": { "amp": 0.12, "decay": 0.012, "type": "pink" },
-      "highpass": 200
+      "click": { "duration": 0.003, "amp": 0.24 },
+      "noise": {
+        "amp": 0.16,
+        "decay": 0.008,
+        "type": "pink",
+        "bandpass": { "center": 1700, "q": 0.8 }
+      },
+      "highpass": 260
     }
   },
   {
@@ -571,15 +709,21 @@ var GUS_DRUM_PRESETS = {
       "duration": 0.27,
       "membrane": {
         "freq": 280,
-        "pitchDecay": 0.03,
-        "decay": 0.18,
+        "pitchDecay": 0.018,
+        "decay": 0.07,
         "modes": [
-          { "ratio": 1,     "amp": 1,   "decay": 1   },
-          { "ratio": 1.593, "amp": 0.4, "decay": 0.6 }
+          { "ratio": 1,     "amp": 0.56, "decay": 0.72 },
+          { "ratio": 1.593, "amp": 0.32, "decay": 0.45 }
         ]
       },
-      "noise": { "amp": 0.12, "decay": 0.012, "type": "pink" },
-      "highpass": 200
+      "click": { "duration": 0.003, "amp": 0.22 },
+      "noise": {
+        "amp": 0.16,
+        "decay": 0.008,
+        "type": "pink",
+        "bandpass": { "center": 1400, "q": 0.8 }
+      },
+      "highpass": 220
     }
   },
   {
@@ -592,16 +736,22 @@ var GUS_DRUM_PRESETS = {
       "duration": 0.42,
       "membrane": {
         "freq": 320,
-        "pitchDecay": 0.05,
-        "decay": 0.28,
+        "pitchDecay": 0.018,
+        "decay": 0.07,
         "modes": [
-          { "ratio": 1,     "amp": 1,    "decay": 1 },
-          { "ratio": 1.593, "amp": 0.5,  "decay": 0.7 },
-          { "ratio": 2.136, "amp": 0.25, "decay": 0.4 }
+          { "ratio": 1,     "amp": 0.55, "decay": 0.75 },
+          { "ratio": 1.593, "amp": 0.32, "decay": 0.48 },
+          { "ratio": 2.136, "amp": 0.15, "decay": 0.3 }
         ]
       },
-      "noise": { "amp": 0.1, "decay": 0.012, "type": "pink" },
-      "lowpass": 1920
+      "click": { "duration": 0.003, "amp": 0.24 },
+      "noise": {
+        "amp": 0.16,
+        "decay": 0.008,
+        "type": "pink",
+        "bandpass": { "center": 1800, "q": 0.85 }
+      },
+      "lowpass": 2600
     }
   },
   {
@@ -614,16 +764,22 @@ var GUS_DRUM_PRESETS = {
       "duration": 0.42,
       "membrane": {
         "freq": 280,
-        "pitchDecay": 0.05,
-        "decay": 0.28,
+        "pitchDecay": 0.02,
+        "decay": 0.12,
         "modes": [
-          { "ratio": 1,     "amp": 1,    "decay": 1 },
-          { "ratio": 1.593, "amp": 0.5,  "decay": 0.7 },
-          { "ratio": 2.136, "amp": 0.25, "decay": 0.4 }
+          { "ratio": 1,     "amp": 0.62, "decay": 0.8 },
+          { "ratio": 1.593, "amp": 0.38, "decay": 0.54 },
+          { "ratio": 2.136, "amp": 0.18, "decay": 0.35 }
         ]
       },
-      "noise": { "amp": 0.1, "decay": 0.012, "type": "pink" },
-      "lowpass": 1680
+      "click": { "duration": 0.003, "amp": 0.22 },
+      "noise": {
+        "amp": 0.16,
+        "decay": 0.01,
+        "type": "pink",
+        "bandpass": { "center": 1550, "q": 0.8 }
+      },
+      "lowpass": 2400
     }
   },
   {
@@ -636,16 +792,22 @@ var GUS_DRUM_PRESETS = {
       "duration": 0.42,
       "membrane": {
         "freq": 200,
-        "pitchDecay": 0.05,
-        "decay": 0.28,
+        "pitchDecay": 0.02,
+        "decay": 0.09,
         "modes": [
-          { "ratio": 1,     "amp": 1,    "decay": 1 },
-          { "ratio": 1.593, "amp": 0.5,  "decay": 0.7 },
-          { "ratio": 2.136, "amp": 0.25, "decay": 0.4 }
+          { "ratio": 1,     "amp": 0.6,  "decay": 0.78 },
+          { "ratio": 1.593, "amp": 0.35, "decay": 0.52 },
+          { "ratio": 2.136, "amp": 0.16, "decay": 0.34 }
         ]
       },
-      "noise": { "amp": 0.1, "decay": 0.012, "type": "pink" },
-      "lowpass": 1200
+      "click": { "duration": 0.003, "amp": 0.2 },
+      "noise": {
+        "amp": 0.15,
+        "decay": 0.009,
+        "type": "pink",
+        "bandpass": { "center": 1200, "q": 0.8 }
+      },
+      "lowpass": 2000
     }
   },
   {
@@ -838,7 +1000,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Claves",
     "description": "Claves: sharp clave click with a dry, woody attack.",
     "preset": {
-      "gain": 0.55,
+      "gain": 0.07,
       "duration": 0.13,
       "tones": [
         { "fStart": 2400, "fEnd": 2000, "pitchDecay": 0.005, "decay": 0.05, "amp": 0.8 },
@@ -853,7 +1015,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Hi Wood Block",
     "description": "Hi Wood Block: woodblock knock with a firm, hollow.",
     "preset": {
-      "gain": 0.55,
+      "gain": 0.07,
       "duration": 0.13,
       "tones": [
         { "fStart": 900, "fEnd": 810, "pitchDecay": 0.01, "decay": 0.05, "amp": 1 }
@@ -868,7 +1030,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Low Wood Block",
     "description": "Low Wood Block: woodblock knock with a firm, hollow.",
     "preset": {
-      "gain": 0.55,
+      "gain": 0.07,
       "duration": 0.13,
       "tones": [
         { "fStart": 550, "fEnd": 495, "pitchDecay": 0.01, "decay": 0.05, "amp": 1 }
@@ -951,6 +1113,58 @@ var GUS_DRUM_PRESETS = {
         "amp": 0.55
       },
       "highpass": 3000
+    }
+  },
+  {
+    "note": 82,
+    "name": "Jingle Bell",
+    "short_name": "Jingle Bell",
+    "description": "Jingle Bell: short synthetic percussion chime.",
+    "preset": {
+      "gain": 0.35,
+      "duration": 0.48,
+      "metallic": {
+        "baseFreq": 1250,
+        "partials": [1, 1.5, 2.25, 3.2, 4.4],
+        "decay": 0.32,
+        "amp": 0.42
+      },
+      "noise": { "amp": 0.08, "decay": 0.018, "type": "pink" },
+      "highpass": 350,
+      "lowpass": 9000
+    }
+  },
+  {
+    "note": 83,
+    "name": "Open Cuica 2",
+    "short_name": "Open Cuica 2",
+    "description": "Open Cuica: upward squeak with a breathy edge.",
+    "preset": {
+      "gain": 0.42,
+      "duration": 0.42,
+      "tones": [
+        { "fStart": 420, "fEnd": 820, "pitchDecay": 0.09, "decay": 0.34, "amp": 0.78, "fm": { "ratio": 2.1, "index": 0.8 } }
+      ],
+      "noise": { "amp": 0.16, "decay": 0.22, "type": "pink", "bandpass": { "center": 1300, "q": 1.2 } },
+      "highpass": 220
+    }
+  },
+  {
+    "note": 84,
+    "name": "Bell Tree",
+    "short_name": "Bell Tree",
+    "description": "Bell Tree: cascading metallic chime with a long shimmer.",
+    "preset": {
+      "gain": 0.3,
+      "duration": 1.1,
+      "metallic": {
+        "baseFreq": 1900,
+        "partials": [1, 1.31, 1.71, 2.04, 2.42, 2.83, 3.27],
+        "decay": 0.85,
+        "amp": 0.42
+      },
+      "highpass": 650,
+      "lowpass": 10500
     }
   }
   ]

@@ -240,7 +240,9 @@ class EditorController {
     const buf=ctx.createBuffer(1,floats.length,sr);
     buf.copyToChannel(floats,0);
     const src=ctx.createBufferSource(); src.buffer=buf;
-    const rate=clamp(midiToFreq(note)/rootHz(s),0.01,32);
+    const rate=s._generatorInfo?.isDrum
+      ? 1
+      : clamp(midiToFreq(note)/rootHz(s),0.01,32);
     src.playbackRate.value=rate;
   
     if(li.enabled){

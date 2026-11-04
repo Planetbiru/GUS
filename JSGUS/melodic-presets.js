@@ -1110,8 +1110,8 @@ var GUS_MELODIC_PRESETS = {
         "duration": 0.018
       },
       "brightness": {
-        "start": 7000,
-        "end": 1200
+        "start": 9500,
+        "end": 2200
       },
       "partialDecay": [
         3.2,
@@ -1172,9 +1172,9 @@ var GUS_MELODIC_PRESETS = {
       "freq": 441,
       "pluckPosition": 0.16,
       "pluckTransient": {
-        "freq": 1700,
+        "freq": 2300,
         "q": 0.8,
-        "amp": 0.035,
+        "amp": 0.045,
         "duration": 0.024,
         "decay": 0.011
       },
@@ -1198,8 +1198,8 @@ var GUS_MELODIC_PRESETS = {
         "duration": 0.009
       },
       "brightness": {
-        "start": 7500,
-        "end": 1200
+        "start": 14000,
+        "end": 3000
       },
       "partialDecay": [
         2.8,
@@ -1243,7 +1243,7 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 4800,
           "q": 1,
-          "gain": -1
+          "gain": 1.5
         }
       ],
       "harm": [
@@ -1269,9 +1269,9 @@ var GUS_MELODIC_PRESETS = {
       "freq": 441,
       "pluckPosition": 0.105,
       "pluckTransient": {
-        "freq": 3400,
+        "freq": 4500,
         "q": 1.1,
-        "amp": 0.065,
+        "amp": 0.08,
         "duration": 0.016,
         "decay": 0.006
       },
@@ -2087,25 +2087,25 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3500,
           "q": 2.2,
-          "gain": -1
+          "gain": 0.5
         },
         {
           "freq": 5500,
           "q": 2.5,
-          "gain": -3
+          "gain": -1.5
         }
       ],
       "harm": [
         1,
-        0.62,
-        0.38,
-        0.22,
+        0.76,
+        0.58,
+        0.42,
+        0.29,
+        0.19,
         0.12,
-        0.07,
-        0.04,
-        0.022,
-        0.012,
-        0.006
+        0.075,
+        0.043,
+        0.022
       ],
       "env": {
         "a": 0.10,
@@ -2115,16 +2115,20 @@ var GUS_MELODIC_PRESETS = {
       },
       "loop": 1,
       "cycles": 22,
+      "loopAttackNoise": {
+        "amp": 0.16,
+        "duration": 0.017
+      },
       "vibrato": {
         "rate": 5.2,
-        "depth": 0.0055,
+        "depth": 0.008,
         "sweep": 22
       },
       "detune": [
         0,
         8
       ],
-      "noise": 0.008,
+      "noise": 0.025,
       "phases": [
         0,
         0.08,
@@ -2138,7 +2142,7 @@ var GUS_MELODIC_PRESETS = {
         0.75
       ],
       "loopSkip": 8,
-      "gain": 0.24
+      "gain": 0.33
     }
   },
   {
@@ -2169,24 +2173,24 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3000,
           "q": 2.2,
-          "gain": -1
+          "gain": 0
         },
         {
           "freq": 4500,
           "q": 2.5,
-          "gain": -2.5
+          "gain": -1.5
         }
       ],
       "harm": [
         1,
-        0.58,
-        0.34,
-        0.2,
-        0.12,
-        0.07,
-        0.04,
-        0.022,
-        0.012
+        0.7,
+        0.5,
+        0.35,
+        0.24,
+        0.16,
+        0.1,
+        0.06,
+        0.032
       ],
       "env": {
         "a": 0.10,
@@ -2196,16 +2200,20 @@ var GUS_MELODIC_PRESETS = {
       },
       "loop": 1,
       "cycles": 22,
+      "loopAttackNoise": {
+        "amp": 0.13,
+        "duration": 0.017
+      },
       "vibrato": {
         "rate": 4.8,
-        "depth": 0.0045,
+        "depth": 0.007,
         "sweep": 24
       },
       "detune": [
         0,
         8
       ],
-      "noise": 0.006,
+      "noise": 0.02,
       "phases": [
         0,
         0.3,
@@ -2219,7 +2227,7 @@ var GUS_MELODIC_PRESETS = {
         0.8
       ],
       "loopSkip": 8,
-      "gain": 0.24
+      "gain": 0.33
     }
   },
   {
@@ -4135,7 +4143,7 @@ var GUS_MELODIC_PRESETS = {
         "amp": 0.035,
         "duration": 0.012
       },
-      "gain": 0.42
+      "gain": 0.55
     }
   },
   {

@@ -923,7 +923,7 @@ class DrumRenderer {
         const amp   = cfg.amp   || 0.5;
         return ratios.map((r, i) => ({
             freq: base * r,
-            phase: 0,
+            phase: cfg.randomPhase ? Math.random() : 0,
             amp: amp / (1 + i * 0.35),
             decay: decay / (1 + i * 0.25),
         }));
@@ -1052,7 +1052,7 @@ class InstrumentLibrary {
             || !Number.isFinite(GUS_DRUM_PRESETS.gain)
             || GUS_DRUM_PRESETS.gain < 0
             || !Array.isArray(GUS_DRUM_PRESETS.instruments)
-            || GUS_DRUM_PRESETS.instruments.length !== 47
+            || GUS_DRUM_PRESETS.instruments.length !== 57
             || GUS_DRUM_PRESETS.instruments.some(instrument =>
                 !instrument
                 || typeof instrument !== 'object'
