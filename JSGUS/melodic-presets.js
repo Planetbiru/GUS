@@ -3190,7 +3190,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Trumpet",
     "description": "Trumpet: a bold attack and bright, focused tone.",
     "preset": {
-      "gain": 0.12,
+      "gain": 0.24,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3206,15 +3206,20 @@ var GUS_MELODIC_PRESETS = {
       },
       "harm": [
         1,
-        0.78,
-        0.65,
-        0.52,
-        0.4,
-        0.31,
+        0.75,
+        0.6,
+        0.48,
+        0.38,
+        0.3,
+        0.25,
         0.23,
+        0.21,
+        0.19,
         0.17,
-        0.12,
-        0.08
+        0.15,
+        0.13,
+        0.11,
+        0.09
       ],
       "env": {
         "a": 0.06,
@@ -3241,17 +3246,27 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 1400,
           "q": 1.2,
-          "gain": 2.5
+          "gain": 1.4
         },
         {
           "freq": 2800,
           "q": 1.8,
-          "gain": 3
+          "gain": 2.2
         },
         {
           "freq": 4200,
           "q": 2.2,
-          "gain": 1.5
+          "gain": 4.2
+        },
+        {
+          "freq": 5400,
+          "q": 1.8,
+          "gain": 7.4
+        },
+        {
+          "freq": 7000,
+          "q": 1.5,
+          "gain": 5.5
         }
       ]
     }
