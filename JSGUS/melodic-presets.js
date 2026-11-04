@@ -1,5 +1,5 @@
 var GUS_MELODIC_PRESETS = {
-  "gain": 0.40,
+  "gain": 0.38,
   "instruments": [
   {
     "program": 0,
