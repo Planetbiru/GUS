@@ -256,9 +256,13 @@ class EditorController {
     const now=ctx.currentTime+0.005;
     const patchVol=state.patch?(state.patch.header.masterVolume??127)/127:1;
     const peak=Math.max(0.0001,(velocity/127)*patchVol);
-    gain.gain.setValueAtTime(0.0001,now);
-    gain.gain.exponentialRampToValueAtTime(peak,now+env.attack);
-    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001,peak*env.sustain),now+env.attack+env.decay);
+    if(s._generatorInfo?.isDrum){
+      gain.gain.setValueAtTime(peak,now);
+    }else{
+      gain.gain.setValueAtTime(0.0001,now);
+      gain.gain.exponentialRampToValueAtTime(peak,now+env.attack);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0001,peak*env.sustain),now+env.attack+env.decay);
+    }
   
     const voice={src,gain,sample:s,note,velocity,env,released:false};
     src.onended=()=>{

@@ -2142,7 +2142,7 @@ var GUS_MELODIC_PRESETS = {
         0.75
       ],
       "loopSkip": 8,
-      "gain": 0.33
+      "gain": 0.50
     }
   },
   {
@@ -2227,7 +2227,7 @@ var GUS_MELODIC_PRESETS = {
         0.8
       ],
       "loopSkip": 8,
-      "gain": 0.33
+      "gain": 0.50
     }
   },
   {
@@ -2295,7 +2295,7 @@ var GUS_MELODIC_PRESETS = {
       ],
       "loopSkip": 8,
       "noise": 0.005,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2363,7 +2363,7 @@ var GUS_MELODIC_PRESETS = {
       "freq": 220,
       "loopSkip": 8,
       "noise": 0.004,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2431,7 +2431,7 @@ var GUS_MELODIC_PRESETS = {
       ],
       "noise": 0.006,
       "loopSkip": 8,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2505,7 +2505,7 @@ var GUS_MELODIC_PRESETS = {
         -8,
         8
       ],
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2575,7 +2575,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 44100,
       "freq": 441,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2600,7 +2600,7 @@ var GUS_MELODIC_PRESETS = {
       "length": 6615,
       "freq": 441,
       "noise": 0.1,
-      "gain": 0.20
+      "gain": 0.34
     }
   },
   {
@@ -2673,7 +2673,7 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.24,
+      "gain": 0.33,
       "loopSkip": 8
     }
   },
@@ -2746,7 +2746,7 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.24,
+      "gain": 0.33,
       "loopSkip": 8
     }
   },
@@ -2821,7 +2821,8 @@ var GUS_MELODIC_PRESETS = {
         "amp": 0.018,
         "duration": 0.02
       },
-      "noise": 0
+      "noise": 0,
+      "gain": 0.33
     }
   },
   {
@@ -2897,7 +2898,8 @@ var GUS_MELODIC_PRESETS = {
         "amp": 0.012,
         "duration": 0.03
       },
-      "noise": 0
+      "noise": 0,
+      "gain": 0.33
     }
   },
   {
@@ -4143,7 +4145,7 @@ var GUS_MELODIC_PRESETS = {
         "amp": 0.035,
         "duration": 0.012
       },
-      "gain": 0.55
+      "gain": 0.63
     }
   },
   {

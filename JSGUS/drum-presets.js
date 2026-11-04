@@ -566,7 +566,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Tambourine",
     "description": "Tambourine: bright tambourine jingle with a rattling tail.",
     "preset": {
-      "gain": 0.42,
+      "gain": 0.40,
       "duration": 0.30,
       "metallic": {
         "baseFreq": 3600,
