@@ -374,6 +374,7 @@ class GusPatchApp {
         const zip = new JSZip();
         const SR = +this.$('sr').value;
         const dur = +this.$('dur').value;
+        const totalJobs = 128 + this.lib.drums.length;
 
         // --- 128 melodic ---
         this.log('Membangun 128 patch melodic...', 'info');
@@ -397,12 +398,12 @@ class GusPatchApp {
             const fname = `${String(i).padStart(3, '0')}_${this.slugify(name)}.pat`;
             zip.folder('melodic').file(fname, buf);
             melodicNames.push(fname);
-            this.$('progressBar').style.width = ((i + 1) / 175 * 100) + '%';
+            this.$('progressBar').style.width = ((i + 1) / totalJobs * 100) + '%';
             if (i % 16 === 0) await new Promise(r => setTimeout(r, 0));
         }
 
-        // --- 47 drum ---
-        this.log('Membangun 47 patch drum...', 'info');
+        // --- drum presets ---
+        this.log(`Membangun ${this.lib.drums.length} patch drum...`, 'info');
         const drumNames = [];      // ← simpan note + nama file untuk timidity.cfg
         for (let i = 0; i < this.lib.drums.length; i++) {
             const {note, name, preset: p} = this.lib.drums[i];
@@ -420,7 +421,7 @@ class GusPatchApp {
             const fname = `drum_${String(note).padStart(2, '0')}_${this.slugify(name)}.pat`;
             zip.folder('drums').file(fname, buf);
             drumNames.push({ note, fname });
-            this.$('progressBar').style.width = ((128 + i + 1) / 175 * 100) + '%';
+            this.$('progressBar').style.width = ((128 + i + 1) / totalJobs * 100) + '%';
             if (i % 8 === 0) await new Promise(r => setTimeout(r, 0));
         }
 
@@ -485,7 +486,7 @@ class GusPatchApp {
             '  timidity.cfg   TiMidity++ configuration',
             '  README.txt     This file',
             '  melodic/       128 GM program patches (000–127)',
-            '  drums/         47 GM drum kit patches (note 35–81)',
+            `  drums/         ${this.lib.drums.length} drum kit patches (notes ${this.lib.drums[0].note}–${this.lib.drums[this.lib.drums.length - 1].note})`,
             '',
             '─── Usage with TiMidity++ ─────────────────',
             '  1. Extract the entire ZIP into one folder.',

@@ -128,8 +128,7 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      },
-      "gain": 0.20
+      }
     }
   },
   {
@@ -1110,8 +1109,8 @@ var GUS_MELODIC_PRESETS = {
         "duration": 0.018
       },
       "brightness": {
-        "start": 7000,
-        "end": 1200
+        "start": 9500,
+        "end": 2200
       },
       "partialDecay": [
         3.2,
@@ -1172,9 +1171,9 @@ var GUS_MELODIC_PRESETS = {
       "freq": 441,
       "pluckPosition": 0.16,
       "pluckTransient": {
-        "freq": 1700,
+        "freq": 2300,
         "q": 0.8,
-        "amp": 0.035,
+        "amp": 0.045,
         "duration": 0.024,
         "decay": 0.011
       },
@@ -1198,8 +1197,8 @@ var GUS_MELODIC_PRESETS = {
         "duration": 0.009
       },
       "brightness": {
-        "start": 7500,
-        "end": 1200
+        "start": 14000,
+        "end": 3000
       },
       "partialDecay": [
         2.8,
@@ -1243,7 +1242,7 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 4800,
           "q": 1,
-          "gain": -1
+          "gain": 1.5
         }
       ],
       "harm": [
@@ -1269,9 +1268,9 @@ var GUS_MELODIC_PRESETS = {
       "freq": 441,
       "pluckPosition": 0.105,
       "pluckTransient": {
-        "freq": 3400,
+        "freq": 4500,
         "q": 1.1,
-        "amp": 0.065,
+        "amp": 0.08,
         "duration": 0.016,
         "decay": 0.006
       },
@@ -1499,7 +1498,7 @@ var GUS_MELODIC_PRESETS = {
     "short_name": "Overdriven Gtr",
     "description": "Overdriven Gtr: a plucked-string attack with natural decay.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.45,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1538,7 +1537,12 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3400,
           "q": 1.1,
-          "gain": -2
+          "gain": 1
+        },
+        {
+          "freq": 5200,
+          "q": 1,
+          "gain": 2
         }
       ],
       "harm": [
@@ -1554,8 +1558,13 @@ var GUS_MELODIC_PRESETS = {
         0.13,
         0.09,
         0.06,
-        0.04
+        0.04,
+        0.03,
+        0.022,
+        0.016,
+        0.012
       ],
+      "noise": 0.04,
       "env": {
         "a": 0.002,
         "d": 0.8,
@@ -1569,14 +1578,14 @@ var GUS_MELODIC_PRESETS = {
         "bias": 0.035,
         "mix": 0.82,
         "preampCutoff": 95,
-        "cabinetCutoff": 5200
+        "cabinetCutoff": 7200
       },
       "loop": 1,
       "cycles": 18,
       "loopSkip": 10,
       "loopAttackNoise": {
-        "amp": 0.12,
-        "duration": 0.02
+        "amp": 0.2,
+        "duration": 0.024
       },
       "vibrato": {
         "rate": 5.2,
@@ -1592,14 +1601,15 @@ var GUS_MELODIC_PRESETS = {
     "short_name": "Distortion Gtr",
     "description": "Distortion Gtr: a plucked-string attack with natural decay.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.45,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
       },
       "brightness": {
         "start": 7000,
-        "end": 1200
+        "end": 5000,
+        "loopCutoff": 5000
       },
       "partialDecay": [
         3,
@@ -1636,7 +1646,17 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3800,
           "q": 1.2,
-          "gain": -3
+          "gain": 1
+        },
+        {
+          "freq": 5400,
+          "q": 1,
+          "gain": 4
+        },
+        {
+          "freq": 7600,
+          "q": 0.9,
+          "gain": 2
         }
       ],
       "harm": [
@@ -1654,8 +1674,14 @@ var GUS_MELODIC_PRESETS = {
         0.14,
         0.1,
         0.07,
-        0.05
+        0.05,
+        0.04,
+        0.032,
+        0.025,
+        0.02,
+        0.016
       ],
+      "noise": 0.25,
       "env": {
         "a": 0.002,
         "d": 0.8,
@@ -1665,18 +1691,18 @@ var GUS_MELODIC_PRESETS = {
       "length": 44100,
       "freq": 441,
       "guitarAmp": {
-        "drive": 3.4,
+        "drive": 5.1,
         "bias": 0.02,
         "mix": 0.94,
         "preampCutoff": 115,
-        "cabinetCutoff": 4600
+        "cabinetCutoff": 8800
       },
       "loop": 1,
       "cycles": 20,
       "loopSkip": 10,
       "loopAttackNoise": {
-        "amp": 0.08,
-        "duration": 0.018
+        "amp": 0.22,
+        "duration": 0.026
       },
       "vibrato": {
         "rate": 5.5,
@@ -1690,69 +1716,47 @@ var GUS_MELODIC_PRESETS = {
     "family": "Guitar",
     "name": "Gtr Harmonics",
     "short_name": "Gtr Harmonics",
-    "description": "Gtr Harmonics: a plucked-string attack with natural decay.",
+    "description": "Gtr Harmonics: sustained guitar overtone with loop.",
     "preset": {
-      "gain": 0.4,
-      "attackNoise": {
-        "amp": 0.12,
-        "duration": 0.012
-      },
+      "gain": 0.6,
       "brightness": {
-        "start": 7000,
-        "end": 1200
+        "loopCutoff": 10500
       },
-      "partialDecay": [
-        3,
-        2.2,
-        1.6,
-        1.2,
-        0.9,
-        0.7,
-        0.5,
-        0.4,
-        0.3
-      ],
       "formants": [
         {
-          "freq": 100,
+          "freq": 400,
           "q": 1.5,
           "gain": 4
         },
         {
-          "freq": 220,
+          "freq": 880,
           "q": 2,
           "gain": 5
         },
         {
-          "freq": 450,
+          "freq": 1800,
           "q": 2.5,
           "gain": 4
         },
         {
-          "freq": 1200,
+          "freq": 4800,
           "q": 3,
           "gain": 2
         }
       ],
       "harm": [
-        1,
-        0,
-        0,
-        0,
-        0.3,
-        0,
-        0,
-        0,
-        0.1
+        0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3
       ],
-      "env": {
-        "a": 0.002,
-        "d": 0.8,
-        "s": 0.1,
-        "r": 0.3
-      },
-      "length": 44100,
-      "freq": 441
+      "freq": 441,
+      "loop": true,
+      "cycles": 24,
+      "loopSkip": 4,
+      "loopAttack": 0.008,
+      "loopAttackNoise": {
+        "amp": 0.04,
+        "duration": 0.012
+      }
     }
   },
   {
@@ -2087,25 +2091,25 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3500,
           "q": 2.2,
-          "gain": -1
+          "gain": 0.5
         },
         {
           "freq": 5500,
           "q": 2.5,
-          "gain": -3
+          "gain": -1.5
         }
       ],
       "harm": [
         1,
-        0.62,
-        0.38,
-        0.22,
+        0.76,
+        0.58,
+        0.42,
+        0.29,
+        0.19,
         0.12,
-        0.07,
-        0.04,
-        0.022,
-        0.012,
-        0.006
+        0.075,
+        0.043,
+        0.022
       ],
       "env": {
         "a": 0.10,
@@ -2115,16 +2119,20 @@ var GUS_MELODIC_PRESETS = {
       },
       "loop": 1,
       "cycles": 22,
+      "loopAttackNoise": {
+        "amp": 0.16,
+        "duration": 0.017
+      },
       "vibrato": {
         "rate": 5.2,
-        "depth": 0.0055,
+        "depth": 0.008,
         "sweep": 22
       },
       "detune": [
         0,
         8
       ],
-      "noise": 0.008,
+      "noise": 0.025,
       "phases": [
         0,
         0.08,
@@ -2138,7 +2146,7 @@ var GUS_MELODIC_PRESETS = {
         0.75
       ],
       "loopSkip": 8,
-      "gain": 0.24
+      "gain": 0.50
     }
   },
   {
@@ -2169,24 +2177,24 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3000,
           "q": 2.2,
-          "gain": -1
+          "gain": 0
         },
         {
           "freq": 4500,
           "q": 2.5,
-          "gain": -2.5
+          "gain": -1.5
         }
       ],
       "harm": [
         1,
-        0.58,
-        0.34,
-        0.2,
-        0.12,
-        0.07,
-        0.04,
-        0.022,
-        0.012
+        0.7,
+        0.5,
+        0.35,
+        0.24,
+        0.16,
+        0.1,
+        0.06,
+        0.032
       ],
       "env": {
         "a": 0.10,
@@ -2196,16 +2204,20 @@ var GUS_MELODIC_PRESETS = {
       },
       "loop": 1,
       "cycles": 22,
+      "loopAttackNoise": {
+        "amp": 0.13,
+        "duration": 0.017
+      },
       "vibrato": {
         "rate": 4.8,
-        "depth": 0.0045,
+        "depth": 0.007,
         "sweep": 24
       },
       "detune": [
         0,
         8
       ],
-      "noise": 0.006,
+      "noise": 0.02,
       "phases": [
         0,
         0.3,
@@ -2219,7 +2231,7 @@ var GUS_MELODIC_PRESETS = {
         0.8
       ],
       "loopSkip": 8,
-      "gain": 0.24
+      "gain": 0.50
     }
   },
   {
@@ -2287,7 +2299,7 @@ var GUS_MELODIC_PRESETS = {
       ],
       "loopSkip": 8,
       "noise": 0.005,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2355,7 +2367,7 @@ var GUS_MELODIC_PRESETS = {
       "freq": 220,
       "loopSkip": 8,
       "noise": 0.004,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2423,7 +2435,7 @@ var GUS_MELODIC_PRESETS = {
       ],
       "noise": 0.006,
       "loopSkip": 8,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2497,7 +2509,7 @@ var GUS_MELODIC_PRESETS = {
         -8,
         8
       ],
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2567,7 +2579,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 44100,
       "freq": 441,
-      "gain": 0.24
+      "gain": 0.34
     }
   },
   {
@@ -2592,7 +2604,7 @@ var GUS_MELODIC_PRESETS = {
       "length": 6615,
       "freq": 441,
       "noise": 0.1,
-      "gain": 0.20
+      "gain": 0.34
     }
   },
   {
@@ -2665,7 +2677,7 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.24,
+      "gain": 0.33,
       "loopSkip": 8
     }
   },
@@ -2738,7 +2750,7 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.24,
+      "gain": 0.33,
       "loopSkip": 8
     }
   },
@@ -2813,7 +2825,8 @@ var GUS_MELODIC_PRESETS = {
         "amp": 0.018,
         "duration": 0.02
       },
-      "noise": 0
+      "noise": 0,
+      "gain": 0.33
     }
   },
   {
@@ -2889,7 +2902,8 @@ var GUS_MELODIC_PRESETS = {
         "amp": 0.012,
         "duration": 0.03
       },
-      "noise": 0
+      "noise": 0,
+      "gain": 0.33
     }
   },
   {
@@ -4135,7 +4149,7 @@ var GUS_MELODIC_PRESETS = {
         "amp": 0.035,
         "duration": 0.012
       },
-      "gain": 0.42
+      "gain": 0.63
     }
   },
   {
@@ -4449,7 +4463,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -4482,7 +4497,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -4517,7 +4533,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -4551,7 +4568,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -4583,7 +4601,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -4616,7 +4635,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -4647,7 +4667,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -4679,7 +4700,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "gain": 0.38
     }
   },
   {
@@ -5287,27 +5309,60 @@ var GUS_MELODIC_PRESETS = {
     "family": "FX",
     "name": "FX (atmosphere)",
     "short_name": "FX (atmosphere)",
-    "description": "FX (atmosphere): an evolving synthetic texture with.",
+    "description": "FX (atmosphere): nylon pluck with a faint airy shimmer.",
     "preset": {
+      "attackNoise": {
+        "amp": 0.045,
+        "duration": 0.016
+      },
+      "brightness": {
+        "start": 9500,
+        "end": 2600
+      },
+      "partialDecay": [
+        3.2,
+        1.9,
+        1.15,
+        0.78,
+        0.52,
+        0.36,
+        0.25,
+        0.18,
+        0.13
+      ],
       "harm": [
         1,
-        0.5,
-        0.33,
+        0.8,
+        0.6,
+        0.4,
         0.25,
-        0.2
+        0.15,
+        0.08,
+        0.04,
+        0.02
       ],
-      "fm": {
-        "ratio": 1.5,
-        "index": 3
+      "pluckPosition": 0.2,
+      "pluckTransient": {
+        "freq": 2600,
+        "q": 0.9,
+        "amp": 0.035,
+        "duration": 0.022,
+        "decay": 0.01,
+        "type": "pink"
       },
+      "inharmonicity": 0.00008,
       "env": {
-        "a": 0.05,
-        "d": 0.5,
-        "s": 0.5,
-        "r": 0.4
+        "a": 0.002,
+        "d": 1.5,
+        "s": 0,
+        "r": 0.5
       },
       "length": 44100,
-      "noise": 0.4
+      "freq": 441,
+      "detune": [
+        -3,
+        3
+      ]
     }
   },
   {

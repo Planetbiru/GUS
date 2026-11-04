@@ -1533,18 +1533,20 @@ class MidiController {
   }
 
   static findTimelinePatch(seg, patches) {
+    const program = Number(seg.program);
+    const bank = Number(seg.bank);
     if (seg.isDrum) {
       const drumPatches = patches.filter(p =>
-        (p.gmBank ?? 0) === 128 && (p.targetBank ?? 0) === seg.bank
+        Number(p.gmBank ?? 0) === 128 && Number(p.targetBank ?? 0) === bank
       );
-      return drumPatches.find(p => p.gmProgram === seg.program) || drumPatches[0];
+      return drumPatches.find(p => Number(p.gmProgram) === program) || drumPatches[0];
     }
 
-    return patches.find(p =>
-      (p.gmBank ?? 0) !== 128 &&
-      (p.gmProgram ?? -1) === seg.program &&
-      (p.targetBank ?? 0) === seg.bank
+    const melodicPatches = patches.filter(p =>
+      Number(p.gmBank ?? 0) !== 128 && Number(p.gmProgram ?? -1) === program
     );
+    return melodicPatches.find(p => Number(p.targetBank ?? 0) === bank)
+      || melodicPatches.find(p => Number(p.gmBank ?? 0) === bank);
   }
 
   static populateMidiUsedPatchesFromScan() {
@@ -2744,14 +2746,14 @@ class MidiController {
         const pitch = Number(entry.gmProgram);
         if ((entry.gmBank ?? 0) !== 128 ||
             Number(entry.targetBank ?? 0) !== bank ||
-            !Number.isInteger(pitch) || pitch < 35 || pitch > 81) continue;
+            !Number.isInteger(pitch) || pitch < 25 || pitch > 94) continue;
         if (!mappedPitches.has(pitch)) mappedPitches.set(pitch, entry);
       }
     }
 
     grid.replaceChildren();
     let missingCount = 0;
-    for (let pitch = 35; pitch <= 81; pitch++) {
+    for (let pitch = 25; pitch <= 94; pitch++) {
       const name = GM_DRUM_NAMES[pitch];
       const patch = mappedPitches.get(pitch);
       if (!patch) missingCount++;
@@ -2851,7 +2853,7 @@ class MidiController {
     const pad = event.target.closest("button[data-pad-pitch]");
     if (!pad || !event.currentTarget.contains(pad)) return;
     const pitch = Number(pad.dataset.padPitch);
-    if (!Number.isInteger(pitch) || pitch < 35 || pitch > 81) return;
+    if (!Number.isInteger(pitch) || pitch < 25 || pitch > 94) return;
     const bank = Number($("drumPadsBank")?.value);
     if (!Number.isInteger(bank) || bank < 0 || bank > 127) return;
 
