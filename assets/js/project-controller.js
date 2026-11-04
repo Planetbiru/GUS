@@ -7,7 +7,7 @@ class ProjectController {
     }
   
     for(const entry of entries){
-      if(!entry.id) entry.id=uid(entry.source&&entry.source.startsWith("sf2")?"sf2":"pat");
+      if(!entry.id) entry.id=uid(entry.source&&/^(sf2|soundfont|fxp)/.test(entry.source)?"sf2":"pat");
       if(!entry.source) entry.source="pat";
     }
   

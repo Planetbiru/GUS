@@ -404,9 +404,68 @@ class PatchDataService {
     return {shdr,phdr,pbag,pgen,inst,ibag,igen,smplData};
   }
 
-  static sf2ToGusPatches(sf2, fileName){
+  static async sf2ToGusPatches(sf2, fileName){
     const {shdr,phdr,pbag,pgen,inst,ibag,igen,smplData}=sf2;
     const s16=v=>v>32767?v-65536:v;
+
+    const compressedSamples = new Map();
+    const decodeContexts = new Map();
+    try {
+      const sampleIndices = new Set(
+        igen.filter(gen => gen.genOper === 53).map(gen => gen.genAmount)
+      );
+      for (const sampleIndex of sampleIndices) {
+        const sample = shdr[sampleIndex];
+        if (!sample || (sample.sfSampleType & 0x10) === 0) continue;
+        if (sample.dwStart > sample.dwEnd || sample.dwEnd >= smplData.length) {
+          throw new Error(t("soundfont_invalid_compressed_sample", { name: sample.name }));
+        }
+
+        const sampleBytes = smplData.subarray(sample.dwStart, sample.dwEnd + 1);
+        if (sampleBytes.length < 4
+          || sampleBytes[0] !== 0x4f
+          || sampleBytes[1] !== 0x67
+          || sampleBytes[2] !== 0x67
+          || sampleBytes[3] !== 0x53) {
+          throw new Error(t("soundfont_unsupported_compression", { name: sample.name }));
+        }
+
+        const targetRate = clamp(sample.dwSampleRate || 22050, 4000, 192000);
+        let decodeContext = decodeContexts.get(targetRate);
+        if (!decodeContext) {
+          decodeContext = PatchDataService.createDecodeContext(targetRate);
+          decodeContexts.set(targetRate, decodeContext);
+        }
+
+        let audioBuffer;
+        try {
+          audioBuffer = await decodeContext.decodeAudioData(sampleBytes.slice().buffer);
+        } catch (error) {
+          throw new Error(t("soundfont_sample_decode_failed", {
+            name: sample.name,
+            message: error.message
+          }));
+        }
+        if (audioBuffer.numberOfChannels !== 1) {
+          throw new Error(t("soundfont_compressed_sample_must_be_mono", { name: sample.name }));
+        }
+
+        const channel = audioBuffer.getChannelData(0);
+        const pcm = new Uint8Array(channel.length * 2);
+        const pcmView = new DataView(pcm.buffer);
+        for (let i = 0; i < channel.length; i++) {
+          pcmView.setInt16(i * 2, Math.round(clamp(channel[i], -1, 1) * 32767), true);
+        }
+        compressedSamples.set(sampleIndex, {
+          pcm,
+          sampleRate: audioBuffer.sampleRate
+        });
+      }
+    } finally {
+      await Promise.all([...decodeContexts.values()]
+        .filter(context => typeof context.close === "function" && context.state !== "closed")
+        .map(context => context.close()));
+    }
   
     function getGens(genArr,startIdx,endIdx){
       const out=[];
@@ -429,16 +488,31 @@ class PatchDataService {
       
       if (!cached) {
         const sh=shdr[sIdx]; if(!sh)return null;
-        const startByte = sh.dwStart * 2;
-        const endByte = Math.min(sh.dwEnd * 2, smplData.length);
-        if (endByte <= startByte) return null;
-  
-        const pcm = smplData.slice(startByte, endByte); 
-        const start=sh.dwStart, end=endByte / 2;
-        const loopStartSmp=sh.dwStartloop-start, loopEndSmp=sh.dwEndloop-start;
+        const compressedSample = compressedSamples.get(sIdx);
+        let pcm;
+        let sampleRate;
+        let loopStartSmp;
+        let loopEndSmp;
+        if (compressedSample) {
+          pcm = compressedSample.pcm;
+          sampleRate = compressedSample.sampleRate;
+          const loopScale = sampleRate / clamp(sh.dwSampleRate || sampleRate, 1, 192000);
+          loopStartSmp = Math.round(sh.dwStartloop * loopScale);
+          loopEndSmp = Math.round(sh.dwEndloop * loopScale);
+        } else {
+          const startByte = sh.dwStart * 2;
+          const endByte = Math.min(sh.dwEnd * 2, smplData.length);
+          if (endByte <= startByte) return null;
+          pcm = smplData.slice(startByte, endByte);
+          sampleRate = sh.dwSampleRate || 22050;
+          loopStartSmp = sh.dwStartloop - sh.dwStart;
+          loopEndSmp = sh.dwEndloop - sh.dwStart;
+        }
+        const frameCount = pcm.length / 2;
         const hasLoop = loopFromZone === true
           && loopEndSmp > loopStartSmp
-          && loopStartSmp >= 0;
+          && loopStartSmp >= 0
+          && loopEndSmp <= frameCount;
   
         let rootNote = (overrideRoot !== undefined && overrideRoot > 0 && overrideRoot < 128)
                  ? overrideRoot
@@ -474,7 +548,7 @@ class PatchDataService {
         cached = {
           name:safeName, fractions:0, dataSize:pcm.length,
           loopStart:hasLoop?loopStartSmp*2:0, loopEnd:hasLoop?loopEndSmp*2:0,
-          sampleRate:clamp(sh.dwSampleRate||22050,1,192000),
+          sampleRate:clamp(sampleRate,1,192000),
           lowFreq, highFreq,
           rootFreq, tune:0, balance:7,
           envRates,
@@ -659,9 +733,9 @@ class PatchDataService {
       };
   
       entries.push({
-        id: uid("sf2drum"),
+        id: uid("soundfontdrum"),
         name: `drum_${String(note).padStart(2, "0")}_${preset.name||"Kit"}`.substring(0, 48),
-        source: "sf2:" + fileName,
+        source: "soundfont:" + fileName,
         gmProgram: note,
         gmBank: 128,
         drumSet: preset.preset,  
@@ -685,9 +759,9 @@ class PatchDataService {
       if(preset.preset!==undefined) displayName+=" #"+preset.preset;
   
       entries.push({
-        id: uid("sf2"),
+        id: uid("soundfont"),
         name: displayName.substring(0,48),
-        source: "sf2:"+fileName,
+        source: "soundfont:"+fileName,
         gmProgram: preset.preset,
         gmBank: preset.bank,
         originalOrder: preset.bank,
@@ -1860,6 +1934,7 @@ class PatchDataService {
     for (let i = 0; i < 12; i++) s += String.fromCharCode(b[i]);
     if (s.startsWith("GF1PATCH")) return "pat";
     if (s.startsWith("RIFF") && s.substring(8, 12) === "sfbk") return "sf2";
+    if (s.startsWith("CcnK") && s.substring(8, 12) === "FPCh") return "fxp";
     if (b[0] === 0x50 && b[1] === 0x4B) return "zip"; // ZIP signature 'PK'
   
     // MIDI.js Soundfont: file teks yang mengandung "MIDI.Soundfont"
@@ -1868,6 +1943,178 @@ class PatchDataService {
     if (head.includes("MIDI.Soundfont") || head.includes("MIDI.SoundFont")) return "midijs";
   
     return null;
+  }
+
+  static surgeFxpToGusEntry(ab, fileName) {
+    const bytes = new Uint8Array(ab);
+    const dv = new DataView(ab);
+    const readTag = (offset, length) =>
+      String.fromCharCode(...bytes.subarray(offset, offset + length));
+    const fail = key => { throw new Error(t(key)); };
+    if (bytes.length < 92 || readTag(0, 4) !== "CcnK" || readTag(8, 4) !== "FPCh") {
+      fail("fxp_invalid_file");
+    }
+    if (readTag(16, 4) !== "cjs3") fail("fxp_unsupported_plugin");
+
+    const chunkSize = dv.getUint32(56, false);
+    const chunkEnd = 60 + chunkSize;
+    if (chunkSize < 32 || chunkEnd > bytes.length || readTag(60, 4) !== "sub3") {
+      fail("fxp_invalid_file");
+    }
+
+    const xmlSize = dv.getUint32(64, true);
+    const wavetableSizes = Array.from({ length: 6 }, (_, index) =>
+      dv.getUint32(68 + index * 4, true)
+    );
+    const wavetableOffset = 92 + xmlSize;
+    if (xmlSize === 0 || xmlSize > 1024 * 1024
+      || wavetableOffset > chunkEnd
+      || wavetableOffset + wavetableSizes.reduce((sum, size) => sum + size, 0) !== chunkEnd) {
+      fail("fxp_invalid_file");
+    }
+
+    const xml = new TextDecoder("utf-8", { fatal: true })
+      .decode(bytes.subarray(92, wavetableOffset));
+    const Parser = window.DOMParser;
+    if (!Parser) fail("fxp_xml_parser_unavailable");
+    const document = new Parser().parseFromString(xml, "application/xml");
+    if (document.querySelector("parsererror") || document.documentElement?.localName !== "patch") {
+      fail("fxp_invalid_file");
+    }
+
+    const rawPatchName = document.getElementsByTagName("meta")[0]?.getAttribute("name")
+      || fileName.replace(/\.fxp$/i, "");
+    const patchName = rawPatchName.replace(/[^\x20-\x7E]/g, " ").trim().substring(0, 60)
+      || fileName.replace(/\.fxp$/i, "").substring(0, 60);
+    const layers = [];
+    let dataOffset = wavetableOffset;
+    for (let slot = 0; slot < 6; slot++) {
+      const blockSize = wavetableSizes[slot];
+      if (blockSize === 0) continue;
+      if (blockSize < 12 || dataOffset + blockSize > chunkEnd) fail("fxp_invalid_file");
+
+      const scene = Math.floor(slot / 3);
+      const oscillator = slot % 3;
+      const prefix = `${String.fromCharCode(97 + scene)}_osc${oscillator + 1}`;
+      const typeNode = document.getElementsByTagName(`${prefix}_type`)[0];
+      const oscillatorType = Number(typeNode?.getAttribute("value"));
+      if (oscillatorType !== 2 && oscillatorType !== 7) {
+        dataOffset += blockSize;
+        continue;
+      }
+
+      const blockView = new DataView(ab, dataOffset, blockSize);
+      const frameSize = blockView.getUint32(4, true);
+      const frameCount = blockView.getUint16(8, true);
+      const flags = blockView.getUint16(10, true);
+      const isInt16 = (flags & 4) !== 0;
+      const isSample = (flags & 1) !== 0;
+      const shouldLoop = !isSample || (flags & 2) !== 0;
+      const bytesPerValue = isInt16 ? 2 : 4;
+      const expectedDataSize = frameSize * frameCount * bytesPerValue;
+      if (frameSize < 16 || frameSize > 4096 || frameCount < 1 || frameCount > 512
+        || expectedDataSize + 12 !== blockSize) {
+        fail("fxp_invalid_wavetable");
+      }
+
+      const valueCount = isSample ? frameSize * frameCount : frameSize;
+      const pcm = new Uint8Array(valueCount * 2);
+      const pcmView = new DataView(pcm.buffer);
+      for (let index = 0; index < valueCount; index++) {
+        const value = isInt16
+          ? blockView.getInt16(12 + index * 2, true) / ((flags & 8) ? 32768 : 16384)
+          : blockView.getFloat32(12 + index * 4, true);
+        if (!Number.isFinite(value)) fail("fxp_invalid_wavetable");
+        pcmView.setInt16(index * 2, Math.round(clamp(value, -1, 32767 / 32768) * 32768), true);
+      }
+
+      const octaveNode = document.getElementsByTagName(`${prefix}_octave`)[0];
+      const octave = Number(octaveNode?.getAttribute("value")) || 0;
+      const oscillatorName = document.getElementsByTagName(`osc_extra_sc${scene}_osc${oscillator}`)[0]
+        ?.getAttribute("wavetable_display_name") || `${patchName} ${oscillator + 1}`;
+      const sampleRate = isSample ? 44100 : 22050;
+      const pitchRatio = Math.pow(2, -clamp(octave, -8, 8));
+      const hasLoop = shouldLoop && pcm.length >= 8;
+      const sampleName = oscillatorName.replace(/[^\x20-\x7E]/g, "").trim().substring(0, 7) || "FXP";
+      const sample = {
+        name: sampleName,
+        fractions: 0,
+        dataSize: pcm.length,
+        loopStart: 0,
+        loopEnd: hasLoop ? pcm.length : 0,
+        sampleRate,
+        lowFreq: 0,
+        highFreq: 20000000,
+        rootFreq: Math.round((hasLoop ? sampleRate / frameSize : 261.625565) * pitchRatio * 1000),
+        tune: 0,
+        balance: 7,
+        envRates: hasLoop ? [9, 0, 0, 69, 0, 0] : [0, 0, 0, 0, 0, 0],
+        envOffsets: [255, 255, 255, 0, 0, 0],
+        tremoloSweep: 0,
+        tremoloRate: 0,
+        tremoloDepth: 0,
+        vibratoSweep: 0,
+        vibratoRate: 0,
+        vibratoDepth: 0,
+        modes: M16 | (hasLoop ? MLOOP | MENV : 0),
+        scaleFreq: 60,
+        scaleFactor: 1024,
+        reserved: new Uint8Array(36),
+        pcm,
+        _float: null
+      };
+      layers.push({
+        duplicate: 0,
+        layer: layers.length,
+        layerSize: 0,
+        reserved: new Uint8Array(40),
+        samples: [sample]
+      });
+      dataOffset += blockSize;
+    }
+
+    if (layers.length === 0) fail("fxp_no_embedded_wavetables");
+    const description = patchName.substring(0, 60);
+    const patch = {
+      header: {
+        magic: MAGIC,
+        gravisId: GRAVIS_ID,
+        description,
+        voices: 14,
+        channels: 0,
+        waveForms: 0,
+        masterVolume: 127,
+        dataSize: 0,
+        reserved: new Uint8Array(36)
+      },
+      instruments: [{
+        instrument: 0,
+        name: patchName.substring(0, 16),
+        size: 0,
+        reserved: new Uint8Array(40),
+        layers
+      }]
+    };
+
+    const project = state.projects.find(item => item.id === state.currentProjectId);
+    const usedPrograms = new Set(
+      project ? getProjectPatches(project)
+        .filter(entry => (entry.gmBank ?? 0) !== 128 && (entry.targetBank ?? 0) === 0)
+        .map(entry => Number(entry.gmProgram))
+        .filter(program => Number.isInteger(program) && program >= 0 && program <= 127)
+        : []
+    );
+    const gmProgram = Array.from({length: 128}, (_, program) => program)
+      .find(program => !usedPrograms.has(program)) ?? -1;
+
+    return {
+      id: uid("fxp"),
+      name: patchName.substring(0, 48),
+      source: `fxp:${fileName}`,
+      gmProgram,
+      gmBank: 0,
+      patch
+    };
   }
 
   static getImportedPatchName(patch, cfgItem, fallbackFilename) {
@@ -1951,25 +2198,39 @@ class PatchDataService {
             const count = allSamples().length;
             showStatus(t("file_loading", { filename: file.name, samples: t(count === 1 ? "sample_count_one" : "sample_count_many", { count }) }), "ok");
           }
+        } else if (type === "fxp") {
+          showStatus(t("converting_fxp"));
+          setTimeout(async () => {
+            try {
+              const entry = PatchDataService.surgeFxpToGusEntry(ab, file.name);
+              if (await addPatchEntries([entry])) {
+                showStatus(t("fxp_imported", { filename: file.name }), "ok");
+              }
+            } catch (err) {
+              console.error("FXP conversion error:", err);
+              showStatus(t("fxp_conversion_failed", { message: err.message }), "bad");
+              showAlert("fxp_conversion_alert", { message: err.message });
+            }
+          }, 100);
         } else if (type === "sf2") {
-          showStatus(t("converting_sf2"));
+          showStatus(t("converting_soundfont"));
           setTimeout(async () => {
             try {
               const sf2 = parseSF2(ab);
-              const entries = sf2ToGusPatches(sf2, file.name);
+              const entries = await sf2ToGusPatches(sf2, file.name);
               if (entries.length === 0) {
-                showStatus(t("sf2_no_preset"), "bad");
+                showStatus(t("soundfont_no_preset"), "bad");
                 showAlert("sf2_no_samples_alert");
               } else {
                 if (await addPatchEntries(entries)) {
                   const count = entries.length;
-                  showStatus(t("sf2_added_to_project", { filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count }) }), "ok");
+                  showStatus(t("soundfont_added_to_project", { filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count }) }), "ok");
                 }
               }
             } catch (err) {
               console.error(err);
-              showStatus(t("sf2_conversion_failed", { message: err.message }), "bad");
-              showAlert("sf2_conversion_alert", { message: err.message });
+              showStatus(t("soundfont_conversion_failed", { message: err.message }), "bad");
+              showAlert("soundfont_conversion_alert", { message: err.message });
             }
           }, 100);
         } else {
@@ -2026,30 +2287,44 @@ class PatchDataService {
             }), "ok");
           }
           
+        } else if (type === "fxp") {
+          showStatus(t("converting_fxp"));
+          await new Promise(resolve => setTimeout(resolve, 50));
+          try {
+            const entry = PatchDataService.surgeFxpToGusEntry(ab, file.name);
+            if (await addPatchEntries([entry])) {
+              showStatus(t("fxp_imported", { filename: file.name }), "ok");
+            }
+          } catch (err) {
+            console.error("FXP conversion error:", err);
+            showStatus(t("fxp_conversion_failed", { message: err.message }), "bad");
+            showAlert("fxp_conversion_alert", { message: err.message });
+          }
+
         } else if (type === "sf2") {
           // Menangani file SF2 (SoundFont)
-          showStatus(t("converting_sf2"));
+          showStatus(t("converting_soundfont"));
           await new Promise(resolve => setTimeout(resolve, 50));
           try {
             const sf2 = parseSF2(ab);
-            const entries = sf2ToGusPatches(sf2, file.name);
+            const entries = await sf2ToGusPatches(sf2, file.name);
             if (entries.length === 0) {
-              showStatus(t("sf2_no_preset"), "bad");
+              showStatus(t("soundfont_no_preset"), "bad");
               showAlert("sf2_no_samples_alert");
             } else {
               const added = await addPatchEntries(entries);
               if (added) {
                 const count = entries.length;
-                showStatus(t("sf2_added_to_project", {
+                showStatus(t("soundfont_added_to_project", {
                   filename: file.name,
                   patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count })
                 }), "ok");
               }
             }
           } catch (err) {
-            console.error("SF2 conversion error:", err);
-            showStatus(t("sf2_conversion_failed", { message: err.message }), "bad");
-            showAlert("sf2_conversion_alert", { message: err.message });
+            console.error("SoundFont conversion error:", err);
+            showStatus(t("soundfont_conversion_failed", { message: err.message }), "bad");
+            showAlert("soundfont_conversion_alert", { message: err.message });
           }
   
         } else if (type === "midijs") {

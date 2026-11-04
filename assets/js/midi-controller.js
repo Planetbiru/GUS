@@ -1,4 +1,11 @@
 class MidiController {
+  static midiWaveformAnalyser = null;
+  static midiWaveformSource = null;
+  static midiWaveformDestination = null;
+  static midiWaveformFrame = null;
+  static midiWaveformMode = "amplitude";
+  static midiWaveformTimeData = null;
+  static midiWaveformFrequencyData = null;
   static patchPreviewSession = null;
   static patchPreviewRunId = 0;
   static patchPreviewActiveNote = null;
@@ -6,6 +13,9 @@ class MidiController {
   static patchPreviewAnalyserSource = null;
   static patchPreviewAnalyserSink = null;
   static patchPreviewWaveformFrame = null;
+  static drumPadSelectedPitch = 35;
+  static drumPadActiveNotes = new Map();
+  static drumPadBankLoadGeneration = 0;
 
   static generateProjectTimidityCfg(project, bankFilter = null) {
     const allPatches = getProjectPatches(project);
@@ -537,6 +547,7 @@ class MidiController {
   }
 
   static invalidateTimidityPlayer(clearPatchCache = true) {
+    MidiController.stopMidiPlaybackWaveform(true);
     if (timidityPlayer) {
       try { timidityPlayer.shutdown(); } catch (e) {}
       timidityPlayer = null;
@@ -658,6 +669,14 @@ class MidiController {
       bufferSize: 4096,
       sampleRate: 96000
     });
+
+    timidityPlayer.onNoteOn(event => MidiController.handleDrumPadNoteOn(event));
+    timidityPlayer.onNoteOff(event => MidiController.handleDrumPadNoteOff(event));
+    const clearDrumPads = () => MidiController.clearDrumPadHighlights();
+    timidityPlayer.onPause(clearDrumPads);
+    timidityPlayer.onStop(clearDrumPads);
+    timidityPlayer.onSeek(clearDrumPads);
+    timidityPlayer.onEnded(clearDrumPads);
   
     timidityPlayer.onError((err) => {
       console.error("TiMidity Error:", err);
@@ -688,6 +707,7 @@ class MidiController {
       midiProgress.paused = false;
       midiProgress.current = midiProgress.duration;
       cancelAnimationFrame(midiProgress.raf);
+      MidiController.stopMidiPlaybackWaveform();
   
       $("btnPlayMidi").disabled = false;
       $("btnPlayMidi").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg> ${t("play")}`;
@@ -696,10 +716,35 @@ class MidiController {
       $("btnTimelinePlay").disabled = false;
       $("btnTimelinePlay").innerHTML = `<svg class="icon"><use href="#i-play"></use></svg>`;
   
-  
-  
+      // Clear canvas
+      setTimeout(() => {
+        const canvas = $("midiPlaybackWaveform");
+        if(canvas)
+        {
+          const context = canvas.getContext("2d");
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }, 100);
       setMidiStatus("midi_finished");
       updateMidiUI();
+    });
+
+    timidityPlayer.onStop(() => {
+      // ═══════════════════════════════════════════════════════════════
+      // Guard kritis: hanya proses jika kita MASIH di state playing.
+      // Jika playing=false, berarti user baru saja pause/stop/seek —
+      // onStop ini adalah efek samping dari timidityPlayer.stop(),
+      // bukan akhir lagu yang sesungguhnya.
+      // ═══════════════════════════════════════════════════════════════
+      // Clear canvas
+      setTimeout(() => {
+        const canvas = $("midiPlaybackWaveform");
+        if(canvas)
+        {
+          const context = canvas.getContext("2d");
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }, 40);
     });
   
     await timidityPlayer.init();
@@ -1714,7 +1759,8 @@ class MidiController {
       // Aksi Pause
       midiProgress.playing = false;
       midiProgress.paused = true;
-      timidityPlayer.stop();
+      MidiController.stopMidiPlaybackWaveform();
+      timidityPlayer.pause();
       cancelAnimationFrame(midiProgress.raf);
       
       const btn = $("btnPlayMidi");
@@ -1748,9 +1794,10 @@ class MidiController {
   
       if (timidityPlayer) timidityPlayer.stop();
       await timidityPlayer.loadAndPlay(state.midiData, fromTime);
-  
+
       // ─── Reapply mute/solo setelah patch dimuat ───
       applyMidiMuteSolo();
+      MidiController.startMidiPlaybackWaveform(timidityPlayer);
   
       // ═══════════════════════════════════════════════════════════════
       // Clock UI dimulai SETELAH loadAndPlay selesai.
@@ -1796,6 +1843,7 @@ class MidiController {
     midiProgress.seeking = false;
     midiProgress.current = 0;
     cancelAnimationFrame(midiProgress.raf);
+    MidiController.stopMidiPlaybackWaveform();
     
     if (timidityPlayer) {
       timidityPlayer.stop();
@@ -1811,6 +1859,209 @@ class MidiController {
     setMidiStatus("midi_stopped");
     updateTimelinePlayButton(); // <-- Tambahkan ini
     updateMidiUI();
+  }
+
+  static toggleMidiWaveformMode() {
+    MidiController.midiWaveformMode =
+      MidiController.midiWaveformMode === "amplitude" ? "frequency" : "amplitude";
+    MidiController.drawMidiPlaybackWaveform();
+  }
+
+  static startMidiPlaybackWaveform(player) {
+    const canvas = $("midiPlaybackWaveform");
+    const audioContext = player && player.audioContext;
+    const source = player && player.gainNode;
+    if (!canvas || !audioContext || !source) {
+      console.error("[MIDI Waveform] Player audio output is unavailable.");
+      return;
+    }
+
+    try {
+      if (MidiController.midiWaveformSource !== source) {
+        MidiController.stopMidiPlaybackWaveform(true);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0.8;
+        const destination = audioContext.destination;
+        source.disconnect(destination);
+        try {
+          source.connect(analyser);
+          analyser.connect(destination);
+        } catch (error) {
+          source.disconnect(analyser);
+          source.connect(destination);
+          throw error;
+        }
+        MidiController.midiWaveformAnalyser = analyser;
+        MidiController.midiWaveformSource = source;
+        MidiController.midiWaveformDestination = destination;
+        MidiController.midiWaveformTimeData = new Float32Array(analyser.fftSize);
+        MidiController.midiWaveformFrequencyData =
+          new Uint8Array(analyser.frequencyBinCount);
+      }
+
+      if (MidiController.midiWaveformFrame !== null) {
+        cancelAnimationFrame(MidiController.midiWaveformFrame);
+      }
+      MidiController.drawMidiPlaybackWaveform();
+      MidiController.midiWaveformFrame =
+        requestAnimationFrame(MidiController.updateMidiPlaybackWaveform);
+    } catch (error) {
+      console.error("[MIDI Waveform] Failed to connect audio analyser:", error);
+      MidiController.stopMidiPlaybackWaveform(true);
+    }
+  }
+
+  static updateMidiPlaybackWaveform() {
+    if (!MidiController.midiWaveformAnalyser || !midiProgress.playing) {
+      MidiController.midiWaveformFrame = null;
+      return;
+    }
+    MidiController.drawMidiPlaybackWaveform();
+    MidiController.midiWaveformFrame =
+      requestAnimationFrame(MidiController.updateMidiPlaybackWaveform);
+  }
+
+  static drawMidiPlaybackWaveform() {
+    const canvas = $("midiPlaybackWaveform");
+    const context = canvas && canvas.getContext("2d");
+    const analyser = MidiController.midiWaveformAnalyser;
+    const readout = $("midiWaveformReadout");
+    if (!canvas || !context || !analyser) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    context.clearRect(0, 0, width, height);
+    context.strokeStyle = "#38bdf8";
+    context.fillStyle = "rgba(56, 189, 248, 0.72)";
+    context.lineWidth = 1.5;
+
+    if (MidiController.midiWaveformMode === "frequency") {
+      const data = MidiController.midiWaveformFrequencyData;
+      analyser.getByteFrequencyData(data);
+      const barCount = 96;
+      const barWidth = width / barCount;
+      const nyquist = analyser.context.sampleRate / 2;
+      const minFrequency = 20;
+      const maxFrequency = Math.min(20000, nyquist);
+      let peak = 0;
+      let peakFrequency = 0;
+      for (let bin = 1; bin < data.length; bin++) {
+        const frequency = bin * nyquist / data.length;
+        if (frequency >= minFrequency && data[bin] > peak) {
+          peak = data[bin];
+          peakFrequency = frequency;
+        }
+      }
+      for (let bar = 0; bar < barCount; bar++) {
+        const lowFrequency = minFrequency *
+          Math.pow(maxFrequency / minFrequency, bar / barCount);
+        const highFrequency = minFrequency *
+          Math.pow(maxFrequency / minFrequency, (bar + 1) / barCount);
+        const lowBin = Math.max(1, Math.floor(lowFrequency * data.length / nyquist));
+        const highBin = Math.max(lowBin + 1, Math.ceil(highFrequency * data.length / nyquist));
+        let level = 0;
+        for (let bin = lowBin; bin < Math.min(highBin, data.length); bin++) {
+          level = Math.max(level, data[bin]);
+        }
+        const barHeight = level / 255 * height;
+        context.fillRect(bar * barWidth, height - barHeight, Math.max(1, barWidth - 1), barHeight);
+      }
+      if (readout) {
+        readout.textContent = t("midi_waveform_frequency_readout", {
+          frequency: Math.round(peakFrequency)
+        });
+      }
+      return;
+    }
+
+    const data = MidiController.midiWaveformTimeData;
+    analyser.getFloatTimeDomainData(data);
+    let peak = 0;
+    let sumSquares = 0;
+    for (const sample of data) {
+      peak = Math.max(peak, Math.abs(sample));
+      sumSquares += sample * sample;
+    }
+    const centerY = height / 2;
+
+    // garis tengah
+    context.beginPath();
+    context.moveTo(0, centerY);
+    context.lineTo(width, centerY);
+    context.strokeStyle = "rgba(148, 163, 184, 0.3)";
+    context.stroke();
+
+    // --- min/max per kolom piksel (anti-aliasing sub-piksel) ---
+    const columns = Math.max(1, Math.floor(width));
+    const samplesPerColumn = data.length / columns;
+    const topY = new Float32Array(columns);
+    const botY = new Float32Array(columns);
+
+    for (let col = 0; col < columns; col++) {
+      const start = Math.floor(col * samplesPerColumn);
+      const end = Math.min(
+        data.length,
+        Math.max(start + 1, Math.floor((col + 1) * samplesPerColumn))
+      );
+      let min = 1, max = -1;
+      for (let i = start; i < end; i++) {
+        const v = data[i];
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+      if (max < min) { min = 0; max = 0; }        // jaga-jaga bila column kosong
+      topY[col] = centerY - max * centerY;
+      botY[col] = centerY - min * centerY;
+    }
+
+    // area terisi
+    context.beginPath();
+    context.moveTo(0, topY[0]);
+    for (let col = 1; col < columns; col++) context.lineTo(col, topY[col]);
+    for (let col = columns - 1; col >= 0; col--) context.lineTo(col, botY[col]);
+    context.closePath();
+    context.fillStyle = "rgba(56, 189, 248, 0.35)";
+    context.fill();
+
+    // outline atas & bawah
+    context.beginPath();
+    context.moveTo(0, topY[0]);
+    for (let col = 1; col < columns; col++) context.lineTo(col, topY[col]);
+    context.moveTo(0, botY[0]);
+    for (let col = 1; col < columns; col++) context.lineTo(col, botY[col]);
+    context.strokeStyle = "#38bdf8";
+    context.lineWidth = 1.5;
+    context.stroke();
+  }
+
+  static stopMidiPlaybackWaveform(disconnect = false) {
+    if (MidiController.midiWaveformFrame !== null) {
+      cancelAnimationFrame(MidiController.midiWaveformFrame);
+      MidiController.midiWaveformFrame = null;
+    }
+    if (disconnect && MidiController.midiWaveformSource &&
+        MidiController.midiWaveformAnalyser) {
+      try {
+        MidiController.midiWaveformSource.disconnect(MidiController.midiWaveformAnalyser);
+        MidiController.midiWaveformAnalyser.disconnect(
+          MidiController.midiWaveformDestination
+        );
+        if (MidiController.midiWaveformSource.context.state !== "closed") {
+          MidiController.midiWaveformSource.connect(
+            MidiController.midiWaveformDestination
+          );
+        }
+      } catch (error) {
+        console.error("[MIDI Waveform] Failed to disconnect audio analyser:", error);
+      } finally {
+        MidiController.midiWaveformAnalyser = null;
+        MidiController.midiWaveformSource = null;
+        MidiController.midiWaveformDestination = null;
+        MidiController.midiWaveformTimeData = null;
+        MidiController.midiWaveformFrequencyData = null;
+      }
+    }
   }
 
   static requestMidiDemoProject(buttons){
@@ -1887,11 +2138,19 @@ class MidiController {
         ...melodic.map(instrument=>({instrument, isDrum:false, bank:melodicBank})),
         ...drums.map(instrument=>({instrument, isDrum:true, bank:128}))
       ];
+      const melodicPitchRanges=[
+        {pitchFrom:0,pitchTo:47},
+        {pitchFrom:48,pitchTo:59},
+        {pitchFrom:60,pitchTo:71},
+        {pitchFrom:72,pitchTo:83},
+        {pitchFrom:84,pitchTo:95},
+        {pitchFrom:96,pitchTo:127}
+      ];
       const hasCompleteMelodicPitchCoverage=entry=>{
         const samples=entry.patch.instruments.flatMap(inst=>
           inst.layers.flatMap(layer=>layer.samples)
         );
-        if(samples.length!==7)return false;
+        if(samples.length!==melodicPitchRanges.length)return false;
         const ranges=samples.map(sample=>({
           from:sample._generatorInfo?.pitchFrom
             ?? ProjectPatchGenerator.frequencyToMidiPitch(sample.lowFreq),
@@ -1926,12 +2185,6 @@ class MidiController {
   
       const entries=[];
       let completed=tasks.length-missingTasks.length;
-
-      const melodicSampleCount = 7;
-      const melodicPitchRanges=Array.from({length:melodicSampleCount},(_,index)=>({
-        pitchFrom:Math.floor(index*128/melodicSampleCount),
-        pitchTo:Math.floor((index+1)*128/melodicSampleCount)-1
-      }));
 
       // Default waveform for each instrument: ('sine', 'triangle', 'square' or 'saw')
       const defaultWaveform = {
@@ -2056,7 +2309,7 @@ class MidiController {
     }
   }
 
-  static openPatchPreviewDialog() {
+  static async openPatchPreviewDialog() {
     MidiController.closePatchPreviewDialog();
     const project = state.projects.find(entry => entry.id === state.currentProjectId);
     const patch = state.patches.find(entry => entry.id === state.currentPatchId);
@@ -2073,12 +2326,51 @@ class MidiController {
     }
 
     const isDrum = Number(patch.gmBank ?? 0) === 128;
-    const program = patch.gmProgram == null || patch.gmProgram === ""
+    let program = patch.gmProgram == null || patch.gmProgram === ""
       ? NaN
       : Number(patch.gmProgram);
-    const bank = patch.targetBank == null || patch.targetBank === ""
+    let bank = patch.targetBank == null || patch.targetBank === ""
       ? 0
       : Number(patch.targetBank);
+    if ((!Number.isInteger(program) || program < 0 || program > 127) &&
+        !isDrum && String(patch.source || "").startsWith("fxp:")) {
+      if (midiProgress.playing) {
+        status.textContent = t("patch_preview_stop_midi_first");
+        dialog.hidden = false;
+        return;
+      }
+
+      const usedPrograms = new Set(
+        getProjectPatches(project)
+          .filter(entry => entry.id !== patch.id
+            && (entry.gmBank ?? 0) !== 128
+            && Number(entry.targetBank ?? 0) === bank)
+          .map(entry => Number(entry.gmProgram))
+          .filter(value => Number.isInteger(value) && value >= 0 && value <= 127)
+      );
+      program = Array.from({length: 128}, (_, value) => value)
+        .find(value => !usedPrograms.has(value));
+      if (program === undefined) {
+        status.textContent = t("patch_preview_no_program_slot");
+        dialog.hidden = false;
+        return;
+      }
+
+      const updatedPatch = {...patch, gmProgram: program, targetBank: bank};
+      try {
+        await dbSaveProjectAndPatches(project, [updatedPatch]);
+      } catch (error) {
+        console.error("[Patch Preview] Failed to assign a MIDI program to FXP patch:", error);
+        status.textContent = t("patch_preview_assignment_failed", {message: error.message});
+        dialog.hidden = false;
+        return;
+      }
+      Object.assign(patch, updatedPatch);
+      if (timidityPlayer) invalidateTimidityPlayer();
+      renderLibrary();
+      renderBankManager();
+    }
+
     if (!Number.isInteger(program) || program < 0 || program > 127 ||
         !Number.isInteger(bank) || bank < 0 || bank > 127) {
       status.textContent = t("patch_preview_invalid_program");
@@ -2384,6 +2676,295 @@ class MidiController {
     MidiController.stopPatchPreviewWaveform();
     MidiController.patchPreviewSession = null;
     const dialog = $("patchPreviewDialog");
+    if (dialog) dialog.hidden = true;
+  }
+
+  static openDrumPadsDialog() {
+    const dialog = $("drumPadsDialog");
+    const bankSelect = $("drumPadsBank");
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    if (!dialog || !bankSelect) {
+      console.error("[Drum Pads] Modal elements are missing from the DOM.");
+      return;
+    }
+
+    bankSelect.replaceChildren();
+    const banks = project
+      ? [...new Set(getProjectPatches(project)
+        .filter(entry => (entry.gmBank ?? 0) === 128)
+        .map(entry => Number(entry.targetBank ?? 0))
+        .filter(bank => Number.isInteger(bank) && bank >= 0 && bank <= 127))]
+        .sort((a, b) => a - b)
+      : [];
+    if (banks.length === 0) banks.push(0);
+
+    for (const bank of banks) {
+      const option = document.createElement("option");
+      option.value = String(bank);
+      option.textContent = t("drum_kit_preview_bank", {bank});
+      bankSelect.appendChild(option);
+    }
+    bankSelect.disabled = banks.length < 2;
+
+    MidiController.drumPadSelectedPitch = Math.max(35, Math.min(81, MidiController.drumPadSelectedPitch));
+    MidiController.renderDrumPadLibraryOptions();
+    MidiController.renderDrumPads();
+    dialog.hidden = false;
+    MidiController.handleDrumPadBankChange();
+  }
+
+  static renderDrumPadLibraryOptions() {
+    const select = $("drumPadLibraryPatch");
+    if (!select) return;
+    const previousValue = select.value;
+    const patches = [...state.patches]
+      .filter(entry => entry && entry.patch && Array.isArray(entry.patch.instruments) && entry.patch.instruments.length)
+      .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+    select.replaceChildren();
+
+    if (patches.length === 0) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = t("drum_pads_no_library_patches");
+      select.appendChild(option);
+      return;
+    }
+
+    for (const entry of patches) {
+      const option = document.createElement("option");
+      option.value = String(entry.id);
+      const type = (entry.gmBank ?? 0) === 128 ? t("drum") : t("non_drum");
+      option.textContent = `${entry.name || t("unnamed")} · ${type} · ${t("drum_kit_preview_bank", {bank: entry.targetBank ?? 0})}`;
+      select.appendChild(option);
+    }
+    if (patches.some(entry => String(entry.id) === previousValue)) select.value = previousValue;
+  }
+
+  static renderDrumPads() {
+    const grid = $("drumPadGrid");
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const bank = Number($("drumPadsBank")?.value);
+    if (!grid || !Number.isInteger(bank)) return;
+
+    const mappedPitches = new Map();
+    if (project) {
+      for (const entry of getProjectPatches(project)) {
+        const pitch = Number(entry.gmProgram);
+        if ((entry.gmBank ?? 0) !== 128 ||
+            Number(entry.targetBank ?? 0) !== bank ||
+            !Number.isInteger(pitch) || pitch < 35 || pitch > 81) continue;
+        if (!mappedPitches.has(pitch)) mappedPitches.set(pitch, entry);
+      }
+    }
+
+    grid.replaceChildren();
+    let missingCount = 0;
+    for (let pitch = 35; pitch <= 81; pitch++) {
+      const name = GM_DRUM_NAMES[pitch];
+      const patch = mappedPitches.get(pitch);
+      if (!patch) missingCount++;
+
+      const pad = document.createElement("button");
+      pad.type = "button";
+      pad.className = "drum-pad";
+      if (!patch) pad.classList.add("is-missing");
+      if (pitch === MidiController.drumPadSelectedPitch) pad.classList.add("is-selected");
+      if (MidiController.drumPadActiveNotes.has(pitch)) pad.classList.add("is-active");
+      pad.dataset.padPitch = String(pitch);
+      pad.setAttribute("aria-pressed", String(pitch === MidiController.drumPadSelectedPitch));
+      pad.title = patch ? `${name} · ${patch.name}` : `${name} · ${t("drum_pads_missing")}`;
+
+      const number = document.createElement("span");
+      number.className = "drum-pad-number";
+      number.textContent = String(pitch);
+      const label = document.createElement("span");
+      label.className = "drum-pad-name";
+      label.textContent = name;
+      const status = document.createElement("span");
+      status.className = "drum-pad-state";
+      status.textContent = patch ? t("drum_pads_available") : t("drum_pads_missing");
+      pad.append(number, label, status);
+      grid.appendChild(pad);
+    }
+
+    const status = $("drumPadsStatus");
+    if (!project) {
+      status.textContent = t("drum_pads_no_project");
+    } else {
+      status.textContent = t("drum_pads_status", {missing: missingCount, total: 47});
+    }
+    $("drumPadSelectedLabel").textContent = t("drum_pads_selected", {
+      pitch: MidiController.drumPadSelectedPitch,
+      name: GM_DRUM_NAMES[MidiController.drumPadSelectedPitch]
+    });
+    $("drumPadLibraryPatch").disabled = !project || state.patches.length === 0;
+    $("btnAssignDrumPadPatch").disabled =
+      !project || !$("drumPadLibraryPatch").value || state.patches.length === 0;
+  }
+
+  static async handleDrumPadBankChange() {
+    const generation = ++MidiController.drumPadBankLoadGeneration;
+    MidiController.renderDrumPads();
+
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const bank = Number($("drumPadsBank")?.value);
+    if (!project || !Number.isInteger(bank) || bank < 0 || bank > 127) {
+      $("drumPadsStatus").textContent = t("drum_pads_no_project");
+      return;
+    }
+
+    $("drumPadsStatus").textContent = t("drum_pads_loading_bank", {bank});
+    try {
+      await ensureTimidityPlayer();
+      const player = timidityPlayer;
+      if (!player) throw new Error("TiMidity player is unavailable.");
+      if (generation !== MidiController.drumPadBankLoadGeneration ||
+          state.currentProjectId !== project.id ||
+          Number($("drumPadsBank").value) !== bank) return;
+
+      const pitches = [...new Set(getProjectPatches(project)
+        .filter(entry => (entry.gmBank ?? 0) === 128 &&
+          Number(entry.targetBank ?? 0) === bank)
+        .map(entry => Number(entry.gmProgram))
+        .filter(pitch => Number.isInteger(pitch) && pitch >= 35 && pitch <= 81))]
+        .sort((a, b) => a - b);
+
+      for (const pitch of pitches) {
+        if (generation !== MidiController.drumPadBankLoadGeneration ||
+            state.currentProjectId !== project.id ||
+            Number($("drumPadsBank").value) !== bank) return;
+
+        if (player.songPtr) {
+          const loaded = await player.loadInstrumentForSong(9, pitch, bank);
+          if (!loaded) throw new Error(`Could not load drum note ${pitch} from kit ${bank} into MIDI playback.`);
+        }
+
+        const loadedRealtime = await player.setRealtimeInstrument(9, pitch, bank);
+        if (!loadedRealtime) throw new Error(`Could not load drum note ${pitch} from kit ${bank} into the real-time player.`);
+      }
+
+      if (generation !== MidiController.drumPadBankLoadGeneration ||
+          state.currentProjectId !== project.id ||
+          Number($("drumPadsBank").value) !== bank) return;
+
+      player.sendEvent(player.ME_TONE_BANK, 9, bank, 0);
+      player.sendEvent(player.ME_PROGRAM, 9, 0, 0);
+      $("drumPadsStatus").textContent = t("drum_pads_bank_loaded", {
+        bank,
+        count: pitches.length
+      });
+    } catch (error) {
+      if (generation !== MidiController.drumPadBankLoadGeneration) return;
+      console.error("[Drum Pads] Failed to load selected drum kit:", error);
+      $("drumPadsStatus").textContent = t("drum_pads_bank_load_failed", {
+        bank,
+        message: error.message || String(error)
+      });
+    }
+  }
+
+  static handleDrumPadClick(event) {
+    const pad = event.target.closest("button[data-pad-pitch]");
+    if (!pad || !event.currentTarget.contains(pad)) return;
+    const pitch = Number(pad.dataset.padPitch);
+    if (!Number.isInteger(pitch) || pitch < 35 || pitch > 81) return;
+    MidiController.drumPadSelectedPitch = pitch;
+    MidiController.renderDrumPads();
+  }
+
+  static async assignDrumPadPatch() {
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const source = state.patches.find(entry => String(entry.id) === $("drumPadLibraryPatch").value);
+    const pitch = MidiController.drumPadSelectedPitch;
+    const bank = Number($("drumPadsBank").value);
+    if (!project || !source || !source.patch || !Number.isInteger(bank) || bank < 0 || bank > 127) {
+      $("drumPadsStatus").textContent = t("drum_pads_assign_failed", {
+        message: t("drum_pads_invalid_selection")
+      });
+      return;
+    }
+
+    const replacedIds = new Set(getProjectPatches(project)
+      .filter(entry => (entry.gmBank ?? 0) === 128 &&
+        Number(entry.targetBank ?? 0) === bank &&
+        Number(entry.gmProgram) === pitch)
+      .map(entry => entry.id));
+    const assignedPatch = {
+      ...source,
+      id: uid("patch"),
+      gmProgram: pitch,
+      gmBank: 128,
+      drumSet: bank,
+      targetBank: bank,
+      patch: cleanPatchForStorage(source.patch)
+    };
+    const updatedProject = {
+      ...project,
+      patchIds: [
+        ...(project.patchIds || []).filter(id => !replacedIds.has(id)),
+        assignedPatch.id
+      ]
+    };
+    const assignButton = $("btnAssignDrumPadPatch");
+    assignButton.disabled = true;
+
+    try {
+      await dbSaveProjectAndPatches(updatedProject, [assignedPatch]);
+      project.patchIds = updatedProject.patchIds;
+      state.patches.push(assignedPatch);
+      invalidateTimidityPlayer();
+      renderLibrary();
+      renderProjects();
+      MidiController.renderDrumPadLibraryOptions();
+      MidiController.renderDrumPads();
+      await MidiController.handleDrumPadBankChange();
+      if (state.currentProjectId === project.id &&
+          Number($("drumPadsBank").value) === bank) {
+        $("drumPadsStatus").textContent = t("drum_pads_assigned", {
+          pitch,
+          name: GM_DRUM_NAMES[pitch]
+        });
+      }
+    } catch (error) {
+      console.error("[Drum Pads] Failed to assign library patch:", error);
+      MidiController.renderDrumPads();
+      $("drumPadsStatus").textContent = t("drum_pads_assign_failed", {
+        message: error.message || String(error)
+      });
+    }
+  }
+
+  static handleDrumPadNoteOn(event) {
+    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
+    MidiController.drumPadActiveNotes.set(
+      event.pitch,
+      (MidiController.drumPadActiveNotes.get(event.pitch) || 0) + 1
+    );
+    document.querySelectorAll(`.drum-pad[data-pad-pitch="${event.pitch}"]`)
+      .forEach(pad => pad.classList.add("is-active"));
+  }
+
+  static handleDrumPadNoteOff(event) {
+    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
+    const activeCount = MidiController.drumPadActiveNotes.get(event.pitch) || 0;
+    if (activeCount > 1) {
+      MidiController.drumPadActiveNotes.set(event.pitch, activeCount - 1);
+      return;
+    }
+    MidiController.drumPadActiveNotes.delete(event.pitch);
+    document.querySelectorAll(`.drum-pad[data-pad-pitch="${event.pitch}"]`)
+      .forEach(pad => pad.classList.remove("is-active"));
+  }
+
+  static clearDrumPadHighlights() {
+    MidiController.drumPadActiveNotes.clear();
+    document.querySelectorAll(".drum-pad.is-active").forEach(pad => pad.classList.remove("is-active"));
+  }
+
+  static closeDrumPadsDialog() {
+    MidiController.drumPadBankLoadGeneration++;
+    MidiController.clearDrumPadHighlights();
+    const dialog = $("drumPadsDialog");
     if (dialog) dialog.hidden = true;
   }
 

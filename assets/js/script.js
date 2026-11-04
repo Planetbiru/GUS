@@ -327,6 +327,7 @@ function updateTimelineMutedVisuals(...args) { return MidiController.updateTimel
 function togglePauseMidi(...args) { return MidiController.togglePauseMidi.apply(this, args); }
 function playMidi(...args) { return MidiController.playMidi.apply(this, args); }
 function stopMidi(...args) { return MidiController.stopMidi.apply(this, args); }
+function toggleMidiWaveformMode(...args) { return MidiController.toggleMidiWaveformMode.apply(this, args); }
 function exportPatchById(...args) { return BankController.exportPatchById.apply(this, args); }
 function exportProject(...args) { return BankController.exportProject.apply(this, args); }
 function openExportBanksDialog(...args) { return BankController.openExportBanksDialog.apply(this, args); }
@@ -357,6 +358,7 @@ function render(...args) { return ProjectController.render.apply(this, args); }
 function freqToNoteName(...args) { return ProjectController.freqToNoteName.apply(this, args); }
 function openFreqMapDialog(...args) { return ProjectController.openFreqMapDialog.apply(this, args); }
 function renderSampleEditor(...args) { return EditorController.renderSampleEditor.apply(this, args); }
+function createSampleLoop(...args) { return EditorController.createSampleLoop.apply(this, args); }
 function populateAddSampleProgramOptions(...args) { return EditorController.populateAddSampleProgramOptions.apply(this, args); }
 function openAddSampleDialog(...args) { return EditorController.openAddSampleDialog.apply(this, args); }
 function clearSampleRecordingTimer(...args) { return EditorController.clearSampleRecordingTimer.apply(this, args); }

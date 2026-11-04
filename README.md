@@ -1,6 +1,6 @@
 # Planetbiru Instrument Editor
 
-A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
+A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2` and `.sf3`)**, **Surge VST2 presets (`.fxp`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
 
 Built with vanilla JavaScript and no build step. Runs entirely in the browser. All data is stored locally in IndexedDB.
 
@@ -28,7 +28,8 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 
 ### Instrument & Patch Editing
 - **Full GUS `.PAT` support** — parse, inspect, edit, and export Gravis Ultrasound patches
-- **SoundFont (`.sf2`) support** — import presets into editable patches, and export projects back to standard SF2
+- **SoundFont (`.sf2` / `.sf3`) support** — import presets into editable patches, including Ogg Vorbis-compressed SF3 samples, and export projects to standard SF2
+- **Surge VST2 `.fxp` import** — converts embedded Surge wavetable/sample data into an approximate playable GUS patch
 - **SFZ package support** — import `.sfz` instruments and their audio samples directly from `.zip` archives
 - **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
 - **Instrument management** — add, rename, reorder, and export individual instruments
@@ -52,7 +53,9 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 | Format | Extension | Description |
 |---|---|---|
 | GUS Patch | `.pat` | Native Gravis Ultrasound patch format |
-| SoundFont | `.sf2` | Extracts all presets, including drum kits (split per MIDI note) |
+| SoundFont 2 | `.sf2` | Extracts all presets, including drum kits (split per MIDI note) |
+| SoundFont 3 | `.sf3` | Decodes mono Ogg Vorbis samples and extracts all presets; mixed PCM/compressed files are supported |
+| Surge VST2 preset | `.fxp` | Converts embedded wavetable and sample oscillator data to a playable GUS patch |
 | Timidity package | `.zip` | Timidity distribution packages containing `timidity.cfg` |
 | SFZ Package | `.zip` | Instruments containing `.sfz` files and their audio samples (`.wav`, `.mp3`, etc.) |
 | MIDI.js soundfont | `.js` | FluidR3_GM-style OGG/MP3 soundfonts from jsDelivr and similar CDNs |
@@ -163,9 +166,9 @@ The editor can parse and import `.sfz` instrument definitions, provided they are
 - **Drum kits** (detected via naming or group routing) are split into one GUS patch per MIDI note.
 - Supported audio formats depend entirely on the browser's `decodeAudioData` capability (usually WAV, MP3, and OGG).
 
-### `.sf2` (SoundFont 2)
+### `.sf2` and `.sf3` (SoundFonts)
 
-**Import.** A single `.sf2` may contain dozens of presets. Each one is turned into its own GUS patch:
+**Import.** A single SoundFont may contain dozens of presets. Each one is turned into its own GUS patch. SF2 PCM samples are imported directly; SF3 Ogg Vorbis samples are decoded by the browser's Web Audio implementation. SF3 compressed samples must be mono and use Ogg Vorbis.
 
 - Melodic presets (`bank 0`–`127`) → one patch each. `gmProgram = preset` and `gmBank = bank`.
 - Drum kits (`bank 128`) → **one patch per MIDI note** covered by the kit's key ranges. Every patch in the same kit shares a `drumSet` ID.
@@ -202,6 +205,10 @@ Every pass through this chain preserves the following:
 - `scaleFreq` and `scaleFactor` — metadata-only UI fields; `scaleFreq` is rewritten from `rootFreq` on export
 
 > **Tip:** Because pitch is derived from `rootFreq` (via `originalPitch` + `chPitchCorrection`), two patches with identical PCM but different `scaleFreq` will roundtrip to identical pitches. If a patch's `scaleFreq` looks different after a roundtrip, only the UI label changed — the audible pitch did not.
+
+### Surge VST2 `.fxp` presets
+
+Surge VST2 program presets with embedded oscillator wavetable data can be imported as approximate GUS patches. The first frame of each embedded wavetable is converted to a looped sample; embedded sample oscillators retain their sample data as one-shot samples. The conversion retains the preset name and oscillator octave where available, but does not render Surge's filters, envelopes, effects, modulation, or wavetable animation. Other plugin vendors' FXP files and Surge presets without embedded wavetable/sample data are not supported.
 
 ---
 
@@ -262,24 +269,24 @@ Projects sidebar → Add Patch → Open a .PAT file
 
 **From a SoundFont:**
 ```
-Projects sidebar → Import Package → select .sf2
+Projects sidebar → Import Package → select .sf2 or .sf3
 ```
-Each preset becomes a separate GUS patch. Drum kits (`bank 128`) are split into one patch per MIDI note.
+SF2 and SF3 SoundFonts can also be opened from the header file picker. Each preset becomes a separate GUS patch. Drum kits (`bank 128`) are split into one patch per MIDI note.
 
 **From a Timidity ZIP:**
 ```
-Header → Open .PAT / .SF2 → select a ZIP produced by this editor or a compatible Timidity package
+Header → Open .PAT / .SF2 / .SF3 → select a ZIP produced by this editor or a compatible Timidity package
 ```
 
 **From an SFZ Package (ZIP):**
 ```
-Header → Open .PAT / .SF2 → select a ZIP containing .sfz and audio files
+Header → Open .PAT / .SF2 / .SF3 → select a ZIP containing .sfz and audio files
 ```
 The ZIP file must contain the `.sfz` file(s) and all referenced audio samples. Melodic SFZ files are combined into a single patch, while drum kits are split per MIDI note.
 
 **From a MIDI.js soundfont:**
 ```
-Header → Open .PAT / .SF2 → select an .js file
+Header → Open .PAT / .SF2 / .SF3 → select an .js file
 # or
 Header → MIDI.js URL → paste a jsDelivr URL
 ```
@@ -409,8 +416,7 @@ planetbiru-instrument-editor/
 │   │   ├── bank-controller.js
 │   │   ├── editor-controller.js       # Sample editing and generated waveform variants
 │   │   ├── project-controller.js
-│   │   ├── midi-controller.js
-│   │   └── zip.js
+│   │   └── midi-controller.js
 │   └── locales/
 │       ├── id.json                    # Indonesian strings
 │       └── en.json                    # English strings
@@ -427,10 +433,21 @@ planetbiru-instrument-editor/
 
 The generator's instrument data is kept separately from its rendering code:
 
-- `JSGUS/melodic-presets.js` defines the global `GUS_MELODIC_PRESETS` array.
-  Each entry has the shape `{ program, family, name, preset }`.
-- `JSGUS/drum-presets.js` defines the global `GUS_DRUM_PRESETS` array. Each
-  entry has the shape `{ note, name, preset }`.
+- `JSGUS/melodic-presets.js` defines the global `GUS_MELODIC_PRESETS` object
+  with a master `gain` and an `instruments` array. Each instrument has the
+  shape `{ program, family, name, short_name, description, preset }`.
+- `JSGUS/drum-presets.js` defines the global `GUS_DRUM_PRESETS` object with a
+  master `gain` and an `instruments` array. Each instrument has the shape
+  `{ note, name, short_name, description, preset }`.
+
+`short_name` is the GUS instrument name and must contain at most 16 characters.
+`description` is an English summary of the instrument sound and is written to
+the GUS patch header; keep it within the 60-character header limit. The full
+`name` remains the generator/UI display name.
+
+The root `gain` is a mixer-style master level for all generated samples in
+that data set. The generator multiplies it by an instrument's optional
+`preset.gain`; both default to `1` when no per-instrument gain is specified.
 
 Both files contain editable plain JavaScript objects (no preset factory calls).
 The HTML pages load the data scripts before `ProjectPatchGenerator.js`. Keep
@@ -438,15 +455,19 @@ that order if you use a custom script URL or host the data separately.
 
 ### Editing melodic presets
 
-There must be exactly one entry for every General MIDI melodic program, from
-`0` to `127`. The loader uses the explicit `program` value, not the array
-position, and rejects missing or duplicate programs.
+`GUS_MELODIC_PRESETS.instruments` must contain exactly one entry for every
+General MIDI melodic program, from `0` to `127`. The loader uses the explicit
+`program` value, not the array position, and rejects missing or duplicate
+programs. Set `GUS_MELODIC_PRESETS.gain` to adjust the master level of all
+melodic samples generated from this data set.
 
 ```js
 {
   program: 24,
   family: "Guitar",
   name: "Nylon Guitar",
+  short_name: "Nylon Guitar",
+  description: "Nylon Guitar: a plucked-string attack with natural decay.",
   preset: {
     freq: 441,
     harm: [1, 0.7, 0.4, 0.2],
@@ -473,7 +494,7 @@ Common melodic `preset` properties:
 | `loopAttack` | Loop attack/fade-in time in seconds. |
 | `sustainLoop` | Set to `false` to disable the GUS sustain-loop flag while retaining the sample loop. |
 | `patchEnvelope` | Optional GUS patch envelope with six raw `rates` and six `offsets` values. These are written to the patch header. |
-| `gain` | Non-negative output multiplier applied during patch generation. Values above 1 are allowed; final 16-bit PCM clips at its limits. |
+| `gain` | Non-negative output multiplier applied after the rendered waveform is normalized. Values below 1 reduce sample level and leave headroom when voices are mixed; values above 1 can clip the final 16-bit PCM. |
 | `noise` | Blend amount for noise in the oscillator signal. Looping presets use a repeating noise cycle. |
 | `fm` | Frequency modulation settings: `ratio` is the modulator/carrier frequency ratio; `index` is modulation depth. Looping presets require an integer `ratio` for FM to be used. |
 | `detune` | Voice detuning values in cents; used for one-shot rendering. |
@@ -499,15 +520,18 @@ the GUS patch envelope.
 
 ### Editing drum presets
 
-The drum array currently contains 47 General MIDI percussion notes, from 35
-through 81. Each `note` must be a unique MIDI note number from 0 to 127; the
-loader rejects duplicate notes and invalid entries.
+The `GUS_DRUM_PRESETS.instruments` array currently contains 47 General MIDI
+percussion notes, from 35 through 81. Each `note` must be a unique MIDI note
+number from 0 to 127; the loader rejects duplicate notes and invalid entries.
+Set `GUS_DRUM_PRESETS.gain` to adjust the master level of all generated drum
+samples.
 
 Drum `preset` properties are combined by `DrumRenderer`:
 
 | Property | Meaning |
 | --- | --- |
 | `duration` | Render length in seconds. |
+| `gain` | Non-negative output multiplier applied after drum rendering is normalized. Values below 1 reduce the hit level and leave headroom when percussion is layered; values above 1 can clip the final 16-bit PCM. |
 | `tones` | Array of decaying sine tones. Each tone supports `fStart`/`fEnd` in hertz, `pitchDecay`/`decay` in seconds, `amp`, and optional `fm: { ratio, index }`. |
 | `membrane` | Tuned membrane sound with base `freq` in hertz, `pitchDecay` and `decay` in seconds, and optional `modes`. Each mode has a frequency `ratio`, relative `amp`, optional `startRatio`, and a `decay` multiplier. |
 | `metallic` | Inharmonic ringing sound: `baseFreq` in hertz, optional partial frequency `ratios`, `amp`, and `decay` in seconds. |
@@ -591,7 +615,8 @@ Placeholders use `{name}` syntax and are substituted from the `values` argument 
 - **Browsers only** — no desktop build; a modern browser is required
 - **RAM usage** — converting a large SoundFont or an SFZ package with hundreds of samples can hold hundreds of megabytes in memory during conversion; browsers may crash on low-RAM devices
 - **Storage limits** — IndexedDB quotas vary by browser (usually 10% of disk); large libraries may hit the quota
-- **SF2 import** — parsed in the main thread; the UI may freeze during conversion of large files
+- **SoundFont import** — parsed and decoded in the main thread; the UI may freeze during conversion of large files. SF3 compressed sample decoding requires browser support for Ogg Vorbis.
+- **FXP import** — only Surge VST2 presets with embedded wavetable/sample data are supported; conversion to GUS is approximate and does not preserve the full synthesizer sound.
 - **SF2 roundtrip** — PCM, loop points, sample rate, root frequency, key ranges, and preset metadata are preserved. Envelopes, tremolo, vibrato, and loop fractions are **not** part of the SF2 export format and are lost after a roundtrip; use a `.pat`-only export if you need those settings
 - **SFZ import** — Only basic SFZ opcodes are supported (key ranges, loops, tuning). Advanced opcodes (filters, complex modulation, keyswitches) are ignored. The `.sfz` file must be bundled inside a `.zip` along with its audio samples.
 - **MIDI.js import** — decoding ~88 notes at 22050 Hz takes 20–60 seconds depending on the file and device

@@ -213,9 +213,9 @@
         <option value="en">{{language_english}}</option>
       </select>
       <input type="file" id="patFile"
-        accept=".pat,.PAT,.sf2,.SF2,.zip,.ZIP,.js,.JS,application/octet-stream,audio/soundfont,application/x-soundfont,text/javascript" hidden>
+        accept=".pat,.PAT,.sf2,.SF2,.sf3,.SF3,.fxp,.FXP,.zip,.ZIP,.js,.JS,application/octet-stream,audio/soundfont,application/x-soundfont,text/javascript" hidden>
       <input type="file" id="sf2File"
-        accept=".sf2,.SF2,.zip,.ZIP,.js,.JS,audio/soundfont,application/x-soundfont,text/javascript" hidden>
+        accept=".sf2,.SF2,.sf3,.SF3,.fxp,.FXP,.zip,.ZIP,.js,.JS,audio/soundfont,application/x-soundfont,text/javascript" hidden>
       <input type="file" id="projectPatchFile" accept=".pat,.PAT" hidden>
       <button class="btn primary" id="btnOpen"><svg class="icon">
           <use href="#i-folder"></use>
@@ -293,6 +293,17 @@
               </svg> {{stop}}</button>
           </div>
 
+          <div class="midi-waveform-panel">
+            <canvas id="midiPlaybackWaveform" class="midi-waveform-canvas" width="720" height="96"
+              role="button" tabindex="0" aria-label="{{midi_waveform_toggle_hint}}"
+              title="{{midi_waveform_toggle_hint}}" data-i18n-aria-label="midi_waveform_toggle_hint"
+              data-i18n-title="midi_waveform_toggle_hint"></canvas>
+            <div class="midi-waveform-caption">
+              <span id="midiWaveformReadout">{{midi_waveform_waiting}}</span>
+              <span>{{midi_waveform_click_hint}}</span>
+            </div>
+          </div>
+
           <div class="midi-volume-row">
             <span class="midi-volume-label"><svg class="icon">
                 <use href="#i-volume"></use>
@@ -301,7 +312,6 @@
               style="flex:1">
             <span id="midiVolVal" class="midi-volume-value">100%</span>
           </div>
-
 
           <div class="inline-actions">
             <button class="btn small" id="btnSelectBank" style="flex:1"><svg class="icon">
@@ -320,6 +330,9 @@
             </button>
           </div>
           <div class="inline-actions">
+            <button class="btn small" id="btnShowDrumPads" title="{{drum_pads_title}}" data-i18n-title="drum_pads_title" style="flex:1">
+              <svg class="icon"><use href="#i-drum"></use></svg> {{drum_pads_btn}}
+            </button>
             <button class="btn small" id="btnShowDrumKitPreview" title="{{drum_kit_preview_title}}" data-i18n-title="drum_kit_preview_title" style="flex:1">
               <svg class="icon"><use href="#i-drum"></use></svg> {{drum_kit_preview_btn}}
             </button>
@@ -404,7 +417,6 @@
           <button class="btn" id="btnDemo2">{{load_demo}}</button>
         </div>
       </section>
-
 
       <section class="card card-bank-manager" id="bankManagerCard" hidden>
         <div class="subhead">
@@ -526,15 +538,63 @@
             <button class="btn small" id="btnUndo"><svg class="icon">
                 <use href="#i-undo"></use>
               </svg> {{undo}}</button>
-            <button class="btn small" id="btnLoopSel">{{loop_selection}}</button>
-            <button class="btn small" id="btnLoopAll">{{loop_all}}</button>
           </div>
+
+          <section class="loop-controls-panel" aria-labelledby="loopControlsTitle">
+            <div class="loop-controls-heading">
+              <h3 id="loopControlsTitle">{{loop_controls_title}}</h3>
+              <p class="hint">{{loop_minimum_hint}}</p>
+            </div>
+            <div class="loop-controls-layout">
+              <div class="loop-actions-panel">
+                <h4>{{loop_points}}</h4>
+                <div class="grid g2 loop-point-grid">
+                  <div class="field"><label for="sLoopStart">{{loop_start_samples}}</label><input id="sLoopStart" type="number" min="0"></div>
+                  <div class="field"><label for="sLoopEnd">{{loop_end_samples}}</label><input id="sLoopEnd" type="number" min="0"></div>
+                </div>
+                <div class="toolbar loop-action-buttons">
+                  <button class="btn small" id="btnLoopSel">{{loop_selection}}</button>
+                  <button class="btn small" id="btnLoopAll">{{loop_all}}</button>
+                  <button class="btn small primary" id="btnCreateLoop" type="button" hidden>{{create_loop}}</button>
+                </div>
+              </div>
+              <div class="loop-threshold-panel">
+                <h4>{{loop_detection_thresholds}}</h4>
+                <p class="hint">{{loop_thresholds_hint}}</p>
+                <div class="grid loop-threshold-grid">
+                  <div class="field">
+                    <label for="loopVariationThreshold">{{loop_variation_threshold}}</label>
+                    <div class="range-value-row">
+                      <input id="loopVariationThreshold" type="range" min="1" max="200" step="1" value="50">
+                      <output id="loopVariationThresholdValue" for="loopVariationThreshold">50%</output>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="loopDriftThreshold">{{loop_drift_threshold}}</label>
+                    <div class="range-value-row">
+                      <input id="loopDriftThreshold" type="range" min="1" max="200" step="1" value="25">
+                      <output id="loopDriftThresholdValue" for="loopDriftThreshold">25%</output>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="loopBoundaryThreshold">{{loop_boundary_threshold}}</label>
+                    <div class="range-value-row">
+                      <input id="loopBoundaryThreshold" type="range" min="1" max="200" step="1" value="45">
+                      <output id="loopBoundaryThresholdValue" for="loopBoundaryThreshold">45%</output>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           <div class="play-row">
             <button class="hold-btn" id="btnHold"><svg class="icon">
                 <use href="#i-play"></use>
               </svg> {{hold_to_play}}</button>
-            <button class="btn" id="btnPlay">{{play_once}}</button>
+            <button class="btn" id="btnPlay"><svg class="icon">
+                <use href="#i-play"></use>
+              </svg> {{play_once}}</button>
             <button class="btn danger" id="btnStop"><svg class="icon">
                 <use href="#i-stop"></use>
               </svg> {{stop}}</button>
@@ -578,8 +638,6 @@
             <div class="field"><label>{{panning_range}}</label><input id="sBalance" type="number" min="0" max="15"></div>
             <div class="field"><label>{{low_frequency_label}}</label><input id="sLow" type="number" min="0"></div>
             <div class="field"><label>{{high_frequency_label}}</label><input id="sHigh" type="number" min="0"></div>
-            <div class="field"><label>{{loop_start_samples}}</label><input id="sLoopStart" type="number" min="0"></div>
-            <div class="field"><label>{{loop_end_samples}}</label><input id="sLoopEnd" type="number" min="0"></div>
             <div class="field"><label>{{fractions_label}}</label><input id="sFractions" type="number" min="0" max="255"></div>
             <div class="field"><label>{{tune_label}}</label><input id="sTune" type="number" min="0" max="65535"></div>
             <div class="field"><label>{{scale_frequency_label}}</label><input id="sScaleFreq" type="number" min="0" max="65535"></div>
@@ -604,8 +662,6 @@
 
           <h3 class="editor-subsection-heading">{{sample_modes}}</h3>
           <div class="check-row" id="modesRow"></div>
-
-      
 
           <h3 class="editor-subsection-heading">{{sound_test_keyboard}}</h3>
           <div class="hint">{{keyboard_test_hint}}</div>
@@ -1015,6 +1071,43 @@
         </div>
         <div class="modal-footer">
           <button class="btn primary" id="btnCloseMidiUsedPatches" type="button">{{close}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="drumPadsDialog" class="modal-overlay" hidden>
+    <section class="modal-panel drum-pads-panel" role="dialog" aria-modal="true"
+             aria-labelledby="drumPadsTitle" aria-describedby="drumPadsDesc">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="drumPadsTitle">{{drum_pads_title}}</h2>
+          <button class="icon-btn" id="btnCloseDrumPadsX" type="button"
+                  aria-label="{{close}}" data-i18n-aria-label="close">
+            <svg class="icon"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="drumPadsDesc" class="modal-message">{{drum_pads_desc}}</p>
+          <div class="field">
+            <label for="drumPadsBank">{{drum_kit_preview_select_kit}}</label>
+            <select id="drumPadsBank"></select>
+          </div>
+          <div id="drumPadsStatus" class="drum-pads-status" role="status" aria-live="polite"></div>
+          <div class="drum-pad-grid" id="drumPadGrid" aria-label="{{drum_pads_title}}"></div>
+          <div class="drum-pad-assignment">
+            <div class="drum-pad-assignment-label" id="drumPadSelectedLabel"></div>
+            <div class="drum-pad-assignment-controls">
+              <div class="field">
+                <label for="drumPadLibraryPatch">{{drum_pads_library_patch}}</label>
+                <select id="drumPadLibraryPatch"></select>
+              </div>
+              <button class="btn primary" id="btnAssignDrumPadPatch" type="button">{{drum_pads_assign}}</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btnCloseDrumPads" type="button">{{close}}</button>
         </div>
       </div>
     </section>

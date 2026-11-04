@@ -553,6 +553,13 @@ class ApplicationController {
   
     $("btnStopMidi").addEventListener("click", stopMidi);
     $("btnRenderMidi").addEventListener("click", renderMidiToWav);
+    $("midiPlaybackWaveform").addEventListener("click", toggleMidiWaveformMode);
+    $("midiPlaybackWaveform").addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleMidiWaveformMode();
+      }
+    });
   
       $("midiSeek").addEventListener("input", e => {
       if (!state.midiData) return;
@@ -811,6 +818,7 @@ class ApplicationController {
       renderSampleEditor(); render();
       showStatus(t("loop_set_all"),"ok");
     });
+    $("btnCreateLoop").addEventListener("click",createSampleLoop);
   
     $("btnPlay").addEventListener("click",()=>{
       const s=state.selSample; if(!s)return;
@@ -990,6 +998,19 @@ class ApplicationController {
     });
     $("midiUsedPatchesDialog").addEventListener("keydown", e => {
       if (e.key === "Escape") closeMidiUsedPatchesDialog();
+    });
+
+    $("btnShowDrumPads").addEventListener("click", () => MidiController.openDrumPadsDialog());
+    $("btnCloseDrumPads").addEventListener("click", () => MidiController.closeDrumPadsDialog());
+    $("btnCloseDrumPadsX").addEventListener("click", () => MidiController.closeDrumPadsDialog());
+    $("drumPadsBank").addEventListener("change", () => MidiController.handleDrumPadBankChange());
+    $("drumPadGrid").addEventListener("click", event => MidiController.handleDrumPadClick(event));
+    $("btnAssignDrumPadPatch").addEventListener("click", () => MidiController.assignDrumPadPatch());
+    $("drumPadsDialog").addEventListener("click", event => {
+      if (event.target === $("drumPadsDialog")) MidiController.closeDrumPadsDialog();
+    });
+    $("drumPadsDialog").addEventListener("keydown", event => {
+      if (event.key === "Escape") MidiController.closeDrumPadsDialog();
     });
 
     $("btnShowDrumKitPreview").addEventListener("click", openDrumKitPreviewDialog);
