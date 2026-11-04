@@ -1003,7 +1003,7 @@ class ApplicationController {
     $("btnShowDrumPads").addEventListener("click", () => MidiController.openDrumPadsDialog());
     $("btnCloseDrumPads").addEventListener("click", () => MidiController.closeDrumPadsDialog());
     $("btnCloseDrumPadsX").addEventListener("click", () => MidiController.closeDrumPadsDialog());
-    $("drumPadsBank").addEventListener("change", () => MidiController.renderDrumPads());
+    $("drumPadsBank").addEventListener("change", () => MidiController.handleDrumPadBankChange());
     $("drumPadGrid").addEventListener("click", event => MidiController.handleDrumPadClick(event));
     $("btnAssignDrumPadPatch").addEventListener("click", () => MidiController.assignDrumPadPatch());
     $("drumPadsDialog").addEventListener("click", event => {

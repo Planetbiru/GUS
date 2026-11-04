@@ -15,6 +15,7 @@ class MidiController {
   static patchPreviewWaveformFrame = null;
   static drumPadSelectedPitch = 35;
   static drumPadActiveNotes = new Map();
+  static drumPadBankLoadGeneration = 0;
 
   static generateProjectTimidityCfg(project, bankFilter = null) {
     const allPatches = getProjectPatches(project);
@@ -2709,6 +2710,7 @@ class MidiController {
     MidiController.renderDrumPadLibraryOptions();
     MidiController.renderDrumPads();
     dialog.hidden = false;
+    MidiController.handleDrumPadBankChange();
   }
 
   static renderDrumPadLibraryOptions() {
@@ -2738,15 +2740,11 @@ class MidiController {
     if (patches.some(entry => String(entry.id) === previousValue)) select.value = previousValue;
   }
 
-  static async renderDrumPads() {
+  static renderDrumPads() {
     const grid = $("drumPadGrid");
     const project = state.projects.find(entry => entry.id === state.currentProjectId);
     const bank = Number($("drumPadsBank")?.value);
     if (!grid || !Number.isInteger(bank)) return;
-
-    // Ganti instrument untuk channel 9
-    await timidityPlayer.loadInstrumentForSong(9, 0, bank);
-    timidityPlayer.sendEvent(timidityPlayer.ME_PROGRAM, 9, bank, 0);
 
     const mappedPitches = new Map();
     if (project) {
@@ -2804,6 +2802,67 @@ class MidiController {
       !project || !$("drumPadLibraryPatch").value || state.patches.length === 0;
   }
 
+  static async handleDrumPadBankChange() {
+    const generation = ++MidiController.drumPadBankLoadGeneration;
+    MidiController.renderDrumPads();
+
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const bank = Number($("drumPadsBank")?.value);
+    if (!project || !Number.isInteger(bank) || bank < 0 || bank > 127) {
+      $("drumPadsStatus").textContent = t("drum_pads_no_project");
+      return;
+    }
+
+    $("drumPadsStatus").textContent = t("drum_pads_loading_bank", {bank});
+    try {
+      await ensureTimidityPlayer();
+      const player = timidityPlayer;
+      if (!player) throw new Error("TiMidity player is unavailable.");
+      if (generation !== MidiController.drumPadBankLoadGeneration ||
+          state.currentProjectId !== project.id ||
+          Number($("drumPadsBank").value) !== bank) return;
+
+      const pitches = [...new Set(getProjectPatches(project)
+        .filter(entry => (entry.gmBank ?? 0) === 128 &&
+          Number(entry.targetBank ?? 0) === bank)
+        .map(entry => Number(entry.gmProgram))
+        .filter(pitch => Number.isInteger(pitch) && pitch >= 35 && pitch <= 81))]
+        .sort((a, b) => a - b);
+
+      for (const pitch of pitches) {
+        if (generation !== MidiController.drumPadBankLoadGeneration ||
+            state.currentProjectId !== project.id ||
+            Number($("drumPadsBank").value) !== bank) return;
+
+        if (player.songPtr) {
+          const loaded = await player.loadInstrumentForSong(9, pitch, bank);
+          if (!loaded) throw new Error(`Could not load drum note ${pitch} from kit ${bank} into MIDI playback.`);
+        }
+
+        const loadedRealtime = await player.setRealtimeInstrument(9, pitch, bank);
+        if (!loadedRealtime) throw new Error(`Could not load drum note ${pitch} from kit ${bank} into the real-time player.`);
+      }
+
+      if (generation !== MidiController.drumPadBankLoadGeneration ||
+          state.currentProjectId !== project.id ||
+          Number($("drumPadsBank").value) !== bank) return;
+
+      player.sendEvent(player.ME_TONE_BANK, 9, bank, 0);
+      player.sendEvent(player.ME_PROGRAM, 9, 0, 0);
+      $("drumPadsStatus").textContent = t("drum_pads_bank_loaded", {
+        bank,
+        count: pitches.length
+      });
+    } catch (error) {
+      if (generation !== MidiController.drumPadBankLoadGeneration) return;
+      console.error("[Drum Pads] Failed to load selected drum kit:", error);
+      $("drumPadsStatus").textContent = t("drum_pads_bank_load_failed", {
+        bank,
+        message: error.message || String(error)
+      });
+    }
+  }
+
   static handleDrumPadClick(event) {
     const pad = event.target.closest("button[data-pad-pitch]");
     if (!pad || !event.currentTarget.contains(pad)) return;
@@ -2858,10 +2917,14 @@ class MidiController {
       renderProjects();
       MidiController.renderDrumPadLibraryOptions();
       MidiController.renderDrumPads();
-      $("drumPadsStatus").textContent = t("drum_pads_assigned", {
-        pitch,
-        name: GM_DRUM_NAMES[pitch]
-      });
+      await MidiController.handleDrumPadBankChange();
+      if (state.currentProjectId === project.id &&
+          Number($("drumPadsBank").value) === bank) {
+        $("drumPadsStatus").textContent = t("drum_pads_assigned", {
+          pitch,
+          name: GM_DRUM_NAMES[pitch]
+        });
+      }
     } catch (error) {
       console.error("[Drum Pads] Failed to assign library patch:", error);
       MidiController.renderDrumPads();
@@ -2899,6 +2962,7 @@ class MidiController {
   }
 
   static closeDrumPadsDialog() {
+    MidiController.drumPadBankLoadGeneration++;
     MidiController.clearDrumPadHighlights();
     const dialog = $("drumPadsDialog");
     if (dialog) dialog.hidden = true;
