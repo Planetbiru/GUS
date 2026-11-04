@@ -13,6 +13,8 @@ class MidiController {
   static patchPreviewAnalyserSource = null;
   static patchPreviewAnalyserSink = null;
   static patchPreviewWaveformFrame = null;
+  static drumPadSelectedPitch = 35;
+  static drumPadActiveNotes = new Map();
 
   static generateProjectTimidityCfg(project, bankFilter = null) {
     const allPatches = getProjectPatches(project);
@@ -666,6 +668,14 @@ class MidiController {
       bufferSize: 4096,
       sampleRate: 96000
     });
+
+    timidityPlayer.onNoteOn(event => MidiController.handleDrumPadNoteOn(event));
+    timidityPlayer.onNoteOff(event => MidiController.handleDrumPadNoteOff(event));
+    const clearDrumPads = () => MidiController.clearDrumPadHighlights();
+    timidityPlayer.onPause(clearDrumPads);
+    timidityPlayer.onStop(clearDrumPads);
+    timidityPlayer.onSeek(clearDrumPads);
+    timidityPlayer.onEnded(clearDrumPads);
   
     timidityPlayer.onError((err) => {
       console.error("TiMidity Error:", err);
@@ -2665,6 +2675,232 @@ class MidiController {
     MidiController.stopPatchPreviewWaveform();
     MidiController.patchPreviewSession = null;
     const dialog = $("patchPreviewDialog");
+    if (dialog) dialog.hidden = true;
+  }
+
+  static openDrumPadsDialog() {
+    const dialog = $("drumPadsDialog");
+    const bankSelect = $("drumPadsBank");
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    if (!dialog || !bankSelect) {
+      console.error("[Drum Pads] Modal elements are missing from the DOM.");
+      return;
+    }
+
+    bankSelect.replaceChildren();
+    const banks = project
+      ? [...new Set(getProjectPatches(project)
+        .filter(entry => (entry.gmBank ?? 0) === 128)
+        .map(entry => Number(entry.targetBank ?? 0))
+        .filter(bank => Number.isInteger(bank) && bank >= 0 && bank <= 127))]
+        .sort((a, b) => a - b)
+      : [];
+    if (banks.length === 0) banks.push(0);
+
+    for (const bank of banks) {
+      const option = document.createElement("option");
+      option.value = String(bank);
+      option.textContent = t("drum_kit_preview_bank", {bank});
+      bankSelect.appendChild(option);
+    }
+    bankSelect.disabled = banks.length < 2;
+
+    MidiController.drumPadSelectedPitch = Math.max(35, Math.min(81, MidiController.drumPadSelectedPitch));
+    MidiController.renderDrumPadLibraryOptions();
+    MidiController.renderDrumPads();
+    dialog.hidden = false;
+  }
+
+  static renderDrumPadLibraryOptions() {
+    const select = $("drumPadLibraryPatch");
+    if (!select) return;
+    const previousValue = select.value;
+    const patches = [...state.patches]
+      .filter(entry => entry && entry.patch && Array.isArray(entry.patch.instruments) && entry.patch.instruments.length)
+      .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+    select.replaceChildren();
+
+    if (patches.length === 0) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = t("drum_pads_no_library_patches");
+      select.appendChild(option);
+      return;
+    }
+
+    for (const entry of patches) {
+      const option = document.createElement("option");
+      option.value = String(entry.id);
+      const type = (entry.gmBank ?? 0) === 128 ? t("drum") : t("non_drum");
+      option.textContent = `${entry.name || t("unnamed")} · ${type} · ${t("drum_kit_preview_bank", {bank: entry.targetBank ?? 0})}`;
+      select.appendChild(option);
+    }
+    if (patches.some(entry => String(entry.id) === previousValue)) select.value = previousValue;
+  }
+
+  static async renderDrumPads() {
+    const grid = $("drumPadGrid");
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const bank = Number($("drumPadsBank")?.value);
+    if (!grid || !Number.isInteger(bank)) return;
+
+    // Ganti instrument untuk channel 9
+    await timidityPlayer.loadInstrumentForSong(9, 0, bank);
+    timidityPlayer.sendEvent(timidityPlayer.ME_PROGRAM, 9, bank, 0);
+
+    const mappedPitches = new Map();
+    if (project) {
+      for (const entry of getProjectPatches(project)) {
+        const pitch = Number(entry.gmProgram);
+        if ((entry.gmBank ?? 0) !== 128 ||
+            Number(entry.targetBank ?? 0) !== bank ||
+            !Number.isInteger(pitch) || pitch < 35 || pitch > 81) continue;
+        if (!mappedPitches.has(pitch)) mappedPitches.set(pitch, entry);
+      }
+    }
+
+    grid.replaceChildren();
+    let missingCount = 0;
+    for (let pitch = 35; pitch <= 81; pitch++) {
+      const name = GM_DRUM_NAMES[pitch];
+      const patch = mappedPitches.get(pitch);
+      if (!patch) missingCount++;
+
+      const pad = document.createElement("button");
+      pad.type = "button";
+      pad.className = "drum-pad";
+      if (!patch) pad.classList.add("is-missing");
+      if (pitch === MidiController.drumPadSelectedPitch) pad.classList.add("is-selected");
+      if (MidiController.drumPadActiveNotes.has(pitch)) pad.classList.add("is-active");
+      pad.dataset.padPitch = String(pitch);
+      pad.setAttribute("aria-pressed", String(pitch === MidiController.drumPadSelectedPitch));
+      pad.title = patch ? `${name} · ${patch.name}` : `${name} · ${t("drum_pads_missing")}`;
+
+      const number = document.createElement("span");
+      number.className = "drum-pad-number";
+      number.textContent = String(pitch);
+      const label = document.createElement("span");
+      label.className = "drum-pad-name";
+      label.textContent = name;
+      const status = document.createElement("span");
+      status.className = "drum-pad-state";
+      status.textContent = patch ? t("drum_pads_available") : t("drum_pads_missing");
+      pad.append(number, label, status);
+      grid.appendChild(pad);
+    }
+
+    const status = $("drumPadsStatus");
+    if (!project) {
+      status.textContent = t("drum_pads_no_project");
+    } else {
+      status.textContent = t("drum_pads_status", {missing: missingCount, total: 47});
+    }
+    $("drumPadSelectedLabel").textContent = t("drum_pads_selected", {
+      pitch: MidiController.drumPadSelectedPitch,
+      name: GM_DRUM_NAMES[MidiController.drumPadSelectedPitch]
+    });
+    $("drumPadLibraryPatch").disabled = !project || state.patches.length === 0;
+    $("btnAssignDrumPadPatch").disabled =
+      !project || !$("drumPadLibraryPatch").value || state.patches.length === 0;
+  }
+
+  static handleDrumPadClick(event) {
+    const pad = event.target.closest("button[data-pad-pitch]");
+    if (!pad || !event.currentTarget.contains(pad)) return;
+    const pitch = Number(pad.dataset.padPitch);
+    if (!Number.isInteger(pitch) || pitch < 35 || pitch > 81) return;
+    MidiController.drumPadSelectedPitch = pitch;
+    MidiController.renderDrumPads();
+  }
+
+  static async assignDrumPadPatch() {
+    const project = state.projects.find(entry => entry.id === state.currentProjectId);
+    const source = state.patches.find(entry => String(entry.id) === $("drumPadLibraryPatch").value);
+    const pitch = MidiController.drumPadSelectedPitch;
+    const bank = Number($("drumPadsBank").value);
+    if (!project || !source || !source.patch || !Number.isInteger(bank) || bank < 0 || bank > 127) {
+      $("drumPadsStatus").textContent = t("drum_pads_assign_failed", {
+        message: t("drum_pads_invalid_selection")
+      });
+      return;
+    }
+
+    const replacedIds = new Set(getProjectPatches(project)
+      .filter(entry => (entry.gmBank ?? 0) === 128 &&
+        Number(entry.targetBank ?? 0) === bank &&
+        Number(entry.gmProgram) === pitch)
+      .map(entry => entry.id));
+    const assignedPatch = {
+      ...source,
+      id: uid("patch"),
+      gmProgram: pitch,
+      gmBank: 128,
+      drumSet: bank,
+      targetBank: bank,
+      patch: cleanPatchForStorage(source.patch)
+    };
+    const updatedProject = {
+      ...project,
+      patchIds: [
+        ...(project.patchIds || []).filter(id => !replacedIds.has(id)),
+        assignedPatch.id
+      ]
+    };
+    const assignButton = $("btnAssignDrumPadPatch");
+    assignButton.disabled = true;
+
+    try {
+      await dbSaveProjectAndPatches(updatedProject, [assignedPatch]);
+      project.patchIds = updatedProject.patchIds;
+      state.patches.push(assignedPatch);
+      invalidateTimidityPlayer();
+      renderLibrary();
+      renderProjects();
+      MidiController.renderDrumPadLibraryOptions();
+      MidiController.renderDrumPads();
+      $("drumPadsStatus").textContent = t("drum_pads_assigned", {
+        pitch,
+        name: GM_DRUM_NAMES[pitch]
+      });
+    } catch (error) {
+      console.error("[Drum Pads] Failed to assign library patch:", error);
+      MidiController.renderDrumPads();
+      $("drumPadsStatus").textContent = t("drum_pads_assign_failed", {
+        message: error.message || String(error)
+      });
+    }
+  }
+
+  static handleDrumPadNoteOn(event) {
+    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
+    MidiController.drumPadActiveNotes.set(
+      event.pitch,
+      (MidiController.drumPadActiveNotes.get(event.pitch) || 0) + 1
+    );
+    document.querySelectorAll(`.drum-pad[data-pad-pitch="${event.pitch}"]`)
+      .forEach(pad => pad.classList.add("is-active"));
+  }
+
+  static handleDrumPadNoteOff(event) {
+    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
+    const activeCount = MidiController.drumPadActiveNotes.get(event.pitch) || 0;
+    if (activeCount > 1) {
+      MidiController.drumPadActiveNotes.set(event.pitch, activeCount - 1);
+      return;
+    }
+    MidiController.drumPadActiveNotes.delete(event.pitch);
+    document.querySelectorAll(`.drum-pad[data-pad-pitch="${event.pitch}"]`)
+      .forEach(pad => pad.classList.remove("is-active"));
+  }
+
+  static clearDrumPadHighlights() {
+    MidiController.drumPadActiveNotes.clear();
+    document.querySelectorAll(".drum-pad.is-active").forEach(pad => pad.classList.remove("is-active"));
+  }
+
+  static closeDrumPadsDialog() {
+    MidiController.clearDrumPadHighlights();
+    const dialog = $("drumPadsDialog");
     if (dialog) dialog.hidden = true;
   }
 

@@ -2197,6 +2197,103 @@ footer {
   max-height: 90vh;
   overflow: auto;
 }
+.drum-pads-panel {
+  width: min(980px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+}
+.drum-pads-status {
+  min-height: 1.4em;
+  margin: 8px 0;
+  color: var(--dim, #94a3b8);
+  font-size: 12px;
+}
+.drum-pad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 7px;
+  max-height: 48vh;
+  overflow: auto;
+  padding: 2px;
+}
+.drum-pad {
+  display: flex;
+  min-width: 0;
+  min-height: 70px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card2);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, box-shadow .12s;
+}
+.drum-pad:hover,
+.drum-pad.is-selected {
+  border-color: var(--accent);
+}
+.drum-pad.is-selected {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.drum-pad.is-missing {
+  border-style: dashed;
+  border-color: var(--bad);
+}
+.drum-pad.is-missing .drum-pad-state {
+  color: var(--bad);
+}
+.drum-pad.is-active {
+  border-color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 24%, var(--card2));
+  box-shadow: inset 0 0 0 1px var(--ok), 0 0 12px color-mix(in srgb, var(--ok) 35%, transparent);
+}
+.drum-pad-number {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+}
+.drum-pad-name {
+  width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drum-pad-state {
+  color: var(--ok);
+  font-size: 10px;
+}
+.drum-pad-assignment {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--card2);
+}
+.drum-pad-assignment-label {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.drum-pad-assignment-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.drum-pad-assignment-controls .field {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.drum-pad-assignment-controls select {
+  width: 100%;
+}
 .drum-kit-preview-status {
   min-height: 1.4em;
   margin: 8px 0;
@@ -2252,6 +2349,15 @@ footer {
 }
 .patch-preview-panel #btnAutoPlayPatchPreview {
   height: 36px;
+}
+@media (max-width: 560px) {
+  .drum-pad-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .drum-pad-assignment-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 .gm-map-section-title {
   margin: 14px 0 8px;

@@ -1000,6 +1000,19 @@ class ApplicationController {
       if (e.key === "Escape") closeMidiUsedPatchesDialog();
     });
 
+    $("btnShowDrumPads").addEventListener("click", () => MidiController.openDrumPadsDialog());
+    $("btnCloseDrumPads").addEventListener("click", () => MidiController.closeDrumPadsDialog());
+    $("btnCloseDrumPadsX").addEventListener("click", () => MidiController.closeDrumPadsDialog());
+    $("drumPadsBank").addEventListener("change", () => MidiController.renderDrumPads());
+    $("drumPadGrid").addEventListener("click", event => MidiController.handleDrumPadClick(event));
+    $("btnAssignDrumPadPatch").addEventListener("click", () => MidiController.assignDrumPadPatch());
+    $("drumPadsDialog").addEventListener("click", event => {
+      if (event.target === $("drumPadsDialog")) MidiController.closeDrumPadsDialog();
+    });
+    $("drumPadsDialog").addEventListener("keydown", event => {
+      if (event.key === "Escape") MidiController.closeDrumPadsDialog();
+    });
+
     $("btnShowDrumKitPreview").addEventListener("click", openDrumKitPreviewDialog);
     $("btnCloseDrumKitPreview").addEventListener("click", closeDrumKitPreviewDialog);
     $("btnCloseDrumKitPreviewX").addEventListener("click", closeDrumKitPreviewDialog);
