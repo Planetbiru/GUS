@@ -2835,20 +2835,19 @@ class MidiController {
             Number($("drumPadsBank").value) !== bank) return;
 
         if (player.songPtr) {
-          const loaded = await player.loadInstrumentForSong(9, pitch, bank);
-          if (!loaded) throw new Error(`Could not load drum note ${pitch} from kit ${bank} into MIDI playback.`);
+          await player.loadInstrumentForSong(9, pitch, bank);
         }
 
-        const loadedRealtime = await player.setRealtimeInstrument(9, pitch, bank);
-        if (!loadedRealtime) throw new Error(`Could not load drum note ${pitch} from kit ${bank} into the real-time player.`);
+        await player.setRealtimeInstrument(9, pitch, bank);
       }
 
       if (generation !== MidiController.drumPadBankLoadGeneration ||
           state.currentProjectId !== project.id ||
           Number($("drumPadsBank").value) !== bank) return;
 
-      player.sendEvent(player.ME_TONE_BANK, 9, bank, 0);
-      player.sendEvent(player.ME_PROGRAM, 9, 0, 0);
+        player.sendEvent(player.ME_TONE_BANK, 9, bank, 0);
+        player.sendEvent(player.ME_PROGRAM, 9, bank, 0);
+
       $("drumPadsStatus").textContent = t("drum_pads_bank_loaded", {
         bank,
         count: pitches.length
