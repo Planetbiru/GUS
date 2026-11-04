@@ -348,17 +348,17 @@ var GUS_DRUM_PRESETS = {
     "note": 44,
     "name": "Pedal Hi-Hat",
     "shortName": "Pedal Hi-Hat",
-    "description": "Pedal Hi-Hat: short hi-hat tick with a crisp, controlled.",
+    "description": "Pedal Hi-Hat: muted metal chick with a short, dry sizzle.",
     "preset": {
       "gain": 0.25,
-      "duration": 0.16,
+      "duration": 0.13,
       "noiseLayers": [
-        { "amp": 0.78, "decay": 0.006, "type": "white", "bandpass": { "center": 7400, "q": 0.52 } },
-        { "amp": 0.7,  "decay": 0.019, "type": "pink",  "bandpass": { "center": 4800, "q": 0.55 } },
-        { "amp": 0.34, "decay": 0.028, "type": "pink",  "bandpass": { "center": 2900, "q": 0.68 } }
+        { "amp": 0.78, "decay": 0.006, "type": "white", "bandpass": { "center": 7300, "q": 0.62 } },
+        { "amp": 0.42, "decay": 0.012, "type": "pink", "bandpass": { "center": 4400, "q": 0.72 } }
       ],
-      "highpass": 1800,
-      "lowpass": 9600
+      "click": { "duration": 0.0015, "amp": 0.18 },
+      "highpass": 2500,
+      "lowpass": 9200
     }
   },
   {
@@ -1085,17 +1085,20 @@ var GUS_DRUM_PRESETS = {
     "note": 80,
     "name": "Mute Triangle",
     "shortName": "Mute Triangle",
-    "description": "Mute Triangle: metal triangle strike with a bright ringing.",
+    "description": "Mute Triangle: short, subdued metallic tick.",
     "preset": {
-      "gain": 0.38,
-      "duration": 0.2,
+      "gain": 0.04,
+      "duration": 0.12,
       "metallic": {
-        "baseFreq": 5200,
-        "partials": [1, 1.71, 2.94, 4.62],
-        "decay": 0.2,
-        "amp": 0.55
+        "baseFreq": 3600,
+        "partials": [1, 1.42, 1.85, 2.3],
+        "decay": 0.045,
+        "amp": 0.3,
+        "randomPhase": true
       },
-      "highpass": 3000
+      "click": { "duration": 0.002, "amp": 0.1 },
+      "highpass": 2200,
+      "lowpass": 8500
     }
   },
   {
@@ -1104,7 +1107,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Open Triangle",
     "description": "Open Triangle: metal triangle strike with a bright ringing.",
     "preset": {
-      "gain": 0.38,
+      "gain": 0.04,
       "duration": 1,
       "metallic": {
         "baseFreq": 5200,
