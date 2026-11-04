@@ -471,7 +471,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Crash Cymbal 1",
     "description": "Crash Cymbal 1: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.08,
+      "gain": 0.15,
       "duration": 1.5,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.65,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -517,7 +517,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Ride Cymbal 1",
     "description": "Ride Cymbal 1: bright ride strike with a clear, ringing.",
     "preset": {
-      "gain": 0.08,
+      "gain": 0.15,
       "duration": 1.1,
       "noiseLayers": [
         { "amp": 0.85, "decay": 0.035, "type": "white", "bandpass": { "center": 9000, "q": 0.5  } },
@@ -533,7 +533,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Chinese Cymbal",
     "description": "Chinese Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.08,
+      "gain": 0.15,
       "duration": 1.8,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 1,    "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -591,7 +591,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Splash Cymbal",
     "description": "Splash Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.08,
+      "gain": 0.15,
       "duration": 0.6,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.35,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -1117,21 +1117,18 @@ var GUS_DRUM_PRESETS = {
   },
   {
     "note": 82,
-    "name": "Jingle Bell",
-    "short_name": "Jingle Bell",
-    "description": "Jingle Bell: short synthetic percussion chime.",
+    "name": "Hat",
+    "short_name": "Hat",
+    "description": "Hat: soft maracas-like shaker with a gentle, airy attack.",
     "preset": {
-      "gain": 0.35,
-      "duration": 0.48,
-      "metallic": {
-        "baseFreq": 1250,
-        "partials": [1, 1.5, 2.25, 3.2, 4.4],
-        "decay": 0.32,
-        "amp": 0.42
-      },
-      "noise": { "amp": 0.08, "decay": 0.018, "type": "pink" },
-      "highpass": 350,
-      "lowpass": 9000
+      "gain": 0.08,
+      "duration": 0.26,
+      "noiseLayers": [
+        { "amp": 0.62, "decay": 0.120, "type": "pink", "bandpass": { "center": 8800,  "q": 0.60 } },
+        { "amp": 0.28, "decay": 0.170, "type": "pink", "bandpass": { "center": 10200, "q": 0.56 } }
+      ],
+      "highpass": 6200,
+      "lowpass": 11500
     }
   },
   {
@@ -1140,7 +1137,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Open Cuica 2",
     "description": "Open Cuica: upward squeak with a breathy edge.",
     "preset": {
-      "gain": 0.42,
+      "gain": 0.15,
       "duration": 0.42,
       "tones": [
         { "fStart": 420, "fEnd": 820, "pitchDecay": 0.09, "decay": 0.34, "amp": 0.78, "fm": { "ratio": 2.1, "index": 0.8 } }

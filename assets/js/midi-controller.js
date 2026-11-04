@@ -2744,14 +2744,14 @@ class MidiController {
         const pitch = Number(entry.gmProgram);
         if ((entry.gmBank ?? 0) !== 128 ||
             Number(entry.targetBank ?? 0) !== bank ||
-            !Number.isInteger(pitch) || pitch < 35 || pitch > 81) continue;
+            !Number.isInteger(pitch) || pitch < 25 || pitch > 94) continue;
         if (!mappedPitches.has(pitch)) mappedPitches.set(pitch, entry);
       }
     }
 
     grid.replaceChildren();
     let missingCount = 0;
-    for (let pitch = 35; pitch <= 81; pitch++) {
+    for (let pitch = 25; pitch <= 94; pitch++) {
       const name = GM_DRUM_NAMES[pitch];
       const patch = mappedPitches.get(pitch);
       if (!patch) missingCount++;
@@ -2851,7 +2851,7 @@ class MidiController {
     const pad = event.target.closest("button[data-pad-pitch]");
     if (!pad || !event.currentTarget.contains(pad)) return;
     const pitch = Number(pad.dataset.padPitch);
-    if (!Number.isInteger(pitch) || pitch < 35 || pitch > 81) return;
+    if (!Number.isInteger(pitch) || pitch < 25 || pitch > 94) return;
     const bank = Number($("drumPadsBank")?.value);
     if (!Number.isInteger(bank) || bank < 0 || bank > 127) return;
 
