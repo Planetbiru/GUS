@@ -456,10 +456,15 @@ that order if you use a custom script URL or host the data separately.
 ### Editing melodic presets
 
 `GUS_MELODIC_PRESETS.instruments` must contain exactly one entry for every
-General MIDI melodic program, from `0` to `127`. The loader uses the explicit
-`program` value, not the array position, and rejects missing or duplicate
-programs. Set `GUS_MELODIC_PRESETS.gain` to adjust the master level of all
-melodic samples generated from this data set.
+General MIDI melodic program, from `0` to `127`. Each `program` must be a unique
+integer in that range; array position is not used as the program number. The
+loader rejects missing or duplicate programs. Set `GUS_MELODIC_PRESETS.gain`
+to adjust the master level for this data set.
+
+Each entry has `program`, `family`, `name`, `shortName`, `description`, and a
+`preset` object. `shortName` is required and limited to 16 characters;
+`description` must be non-empty and no longer than 60 characters. Use camelCase
+`shortName`, matching the loader and current preset data.
 
 ```js
 {
@@ -470,61 +475,95 @@ melodic samples generated from this data set.
   description: "Nylon Guitar: a plucked-string attack with natural decay.",
   preset: {
     freq: 441,
-    harm: [1, 0.7, 0.4, 0.2],
-    env: { a: 0.005, d: 0.5, s: 0, r: 0.2 },
-    length: 33075
+    harm: [1, 0.8, 0.6, 0.4, 0.25, 0.15, 0.08, 0.04, 0.02],
+    env: { a: 0.002, d: 1.5, s: 0, r: 0.5 },
+    length: 66150,
+    attackNoise: { amp: 0.032, duration: 0.022 },
+    pluckPosition: 0.16,
+    pluckTransient: {
+      freq: 1900, q: 0.8, amp: 0.026, duration: 0.02, decay: 0.009
+    },
+    brightness: { start: 7600, end: 1800 },
+    formants: [
+      { freq: 105, q: 1.2, gain: 2.5 },
+      { freq: 210, q: 1.8, gain: 3.5 },
+      { freq: 390, q: 2.1, gain: 3 }
+    ]
   }
 }
 ```
 
-Common melodic `preset` properties:
+Supported melodic `preset` properties:
 
 | Property | Meaning |
 | --- | --- |
+| `sampleRate` | Optional sample rate in hertz; generation settings can override it. |
 | `freq` | Default/root frequency in hertz. |
-| `harm` | Relative amplitude of each harmonic, starting with the fundamental. |
-| `phases` | Optional starting phase for each harmonic, expressed in cycles. |
-| `env` | One-shot amplitude envelope: attack `a`, decay `d`, release `r` in seconds; sustain `s` is a level from 0 to 1. |
-| `length` | One-shot sample length in samples at the 22,050 Hz reference rate; it is scaled when rendered at another sample rate. |
-| `loop` | Enable a periodic sample loop when truthy. |
-| `cycleSamples` | Explicit number of samples in one loop cycle. If omitted, the cycle is derived from `freq` and the render sample rate. |
-| `cycles` | Number of cycles before the loop end (default 12). |
-| `loopSkip` | Number of initial cycles skipped before the loop start (default 3). |
-| `tailCycles` | Number of cycles rendered after the loop end for the release tail (default 4). |
-| `loopAttack` | Loop attack/fade-in time in seconds. |
-| `sustainLoop` | Set to `false` to disable the GUS sustain-loop flag while retaining the sample loop. |
-| `patchEnvelope` | Optional GUS patch envelope with six raw `rates` and six `offsets` values. These are written to the patch header. |
-| `gain` | Non-negative output multiplier applied after the rendered waveform is normalized. Values below 1 reduce sample level and leave headroom when voices are mixed; values above 1 can clip the final 16-bit PCM. |
-| `noise` | Blend amount for noise in the oscillator signal. Looping presets use a repeating noise cycle. |
-| `fm` | Frequency modulation settings: `ratio` is the modulator/carrier frequency ratio; `index` is modulation depth. Looping presets require an integer `ratio` for FM to be used. |
-| `detune` | Voice detuning values in cents; used for one-shot rendering. |
-| `vibrato` | `{ rate, depth, sweep }`: rate in hertz and depth as a fractional pitch variation. For loops, vibrato is encoded in the GUS header rather than rendered into the loop waveform. |
-| `vibratoOnset` | Time in seconds for vibrato to reach full depth in a one-shot. |
-| `inharmonicity` | Inharmonic partial-stretch coefficient; used for one-shots. |
-| `attackNoise`, `pluckTransient` | One-shot attack transients. Their `duration`/`decay` values are seconds; transient amplitude and optional filter settings shape the burst. |
-| `loopAttackNoise` | Noise transient added before the loop region; use this instead of `attackNoise` for looped presets. |
-| `pitchScoop` | One-shot pitch onset bend: `time` in seconds and `depth` as a fractional pitch change. |
-| `partialDecay` | Per-harmonic decay times in seconds; used for one-shots. |
-| `brightness` | One-shot low-pass sweep; `start` and `end` are cutoff frequencies in hertz. |
-| `formants` | Optional peaking filters `{ freq, q, gain }`; frequency is in hertz and gain in decibels. |
+| `harm` | Relative amplitude of each partial, starting with the fundamental. |
+| `phases` | Optional starting phase for each partial, expressed in cycles. |
+| `env` | One-shot envelope: attack `a`, decay `d`, and release `r` in seconds; sustain `s` is a level from 0 to 1. |
+| `length` | One-shot sample length in samples at the 22,050 Hz reference rate; scaled for other sample rates. Ignored for loops. |
+| `loop` | Enable periodic sample rendering when truthy. |
+| `cycleSamples` | Explicit samples per loop cycle. Otherwise derived from `freq` and sample rate. |
+| `cycles`, `loopSkip`, `tailCycles` | Cycle count to loop end (default 12), initial cycles skipped before the loop (default 3), and release-tail cycles (default 4). |
+| `loopAttack` | Loop fade-in time in seconds, limited to the pre-loop region. |
+| `sustainLoop` | Set to `false` to omit the GUS sustain-loop flag while retaining the loop. |
+| `patchEnvelope` | Optional GUS envelope with six raw `rates` and six `offsets`, written to the patch header. |
+| `gain` | Non-negative sample multiplier applied after waveform normalization; values above 1 may clip final 16-bit PCM. |
+| `noise` | Noise blend amount in the oscillator signal. For loops, noise is generated as a repeating cycle. |
+| `fm` | Frequency modulation: `ratio` is modulator/carrier ratio and `index` is modulation depth. Looped FM is used only for integer ratios. |
+| `detune` | Voice detuning values in cents; ignored for loops. |
+| `vibrato` | `{ rate, depth, sweep }`: rate in hertz and depth as a pitch fraction. For loops it is encoded in the GUS header. |
+| `vibratoOnset` | Time in seconds for one-shot vibrato to reach full depth. |
+| `inharmonicity` | Inharmonic partial-stretch coefficient; ignored for loops. |
+| `attackNoise` | One-shot pink-noise attack transient with `amp` and `duration` in seconds. |
+| `pluckTransient` | One-shot filtered transient with `freq`, `q`, `amp`, `duration`, `decay`, and optional noise `type`. |
+| `pluckPosition` | String pluck position as a fraction from 0.01 to 0.49; changes the relative partial amplitudes. |
+| `loopAttackNoise` | Noise transient placed before the loop start; use instead of `attackNoise` for looped presets. |
+| `pitchScoop` | One-shot pitch onset bend with `time` in seconds and fractional `depth`. |
+| `partialDecay` | Per-partial decay times in seconds; ignored for loops. |
+| `brightness` | One-shot low-pass sweep using `start` and `end` cutoff frequencies in hertz. For loops, `loopCutoff` applies a static low-pass cutoff. |
+| `formants` | Peaking filters `{ freq, q, gain }`; frequency in hertz, `gain` in decibels. |
 | `drive` | Optional soft-saturation amount. |
-| `guitarAmp` | Optional guitar processing: `preampCutoff` and `cabinetCutoff` in hertz, plus `drive`, `bias`, and `mix` controls. |
+| `guitarAmp` | Optional guitar stage: `preampCutoff` and `cabinetCutoff` in hertz, plus `drive`, `bias`, and `mix`. |
 
-If `loop` is enabled, sample length is derived from the loop cycle, `cycles`,
-and `tailCycles`; `length` is ignored. For a stable loop, time-varying one-shot
-features such as `attackNoise`, `pluckTransient`, `pitchScoop`, `partialDecay`,
-`inharmonicity`, `detune`, and `brightness` are not applied. The exception for
-attack is `loopAttackNoise`, which is placed before the loop start. `env` is
-also not used for the rendered loop waveform; release behavior is encoded in
-the GUS patch envelope.
+When `loop` is enabled, sample length comes from the loop period, `cycles`,
+and `tailCycles`; `length` is ignored. The looped waveform disables
+time-varying one-shot features such as pitch scoop, detune, inharmonicity, and
+per-partial decay to keep the cycle stable. `env` is not used to render a loop;
+release behavior comes from the GUS patch envelope. `loopAttackNoise` is added
+before the loop region, and loop vibrato is stored in the GUS header.
 
 ### Editing drum presets
 
-The `GUS_DRUM_PRESETS.instruments` array currently contains 47 General MIDI
-percussion notes, from 35 through 81. Each `note` must be a unique MIDI note
-number from 0 to 127; the loader rejects duplicate notes and invalid entries.
-Set `GUS_DRUM_PRESETS.gain` to adjust the master level of all generated drum
-samples.
+The `GUS_DRUM_PRESETS.instruments` array currently contains 57 drum entries
+with note numbers from `25` to `84` (the set is sparse, not a continuous
+range). Each `note` must be a unique integer from `0` to `127`; the loader
+rejects duplicates and invalid entries. Each entry has `note`, `name`,
+`shortName`, `description`, and a `preset` object. `shortName` is required and
+limited to 16 characters; `description` must be non-empty and at most 60
+characters. Set `GUS_DRUM_PRESETS.gain` to adjust the drum master level.
+
+```js
+{
+  note: 42,
+  name: "Closed Hi-Hat",
+  shortName: "Closed Hi-Hat",
+  description: "Closed Hi-Hat: dry, short hiss with a crisp cymbal edge.",
+  preset: {
+    gain: 0.15,
+    duration: 0.14,
+    noiseLayers: [
+      { amp: 0.95, decay: 0.009, type: "white",
+        bandpass: { center: 8400, q: 0.52 } },
+      { amp: 0.48, decay: 0.017, type: "pink",
+        bandpass: { center: 6500, q: 0.58 } }
+    ],
+    highpass: 3900,
+    lowpass: 10500
+  }
+}
+```
 
 Drum `preset` properties are combined by `DrumRenderer`:
 
@@ -534,16 +573,18 @@ Drum `preset` properties are combined by `DrumRenderer`:
 | `gain` | Non-negative output multiplier applied after drum rendering is normalized. Values below 1 reduce the hit level and leave headroom when percussion is layered; values above 1 can clip the final 16-bit PCM. |
 | `tones` | Array of decaying sine tones. Each tone supports `fStart`/`fEnd` in hertz, `pitchDecay`/`decay` in seconds, `amp`, and optional `fm: { ratio, index }`. |
 | `membrane` | Tuned membrane sound with base `freq` in hertz, `pitchDecay` and `decay` in seconds, and optional `modes`. Each mode has a frequency `ratio`, relative `amp`, optional `startRatio`, and a `decay` multiplier. |
-| `metallic` | Inharmonic ringing sound: `baseFreq` in hertz, optional partial frequency `ratios`, `amp`, and `decay` in seconds. |
-| `noise` | One noise layer with `amp`, `decay` in seconds, and `type` (`white`, `pink`, or `brown`). |
-| `noiseLayers` | Array of noise layers with the same properties as `noise`. A layer may also specify `bandpass: { center, q }`, where `center` is in hertz. |
+| `metallic` | Inharmonic ringing sound with `baseFreq` in hertz, partial frequency multipliers in `partials`, `amp`, and `decay` in seconds. Set `randomPhase: true` to vary partial starting phases. |
+| `noise` | One noise layer with `amp`, `decay` in seconds, `type` (`white`, `pink`, or `brown`), and optional `bandpass: { center, q }`. |
+| `noiseLayers` | Array of noise layers; each supports the same fields as `noise`. |
 | `click` | Short attack click with `duration` in seconds and `amp`. |
 | `bursts` | Array of noise-burst start times in seconds. |
 | `highpass`, `lowpass` | Optional filter cutoff frequencies in hertz. |
 
 Tone, membrane, metallic, and noise components can be combined in one drum
 preset. The renderer applies the configured filters, fades the sample edges,
-and normalizes the result before patch encoding.
+and normalizes the result before patch encoding. Panning is not currently a
+drum preset property; the generated GUS sample balance is fixed at center
+(`7`).
 
 ### Data Flow
 
