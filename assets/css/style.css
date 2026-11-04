@@ -609,7 +609,7 @@ input[type="range"]:disabled {
 
 input.midi-seek,
 input.midi-volume-slider {
-    height: 12px;
+    height: 20px;
 }
 
 .hint {
