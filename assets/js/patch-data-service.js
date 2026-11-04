@@ -137,7 +137,7 @@ class PatchDataService {
           // Perbaikan bug biola
           let outRate = s.sampleRate || 22050;
           if (outRate > 65535) {
-            console.warn(`[writePAT] Sample "${s.name}" rate ${outRate} melebihi u16; clamp ke 65535.`);
+            console.warn(`[writePAT] Sample "${s.name}" rate ${outRate} exceeds u16; clamping to 65535.`);
             outRate = 65535;
           }
           w16(outRate);
@@ -1848,7 +1848,7 @@ class PatchDataService {
           break;
         }
       } catch (e) {
-        console.warn(`Gagal parse kandidat config "${candidate.name}":`, e);
+        console.warn(`Failed to parse config candidate "${candidate.name}":`, e);
       }
     }
   
@@ -1881,7 +1881,7 @@ class PatchDataService {
       }
   
       if (!zipFileEntry) {
-        console.warn(`File tidak ditemukan di ZIP: ${targetPath}`);
+        console.warn(`File not found in ZIP: ${targetPath}`);
         continue;
       }
   
@@ -1917,7 +1917,7 @@ class PatchDataService {
           await new Promise(r => setTimeout(r, 0));
         }
       } catch (e) {
-        console.warn(`Gagal memproses ${targetPath}:`, e);
+        console.warn(`Failed to process ${targetPath}:`, e);
       }
     }
   
@@ -1982,10 +1982,85 @@ class PatchDataService {
       fail("fxp_invalid_file");
     }
 
-    const rawPatchName = document.getElementsByTagName("meta")[0]?.getAttribute("name")
+    const parameterNodes = new Map();
+    for (const node of document.getElementsByTagName("*")) {
+      if (!parameterNodes.has(node.nodeName)) parameterNodes.set(node.nodeName, node);
+    }
+    const getNode = name => parameterNodes.get(name) || null;
+    const getNumber = (name, fallback = 0) => {
+      const raw = getNode(name)?.getAttribute("value");
+      if (raw == null || raw.trim() === "") return fallback;
+      const value = Number(raw);
+      return Number.isFinite(value) ? value : fallback;
+    };
+    const getMetadata = name => getNode("meta")?.getAttribute(name)?.trim() || "";
+    const cleanMetadata = value => String(value || "").replace(/[^\x20-\x7E]/g, " ").trim();
+
+    // Surge stores ADSR times as base-2 seconds; approximate them with the
+    // nearest rate supported by the six-stage GUS sample envelope.
+    const envelopeTimeSeconds = (name, fallback) => {
+      const exponent = clamp(getNumber(name, Math.log2(fallback)), -12, 3);
+      return clamp(Math.pow(2, exponent), 0.001, 8);
+    };
+    const gusEnvelopeRate = (seconds, startOffset, endOffset) => {
+      const distance = Math.abs(endOffset - startOffset);
+      if (!distance) return 0;
+      const targetMs = clamp(seconds * 1000, 1, 8000);
+      let bestRate = 0;
+      let bestDifference = Infinity;
+      for (let rate = 0; rate <= 255; rate++) {
+        const scale = (3 - ((rate >> 6) & 3)) * 3;
+        const period = (rate & 0x3f) || 1;
+        const units = 13 > scale
+          ? distance << (13 - scale)
+          : distance >> (scale - 13);
+        const durationMs = (units * 10) / (period * 441);
+        const difference = Math.abs(durationMs - targetMs);
+        if (difference < bestDifference) {
+          bestDifference = difference;
+          bestRate = rate;
+        }
+      }
+      return bestRate;
+    };
+    const sceneCache = new Map();
+    const getScene = scene => {
+      if (sceneCache.has(scene)) return sceneCache.get(scene);
+      const sustain = clamp(getNumber(`${scene}_env1_sustain`, 1), 0, 1);
+      const sustainOffset = Math.round(sustain * 255);
+      const sceneGain = clamp(getNumber(`${scene}_volume`, 1), 0, 2);
+      const data = {
+        octave: clamp(getNumber(`${scene}_octave`, 0), -8, 8),
+        pitch: clamp(getNumber(`${scene}_pitch`, 0), -48, 48),
+        rootNote: clamp(Math.round(getNumber(`${scene}_ktrkroot`, 60)), 0, 127),
+        gain: sceneGain,
+        envRates: [
+          gusEnvelopeRate(envelopeTimeSeconds(`${scene}_env1_attack`, 0.01), 0, 255),
+          gusEnvelopeRate(envelopeTimeSeconds(`${scene}_env1_decay`, 0.25), 255, sustainOffset),
+          0,
+          gusEnvelopeRate(envelopeTimeSeconds(`${scene}_env1_release`, 0.15), sustainOffset, 0),
+          0,
+          0
+        ],
+        envOffsets: [255, sustainOffset, sustainOffset, 0, 0, 0]
+      };
+      sceneCache.set(scene, data);
+      return data;
+    };
+    const globalVolumeDb = clamp(getNumber("volume", 0), -96, 24);
+    const masterGain = Math.pow(10, globalVolumeDb / 20);
+
+    const rawPatchName = getMetadata("name")
       || fileName.replace(/\.fxp$/i, "");
     const patchName = rawPatchName.replace(/[^\x20-\x7E]/g, " ").trim().substring(0, 60)
       || fileName.replace(/\.fxp$/i, "").substring(0, 60);
+    const category = cleanMetadata(getMetadata("category"));
+    const author = cleanMetadata(getMetadata("author"));
+    const metadataSuffix = [category, author && `by ${author}`].filter(Boolean).join(" | ");
+    const description = metadataSuffix
+      ? `${patchName.substring(0, Math.max(1, 60 - metadataSuffix.length - 3))} | ${metadataSuffix}`
+          .substring(0, 60)
+      : patchName.substring(0, 60);
     const layers = [];
     let dataOffset = wavetableOffset;
     for (let slot = 0; slot < 6; slot++) {
@@ -1993,15 +2068,17 @@ class PatchDataService {
       if (blockSize === 0) continue;
       if (blockSize < 12 || dataOffset + blockSize > chunkEnd) fail("fxp_invalid_file");
 
-      const scene = Math.floor(slot / 3);
-      const oscillator = slot % 3;
-      const prefix = `${String.fromCharCode(97 + scene)}_osc${oscillator + 1}`;
-      const typeNode = document.getElementsByTagName(`${prefix}_type`)[0];
-      const oscillatorType = Number(typeNode?.getAttribute("value"));
+      const sceneIndex = Math.floor(slot / 3);
+      const oscillatorIndex = slot % 3;
+      const scene = String.fromCharCode(97 + sceneIndex);
+      const oscillator = oscillatorIndex + 1;
+      const prefix = `${scene}_osc${oscillator}`;
+      const oscillatorType = getNumber(`${prefix}_type`, 0);
       if (oscillatorType !== 2 && oscillatorType !== 7) {
         dataOffset += blockSize;
         continue;
       }
+      const sceneData = getScene(scene);
 
       const blockView = new DataView(ab, dataOffset, blockSize);
       const frameSize = blockView.getUint32(4, true);
@@ -2020,22 +2097,24 @@ class PatchDataService {
       const valueCount = isSample ? frameSize * frameCount : frameSize;
       const pcm = new Uint8Array(valueCount * 2);
       const pcmView = new DataView(pcm.buffer);
+      const sampleGain = clamp(masterGain * sceneData.gain, 0, 4);
       for (let index = 0; index < valueCount; index++) {
         const value = isInt16
           ? blockView.getInt16(12 + index * 2, true) / ((flags & 8) ? 32768 : 16384)
           : blockView.getFloat32(12 + index * 4, true);
         if (!Number.isFinite(value)) fail("fxp_invalid_wavetable");
-        pcmView.setInt16(index * 2, Math.round(clamp(value, -1, 32767 / 32768) * 32768), true);
+        pcmView.setInt16(index * 2,
+          Math.round(clamp(value * sampleGain, -1, 32767 / 32768) * 32768), true);
       }
 
-      const octaveNode = document.getElementsByTagName(`${prefix}_octave`)[0];
-      const octave = Number(octaveNode?.getAttribute("value")) || 0;
-      const oscillatorName = document.getElementsByTagName(`osc_extra_sc${scene}_osc${oscillator}`)[0]
-        ?.getAttribute("wavetable_display_name") || `${patchName} ${oscillator + 1}`;
+      const octave = clamp(sceneData.octave + getNumber(`${prefix}_octave`, 0), -8, 8);
+      const semitoneOffset = clamp(sceneData.pitch + getNumber(`${prefix}_pitch`, 0), -48, 48);
+      const pitchRatio = Math.pow(2, -octave - semitoneOffset / 12);
+      const oscillatorName = getNode(`osc_extra_sc${sceneIndex}_osc${oscillatorIndex}`)
+        ?.getAttribute("wavetable_display_name") || `${patchName} ${oscillator}`;
       const sampleRate = isSample ? 44100 : 22050;
-      const pitchRatio = Math.pow(2, -clamp(octave, -8, 8));
       const hasLoop = shouldLoop && pcm.length >= 8;
-      const sampleName = oscillatorName.replace(/[^\x20-\x7E]/g, "").trim().substring(0, 7) || "FXP";
+      const sampleName = cleanMetadata(oscillatorName).substring(0, 7) || "FXP";
       const sample = {
         name: sampleName,
         fractions: 0,
@@ -2048,16 +2127,16 @@ class PatchDataService {
         rootFreq: Math.round((hasLoop ? sampleRate / frameSize : 261.625565) * pitchRatio * 1000),
         tune: 0,
         balance: 7,
-        envRates: hasLoop ? [9, 0, 0, 69, 0, 0] : [0, 0, 0, 0, 0, 0],
-        envOffsets: [255, 255, 255, 0, 0, 0],
+        envRates: sceneData.envRates,
+        envOffsets: sceneData.envOffsets,
         tremoloSweep: 0,
         tremoloRate: 0,
         tremoloDepth: 0,
         vibratoSweep: 0,
         vibratoRate: 0,
         vibratoDepth: 0,
-        modes: M16 | (hasLoop ? MLOOP | MENV : 0),
-        scaleFreq: 60,
+        modes: M16 | MENV | (hasLoop ? MLOOP : 0),
+        scaleFreq: sceneData.rootNote,
         scaleFactor: 1024,
         reserved: new Uint8Array(36),
         pcm,
@@ -2074,7 +2153,6 @@ class PatchDataService {
     }
 
     if (layers.length === 0) fail("fxp_no_embedded_wavetables");
-    const description = patchName.substring(0, 60);
     const patch = {
       header: {
         magic: MAGIC,
