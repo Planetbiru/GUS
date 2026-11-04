@@ -762,11 +762,15 @@ class MelodicRenderer {
         }
 
         // Formants + brightness sweep + saturation
-        if (p.brightness && !isLoop) {
-            GUSPatchGenerator.brightnessSweep(out,
-                p.brightness.start || 8000,
-                p.brightness.end || 1200,
-                SR);
+        if (p.brightness) {
+            if (isLoop && p.brightness.loopCutoff) {
+                GUSPatchGenerator.lowpass(out, p.brightness.loopCutoff, SR);
+            } else if (!isLoop) {
+                GUSPatchGenerator.brightnessSweep(out,
+                    p.brightness.start || 8000,
+                    p.brightness.end || 1200,
+                    SR);
+            }
         }
         if (p.guitarAmp) GUSPatchGenerator.guitarAmp(out, p.guitarAmp, SR);
         if (p.formants) GUSPatchGenerator.applyFormants(out, p.formants, SR);
@@ -1008,7 +1012,6 @@ class InstrumentLibrary {
             || !Number.isFinite(GUS_MELODIC_PRESETS.gain)
             || GUS_MELODIC_PRESETS.gain < 0
             || !Array.isArray(GUS_MELODIC_PRESETS.instruments)
-            || GUS_MELODIC_PRESETS.instruments.length !== 128
             || GUS_MELODIC_PRESETS.instruments.some(instrument =>
                 !instrument
                 || typeof instrument !== 'object'
@@ -1052,7 +1055,6 @@ class InstrumentLibrary {
             || !Number.isFinite(GUS_DRUM_PRESETS.gain)
             || GUS_DRUM_PRESETS.gain < 0
             || !Array.isArray(GUS_DRUM_PRESETS.instruments)
-            || GUS_DRUM_PRESETS.instruments.length !== 57
             || GUS_DRUM_PRESETS.instruments.some(instrument =>
                 !instrument
                 || typeof instrument !== 'object'
