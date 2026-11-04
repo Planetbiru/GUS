@@ -1533,18 +1533,20 @@ class MidiController {
   }
 
   static findTimelinePatch(seg, patches) {
+    const program = Number(seg.program);
+    const bank = Number(seg.bank);
     if (seg.isDrum) {
       const drumPatches = patches.filter(p =>
-        (p.gmBank ?? 0) === 128 && (p.targetBank ?? 0) === seg.bank
+        Number(p.gmBank ?? 0) === 128 && Number(p.targetBank ?? 0) === bank
       );
-      return drumPatches.find(p => p.gmProgram === seg.program) || drumPatches[0];
+      return drumPatches.find(p => Number(p.gmProgram) === program) || drumPatches[0];
     }
 
-    return patches.find(p =>
-      (p.gmBank ?? 0) !== 128 &&
-      (p.gmProgram ?? -1) === seg.program &&
-      (p.targetBank ?? 0) === seg.bank
+    const melodicPatches = patches.filter(p =>
+      Number(p.gmBank ?? 0) !== 128 && Number(p.gmProgram ?? -1) === program
     );
+    return melodicPatches.find(p => Number(p.targetBank ?? 0) === bank)
+      || melodicPatches.find(p => Number(p.gmBank ?? 0) === bank);
   }
 
   static populateMidiUsedPatchesFromScan() {

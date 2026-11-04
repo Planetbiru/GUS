@@ -1538,7 +1538,12 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3400,
           "q": 1.1,
-          "gain": -2
+          "gain": 1
+        },
+        {
+          "freq": 5200,
+          "q": 1,
+          "gain": 2
         }
       ],
       "harm": [
@@ -1554,8 +1559,13 @@ var GUS_MELODIC_PRESETS = {
         0.13,
         0.09,
         0.06,
-        0.04
+        0.04,
+        0.03,
+        0.022,
+        0.016,
+        0.012
       ],
+      "noise": 0.04,
       "env": {
         "a": 0.002,
         "d": 0.8,
@@ -1569,14 +1579,14 @@ var GUS_MELODIC_PRESETS = {
         "bias": 0.035,
         "mix": 0.82,
         "preampCutoff": 95,
-        "cabinetCutoff": 5200
+        "cabinetCutoff": 7200
       },
       "loop": 1,
       "cycles": 18,
       "loopSkip": 10,
       "loopAttackNoise": {
-        "amp": 0.12,
-        "duration": 0.02
+        "amp": 0.2,
+        "duration": 0.024
       },
       "vibrato": {
         "rate": 5.2,
@@ -1636,7 +1646,17 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3800,
           "q": 1.2,
-          "gain": -3
+          "gain": 1
+        },
+        {
+          "freq": 5400,
+          "q": 1,
+          "gain": 4
+        },
+        {
+          "freq": 7600,
+          "q": 0.9,
+          "gain": 2
         }
       ],
       "harm": [
@@ -1654,8 +1674,14 @@ var GUS_MELODIC_PRESETS = {
         0.14,
         0.1,
         0.07,
-        0.05
+        0.05,
+        0.04,
+        0.032,
+        0.025,
+        0.02,
+        0.016
       ],
+      "noise": 0.25,
       "env": {
         "a": 0.002,
         "d": 0.8,
@@ -1665,18 +1691,18 @@ var GUS_MELODIC_PRESETS = {
       "length": 44100,
       "freq": 441,
       "guitarAmp": {
-        "drive": 3.4,
+        "drive": 4.8,
         "bias": 0.02,
         "mix": 0.94,
         "preampCutoff": 115,
-        "cabinetCutoff": 4600
+        "cabinetCutoff": 8800
       },
       "loop": 1,
       "cycles": 20,
       "loopSkip": 10,
       "loopAttackNoise": {
-        "amp": 0.08,
-        "duration": 0.018
+        "amp": 0.22,
+        "duration": 0.026
       },
       "vibrato": {
         "rate": 5.5,
@@ -5297,27 +5323,60 @@ var GUS_MELODIC_PRESETS = {
     "family": "FX",
     "name": "FX (atmosphere)",
     "short_name": "FX (atmosphere)",
-    "description": "FX (atmosphere): an evolving synthetic texture with.",
+    "description": "FX (atmosphere): nylon pluck with a faint airy shimmer.",
     "preset": {
+      "attackNoise": {
+        "amp": 0.045,
+        "duration": 0.016
+      },
+      "brightness": {
+        "start": 9500,
+        "end": 2600
+      },
+      "partialDecay": [
+        3.2,
+        1.9,
+        1.15,
+        0.78,
+        0.52,
+        0.36,
+        0.25,
+        0.18,
+        0.13
+      ],
       "harm": [
         1,
-        0.5,
-        0.33,
+        0.8,
+        0.6,
+        0.4,
         0.25,
-        0.2
+        0.15,
+        0.08,
+        0.04,
+        0.02
       ],
-      "fm": {
-        "ratio": 1.5,
-        "index": 3
+      "pluckPosition": 0.2,
+      "pluckTransient": {
+        "freq": 2600,
+        "q": 0.9,
+        "amp": 0.035,
+        "duration": 0.022,
+        "decay": 0.01,
+        "type": "pink"
       },
+      "inharmonicity": 0.00008,
       "env": {
-        "a": 0.05,
-        "d": 0.5,
-        "s": 0.5,
-        "r": 0.4
+        "a": 0.002,
+        "d": 1.5,
+        "s": 0,
+        "r": 0.5
       },
       "length": 44100,
-      "noise": 0.4
+      "freq": 441,
+      "detune": [
+        -3,
+        3
+      ]
     }
   },
   {
