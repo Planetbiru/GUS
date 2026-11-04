@@ -46,7 +46,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 55125,
       "freq": 441,
-      "gain": 0.35
+      "gain": 0.42
     }
   },
   {
@@ -128,7 +128,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      }
+      },
+      "gain": 0.42
     }
   },
   {
@@ -138,7 +139,6 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Elec. Grand",
     "description": "Elec. Grand: struck-key tone with a resonant decay.",
     "preset": {
-      "gain": 0.20,
       "harm": [
         1,
         0.2,
@@ -184,7 +184,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      }
+      },
+      "gain": 0.42
     }
   },
   {
@@ -270,7 +271,8 @@ var GUS_MELODIC_PRESETS = {
       "detune": [
         0,
         -10
-      ]
+      ],
+      "gain": 0.42
     }
   },
   {
@@ -280,7 +282,6 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "E.Piano 1",
     "description": "E.Piano 1: struck-key tone with a resonant decay.",
     "preset": {
-      "gain": 0.20,
       "harm": [
         1,
         0.2,
@@ -326,7 +327,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      }
+      },
+      "gain": 0.42
     }
   },
   {
@@ -336,7 +338,6 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "E.Piano 2",
     "description": "E.Piano 2: struck-key tone with a resonant decay.",
     "preset": {
-      "gain": 0.20,
       "harm": [
         1,
         0.2,
@@ -382,7 +383,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      }
+      },
+      "gain": 0.42
     }
   },
   {
@@ -392,7 +394,6 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harpsichord",
     "description": "Harpsichord: struck-key tone with a resonant decay.",
     "preset": {
-      "gain": 0.20,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -435,7 +436,8 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.2
       },
       "length": 66150,
-      "freq": 441
+      "freq": 441,
+      "gain": 0.42
     }
   },
   {
@@ -445,7 +447,6 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Clavinet",
     "description": "Clavinet: struck-key tone with a resonant decay.",
     "preset": {
-      "gain": 0.20,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -486,7 +487,8 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.2
       },
       "length": 66150,
-      "freq": 441
+      "freq": 441,
+      "gain": 0.42
     }
   },
   {
@@ -521,7 +523,8 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.6
       },
       "length": 55125,
-      "freq": 441
+      "freq": 441,
+      "gain": 0.42
     }
   },
   {
@@ -1127,17 +1130,17 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 105,
           "q": 1.2,
-          "gain": 1
+          "gain": 2.5
         },
         {
           "freq": 210,
           "q": 1.8,
-          "gain": 2
+          "gain": 3.5
         },
         {
           "freq": 390,
           "q": 2.1,
-          "gain": 2
+          "gain": 3
         },
         {
           "freq": 850,
@@ -1182,7 +1185,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.0012,
         "time": 0.014
       },
-      "gain": 0.35
+      "gain": 0.40
     }
   },
   {
@@ -1279,7 +1282,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.0022,
         "time": 0.009
       },
-      "gain": 0.35
+      "gain": 0.40
     }
   },
   {
@@ -1794,7 +1797,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
@@ -1832,7 +1835,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
@@ -1870,7 +1873,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
@@ -1912,7 +1915,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
@@ -1951,7 +1954,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
@@ -1990,7 +1993,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
@@ -2027,7 +2030,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
@@ -2066,7 +2069,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.4
+      "gain": 0.36
     }
   },
   {
