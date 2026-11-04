@@ -116,6 +116,7 @@ const midiChannelMuteBtnRefs = new Array(16).fill(null);
 const midiChannelSoloBtnRefs = new Array(16).fill(null);
 let muteReapplyTimer = null;
 let pendingProjectDeletionId = null;
+let pendingProjectDeletionChallenge = null;
 let pendingConfirmationAction = null;
 let activeAlert = null;
 const queuedAlerts = [];

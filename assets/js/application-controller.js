@@ -132,6 +132,12 @@ class ApplicationController {
       const project = state.projects.find(entry => entry.id === pendingProjectDeletionId);
       if (project) $("deleteProjectMessage").textContent = t("confirm_delete_project", {name: project.name});
     }
+    if (pendingProjectDeletionChallenge) {
+      $("deleteProjectChallengePrompt").textContent = t("delete_project_challenge_prompt", {
+        first: pendingProjectDeletionChallenge.first,
+        second: pendingProjectDeletionChallenge.second
+      });
+    }
     if (activeAlert) {
       $("alertTitle").textContent = t("alert_title");
       $("alertMessage").textContent = t(activeAlert.key, activeAlert.values);
@@ -429,11 +435,21 @@ class ApplicationController {
   
     $("btnCancelDeleteProject").addEventListener("click", closeDeleteProjectDialog);
     $("btnConfirmDeleteProject").addEventListener("click", confirmDeleteProject);
+    $("deleteProjectChallengeAnswer").addEventListener("input", event => {
+      const answer = event.target.value.trim();
+      const correct = pendingProjectDeletionChallenge && answer !== "" &&
+        Number.isInteger(Number(answer)) &&
+        Number(answer) === pendingProjectDeletionChallenge.result;
+      $("btnConfirmDeleteProject").disabled = !correct;
+      $("deleteProjectError").textContent = answer && !correct
+        ? t("delete_project_challenge_incorrect")
+        : "";
+    });
     $("deleteProjectDialog").addEventListener("click", event => {
       if (event.target === $("deleteProjectDialog")) closeDeleteProjectDialog();
     });
     $("deleteProjectDialog").addEventListener("keydown", event => {
-      if (event.key === "Escape" && !$("btnConfirmDeleteProject").disabled) {
+      if (event.key === "Escape" && !$("btnCancelDeleteProject").disabled) {
         closeDeleteProjectDialog();
       }
     });
@@ -569,6 +585,8 @@ class ApplicationController {
       const pct = parseInt(e.target.value, 10) / 1000;
       const targetTime = pct * midiProgress.duration;
       $("midiTimeCur").textContent = formatTime(targetTime);
+      $("drumPadsMidiSeek").value = e.target.value;
+      $("drumPadsMidiTimeCur").textContent = formatTime(targetTime);
       
       // Update playhead secara live menggunakan estimasi tick
       if (timelinePlayheadEl && timelineTotalTicks > 0) {
@@ -905,11 +923,12 @@ class ApplicationController {
     // === Export dialog ===
     $("btnCancelExportBanks").addEventListener("click", closeExportBanksDialog);
     $("btnConfirmExportBanks").addEventListener("click", async () => {
-      const project = state.projects.find(p => p.id === state.currentProjectId);
+      const projectId = $("exportBanksDialog").dataset.projectId;
+      const project = state.projects.find(p => p.id === projectId);
       if (!project) { closeExportBanksDialog(); return; }
       
       // Ambil patch yang dicentang saja
-      let patches = getProjectPatchEntries().filter(p => p.exportSelected !== false);
+      let patches = getProjectPatchEntries(project.id).filter(p => p.exportSelected !== false);
       
       if (patches.length === 0) {
         $("exportBanksError").textContent = t("export_nothing_selected");
@@ -1005,7 +1024,24 @@ class ApplicationController {
     $("btnCloseDrumPadsX").addEventListener("click", () => MidiController.closeDrumPadsDialog());
     $("drumPadsBank").addEventListener("change", () => MidiController.handleDrumPadBankChange());
     $("drumPadGrid").addEventListener("click", event => MidiController.handleDrumPadClick(event));
-    $("btnAssignDrumPadPatch").addEventListener("click", () => MidiController.assignDrumPadPatch());
+    $("btnDrumPadsMidiPlay").addEventListener("click", () => {
+      if (!state.midiData) return;
+      if (midiProgress.playing || midiProgress.paused) {
+        togglePauseMidi();
+      } else {
+        playMidi(0);
+      }
+    });
+    $("drumPadsMidiSeek").addEventListener("input", event => {
+      if (!state.midiData) return;
+      $("midiSeek").value = event.target.value;
+      $("midiSeek").dispatchEvent(new Event("input"));
+    });
+    $("drumPadsMidiSeek").addEventListener("change", event => {
+      if (!state.midiData) return;
+      $("midiSeek").value = event.target.value;
+      $("midiSeek").dispatchEvent(new Event("change"));
+    });
     $("drumPadsDialog").addEventListener("click", event => {
       if (event.target === $("drumPadsDialog")) MidiController.closeDrumPadsDialog();
     });

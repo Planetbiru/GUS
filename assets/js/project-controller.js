@@ -389,10 +389,16 @@ class ProjectController {
     const project = state.projects.find(entry => entry.id === id);
     if (!project) return;
     pendingProjectDeletionId = id;
+    const first = Math.floor(Math.random() * 40) + 10;
+    const second = Math.floor(Math.random() * 40) + 10;
+    pendingProjectDeletionChallenge = {first, second, result: first + second};
     $("deleteProjectMessage").textContent = t("confirm_delete_project", {name: project.name});
+    $("deleteProjectChallengePrompt").textContent = t("delete_project_challenge_prompt", {first, second});
+    $("deleteProjectChallengeAnswer").value = "";
     $("deleteProjectError").textContent = "";
+    $("btnConfirmDeleteProject").disabled = true;
     $("deleteProjectDialog").hidden = false;
-    $("btnCancelDeleteProject").focus();
+    $("deleteProjectChallengeAnswer").focus();
   }
 
   static openProjectPropertiesDialog(projectId) {
@@ -502,13 +508,24 @@ class ProjectController {
   }
 
   static closeDeleteProjectDialog(force = false) {
-    if (!force && $("btnConfirmDeleteProject").disabled) return;
+    if (!force && $("btnCancelDeleteProject").disabled) return;
     pendingProjectDeletionId = null;
+    pendingProjectDeletionChallenge = null;
+    $("deleteProjectChallengeAnswer").value = "";
+    $("deleteProjectError").textContent = "";
+    $("btnConfirmDeleteProject").disabled = false;
     $("deleteProjectDialog").hidden = true;
   }
 
   static async confirmDeleteProject() {
-    if (!pendingProjectDeletionId) return;
+    if (!pendingProjectDeletionId || !pendingProjectDeletionChallenge) return;
+    const answer = $("deleteProjectChallengeAnswer").value.trim();
+    if (!answer || !Number.isInteger(Number(answer)) ||
+        Number(answer) !== pendingProjectDeletionChallenge.result) {
+      $("deleteProjectError").textContent = t("delete_project_challenge_incorrect");
+      $("btnConfirmDeleteProject").disabled = true;
+      return;
+    }
     const confirmButton = $("btnConfirmDeleteProject");
     const cancelButton = $("btnCancelDeleteProject");
     confirmButton.disabled = true;
