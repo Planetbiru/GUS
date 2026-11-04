@@ -41,7 +41,7 @@ class ProjectPatchGenerator {
     if (isDrum) {
         const drum = this.library.findDrum(id);
         if (!drum) throw new Error(`Unknown drum instrument: ${id}.`);
-        const {note, name: drumName, short_name: drumShortName, description: drumDescription, preset: drumPreset} = drum;
+        const {note, name: drumName, shortName: drumShortName, description: drumDescription, preset: drumPreset} = drum;
         name = drumName;
         shortName = drumShortName;
         description = drumDescription;
@@ -53,7 +53,7 @@ class ProjectPatchGenerator {
         if (!instrument) throw new Error(`Unknown melodic instrument: ${id}.`);
         let {
             name: instrumentName,
-            short_name: instrumentShortName,
+            shortName: instrumentShortName,
             description: instrumentDescription,
             preset: melodicPreset
         } = instrument;
@@ -1021,8 +1021,8 @@ class InstrumentLibrary {
                 || instrument.program > 127
                 || typeof instrument.family !== 'string'
                 || typeof instrument.name !== 'string'
-                || typeof instrument.short_name !== 'string'
-                || instrument.short_name.length > 16
+                || typeof instrument.shortName !== 'string'
+                || instrument.shortName.length > 16
                 || typeof instrument.description !== 'string'
                 || !instrument.description.trim()
                 || instrument.description.length > 60
@@ -1063,8 +1063,8 @@ class InstrumentLibrary {
                 || instrument.note < 0
                 || instrument.note > 127
                 || typeof instrument.name !== 'string'
-                || typeof instrument.short_name !== 'string'
-                || instrument.short_name.length > 16
+                || typeof instrument.shortName !== 'string'
+                || instrument.shortName.length > 16
                 || typeof instrument.description !== 'string'
                 || !instrument.description.trim()
                 || instrument.description.length > 60

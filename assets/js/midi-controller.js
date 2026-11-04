@@ -2890,7 +2890,7 @@ class MidiController {
   static handleDrumPadNoteOn(event) {
     const dialog = $("drumPadsDialog");
     if (!dialog || dialog.hidden) return;
-    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
+    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 25 || event.pitch > 94) return;
     MidiController.drumPadActiveNotes.set(
       event.pitch,
       (MidiController.drumPadActiveNotes.get(event.pitch) || 0) + 1
@@ -2902,7 +2902,7 @@ class MidiController {
   static handleDrumPadNoteOff(event) {
     const dialog = $("drumPadsDialog");
     if (!dialog || dialog.hidden) return;
-    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 35 || event.pitch > 81) return;
+    if (event.channel !== 9 || !Number.isInteger(event.pitch) || event.pitch < 25 || event.pitch > 94) return;
     const activeCount = MidiController.drumPadActiveNotes.get(event.pitch) || 0;
     if (activeCount > 1) {
       MidiController.drumPadActiveNotes.set(event.pitch, activeCount - 1);

@@ -5,7 +5,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 0,
     "family": "Piano",
     "name": "Acoustic Grand Piano",
-    "short_name": "Ac. Grand Piano",
+    "shortName": "Ac. Grand Piano",
     "description": "Ac. Grand: struck-key tone with a resonant decay.",
     "preset": {
       "inharmonicity": 0.0005,
@@ -53,7 +53,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 1,
     "family": "Piano",
     "name": "Bright Piano",
-    "short_name": "Bright Piano",
+    "shortName": "Bright Piano",
     "description": "Bright Piano: struck-key tone with a resonant decay.",
     "preset": {
       "inharmonicity": 0.00035,
@@ -135,7 +135,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 2,
     "family": "Piano",
     "name": "Electric Grand",
-    "short_name": "Elec. Grand",
+    "shortName": "Elec. Grand",
     "description": "Elec. Grand: struck-key tone with a resonant decay.",
     "preset": {
       "gain": 0.20,
@@ -191,7 +191,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 3,
     "family": "Piano",
     "name": "Honky-tonk",
-    "short_name": "Honky-tonk",
+    "shortName": "Honky-tonk",
     "description": "Honky-tonk: struck-key tone with a resonant decay.",
     "preset": {
       "gain": 0.20,
@@ -277,7 +277,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 4,
     "family": "Piano",
     "name": "E.Piano 1",
-    "short_name": "E.Piano 1",
+    "shortName": "E.Piano 1",
     "description": "E.Piano 1: struck-key tone with a resonant decay.",
     "preset": {
       "gain": 0.20,
@@ -333,7 +333,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 5,
     "family": "Piano",
     "name": "E.Piano 2",
-    "short_name": "E.Piano 2",
+    "shortName": "E.Piano 2",
     "description": "E.Piano 2: struck-key tone with a resonant decay.",
     "preset": {
       "gain": 0.20,
@@ -389,7 +389,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 6,
     "family": "Piano",
     "name": "Harpsichord",
-    "short_name": "Harpsichord",
+    "shortName": "Harpsichord",
     "description": "Harpsichord: struck-key tone with a resonant decay.",
     "preset": {
       "gain": 0.20,
@@ -442,7 +442,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 7,
     "family": "Piano",
     "name": "Clavinet",
-    "short_name": "Clavinet",
+    "shortName": "Clavinet",
     "description": "Clavinet: struck-key tone with a resonant decay.",
     "preset": {
       "gain": 0.20,
@@ -493,7 +493,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 8,
     "family": "Chromatic",
     "name": "Celesta",
-    "short_name": "Celesta",
+    "shortName": "Celesta",
     "description": "Celesta: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.008,
@@ -528,7 +528,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 9,
     "family": "Chromatic",
     "name": "Glockenspiel",
-    "short_name": "Glockenspiel",
+    "shortName": "Glockenspiel",
     "description": "Glockenspiel: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.008,
@@ -563,7 +563,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 10,
     "family": "Chromatic",
     "name": "Music Box",
-    "short_name": "Music Box",
+    "shortName": "Music Box",
     "description": "Music Box: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.008,
@@ -595,7 +595,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 11,
     "family": "Chromatic",
     "name": "Vibraphone",
-    "short_name": "Vibraphone",
+    "shortName": "Vibraphone",
     "description": "Vibraphone: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.008,
@@ -632,7 +632,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 12,
     "family": "Chromatic",
     "name": "Marimba",
-    "short_name": "Marimba",
+    "shortName": "Marimba",
     "description": "Marimba: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.008,
@@ -664,7 +664,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 13,
     "family": "Chromatic",
     "name": "Xylophone",
-    "short_name": "Xylophone",
+    "shortName": "Xylophone",
     "description": "Xylophone: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.008,
@@ -695,7 +695,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 14,
     "family": "Chromatic",
     "name": "Tubular Bells",
-    "short_name": "Tubular Bells",
+    "shortName": "Tubular Bells",
     "description": "Tubular Bells: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.008,
@@ -729,7 +729,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 15,
     "family": "Chromatic",
     "name": "Dulcimer",
-    "short_name": "Dulcimer",
+    "shortName": "Dulcimer",
     "description": "Dulcimer: a bright strike with a clear ringing tone.",
     "preset": {
       "inharmonicity": 0.00035,
@@ -779,7 +779,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 16,
     "family": "Organ",
     "name": "Drawbar Organ",
-    "short_name": "Drawbar Organ",
+    "shortName": "Drawbar Organ",
     "description": "Drawbar Organ: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -808,7 +808,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 17,
     "family": "Organ",
     "name": "Percussive Organ",
-    "short_name": "Percussive Organ",
+    "shortName": "Percussive Organ",
     "description": "Percussive Organ: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -839,7 +839,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 18,
     "family": "Organ",
     "name": "Rock Organ",
-    "short_name": "Rock Organ",
+    "shortName": "Rock Organ",
     "description": "Rock Organ: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -870,7 +870,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 19,
     "family": "Organ",
     "name": "Church Organ",
-    "short_name": "Church Organ",
+    "shortName": "Church Organ",
     "description": "Church Organ: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -899,7 +899,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 20,
     "family": "Organ",
     "name": "Reed Organ",
-    "short_name": "Reed Organ",
+    "shortName": "Reed Organ",
     "description": "Reed Organ: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -950,7 +950,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 21,
     "family": "Organ",
     "name": "Accordion",
-    "short_name": "Accordion",
+    "shortName": "Accordion",
     "description": "Accordion: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -1000,7 +1000,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 22,
     "family": "Organ",
     "name": "Harmonica",
-    "short_name": "Harmonica",
+    "shortName": "Harmonica",
     "description": "Harmonica: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -1050,7 +1050,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 23,
     "family": "Organ",
     "name": "Tango Accordion",
-    "short_name": "Tango Accordion",
+    "shortName": "Tango Accordion",
     "description": "Tango Accordion: a steady tone with layered harmonics.",
     "preset": {
       "gain": 0.7,
@@ -1101,16 +1101,16 @@ var GUS_MELODIC_PRESETS = {
     "program": 24,
     "family": "Guitar",
     "name": "Nylon Guitar",
-    "short_name": "Nylon Guitar",
+    "shortName": "Nylon Guitar",
     "description": "Nylon Guitar: a plucked-string attack with natural decay.",
     "preset": {
       "attackNoise": {
-        "amp": 0.055,
-        "duration": 0.018
+        "amp": 0.032,
+        "duration": 0.022
       },
       "brightness": {
-        "start": 9500,
-        "end": 2200
+        "start": 7600,
+        "end": 1800
       },
       "partialDecay": [
         3.2,
@@ -1127,22 +1127,22 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 105,
           "q": 1.2,
-          "gain": 3
+          "gain": 1
         },
         {
           "freq": 210,
           "q": 1.8,
-          "gain": 5
+          "gain": 2
         },
         {
           "freq": 390,
           "q": 2.1,
-          "gain": 4
+          "gain": 2
         },
         {
           "freq": 850,
           "q": 1.6,
-          "gain": 2
+          "gain": 1
         },
         {
           "freq": 2300,
@@ -1171,11 +1171,11 @@ var GUS_MELODIC_PRESETS = {
       "freq": 441,
       "pluckPosition": 0.16,
       "pluckTransient": {
-        "freq": 2300,
+        "freq": 1900,
         "q": 0.8,
-        "amp": 0.045,
-        "duration": 0.024,
-        "decay": 0.011
+        "amp": 0.026,
+        "duration": 0.02,
+        "decay": 0.009
       },
       "inharmonicity": 0.00004,
       "pitchScoop": {
@@ -1189,7 +1189,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 25,
     "family": "Guitar",
     "name": "Steel Guitar",
-    "short_name": "Steel Guitar",
+    "shortName": "Steel Guitar",
     "description": "Steel Guitar: a plucked-string attack with natural decay.",
     "preset": {
       "attackNoise": {
@@ -1286,7 +1286,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 26,
     "family": "Guitar",
     "name": "Jazz Guitar",
-    "short_name": "Jazz Guitar",
+    "shortName": "Jazz Guitar",
     "description": "Jazz Guitar: a plucked-string attack with natural decay.",
     "preset": {
       "gain": 0.35,
@@ -1318,17 +1318,17 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 220,
           "q": 2,
-          "gain": 5
+          "gain": 2
         },
         {
           "freq": 450,
           "q": 2.5,
-          "gain": 4
+          "gain": 2
         },
         {
           "freq": 1200,
           "q": 3,
-          "gain": 2
+          "gain": 1
         }
       ],
       "harm": [
@@ -1355,7 +1355,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 27,
     "family": "Guitar",
     "name": "Clean Guitar",
-    "short_name": "Clean Guitar",
+    "shortName": "Clean Guitar",
     "description": "Clean Guitar: a plucked-string attack with natural decay.",
     "preset": {
       "gain": 0.35,
@@ -1425,7 +1425,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 28,
     "family": "Guitar",
     "name": "Muted Guitar",
-    "short_name": "Muted Guitar",
+    "shortName": "Muted Guitar",
     "description": "Muted Guitar: a plucked-string attack with natural decay.",
     "preset": {
       "gain": 0.35,
@@ -1495,7 +1495,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 29,
     "family": "Guitar",
     "name": "Overdriven Gtr",
-    "short_name": "Overdriven Gtr",
+    "shortName": "Overdriven Gtr",
     "description": "Overdriven Gtr: a plucked-string attack with natural decay.",
     "preset": {
       "gain": 0.45,
@@ -1598,7 +1598,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 30,
     "family": "Guitar",
     "name": "Distortion Gtr",
-    "short_name": "Distortion Gtr",
+    "shortName": "Distortion Gtr",
     "description": "Distortion Gtr: a plucked-string attack with natural decay.",
     "preset": {
       "gain": 0.45,
@@ -1715,7 +1715,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 31,
     "family": "Guitar",
     "name": "Gtr Harmonics",
-    "short_name": "Gtr Harmonics",
+    "shortName": "Gtr Harmonics",
     "description": "Gtr Harmonics: sustained guitar overtone with loop.",
     "preset": {
       "gain": 0.6,
@@ -1763,7 +1763,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 32,
     "family": "Bass",
     "name": "Acoustic Bass",
-    "short_name": "Ac. Bass",
+    "shortName": "Ac. Bass",
     "description": "Ac. Bass: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -1800,7 +1800,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 33,
     "family": "Bass",
     "name": "Finger Bass",
-    "short_name": "Finger Bass",
+    "shortName": "Finger Bass",
     "description": "Finger Bass: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -1837,7 +1837,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 34,
     "family": "Bass",
     "name": "Pick Bass",
-    "short_name": "Pick Bass",
+    "shortName": "Pick Bass",
     "description": "Pick Bass: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -1874,7 +1874,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 35,
     "family": "Bass",
     "name": "Fretless Bass",
-    "short_name": "Fretless Bass",
+    "shortName": "Fretless Bass",
     "description": "Fretless Bass: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -1915,7 +1915,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 36,
     "family": "Bass",
     "name": "Slap Bass 1",
-    "short_name": "Slap Bass 1",
+    "shortName": "Slap Bass 1",
     "description": "Slap Bass 1: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -1953,7 +1953,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 37,
     "family": "Bass",
     "name": "Slap Bass 2",
-    "short_name": "Slap Bass 2",
+    "shortName": "Slap Bass 2",
     "description": "Slap Bass 2: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -1991,7 +1991,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 38,
     "family": "Bass",
     "name": "Synth Bass 1",
-    "short_name": "Synth Bass 1",
+    "shortName": "Synth Bass 1",
     "description": "Synth Bass 1: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -2028,7 +2028,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 39,
     "family": "Bass",
     "name": "Synth Bass 2",
-    "short_name": "Synth Bass 2",
+    "shortName": "Synth Bass 2",
     "description": "Synth Bass 2: a focused low end and firm fundamental.",
     "preset": {
       "attackNoise": {
@@ -2067,7 +2067,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 40,
     "family": "Strings",
     "name": "Violin",
-    "short_name": "Violin",
+    "shortName": "Violin",
     "description": "Violin: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -2153,7 +2153,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 41,
     "family": "Strings",
     "name": "Viola",
-    "short_name": "Viola",
+    "shortName": "Viola",
     "description": "Viola: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -2238,7 +2238,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 42,
     "family": "Strings",
     "name": "Cello",
-    "short_name": "Cello",
+    "shortName": "Cello",
     "description": "Cello: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -2306,7 +2306,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 43,
     "family": "Strings",
     "name": "Contrabass",
-    "short_name": "Contrabass",
+    "shortName": "Contrabass",
     "description": "Contrabass: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -2374,7 +2374,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 44,
     "family": "Strings",
     "name": "Tremolo Str",
-    "short_name": "Tremolo Str",
+    "shortName": "Tremolo Str",
     "description": "Tremolo Str: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -2442,7 +2442,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 45,
     "family": "Strings",
     "name": "Pizzicato",
-    "short_name": "Pizzicato",
+    "shortName": "Pizzicato",
     "description": "Pizzicato: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "attackNoise": {
@@ -2516,7 +2516,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 46,
     "family": "Strings",
     "name": "Harp",
-    "short_name": "Harp",
+    "shortName": "Harp",
     "description": "Harp: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "attackNoise": {
@@ -2586,7 +2586,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 47,
     "family": "Strings",
     "name": "Timpani",
-    "short_name": "Timpani",
+    "shortName": "Timpani",
     "description": "Timpani: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "harm": [
@@ -2611,7 +2611,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 48,
     "family": "Ensemble",
     "name": "Strings 1",
-    "short_name": "Strings 1",
+    "shortName": "Strings 1",
     "description": "Strings 1: a layered orchestral blend with smooth sustain.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -2685,7 +2685,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 49,
     "family": "Ensemble",
     "name": "Strings 2",
-    "short_name": "Strings 2",
+    "shortName": "Strings 2",
     "description": "Strings 2: a layered orchestral blend with smooth sustain.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -2758,7 +2758,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 50,
     "family": "Ensemble",
     "name": "SynthStrings 1",
-    "short_name": "SynthStrings 1",
+    "shortName": "SynthStrings 1",
     "description": "SynthStrings 1: a layered orchestral blend with smooth.",
     "preset": {
       "gain": 0.24,
@@ -2833,7 +2833,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 51,
     "family": "Ensemble",
     "name": "SynthStrings 2",
-    "short_name": "SynthStrings 2",
+    "shortName": "SynthStrings 2",
     "description": "SynthStrings 2: a layered orchestral blend with smooth.",
     "preset": {
       "gain": 0.24,
@@ -2910,7 +2910,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 52,
     "family": "Ensemble",
     "name": "Choir Aahs",
-    "short_name": "Choir Aahs",
+    "shortName": "Choir Aahs",
     "description": "Choir Aahs: a layered orchestral blend with smooth sustain.",
     "preset": {
       "drive": 1.3,
@@ -2985,7 +2985,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 53,
     "family": "Ensemble",
     "name": "Voice Oohs",
-    "short_name": "Voice Oohs",
+    "shortName": "Voice Oohs",
     "description": "Voice Oohs: a layered orchestral blend with smooth sustain.",
     "preset": {
       "drive": 1.5,
@@ -3014,7 +3014,7 @@ var GUS_MELODIC_PRESETS = {
           "gain": 7
         },
         {
-          "freq": 2300,
+          "freq": 1900,
           "q": 3.5,
           "gain": 4
         },
@@ -3058,7 +3058,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 54,
     "family": "Ensemble",
     "name": "Synth Voice",
-    "short_name": "Synth Voice",
+    "shortName": "Synth Voice",
     "description": "Synth Voice: a layered orchestral blend with smooth sustain.",
     "preset": {
       "drive": 1.8,
@@ -3135,7 +3135,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 55,
     "family": "Ensemble",
     "name": "Orchestra Hit",
-    "short_name": "Orchestra Hit",
+    "shortName": "Orchestra Hit",
     "description": "Orchestra Hit: a layered orchestral blend with smooth.",
     "preset": {
       "gain": 0.65,
@@ -3181,7 +3181,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 56,
     "family": "Brass",
     "name": "Trumpet",
-    "short_name": "Trumpet",
+    "shortName": "Trumpet",
     "description": "Trumpet: a bold attack and bright, focused tone.",
     "preset": {
       "gain": 0.12,
@@ -3254,7 +3254,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 57,
     "family": "Brass",
     "name": "Trombone",
-    "short_name": "Trombone",
+    "shortName": "Trombone",
     "description": "Trombone: a bold attack and bright, focused tone.",
     "preset": {
       "gain": 0.12,
@@ -3326,7 +3326,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 58,
     "family": "Brass",
     "name": "Tuba",
-    "short_name": "Tuba",
+    "shortName": "Tuba",
     "description": "Tuba: a bold attack and bright, focused tone.",
     "preset": {
       "gain": 0.12,
@@ -3398,7 +3398,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 59,
     "family": "Brass",
     "name": "Muted Trpt",
-    "short_name": "Muted Trpt",
+    "shortName": "Muted Trpt",
     "description": "Muted Trpt: a bold attack and bright, focused tone.",
     "preset": {
       "gain": 0.12,
@@ -3470,7 +3470,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 60,
     "family": "Brass",
     "name": "French Horn",
-    "short_name": "French Horn",
+    "shortName": "French Horn",
     "description": "French Horn: a bold attack and bright, focused tone.",
     "preset": {
       "gain": 0.12,
@@ -3541,7 +3541,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 61,
     "family": "Brass",
     "name": "Brass Section",
-    "short_name": "Brass Section",
+    "shortName": "Brass Section",
     "description": "Brass Section: a bold attack and bright, focused tone.",
     "preset": {
       "gain": 0.12,
@@ -3626,7 +3626,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 62,
     "family": "Brass",
     "name": "SynthBrass 1",
-    "short_name": "SynthBrass 1",
+    "shortName": "SynthBrass 1",
     "description": "SynthBrass 1: a bold attack and bright, focused tone.",
     "preset": {
       "attackNoise": {
@@ -3690,7 +3690,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 63,
     "family": "Brass",
     "name": "SynthBrass 2",
-    "short_name": "SynthBrass 2",
+    "shortName": "SynthBrass 2",
     "description": "SynthBrass 2: a bold attack and bright, focused tone.",
     "preset": {
       "attackNoise": {
@@ -3748,7 +3748,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 64,
     "family": "Reed",
     "name": "Soprano Sax",
-    "short_name": "Soprano Sax",
+    "shortName": "Soprano Sax",
     "description": "Soprano Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -3774,7 +3774,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 65,
     "family": "Reed",
     "name": "Alto Sax",
-    "short_name": "Alto Sax",
+    "shortName": "Alto Sax",
     "description": "Alto Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -3800,7 +3800,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 66,
     "family": "Reed",
     "name": "Tenor Sax",
-    "short_name": "Tenor Sax",
+    "shortName": "Tenor Sax",
     "description": "Tenor Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -3827,7 +3827,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 67,
     "family": "Reed",
     "name": "Bari Sax",
-    "short_name": "Bari Sax",
+    "shortName": "Bari Sax",
     "description": "Bari Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -3853,7 +3853,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 68,
     "family": "Reed",
     "name": "Oboe",
-    "short_name": "Oboe",
+    "shortName": "Oboe",
     "description": "Oboe: a reedy wind tone with expressive harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -3906,7 +3906,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 69,
     "family": "Reed",
     "name": "English Horn",
-    "short_name": "English Horn",
+    "shortName": "English Horn",
     "description": "English Horn: a reedy wind tone with expressive harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -3958,7 +3958,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 70,
     "family": "Reed",
     "name": "Bassoon",
-    "short_name": "Bassoon",
+    "shortName": "Bassoon",
     "description": "Bassoon: a reedy wind tone with expressive harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -4010,7 +4010,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 71,
     "family": "Reed",
     "name": "Clarinet",
-    "short_name": "Clarinet",
+    "shortName": "Clarinet",
     "description": "Clarinet: a reedy wind tone with expressive harmonics.",
     "preset": {
       "attackNoise": {
@@ -4059,7 +4059,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 72,
     "family": "Pipe",
     "name": "Piccolo",
-    "short_name": "Piccolo",
+    "shortName": "Piccolo",
     "description": "Piccolo: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4106,7 +4106,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 73,
     "family": "Pipe",
     "name": "Flute",
-    "short_name": "Flute",
+    "shortName": "Flute",
     "description": "Flute: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4156,7 +4156,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 74,
     "family": "Pipe",
     "name": "Recorder",
-    "short_name": "Recorder",
+    "shortName": "Recorder",
     "description": "Recorder: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4209,7 +4209,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 75,
     "family": "Pipe",
     "name": "Pan Flute",
-    "short_name": "Pan Flute",
+    "shortName": "Pan Flute",
     "description": "Pan Flute: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4262,7 +4262,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 76,
     "family": "Pipe",
     "name": "Blown Bottle",
-    "short_name": "Blown Bottle",
+    "shortName": "Blown Bottle",
     "description": "Blown Bottle: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4304,7 +4304,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 77,
     "family": "Pipe",
     "name": "Shakuhachi",
-    "short_name": "Shakuhachi",
+    "shortName": "Shakuhachi",
     "description": "Shakuhachi: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4351,7 +4351,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 78,
     "family": "Pipe",
     "name": "Whistle",
-    "short_name": "Whistle",
+    "shortName": "Whistle",
     "description": "Whistle: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4393,7 +4393,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 79,
     "family": "Pipe",
     "name": "Ocarina",
-    "short_name": "Ocarina",
+    "shortName": "Ocarina",
     "description": "Ocarina: a breath-driven tone with a rounded body.",
     "preset": {
       "attackNoise": {
@@ -4435,7 +4435,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 80,
     "family": "Lead",
     "name": "Lead (square)",
-    "short_name": "Lead (square)",
+    "shortName": "Lead (square)",
     "description": "Lead (square): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4471,7 +4471,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 81,
     "family": "Lead",
     "name": "Lead (saw)",
-    "short_name": "Lead (saw)",
+    "shortName": "Lead (saw)",
     "description": "Lead (saw): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4505,7 +4505,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 82,
     "family": "Lead",
     "name": "Lead (calliope)",
-    "short_name": "Lead (calliope)",
+    "shortName": "Lead (calliope)",
     "description": "Lead (calliope): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4541,7 +4541,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 83,
     "family": "Lead",
     "name": "Lead (chiff)",
-    "short_name": "Lead (chiff)",
+    "shortName": "Lead (chiff)",
     "description": "Lead (chiff): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4576,7 +4576,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 84,
     "family": "Lead",
     "name": "Lead (charang)",
-    "short_name": "Lead (charang)",
+    "shortName": "Lead (charang)",
     "description": "Lead (charang): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4609,7 +4609,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 85,
     "family": "Lead",
     "name": "Lead (voice)",
-    "short_name": "Lead (voice)",
+    "shortName": "Lead (voice)",
     "description": "Lead (voice): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4643,7 +4643,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 86,
     "family": "Lead",
     "name": "Lead (fifths)",
-    "short_name": "Lead (fifths)",
+    "shortName": "Lead (fifths)",
     "description": "Lead (fifths): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4675,7 +4675,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 87,
     "family": "Lead",
     "name": "Lead (bass+ld)",
-    "short_name": "Lead (bass+ld)",
+    "shortName": "Lead (bass+ld)",
     "description": "Lead (bass+ld): a focused synth tone with strong harmonics.",
     "preset": {
       "harm": [
@@ -4708,7 +4708,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 88,
     "family": "Pad",
     "name": "Pad (new age)",
-    "short_name": "Pad (new age)",
+    "shortName": "Pad (new age)",
     "description": "Pad (new age): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -4771,7 +4771,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 89,
     "family": "Pad",
     "name": "Pad (warm)",
-    "short_name": "Pad (warm)",
+    "shortName": "Pad (warm)",
     "description": "Pad (warm): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -4834,7 +4834,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 90,
     "family": "Pad",
     "name": "Pad (polysynth)",
-    "short_name": "Pad (polysynth)",
+    "shortName": "Pad (polysynth)",
     "description": "Pad (polysynth): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -4898,7 +4898,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 91,
     "family": "Pad",
     "name": "Pad (choir)",
-    "short_name": "Pad (choir)",
+    "shortName": "Pad (choir)",
     "description": "Pad (choir): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -4962,7 +4962,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 92,
     "family": "Pad",
     "name": "Pad (bowed)",
-    "short_name": "Pad (bowed)",
+    "shortName": "Pad (bowed)",
     "description": "Pad (bowed): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -5025,7 +5025,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 93,
     "family": "Pad",
     "name": "Pad (metallic)",
-    "short_name": "Pad (metallic)",
+    "shortName": "Pad (metallic)",
     "description": "Pad (metallic): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -5092,7 +5092,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 94,
     "family": "Pad",
     "name": "Pad (halo)",
-    "short_name": "Pad (halo)",
+    "shortName": "Pad (halo)",
     "description": "Pad (halo): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -5156,7 +5156,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 95,
     "family": "Pad",
     "name": "Pad (sweep)",
-    "short_name": "Pad (sweep)",
+    "shortName": "Pad (sweep)",
     "description": "Pad (sweep): a soft sustained synth texture.",
     "preset": {
       "gain": 0.65,
@@ -5224,7 +5224,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 96,
     "family": "FX",
     "name": "FX (rain)",
-    "short_name": "FX (rain)",
+    "shortName": "FX (rain)",
     "description": "FX (rain): an evolving synthetic texture with distinct.",
     "preset": {
       "harm": [
@@ -5252,7 +5252,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 97,
     "family": "FX",
     "name": "FX (soundtrack)",
-    "short_name": "FX (soundtrack)",
+    "shortName": "FX (soundtrack)",
     "description": "FX (soundtrack): an evolving synthetic texture with.",
     "preset": {
       "harm": [
@@ -5280,7 +5280,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 98,
     "family": "FX",
     "name": "FX (crystal)",
-    "short_name": "FX (crystal)",
+    "shortName": "FX (crystal)",
     "description": "FX (crystal): an evolving synthetic texture with distinct.",
     "preset": {
       "harm": [
@@ -5308,7 +5308,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 99,
     "family": "FX",
     "name": "FX (atmosphere)",
-    "short_name": "FX (atmosphere)",
+    "shortName": "FX (atmosphere)",
     "description": "FX (atmosphere): nylon pluck with a faint airy shimmer.",
     "preset": {
       "attackNoise": {
@@ -5369,7 +5369,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 100,
     "family": "FX",
     "name": "FX (brightness)",
-    "short_name": "FX (brightness)",
+    "shortName": "FX (brightness)",
     "description": "FX (brightness): an evolving synthetic texture with.",
     "preset": {
       "harm": [
@@ -5397,7 +5397,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 101,
     "family": "FX",
     "name": "FX (goblins)",
-    "short_name": "FX (goblins)",
+    "shortName": "FX (goblins)",
     "description": "FX (goblins): an evolving synthetic texture with distinct.",
     "preset": {
       "harm": [
@@ -5425,7 +5425,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 102,
     "family": "FX",
     "name": "FX (echoes)",
-    "short_name": "FX (echoes)",
+    "shortName": "FX (echoes)",
     "description": "FX (echoes): an evolving synthetic texture with distinct.",
     "preset": {
       "harm": [
@@ -5453,7 +5453,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 103,
     "family": "FX",
     "name": "FX (sci-fi)",
-    "short_name": "FX (sci-fi)",
+    "shortName": "FX (sci-fi)",
     "description": "FX (sci-fi): an evolving synthetic texture with distinct.",
     "preset": {
       "harm": [
@@ -5481,7 +5481,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 104,
     "family": "Ethnic",
     "name": "Sitar",
-    "short_name": "Sitar",
+    "shortName": "Sitar",
     "description": "Sitar: a distinctive folk tone with a bright attack.",
     "preset": {
       "harm": [
@@ -5513,7 +5513,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 105,
     "family": "Ethnic",
     "name": "Banjo",
-    "short_name": "Banjo",
+    "shortName": "Banjo",
     "description": "Banjo: a distinctive folk tone with a bright attack.",
     "preset": {
       "attackNoise": {
@@ -5580,7 +5580,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 106,
     "family": "Ethnic",
     "name": "Shamisen",
-    "short_name": "Shamisen",
+    "shortName": "Shamisen",
     "description": "Shamisen: a distinctive folk tone with a bright attack.",
     "preset": {
       "harm": [
@@ -5610,7 +5610,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 107,
     "family": "Ethnic",
     "name": "Koto",
-    "short_name": "Koto",
+    "shortName": "Koto",
     "description": "Koto: a distinctive folk tone with a bright attack.",
     "preset": {
       "harm": [
@@ -5640,7 +5640,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 108,
     "family": "Ethnic",
     "name": "Kalimba",
-    "short_name": "Kalimba",
+    "shortName": "Kalimba",
     "description": "Kalimba: a distinctive folk tone with a bright attack.",
     "preset": {
       "inharmonicity": 0.008,
@@ -5671,7 +5671,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 109,
     "family": "Ethnic",
     "name": "Bagpipe",
-    "short_name": "Bagpipe",
+    "shortName": "Bagpipe",
     "description": "Bagpipe: a distinctive folk tone with a bright attack.",
     "preset": {
       "attackNoise": {
@@ -5716,7 +5716,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 110,
     "family": "Ethnic",
     "name": "Fiddle",
-    "short_name": "Fiddle",
+    "shortName": "Fiddle",
     "description": "Fiddle: a distinctive folk tone with a bright attack.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -5780,7 +5780,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 111,
     "family": "Ethnic",
     "name": "Shanai",
-    "short_name": "Shanai",
+    "shortName": "Shanai",
     "description": "Shanai: a distinctive folk tone with a bright attack.",
     "preset": {
       "vibratoOnset": 0.2,
@@ -5830,7 +5830,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 112,
     "family": "Perc",
     "name": "Tinkle Bell",
-    "short_name": "Tinkle Bell",
+    "shortName": "Tinkle Bell",
     "description": "Tinkle Bell: a pitched strike with clear resonance.",
     "preset": {
       "inharmonicity": 0.008,
@@ -5862,7 +5862,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 113,
     "family": "Perc",
     "name": "Agogo",
-    "short_name": "Agogo",
+    "shortName": "Agogo",
     "description": "Agogo: a pitched strike with clear resonance.",
     "preset": {
       "inharmonicity": 0.008,
@@ -5893,7 +5893,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 114,
     "family": "Perc",
     "name": "Steel Drums",
-    "short_name": "Steel Drums",
+    "shortName": "Steel Drums",
     "description": "Steel Drums: a pitched strike with clear resonance.",
     "preset": {
       "inharmonicity": 0.008,
@@ -5927,7 +5927,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 115,
     "family": "Perc",
     "name": "Woodblock",
-    "short_name": "Woodblock",
+    "shortName": "Woodblock",
     "description": "Woodblock: a pitched strike with clear resonance.",
     "preset": {
       "harm": [
@@ -5950,7 +5950,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 116,
     "family": "Perc",
     "name": "Taiko Drum",
-    "short_name": "Taiko Drum",
+    "shortName": "Taiko Drum",
     "description": "Taiko Drum: a pitched strike with clear resonance.",
     "preset": {
       "harm": [
@@ -5974,7 +5974,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 117,
     "family": "Perc",
     "name": "Melodic Tom",
-    "short_name": "Melodic Tom",
+    "shortName": "Melodic Tom",
     "description": "Melodic Tom: a pitched strike with clear resonance.",
     "preset": {
       "harm": [
@@ -5998,7 +5998,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 118,
     "family": "Perc",
     "name": "Synth Drum",
-    "short_name": "Synth Drum",
+    "shortName": "Synth Drum",
     "description": "Synth Drum: a pitched strike with clear resonance.",
     "preset": {
       "harm": [
@@ -6022,7 +6022,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 119,
     "family": "Perc",
     "name": "Reverse Cymbal",
-    "short_name": "Reverse Cymbal",
+    "shortName": "Reverse Cymbal",
     "description": "Reverse Cymbal: a pitched strike with clear resonance.",
     "preset": {
       "harm": [
@@ -6050,7 +6050,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 120,
     "family": "SFX",
     "name": "Fret Noise",
-    "short_name": "Fret Noise",
+    "shortName": "Fret Noise",
     "description": "Fret Noise: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
@@ -6078,7 +6078,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 121,
     "family": "SFX",
     "name": "Breath Noise",
-    "short_name": "Breath Noise",
+    "shortName": "Breath Noise",
     "description": "Breath Noise: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
@@ -6106,7 +6106,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 122,
     "family": "SFX",
     "name": "Seashore",
-    "short_name": "Seashore",
+    "shortName": "Seashore",
     "description": "Seashore: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
@@ -6134,7 +6134,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 123,
     "family": "SFX",
     "name": "Bird Tweet",
-    "short_name": "Bird Tweet",
+    "shortName": "Bird Tweet",
     "description": "Bird Tweet: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
@@ -6162,7 +6162,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 124,
     "family": "SFX",
     "name": "Telephone",
-    "short_name": "Telephone",
+    "shortName": "Telephone",
     "description": "Telephone: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
@@ -6195,7 +6195,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 125,
     "family": "SFX",
     "name": "Helicopter",
-    "short_name": "Helicopter",
+    "shortName": "Helicopter",
     "description": "Helicopter: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
@@ -6223,7 +6223,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 126,
     "family": "SFX",
     "name": "Applause",
-    "short_name": "Applause",
+    "shortName": "Applause",
     "description": "Applause: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
@@ -6251,7 +6251,7 @@ var GUS_MELODIC_PRESETS = {
     "program": 127,
     "family": "SFX",
     "name": "Gunshot",
-    "short_name": "Gunshot",
+    "shortName": "Gunshot",
     "description": "Gunshot: a recognizable effect with a distinct texture.",
     "preset": {
       "harm": [
