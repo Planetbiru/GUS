@@ -1183,7 +1183,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.0012,
         "time": 0.014
       },
-      "gain": 0.7
+      "gain": 0.6
     }
   },
   {
@@ -1280,7 +1280,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.0022,
         "time": 0.009
       },
-      "gain": 0.7
+      "gain": 0.6
     }
   },
   {
