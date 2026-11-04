@@ -1691,7 +1691,7 @@ var GUS_MELODIC_PRESETS = {
       "length": 44100,
       "freq": 441,
       "guitarAmp": {
-        "drive": 4.8,
+        "drive": 5.1,
         "bias": 0.02,
         "mix": 0.94,
         "preampCutoff": 115,
