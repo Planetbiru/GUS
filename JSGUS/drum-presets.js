@@ -174,7 +174,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Closed Hi-Hat",
     "description": "Closed Hi-Hat: short hi-hat tick with a crisp, controlled.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.25,
       "duration": 0.14,
       "noiseLayers": [
         { "amp": 0.95, "decay": 0.008, "type": "white", "bandpass": { "center": 8200, "q": 0.48 } },
@@ -220,7 +220,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Pedal Hi-Hat",
     "description": "Pedal Hi-Hat: short hi-hat tick with a crisp, controlled.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.25,
       "duration": 0.16,
       "noiseLayers": [
         { "amp": 0.78, "decay": 0.006, "type": "white", "bandpass": { "center": 7400, "q": 0.52 } },
@@ -266,7 +266,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Open Hi-Hat",
     "description": "Open Hi-Hat: open cymbal wash with a sustained metallic.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.10,
       "duration": 0.62,
       "noiseLayers": [
         { "amp": 1,    "decay": 0.14, "type": "white", "bandpass": { "center": 10200, "q": 0.6  } },
@@ -341,7 +341,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Crash Cymbal 1",
     "description": "Crash Cymbal 1: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.10,
       "duration": 1.5,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.65,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -387,7 +387,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Ride Cymbal 1",
     "description": "Ride Cymbal 1: bright ride strike with a clear, ringing.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.10,
       "duration": 1.1,
       "noiseLayers": [
         { "amp": 0.85, "decay": 0.035, "type": "white", "bandpass": { "center": 9000, "q": 0.5  } },
@@ -403,7 +403,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Chinese Cymbal",
     "description": "Chinese Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.10,
       "duration": 1.8,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 1,    "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -420,7 +420,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Ride Bell",
     "description": "Ride Bell: bright ride strike with a clear, ringing sustain.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.25,
       "duration": 0.9,
       "noiseLayers": [
         { "amp": 0.85, "decay": 0.03,  "type": "white", "bandpass": { "center": 9000, "q": 0.5  } },
@@ -459,7 +459,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Splash Cymbal",
     "description": "Splash Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.10,
       "duration": 0.6,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.35,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -491,7 +491,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Crash Cymbal 2",
     "description": "Crash Cymbal 2: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.10,
       "duration": 1.4,
       "noiseLayers": [
         { "amp": 0.9,  "decay": 0.65,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
@@ -530,7 +530,7 @@ var GUS_DRUM_PRESETS = {
     "short_name": "Ride Cymbal 2",
     "description": "Ride Cymbal 2: bright ride strike with a clear, ringing.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.10,
       "duration": 0.9,
       "noiseLayers": [
         { "amp": 0.85, "decay": 0.035, "type": "white", "bandpass": { "center": 9000, "q": 0.5  } },

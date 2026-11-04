@@ -1,5 +1,5 @@
 var GUS_MELODIC_PRESETS = {
-  "gain": 0.65,
+  "gain": 0.40,
   "instruments": [
   {
     "program": 0,
@@ -1183,7 +1183,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.0012,
         "time": 0.014
       },
-      "gain": 0.6
+      "gain": 0.35
     }
   },
   {
@@ -1280,7 +1280,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.0022,
         "time": 0.009
       },
-      "gain": 0.6
+      "gain": 0.35
     }
   },
   {
@@ -1290,7 +1290,7 @@ var GUS_MELODIC_PRESETS = {
     "short_name": "Jazz Guitar",
     "description": "Jazz Guitar: a plucked-string attack with natural decay.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.35,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1359,7 +1359,7 @@ var GUS_MELODIC_PRESETS = {
     "short_name": "Clean Guitar",
     "description": "Clean Guitar: a plucked-string attack with natural decay.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.35,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1429,7 +1429,7 @@ var GUS_MELODIC_PRESETS = {
     "short_name": "Muted Guitar",
     "description": "Muted Guitar: a plucked-string attack with natural decay.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.35,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
