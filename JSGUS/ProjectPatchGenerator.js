@@ -35,19 +35,30 @@ class ProjectPatchGenerator {
     let rootFreq;
     let appliedWaveform = null;
     let preset = null;
+    let shortName;
+    let description;
 
     if (isDrum) {
         const drum = this.library.findDrum(id);
         if (!drum) throw new Error(`Unknown drum instrument: ${id}.`);
-        const {note, name: drumName, preset: drumPreset} = drum;
+        const {note, name: drumName, short_name: drumShortName, description: drumDescription, preset: drumPreset} = drum;
         name = drumName;
+        shortName = drumShortName;
+        description = drumDescription;
         preset = drumPreset;
         rendered = new DrumRenderer(preset, this.sampleRate).render();
         rootFreq = this.library.drumToFreq(note);
     } else {
         const instrument = this.library.melodic[id];
         if (!instrument) throw new Error(`Unknown melodic instrument: ${id}.`);
-        let {name: instrumentName, preset: melodicPreset} = instrument;
+        let {
+            name: instrumentName,
+            short_name: instrumentShortName,
+            description: instrumentDescription,
+            preset: melodicPreset
+        } = instrument;
+        shortName = instrumentShortName;
+        description = instrumentDescription;
         preset = melodicPreset;
 
         if (waveform != null) {
@@ -166,7 +177,7 @@ class ProjectPatchGenerator {
         header: {
         magic: "GF1PATCH110",
         gravisId: "ID#000002",
-        description: name,
+        description,
         voices: 14,
         channels: 0,
         waveForms: 1,
@@ -176,7 +187,7 @@ class ProjectPatchGenerator {
         },
         instruments: [{
             instrument: 0,
-            name: this.slugify(name).slice(0, 15),
+            name: shortName,
             size: 0,
             reserved: new Uint8Array(40),
             layers: [{
@@ -1007,6 +1018,11 @@ class InstrumentLibrary {
                 || instrument.program > 127
                 || typeof instrument.family !== 'string'
                 || typeof instrument.name !== 'string'
+                || typeof instrument.short_name !== 'string'
+                || instrument.short_name.length > 16
+                || typeof instrument.description !== 'string'
+                || !instrument.description.trim()
+                || instrument.description.length > 60
                 || !instrument.preset
                 || typeof instrument.preset !== 'object'
                 || Array.isArray(instrument.preset)
@@ -1045,6 +1061,11 @@ class InstrumentLibrary {
                 || instrument.note < 0
                 || instrument.note > 127
                 || typeof instrument.name !== 'string'
+                || typeof instrument.short_name !== 'string'
+                || instrument.short_name.length > 16
+                || typeof instrument.description !== 'string'
+                || !instrument.description.trim()
+                || instrument.description.length > 60
                 || !instrument.preset
                 || typeof instrument.preset !== 'object'
                 || Array.isArray(instrument.preset)
