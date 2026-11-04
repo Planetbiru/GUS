@@ -435,12 +435,12 @@ The generator's instrument data is kept separately from its rendering code:
 
 - `JSGUS/melodic-presets.js` defines the global `GUS_MELODIC_PRESETS` object
   with a master `gain` and an `instruments` array. Each instrument has the
-  shape `{ program, family, name, short_name, description, preset }`.
+  shape `{ program, family, name, shortName, description, preset }`.
 - `JSGUS/drum-presets.js` defines the global `GUS_DRUM_PRESETS` object with a
   master `gain` and an `instruments` array. Each instrument has the shape
-  `{ note, name, short_name, description, preset }`.
+  `{ note, name, shortName, description, preset }`.
 
-`short_name` is the GUS instrument name and must contain at most 16 characters.
+`shortName` is the GUS instrument name and must contain at most 16 characters.
 `description` is an English summary of the instrument sound and is written to
 the GUS patch header; keep it within the 60-character header limit. The full
 `name` remains the generator/UI display name.
@@ -466,7 +466,7 @@ melodic samples generated from this data set.
   program: 24,
   family: "Guitar",
   name: "Nylon Guitar",
-  short_name: "Nylon Guitar",
+  shortName: "Nylon Guitar",
   description: "Nylon Guitar: a plucked-string attack with natural decay.",
   preset: {
     freq: 441,

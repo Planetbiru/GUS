@@ -2252,7 +2252,7 @@ footer {
   color: var(--text);
   text-align: left;
   cursor: pointer;
-  transition: background .12s, border-color .12s, box-shadow .12s;
+  transition: background .04s, border-color .04s, box-shadow .04s;
 }
 .drum-pad:hover {
   border-color: var(--accent);
