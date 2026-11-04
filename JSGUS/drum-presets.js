@@ -566,7 +566,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Tambourine",
     "description": "Tambourine: bright tambourine jingle with a rattling tail.",
     "preset": {
-      "gain": 0.24,
+      "gain": 0.18,
       "duration": 0.30,
       "metallic": {
         "baseFreq": 3600,
@@ -1000,7 +1000,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Claves",
     "description": "Claves: sharp clave click with a dry, woody attack.",
     "preset": {
-      "gain": 0.12,
+      "gain": 0.16,
       "duration": 0.13,
       "tones": [
         { "fStart": 2400, "fEnd": 2000, "pitchDecay": 0.005, "decay": 0.05, "amp": 0.8 },

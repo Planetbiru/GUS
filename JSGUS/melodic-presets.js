@@ -1794,7 +1794,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.5
+      "gain": 0.4
     }
   },
   {
@@ -1832,7 +1832,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.5
+      "gain": 0.4
     }
   },
   {
@@ -1870,7 +1870,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.5
+      "gain": 0.4
     }
   },
   {
@@ -1912,7 +1912,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.5
+      "gain": 0.4
     }
   },
   {
@@ -1951,7 +1951,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.5
+      "gain": 0.4
     }
   },
   {
@@ -1990,7 +1990,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.5
+      "gain": 0.4
     }
   },
   {
@@ -2027,7 +2027,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.6
+      "gain": 0.4
     }
   },
   {
@@ -2066,7 +2066,7 @@ var GUS_MELODIC_PRESETS = {
       "loop": 1,
       "cycles": 14,
       "loopSkip": 2,
-      "gain": 0.6
+      "gain": 0.4
     }
   },
   {
