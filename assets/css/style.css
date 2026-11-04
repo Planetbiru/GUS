@@ -60,7 +60,7 @@ html {
 
 body {
     margin: 0;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background: radial-gradient(1200px 800px at 20% -10%, #12203a, #070b14 55%);
     color: var(--text);
@@ -901,7 +901,7 @@ footer {
 
 .sample-modal-panel {
     width: min(900px, 100%);
-    max-height: min(90vh, 900px);
+    max-height: min(90dvh, 900px);
     overflow: auto
 }
 
@@ -2215,12 +2215,12 @@ footer {
 .gm-map-modal { width: min(640px, 94vw); }
 .drum-kit-preview-panel {
   width: min(680px, 94vw);
-  max-height: 90vh;
+  max-height: 90dvh;
   overflow: auto;
 }
 .drum-pads-panel {
   width: min(980px, 96vw);
-  max-height: 92vh;
+  max-height: 92dvh;
   overflow: auto;
 }
 .drum-pads-status {
@@ -2233,7 +2233,7 @@ footer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
   gap: 7px;
-  max-height: 48vh;
+  max-height: 48dvh;
   overflow: auto;
   padding: 2px;
 }
@@ -2293,7 +2293,7 @@ footer {
   color: var(--dim, #94a3b8);
   font-size: 12px;
 }
-.drum-kit-preview-table-wrapper { max-height: 48vh; }
+.drum-kit-preview-table-wrapper { max-height: 48dvh; }
 .drum-kit-preview-action { width: 90px; text-align: right !important; }
 .drum-kit-preview-table tbody td:last-child { text-align: right; }
 .drum-kit-preview-table .btn { min-width: 76px; }
@@ -2304,7 +2304,7 @@ footer {
 }
 .patch-preview-panel {
   width: min(900px, 94vw);
-  max-height: 90vh;
+  max-height: 90dvh;
   overflow: auto;
 }
 .patch-preview-status {
@@ -2317,7 +2317,7 @@ footer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
   gap: 7px;
-  max-height: 55vh;
+  max-height: 55dvh;
   overflow: auto;
   padding: 2px;
 }
@@ -2364,7 +2364,7 @@ footer {
   gap: 8px;
 }
 .gm-map-table-wrapper {
-  max-height: 30vh;
+  max-height: 30dvh;
   overflow-y: auto;
   border: 1px solid rgba(56, 189, 248, 0.15);
   border-radius: 6px;
