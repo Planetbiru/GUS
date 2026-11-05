@@ -212,10 +212,20 @@
         <option value="en">{{language_english}}</option>
       </select>
       <input type="file" id="patFile"
-        accept=".pat,.PAT,.sf2,.SF2,.sf3,.SF3,.fxp,.FXP,.zip,.ZIP,.js,.JS,application/octet-stream,audio/soundfont,application/x-soundfont,text/javascript" hidden>
+          accept=".pat,.sf2,.sf3,.fxp,.zip,.js,
+                  application/octet-stream,
+                  audio/soundfont,
+                  application/x-soundfont,
+                  text/javascript" hidden>
+
       <input type="file" id="sf2File"
-        accept=".sf2,.SF2,.sf3,.SF3,.fxp,.FXP,.zip,.ZIP,.js,.JS,audio/soundfont,application/x-soundfont,text/javascript" hidden>
-      <input type="file" id="projectPatchFile" accept=".pat,.PAT" hidden>
+          accept=".sf2,.sf3,.fxp,.zip,.js,
+                  audio/soundfont,
+                  application/x-soundfont,
+                  text/javascript" hidden>
+
+      <input type="file" id="projectPatchFile"
+          accept=".pat" hidden>
       <button class="btn primary" id="btnOpen"><svg class="icon">
           <use href="#i-folder"></use>
         </svg> {{open_pat_sf2}}</button>
@@ -413,7 +423,7 @@
 
         <div class="welcome-actions">
           <button class="btn primary" id="btnOpen2">{{open_file}}</button>
-          <button class="btn" id="btnDemo2">{{load_demo}}</button>
+          <button class="btn" id="btnDemo2">{{create_demo}}</button>
         </div>
       </section>
 

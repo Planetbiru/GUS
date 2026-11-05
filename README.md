@@ -252,7 +252,7 @@ Then open **http://localhost:8000** in your browser.
 
 ### First Run
 
-1. Click **Demo** or **Load Demo** to generate a demo project with 128 melodic GM patches and 47 drum-note patches. Each melodic patch has seven samples spanning MIDI pitches 0–127; the first generation can take longer than subsequent opens.
+1. Click **Demo** or **Create Demo** to generate a demo project with 128 melodic GM patches and 47 drum-note patches. Each melodic patch has seven samples spanning MIDI pitches 0–127; the first generation can take longer than subsequent opens.
 2. Or click **Add Project** → **Open a .PAT file** to import your own patch
 3. Once patches exist, use the **MIDI Preview** panel to load a `.mid` file and hear your patches
 

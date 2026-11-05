@@ -129,7 +129,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ac. Bass Drum",
     "description": "Ac. Bass Drum: deep kick thump with a short beater click.",
     "preset": {
-      "gain": 0.5,
+      "gain": 0.4,
       "duration": 0.55,
       "membrane": {
         "freq": 46,
@@ -156,7 +156,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Bass Drum 1",
     "description": "Bass Drum 1: punchy kick with a focused low end.",
     "preset": {
-      "gain": 0.5,
+      "gain": 0.4,
       "duration": 0.55,
       "membrane": {
         "freq": 52,
@@ -183,7 +183,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Side Stick",
     "description": "Side Stick: dry rim click with a woody snap.",
     "preset": {
-      "gain": 0.55,
+      "gain": 0.45,
       "duration": 0.11,
       "noiseLayers": [
         { "amp": 0.95, "decay": 0.005, "type": "white", "bandpass": { "center": 2600, "q": 0.75 } },

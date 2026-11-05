@@ -956,7 +956,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Accordion",
     "description": "Accordion: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -2686,7 +2686,7 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.33,
+      "gain": 0.42,
       "loopSkip": 8
     }
   },
@@ -2759,7 +2759,7 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.33,
+      "gain": 0.42,
       "loopSkip": 8
     }
   },
@@ -2987,7 +2987,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "noise": 0.04,
       "phaseScale": 0.012,
-      "gain": 0.65
+      "gain": 0.24
     }
   },
   {
@@ -3060,7 +3060,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "noise": 0.02,
       "phaseScale": 0.015,
-      "gain": 0.65
+      "gain": 0.24
     }
   },
   {
@@ -3137,7 +3137,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "noise": 0.02,
       "phaseScale": 0.01,
-      "gain": 0.65
+      "gain": 0.24
     }
   },
   {
