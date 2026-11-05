@@ -592,8 +592,9 @@ drum preset property; the generated GUS sample balance is fixed at center
     ┌────────────┐     ┌───────────────┐     ┌──────────────┐
     │  Import    │────>│  state.patch  │────>│   Rendering  │
     │  .PAT/.SF2 │     │  (in memory)  │     │ (DOM/Canvas) │
-    │  .SFZ/.ZIP │     └───────────────┘     └──────────────┘
-    │  .JS       │             │                     │
+    │  .SF3/.SFZ │     └───────────────┘     └──────────────┘
+    │  .FXP/.JS  │             │                     │
+    │  .ZIP      │             │                     │
     └────────────┘             │                     │
                                v                     v
                        ┌───────────────┐     ┌──────────────┐
