@@ -136,14 +136,19 @@ class ProjectPatchGenerator {
         ? Math.round(12543.853951 * 1000)
         : Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(pitchTo) * 1000);
 
+    const patchEnvelope = preset && preset.patchEnvelope;
+    const useEnvelope = rendered.loop || !isDrum;
+
     let modes = ProjectPatchGenerator.MODE_16BIT;
     if (rendered.loop) {
-        modes |= ProjectPatchGenerator.MODE_LOOP | ProjectPatchGenerator.MODE_ENVELOPE;
+        modes |= ProjectPatchGenerator.MODE_LOOP;
         if (!preset || preset.sustainLoop !== false) {
             modes |= ProjectPatchGenerator.MODE_SUSTAIN;
         }
     }
-    const patchEnvelope = preset && preset.patchEnvelope;
+    if (useEnvelope) {
+        modes |= ProjectPatchGenerator.MODE_ENVELOPE;
+    }
 
     const sample = {
         name: sampleName,
@@ -157,10 +162,10 @@ class ProjectPatchGenerator {
         rootFreq: Math.round(rootFreq * 1000),
         tune: 0,
         balance: 7,
-        envRates: rendered.loop
+        envRates: useEnvelope
             ? (patchEnvelope ? patchEnvelope.rates.slice() : [9, 0, 0, 69, 0, 0])
             : [0, 0, 0, 0, 0, 0],
-        envOffsets: rendered.loop
+        envOffsets: useEnvelope
             ? (patchEnvelope ? patchEnvelope.offsets.slice() : [255, 255, 255, 0, 0, 0])
             : [255, 255, 255, 0, 0, 0],
         tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
