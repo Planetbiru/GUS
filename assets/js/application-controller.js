@@ -384,7 +384,6 @@ class ApplicationController {
       if(event.key==="Escape")closeDemoProjectDialog();
     });
   
-    $("btnSave").addEventListener("click",savePAT);
   
     $("btnExportAll").addEventListener("click",exportAllPatches);
     $("btnClearLib").addEventListener("click",clearLibrary);

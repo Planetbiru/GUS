@@ -981,7 +981,7 @@ class ProjectController {
 
   static render(save=true){
     const has=!!state.patch;
-    $("welcome").hidden=has; $("workspace").hidden=!has; $("btnSave").disabled=!has;
+    $("welcome").hidden=has; $("workspace").hidden=!has; 
     $("btnExportInst").disabled=!has;
     renderLibrary();
     renderProjects();
