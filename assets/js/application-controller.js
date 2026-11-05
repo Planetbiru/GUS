@@ -338,7 +338,7 @@ class ApplicationController {
   
     const patInput=$("patFile");
     const sf2Input=$("sf2File");
-    [$("btnOpen"),$("btnOpen2")].forEach(b=>{
+    [$("btnOpen2")].forEach(b=>{
       if(b) b.addEventListener("click",()=>{
         if(!state.projects.some(project => project.id === state.currentProjectId)) {
           requestProjectForImport();
@@ -364,7 +364,7 @@ class ApplicationController {
     sf2Input.addEventListener("change",handleFileOpen);
     $("projectPatchFile").addEventListener("change", handleProjectPatchFile);
   
-    const demoButtons=[$("btnDemo"),$("btnDemo2")].filter(Boolean);
+    const demoButtons=[$("btnDemo2")].filter(Boolean);
     demoButtons.forEach(button=>button.addEventListener("click",()=>requestMidiDemoProject(demoButtons)));
     $("btnCancelDemoProject").addEventListener("click",closeDemoProjectDialog);
     $("btnConfirmDemoProject").addEventListener("click",()=>confirmDemoProject(demoButtons));
