@@ -1813,9 +1813,6 @@ class MidiController {
   
       if (timidityPlayer) timidityPlayer.stop();
       await timidityPlayer.loadAndPlay(state.midiData, fromTime);
-  
-      if (timidityPlayer) timidityPlayer.stop();
-      await timidityPlayer.loadAndPlay(state.midiData, fromTime);
 
       // ─── Reapply mute/solo setelah patch dimuat ───
       applyMidiMuteSolo();
