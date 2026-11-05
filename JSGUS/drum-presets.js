@@ -1120,9 +1120,9 @@ var GUS_DRUM_PRESETS = {
   },
   {
     "note": 82,
-    "name": "Hat",
-    "shortName": "Hat",
-    "description": "Hat: soft maracas-like shaker with a gentle, airy attack.",
+    "name": "Shaker",
+    "shortName": "Shaker",
+    "description": "Shaker: soft maracas-like shaker with a gentle, airy attack.",
     "preset": {
       "gain": 0.05,
       "duration": 0.26,

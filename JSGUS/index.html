@@ -21,9 +21,8 @@
             <div class="sub">128 GM instruments from pure JavaScript oscillators — preview & download .pat</div>
         </div>
         <div class="controls">
-            <button id="btnPreview" class="primary">▶ Preview</button>
-            <button id="btnDownload">⬇ Download .pat</button>
             <button id="btnZip" class="success">📦 Download All (ZIP)</button>
+            <button id="btnResetGeneratorState" type="button">Reset saved state</button>
         </div>
     </header>
 
@@ -70,12 +69,51 @@
                     <button id="btnPlayNote" class="primary">🎹 Play C4</button>
                     <button id="btnPlayScale">🎼 Scale</button>
                     <button id="btnStop">⏹ Stop</button>
+                    <button id="btnDownload">⬇ Download .pat</button>
                 </div>
 
                 <div class="stats">
                     <div>Samples: <b id="statLen">—</b></div>
                     <div>Loop: <b id="statLoop">—</b></div>
                     <div>Bytes: <b id="statBytes">—</b></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>MIDI Playback</h2>
+                <div class="midi-file-picker">
+                    <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
+                    <button id="btnChooseMidi" type="button">Choose MIDI file</button>
+                    <span id="midiFileName" class="meta">No file selected</span>
+                </div>
+                <div class="actions">
+                    <button id="btnMidiPlay" class="primary" disabled>▶ Play</button>
+                    <button id="btnMidiStop" disabled>⏹ Stop</button>
+                    <button id="btnMidiRender" disabled>⬇ Render WAV</button>
+                </div>
+                <div class="field">
+                    <input id="midiSeek" type="range" min="0" max="1000" value="0" step="1"
+                        aria-label="MIDI playback position" disabled>
+                    <div class="meta" style="display:flex;justify-content:space-between">
+                        <span id="midiTimeCurrent">00:00</span>
+                        <span id="midiTimeTotal">00:00</span>
+                    </div>
+                </div>
+                <div id="midiStatus" class="meta" role="status" aria-live="polite">Select a MIDI file to play with the generated GM bank.</div>
+                <div class="field">
+                    <label>Instruments used</label>
+                    <section class="midi-instrument-group" aria-labelledby="midiMelodicTitle">
+                        <h3 id="midiMelodicTitle">Melodic</h3>
+                        <ul id="midiMelodicInstrumentList" class="midi-instrument-list" aria-live="polite">
+                            <li class="midi-instrument-empty">No MIDI loaded.</li>
+                        </ul>
+                    </section>
+                    <section class="midi-instrument-group" aria-labelledby="midiDrumTitle">
+                        <h3 id="midiDrumTitle">Drum Kit</h3>
+                        <ul id="midiDrumInstrumentList" class="midi-instrument-list" aria-live="polite">
+                            <li class="midi-instrument-empty">No MIDI loaded.</li>
+                        </ul>
+                    </section>
                 </div>
             </div>
 
@@ -89,6 +127,8 @@
         </main>
     </div>
 
+    <script src="../timidity-player/timidity-player.js"></script>
+    <script src="../timidity-player/libtimidity.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="melodic-presets.js"></script>
     <script src="drum-presets.js"></script>

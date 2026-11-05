@@ -477,7 +477,9 @@ class GUSPatchGenerator {
 class GusPatchEncoder {
     static encode({
         name, pcm, loopStart, loopEnd, isLoop, rootFreq, sampleRate,
-        sustainLoop = isLoop, envRates, envOffsets
+        sustainLoop = isLoop, envRates, envOffsets,
+        lowFreq = rootFreq, highFreq = rootFreq,
+        sampleRateHzInHeader = false
     }) {
         const SR = sampleRate || 22050;
         const periodNs = Math.round(1e9 / SR);
@@ -530,9 +532,9 @@ class GusPatchEncoder {
         u32(pcmBytes);                          // data size in BYTES
         u32(isLoop ? loopStart * bps : 0);      // loop start (BYTE offset)
         u32(isLoop ? loopEnd   * bps : 0);      // loop end   (BYTE offset)
-        u16(periodNs);                          // sample rate (period in ns)
-        u32(rootFreq);                          // lowFreq
-        u32(rootFreq);                          // highFreq
+        u16(sampleRateHzInHeader ? SR : periodNs);
+        u32(lowFreq);                           // lowFreq
+        u32(highFreq);                          // highFreq
         u32(rootFreq);                          // rootFreq
         u16(0);                                 // tune
         u8(7);                                  // balance
