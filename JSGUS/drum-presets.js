@@ -129,7 +129,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ac. Bass Drum",
     "description": "Ac. Bass Drum: deep kick thump with a short beater click.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.35,
       "duration": 0.55,
       "membrane": {
         "freq": 46,
@@ -156,7 +156,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Bass Drum 1",
     "description": "Bass Drum 1: punchy kick with a focused low end.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.35,
       "duration": 0.55,
       "membrane": {
         "freq": 52,
@@ -275,7 +275,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Floor Tom",
     "description": "Low Floor Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.75,
+      "gain": 0.85,
       "duration": 0.65,
       "membrane": {
         "freq": 65,
@@ -321,7 +321,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Floor Tom",
     "description": "High Floor Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.75,
+      "gain": 0.82,
       "duration": 0.6,
       "membrane": {
         "freq": 90,
@@ -367,7 +367,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Tom",
     "description": "Low Tom: pitched tom strike with a rounded, resonant decay.",
     "preset": {
-      "gain": 0.72,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 120,
@@ -413,7 +413,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low-Mid Tom",
     "description": "Low-Mid Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.72,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 155,
@@ -442,7 +442,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Hi-Mid Tom",
     "description": "Hi-Mid Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.70,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 190,
@@ -488,7 +488,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Tom",
     "description": "High Tom: pitched tom strike with a rounded, resonant decay.",
     "preset": {
-      "gain": 0.70,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 240,
