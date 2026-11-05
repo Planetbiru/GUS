@@ -215,18 +215,7 @@
 
       <input type="file" id="projectPatchFile"
           accept=".pat" hidden>
-      <button class="btn primary" id="btnOpen"><svg class="icon">
-          <use href="#i-folder"></use>
-        </svg> {{open_pat_sf2}}</button>
-      <button class="btn" id="btnMidiJsUrl" title="{{midijs_url_title}}" data-i18n-title="midijs_url_title">
-        <svg class="icon"><use href="#i-upload"></use></svg> {{midijs_url_button}}
-      </button>
-      <button class="btn" id="btnDemo"><svg class="icon">
-          <use href="#i-sparkles"></use>
-        </svg> {{demo}}</button>
-      <button class="btn" id="btnSave" disabled><svg class="icon">
-          <use href="#i-save"></use>
-        </svg> {{download_pat}}</button>
+      
       <div class="midi-box">
         <select id="midiSelect" disabled>
           <option>{{midi_off}}</option>
@@ -411,8 +400,15 @@
         </div>
 
         <div class="welcome-actions">
-          <button class="btn primary" id="btnOpen2">{{open_file}}</button>
-          <button class="btn" id="btnDemo2">{{create_demo}}</button>
+          <button class="btn primary" id="btnOpen2"><svg class="icon">
+            <use href="#i-folder"></use>
+          </svg> {{open_file}}</button>
+          <button class="btn" id="btnDemo2"><svg class="icon">
+            <use href="#i-sparkles"></use>
+          </svg> {{create_demo}}</button>
+          <button class="btn" id="btnMidiJsUrl" title="{{midijs_url_title}}" data-i18n-title="midijs_url_title">
+            <svg class="icon"><use href="#i-upload"></use></svg> {{midijs_url_button}}
+          </button>
         </div>
       </section>
 
