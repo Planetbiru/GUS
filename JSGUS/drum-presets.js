@@ -353,11 +353,11 @@ var GUS_DRUM_PRESETS = {
       "gain": 0.25,
       "duration": 0.13,
       "noiseLayers": [
-        { "amp": 0.78, "decay": 0.006, "type": "white", "bandpass": { "center": 7300, "q": 0.62 } },
-        { "amp": 0.42, "decay": 0.012, "type": "pink", "bandpass": { "center": 4400, "q": 0.72 } }
+        { "amp": 0.72, "decay": 0.008, "type": "white", "bandpass": { "center": 7600, "q": 0.62 } },
+        { "amp": 0.4, "decay": 0.015, "type": "pink", "bandpass": { "center": 4400, "q": 0.72 } }
       ],
-      "click": { "duration": 0.0015, "amp": 0.18 },
-      "highpass": 2500,
+      "click": { "duration": 0.0015, "amp": 0.12 },
+      "highpass": 1800,
       "lowpass": 9200
     }
   },
