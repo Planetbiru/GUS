@@ -338,7 +338,7 @@ class ApplicationController {
   
     const patInput=$("patFile");
     const sf2Input=$("sf2File");
-    [$("btnOpen2")].forEach(b=>{
+    [$("btnOpen")].forEach(b=>{
       if(b) b.addEventListener("click",()=>{
         if(!state.projects.some(project => project.id === state.currentProjectId)) {
           requestProjectForImport();

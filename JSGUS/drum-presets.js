@@ -129,7 +129,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ac. Bass Drum",
     "description": "Ac. Bass Drum: deep kick thump with a short beater click.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.35,
       "duration": 0.55,
       "membrane": {
         "freq": 46,
@@ -156,7 +156,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Bass Drum 1",
     "description": "Bass Drum 1: punchy kick with a focused low end.",
     "preset": {
-      "gain": 0.4,
+      "gain": 0.35,
       "duration": 0.55,
       "membrane": {
         "freq": 52,
@@ -275,7 +275,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Floor Tom",
     "description": "Low Floor Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.75,
+      "gain": 0.85,
       "duration": 0.65,
       "membrane": {
         "freq": 65,
@@ -321,7 +321,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Floor Tom",
     "description": "High Floor Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.75,
+      "gain": 0.82,
       "duration": 0.6,
       "membrane": {
         "freq": 90,
@@ -350,14 +350,33 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Pedal Hi-Hat",
     "description": "Pedal Hi-Hat: muted metal chick with a short, dry sizzle.",
     "preset": {
-      "gain": 0.25,
+      "gain": 0.20,
       "duration": 0.13,
       "noiseLayers": [
-        { "amp": 0.78, "decay": 0.006, "type": "white", "bandpass": { "center": 7300, "q": 0.62 } },
-        { "amp": 0.42, "decay": 0.012, "type": "pink", "bandpass": { "center": 4400, "q": 0.72 } }
+        {
+          "amp": 0.72,
+          "decay": 0.008,
+          "type": "white",
+          "bandpass": {
+            "center": 8000,
+            "q": 0.62
+          }
+        },
+        {
+          "amp": 0.4,
+          "decay": 0.015,
+          "type": "pink",
+          "bandpass": {
+            "center": 4200,
+            "q": 0.72
+          }
+        }
       ],
-      "click": { "duration": 0.0015, "amp": 0.18 },
-      "highpass": 2500,
+      "click": {
+        "duration": 0.002,
+        "amp": 0.12
+      },
+      "highpass": 1800,
       "lowpass": 9200
     }
   },
@@ -367,7 +386,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Tom",
     "description": "Low Tom: pitched tom strike with a rounded, resonant decay.",
     "preset": {
-      "gain": 0.72,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 120,
@@ -413,7 +432,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low-Mid Tom",
     "description": "Low-Mid Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.72,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 155,
@@ -442,7 +461,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Hi-Mid Tom",
     "description": "Hi-Mid Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
-      "gain": 0.70,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 190,
@@ -488,7 +507,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Tom",
     "description": "High Tom: pitched tom strike with a rounded, resonant decay.",
     "preset": {
-      "gain": 0.70,
+      "gain": 0.77,
       "duration": 0.55,
       "membrane": {
         "freq": 240,
@@ -1120,9 +1139,9 @@ var GUS_DRUM_PRESETS = {
   },
   {
     "note": 82,
-    "name": "Hat",
-    "shortName": "Hat",
-    "description": "Hat: soft maracas-like shaker with a gentle, airy attack.",
+    "name": "Shaker",
+    "shortName": "Shaker",
+    "description": "Shaker: soft maracas-like shaker with a gentle, airy attack.",
     "preset": {
       "gain": 0.05,
       "duration": 0.26,

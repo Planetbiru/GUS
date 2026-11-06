@@ -22,7 +22,7 @@ class ProjectPatchGenerator {
     return this.library.melodic.map(({name}, id) => ({id, name}));
   }
 
-  generate({isDrum, program, waveform = null, pitchFrom = 0, pitchTo = 127}) {
+  generate({isDrum, program, waveform, pitchFrom = 0, pitchTo = 127}) {
     const id = Number(program);
     if (!Number.isInteger(id)) {
         throw new Error("Instrument program must be an integer.");
@@ -61,24 +61,27 @@ class ProjectPatchGenerator {
         description = instrumentDescription;
         preset = melodicPreset;
 
-        if (waveform != null) {
-        let harm;
-        if (Array.isArray(waveform)) {
-            harm = waveform.slice();
-            appliedWaveform = 'custom';
-        } else {
-            const harmLen = (preset.harm || [1]).length;
-            harm = ProjectPatchGenerator.waveformHarmonics(waveform, harmLen);
-            appliedWaveform = waveform;
-        }
-        if (!harm) {
-            throw new Error(
-            `Unknown waveform: ${waveform}. ` +
-            `Use 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
-            );
-        }
-        preset = { ...preset, harm };
-        instrumentName = `${instrumentName} (${appliedWaveform})`;
+        const selectedWaveform = waveform === undefined
+            ? (preset.defaultWaveform ?? null)
+            : waveform;
+        if (selectedWaveform != null) {
+            let harm;
+            if (Array.isArray(selectedWaveform)) {
+                harm = selectedWaveform.slice();
+                appliedWaveform = 'custom';
+            } else {
+                const harmLen = (preset.harm || [1]).length;
+                harm = ProjectPatchGenerator.waveformHarmonics(selectedWaveform, harmLen);
+                appliedWaveform = selectedWaveform;
+            }
+            if (!harm) {
+                throw new Error(
+                    `Unknown waveform: ${selectedWaveform}. ` +
+                    `Use 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
+                );
+            }
+            preset = { ...preset, harm };
+            instrumentName = `${instrumentName} (${appliedWaveform})`;
         }
         // ---------------------------------------------------
 
@@ -136,14 +139,19 @@ class ProjectPatchGenerator {
         ? Math.round(12543.853951 * 1000)
         : Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(pitchTo) * 1000);
 
+    const patchEnvelope = preset && preset.patchEnvelope;
+    const useEnvelope = rendered.loop || !isDrum;
+
     let modes = ProjectPatchGenerator.MODE_16BIT;
     if (rendered.loop) {
-        modes |= ProjectPatchGenerator.MODE_LOOP | ProjectPatchGenerator.MODE_ENVELOPE;
+        modes |= ProjectPatchGenerator.MODE_LOOP;
         if (!preset || preset.sustainLoop !== false) {
             modes |= ProjectPatchGenerator.MODE_SUSTAIN;
         }
     }
-    const patchEnvelope = preset && preset.patchEnvelope;
+    if (useEnvelope) {
+        modes |= ProjectPatchGenerator.MODE_ENVELOPE;
+    }
 
     const sample = {
         name: sampleName,
@@ -157,10 +165,10 @@ class ProjectPatchGenerator {
         rootFreq: Math.round(rootFreq * 1000),
         tune: 0,
         balance: 7,
-        envRates: rendered.loop
+        envRates: useEnvelope
             ? (patchEnvelope ? patchEnvelope.rates.slice() : [9, 0, 0, 69, 0, 0])
             : [0, 0, 0, 0, 0, 0],
-        envOffsets: rendered.loop
+        envOffsets: useEnvelope
             ? (patchEnvelope ? patchEnvelope.offsets.slice() : [255, 255, 255, 0, 0, 0])
             : [255, 255, 255, 0, 0, 0],
         tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
@@ -472,7 +480,9 @@ class GUSPatchGenerator {
 class GusPatchEncoder {
     static encode({
         name, pcm, loopStart, loopEnd, isLoop, rootFreq, sampleRate,
-        sustainLoop = isLoop, envRates, envOffsets
+        sustainLoop = isLoop, envRates, envOffsets,
+        lowFreq = rootFreq, highFreq = rootFreq,
+        sampleRateHzInHeader = false
     }) {
         const SR = sampleRate || 22050;
         const periodNs = Math.round(1e9 / SR);
@@ -525,9 +535,9 @@ class GusPatchEncoder {
         u32(pcmBytes);                          // data size in BYTES
         u32(isLoop ? loopStart * bps : 0);      // loop start (BYTE offset)
         u32(isLoop ? loopEnd   * bps : 0);      // loop end   (BYTE offset)
-        u16(periodNs);                          // sample rate (period in ns)
-        u32(rootFreq);                          // lowFreq
-        u32(rootFreq);                          // highFreq
+        u16(sampleRateHzInHeader ? SR : periodNs);
+        u32(lowFreq);                           // lowFreq
+        u32(highFreq);                          // highFreq
         u32(rootFreq);                          // rootFreq
         u16(0);                                 // tune
         u8(7);                                  // balance
