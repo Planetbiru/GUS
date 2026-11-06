@@ -2108,12 +2108,12 @@ var GUS_MELODIC_PRESETS = {
         {
           "freq": 3000,
           "q": 2.2,
-          "gain": 0
+          "gain": 2.5
         },
         {
           "freq": 4500,
           "q": 2.5,
-          "gain": -1.5
+          "gain": 1.5
         }
       ],
       "harm": [
