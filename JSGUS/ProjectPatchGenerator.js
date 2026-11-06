@@ -22,7 +22,7 @@ class ProjectPatchGenerator {
     return this.library.melodic.map(({name}, id) => ({id, name}));
   }
 
-  generate({isDrum, program, waveform = null, pitchFrom = 0, pitchTo = 127}) {
+  generate({isDrum, program, waveform, pitchFrom = 0, pitchTo = 127}) {
     const id = Number(program);
     if (!Number.isInteger(id)) {
         throw new Error("Instrument program must be an integer.");
@@ -61,24 +61,27 @@ class ProjectPatchGenerator {
         description = instrumentDescription;
         preset = melodicPreset;
 
-        if (waveform != null) {
-        let harm;
-        if (Array.isArray(waveform)) {
-            harm = waveform.slice();
-            appliedWaveform = 'custom';
-        } else {
-            const harmLen = (preset.harm || [1]).length;
-            harm = ProjectPatchGenerator.waveformHarmonics(waveform, harmLen);
-            appliedWaveform = waveform;
-        }
-        if (!harm) {
-            throw new Error(
-            `Unknown waveform: ${waveform}. ` +
-            `Use 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
-            );
-        }
-        preset = { ...preset, harm };
-        instrumentName = `${instrumentName} (${appliedWaveform})`;
+        const selectedWaveform = waveform === undefined
+            ? (preset.defaultWaveform ?? null)
+            : waveform;
+        if (selectedWaveform != null) {
+            let harm;
+            if (Array.isArray(selectedWaveform)) {
+                harm = selectedWaveform.slice();
+                appliedWaveform = 'custom';
+            } else {
+                const harmLen = (preset.harm || [1]).length;
+                harm = ProjectPatchGenerator.waveformHarmonics(selectedWaveform, harmLen);
+                appliedWaveform = selectedWaveform;
+            }
+            if (!harm) {
+                throw new Error(
+                    `Unknown waveform: ${selectedWaveform}. ` +
+                    `Use 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
+                );
+            }
+            preset = { ...preset, harm };
+            instrumentName = `${instrumentName} (${appliedWaveform})`;
         }
         // ---------------------------------------------------
 

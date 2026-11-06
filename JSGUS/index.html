@@ -27,7 +27,14 @@
     </header>
 
     <div class="layout">
-        <aside id="instrumentList"></aside>
+        <aside>
+            <div class="instrument-search-wrap">
+                <input id="instrumentSearch" class="search" type="search"
+                    placeholder="Search instruments..." aria-label="Search instruments">
+                <div id="instrumentFilterEmpty" class="meta search-empty" hidden>No instruments match your search.</div>
+            </div>
+            <div id="instrumentList"></div>
+        </aside>
 
         <main>
             <div class="card">
@@ -80,6 +87,18 @@
             </div>
 
             <div class="card">
+                <h2>Instrument Preset JSON</h2>
+                <div class="meta">Edit the selected instrument preset. Apply valid JSON to regenerate its patch and update MIDI playback.</div>
+                <label for="presetJson">Preset JSON</label>
+                <textarea id="presetJson" rows="18" spellcheck="false" aria-describedby="presetJsonStatus"></textarea>
+                <div id="presetJsonStatus" class="preset-json-status" role="status" aria-live="polite"></div>
+                <div class="actions">
+                    <button id="btnApplyPreset" class="primary" type="button">Apply preset</button>
+                    <button id="btnResetPreset" type="button">Reset to factory preset</button>
+                </div>
+            </div>
+
+            <div class="card">
                 <h2>MIDI Playback</h2>
                 <div class="midi-file-picker">
                     <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
@@ -102,18 +121,20 @@
                 <div id="midiStatus" class="meta" role="status" aria-live="polite">Select a MIDI file to play with the generated GM bank.</div>
                 <div class="field">
                     <label>Instruments used</label>
-                    <section class="midi-instrument-group" aria-labelledby="midiMelodicTitle">
-                        <h3 id="midiMelodicTitle">Melodic</h3>
-                        <ul id="midiMelodicInstrumentList" class="midi-instrument-list" aria-live="polite">
-                            <li class="midi-instrument-empty">No MIDI loaded.</li>
-                        </ul>
-                    </section>
-                    <section class="midi-instrument-group" aria-labelledby="midiDrumTitle">
-                        <h3 id="midiDrumTitle">Drum Kit</h3>
-                        <ul id="midiDrumInstrumentList" class="midi-instrument-list" aria-live="polite">
-                            <li class="midi-instrument-empty">No MIDI loaded.</li>
-                        </ul>
-                    </section>
+                    <div class="midi-instrument-lists">
+                        <section class="midi-instrument-group" aria-labelledby="midiMelodicTitle">
+                            <h3 id="midiMelodicTitle">Melodic</h3>
+                            <ul id="midiMelodicInstrumentList" class="midi-instrument-list" aria-live="polite">
+                                <li class="midi-instrument-empty">No MIDI loaded.</li>
+                            </ul>
+                        </section>
+                        <section class="midi-instrument-group" aria-labelledby="midiDrumTitle">
+                            <h3 id="midiDrumTitle">Drum Kit</h3>
+                            <ul id="midiDrumInstrumentList" class="midi-instrument-list" aria-live="polite">
+                                <li class="midi-instrument-empty">No MIDI loaded.</li>
+                            </ul>
+                        </section>
+                    </div>
                 </div>
             </div>
 

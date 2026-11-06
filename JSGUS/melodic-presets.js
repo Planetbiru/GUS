@@ -8,6 +8,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Ac. Grand Piano",
     "description": "Ac. Grand: struck-key tone with a resonant decay.",
     "preset": {
+      "defaultWaveform": "saw",
       "inharmonicity": 0.0005,
       "attackNoise": {
         "amp": 0.9,
@@ -1107,6 +1108,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Nylon Guitar",
     "description": "Nylon Guitar: a plucked-string attack with natural decay.",
     "preset": {
+      "defaultWaveform": "saw",
       "attackNoise": {
         "amp": 0.032,
         "duration": 0.022
@@ -1195,6 +1197,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Steel Guitar",
     "description": "Steel Guitar: a plucked-string attack with natural decay.",
     "preset": {
+      "defaultWaveform": "saw",
       "attackNoise": {
         "amp": 0.09,
         "duration": 0.009

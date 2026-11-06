@@ -350,13 +350,32 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Pedal Hi-Hat",
     "description": "Pedal Hi-Hat: muted metal chick with a short, dry sizzle.",
     "preset": {
-      "gain": 0.25,
+      "gain": 0.20,
       "duration": 0.13,
       "noiseLayers": [
-        { "amp": 0.72, "decay": 0.008, "type": "white", "bandpass": { "center": 7600, "q": 0.62 } },
-        { "amp": 0.4, "decay": 0.015, "type": "pink", "bandpass": { "center": 4400, "q": 0.72 } }
+        {
+          "amp": 0.72,
+          "decay": 0.008,
+          "type": "white",
+          "bandpass": {
+            "center": 8000,
+            "q": 0.62
+          }
+        },
+        {
+          "amp": 0.4,
+          "decay": 0.015,
+          "type": "pink",
+          "bandpass": {
+            "center": 4200,
+            "q": 0.72
+          }
+        }
       ],
-      "click": { "duration": 0.0015, "amp": 0.12 },
+      "click": {
+        "duration": 0.002,
+        "amp": 0.12
+      },
       "highpass": 1800,
       "lowpass": 9200
     }

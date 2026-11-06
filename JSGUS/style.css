@@ -169,6 +169,19 @@ aside {
     display: none;
 }
 
+.instrument-search-wrap {
+    margin-bottom: 10px;
+}
+
+.search-empty {
+    margin: -4px 0 8px;
+}
+
+.family[hidden],
+.inst[hidden] {
+    display: none;
+}
+
 .search {
     width: 100%;
     padding: 8px 12px;
@@ -275,6 +288,46 @@ main {
     font-size: 13px;
 }
 
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+}
+
+#presetJson {
+    display: block;
+    width: 100%;
+    min-height: 280px;
+    padding: 10px;
+    resize: vertical;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: 12px/1.5 'Consolas', 'Monaco', monospace;
+    tab-size: 2;
+}
+label[for="presetJson"] {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--dim);
+    font-size: 11px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+
+.preset-json-status {
+    min-height: 18px;
+    margin-top: 6px;
+    color: var(--accent2);
+    font-size: 12px;
+}
+
+.preset-json-status.error {
+    color: var(--danger);
+}
+
 .midi-file-picker {
     display: flex;
     align-items: center;
@@ -303,14 +356,20 @@ main {
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: 180px;
+    max-height: 150px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: 6px;
 }
 
-.midi-instrument-group + .midi-instrument-group {
-    margin-top: 12px;
+.midi-instrument-lists {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.midi-instrument-group {
+    min-width: 0;
 }
 
 .midi-instrument-group h3 {
@@ -332,7 +391,28 @@ main {
     border-radius: 0;
     background: transparent;
     color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
     text-align: left;
+}
+
+.midi-note-indicator {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background-color .08s, box-shadow .08s;
+}
+
+.midi-instrument-link.is-playing .midi-note-indicator {
+    background: var(--accent2);
+    box-shadow: 0 0 7px var(--accent2);
+}
+
+.midi-instrument-name {
+    min-width: 0;
 }
 
 .midi-instrument-link:hover {
@@ -343,6 +423,12 @@ main {
     padding: 8px 10px;
     color: var(--dim);
     font-size: 12px;
+}
+
+@media (max-width: 520px) {
+    .midi-instrument-lists {
+        grid-template-columns: 1fr;
+    }
 }
 
 canvas {
@@ -427,6 +513,10 @@ canvas {
 
     aside {
         max-height: 280px;
+    }
+
+    .instrument-search-wrap {
+        grid-column: 1 / -1;
     }
 
     main {

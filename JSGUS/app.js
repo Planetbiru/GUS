@@ -76,6 +76,10 @@ class GusPatchApp {
         this.midiSeeking = false;
         this.midiRenderInProgress = false;
         this.midiInstrumentList = new Map();
+        this.midiInstrumentElements = new Map();
+        this.midiChannelPrograms = new Map();
+        this.activeMidiNoteOwners = new Map();
+        this.activeMidiInstrumentNotes = new Map();
         this.collectingMidiInstruments = false;
         this.generatorState = this.loadGeneratorState();
         this.midiPatchReloadTimer = null;
@@ -199,12 +203,51 @@ class GusPatchApp {
         });
     }
 
+    filterInstrumentList() {
+        const query = this.$('instrumentSearch').value.trim().toLocaleLowerCase();
+        const panels = ['melodic', 'drum'].map(type => ({
+            type,
+            panel: this.$(`${type}InstrumentList`),
+        }));
+        let totalMatches = 0;
+
+        for (const {panel} of panels) {
+            const children = [...panel.children];
+            let familyHasMatch = false;
+            for (let i = children.length - 1; i >= 0; i--) {
+                const item = children[i];
+                if (item.classList.contains('family')) {
+                    item.hidden = query !== '' && !familyHasMatch;
+                    familyHasMatch = false;
+                    continue;
+                }
+                if (!item.classList.contains('inst')) continue;
+                const name = item.querySelector('.instrument-name')?.textContent || '';
+                const matches = !query || name.toLocaleLowerCase().includes(query);
+                item.hidden = !matches;
+                if (matches) {
+                    familyHasMatch = true;
+                    totalMatches++;
+                }
+            }
+        }
+
+        if (query && totalMatches > 0) {
+            const activePanel = panels.find(({type}) => type === this.activeInstrumentList);
+            if (activePanel.panel.querySelector('.inst:not([hidden])') === null) {
+                const matchingPanel = panels.find(({panel}) => panel.querySelector('.inst:not([hidden])'));
+                if (matchingPanel) this.setActiveInstrumentList(matchingPanel.type);
+            }
+        }
+        this.$('instrumentFilterEmpty').hidden = !query || totalMatches > 0;
+    }
+
     _makeItem({ type, midi, name, num }) {
         const d = document.createElement('div');
         d.className = 'inst';
         d.dataset.type = type;
         d.dataset.midi = midi;
-        d.innerHTML = `<span>${name}</span><span class="num">${num}</span>`;
+        d.innerHTML = `<span class="instrument-name">${name}</span><span class="num">${num}</span>`;
         d.onclick = () => this.selectInstrument(type, midi);
         return d;
     }
@@ -216,6 +259,10 @@ class GusPatchApp {
         this.$('btnDownload').onclick = () => this.downloadCurrent();
         this.$('btnZip').onclick = () => this.downloadAllZip();
         this.$('btnResetGeneratorState').onclick = () => this.resetGeneratorState();
+        this.$('instrumentSearch').addEventListener('input', () => this.filterInstrumentList());
+        this.$('btnApplyPreset').onclick = () => this.applyPresetJson();
+        this.$('btnResetPreset').onclick = () => this.resetCurrentPreset();
+        this.$('presetJson').addEventListener('input', () => this.validatePresetJson());
         this.$('btnChooseMidi').onclick = () => this.$('midiFile').click();
         this.$('midiFile').addEventListener('change', event => this.loadMidiFile(event));
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
@@ -241,7 +288,7 @@ class GusPatchApp {
     }
 
     loadGeneratorState() {
-            const emptyState = {selected: null, instruments: {}};
+            const emptyState = {selected: null, instruments: {}, presets: {}};
             try {
                 const stored = localStorage.getItem('gus-patch-generator-state-v1');
                 if (!stored) return emptyState;
@@ -250,6 +297,10 @@ class GusPatchApp {
                     selected: parsed.selected || null,
                     instruments: parsed.instruments && typeof parsed.instruments === 'object'
                         ? parsed.instruments
+                        : {},
+                    presets: parsed.presets && typeof parsed.presets === 'object'
+                        && !Array.isArray(parsed.presets)
+                        ? parsed.presets
                         : {},
                 };
             } catch (error) {
@@ -296,6 +347,101 @@ class GusPatchApp {
             return normalized;
         }
 
+        getInstrumentPreset(type, midi) {
+            const instrument = type === 'drum'
+                ? this.lib.findDrum(midi)
+                : this.lib.melodic[midi];
+            if (!instrument) throw new Error(`Unknown ${type} instrument: ${midi}.`);
+            return this.generatorState.presets[`${type}:${midi}`] || instrument.preset;
+        }
+
+        getCurrentPresetKey() {
+            if (this.currentType == null || this.currentMidi == null) {
+                throw new Error('Select an instrument before editing its preset.');
+            }
+            return `${this.currentType}:${this.currentMidi}`;
+        }
+
+        setPresetEditorStatus(message, isError = false) {
+            const status = this.$('presetJsonStatus');
+            status.textContent = message;
+            status.classList.toggle('error', isError);
+        }
+
+        validatePresetJson() {
+            const editor = this.$('presetJson');
+            try {
+                const preset = JSON.parse(editor.value);
+                if (!preset || typeof preset !== 'object' || Array.isArray(preset)) {
+                    throw new Error('Preset JSON must be an object.');
+                }
+                this.$('btnApplyPreset').disabled = false;
+                this.setPresetEditorStatus('Valid JSON. Apply to generate and load the patch.');
+                return preset;
+            } catch (error) {
+                this.$('btnApplyPreset').disabled = true;
+                this.setPresetEditorStatus(error.message, true);
+                return null;
+            }
+        }
+
+        updatePresetEditor() {
+            this.$('presetJson').value = JSON.stringify(
+                this.getInstrumentPreset(this.currentType, this.currentMidi),
+                null,
+                2
+            );
+            this.validatePresetJson();
+        }
+
+        async applyPresetJson() {
+            const preset = this.validatePresetJson();
+            if (!preset) return;
+
+            const type = this.currentType;
+            const midi = this.currentMidi;
+            const key = this.getCurrentPresetKey();
+            try {
+                this.buildMidiPatch(type === 'drum', midi, preset);
+            } catch (error) {
+                this.setPresetEditorStatus(`Preset cannot generate a patch: ${error.message}`, true);
+                this.log(`Preset apply failed: ${error.message}`, 'err');
+                return;
+            }
+
+            this.generatorState.presets[key] = preset;
+            this.persistGeneratorState();
+            this.updatePresetEditor();
+            this.drawPreview();
+            await this.reloadMidiInstrumentIfUsed(type, midi);
+            this.setPresetEditorStatus('Preset applied and patch regenerated.');
+            this.log(`Preset applied: ${type} ${midi}.`, 'ok');
+        }
+
+        async resetCurrentPreset() {
+            const type = this.currentType;
+            const midi = this.currentMidi;
+            const key = this.getCurrentPresetKey();
+            const factoryPreset = type === 'drum'
+                ? this.lib.findDrum(midi).preset
+                : this.lib.melodic[midi].preset;
+            try {
+                this.buildMidiPatch(type === 'drum', midi, factoryPreset);
+            } catch (error) {
+                this.setPresetEditorStatus(`Factory preset cannot generate a patch: ${error.message}`, true);
+                this.log(`Preset reset failed: ${error.message}`, 'err');
+                return;
+            }
+
+            delete this.generatorState.presets[key];
+            this.persistGeneratorState();
+            this.updatePresetEditor();
+            this.drawPreview();
+            await this.reloadMidiInstrumentIfUsed(type, midi);
+            this.setPresetEditorStatus('Factory preset restored.');
+            this.log(`Factory preset restored: ${type} ${midi}.`, 'ok');
+        }
+
         presetWithWaveform(preset, waveform) {
             const result = {...preset};
             if (waveform === 'preset') return result;
@@ -337,11 +483,10 @@ class GusPatchApp {
             }, 250);
         }
 
-        async reloadMidiInstrumentIfUsed() {
+        async reloadMidiInstrumentIfUsed(type = this.currentType, midi = this.currentMidi) {
             const player = this.timidityPlayer;
-            if (!player || !player.songPtr || (!player.isPlaying && !player.isPaused)) return;
+            if (!player || !player.songPtr || type == null || midi == null) return;
 
-            const {type, midi} = {type: this.currentType, midi: this.currentMidi};
             const patchFile = this.getMidiPatchFile(type, midi);
             const loadedFile = this.findLoadedMidiPatch(patchFile);
             if (!loadedFile) return;
@@ -402,7 +547,7 @@ class GusPatchApp {
             this.midiPatchReloadTimer = null;
             const type = this.currentType || 'melodic';
             const midi = this.currentMidi == null ? 0 : this.currentMidi;
-            this.generatorState = {selected: null, instruments: {}};
+            this.generatorState = {selected: null, instruments: {}, presets: {}};
             this.currentType = null;
             this.currentMidi = null;
             try {
@@ -437,8 +582,16 @@ class GusPatchApp {
         });
         player.on('onMidiLoaded', (_midi, duration) => {
             this.midiDuration = duration || player.totalDuration || 0;
+            this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
         });
+        player.on('onMidiEvent', event => {
+            if (event.eventType === player.ME_PROGRAM) {
+                this.midiChannelPrograms.set(event.channel, event.a & 0x7f);
+            }
+        });
+        player.on('onNoteOn', event => this.handleMidiNoteOn(event));
+        player.on('onNoteOff', event => this.handleMidiNoteOff(event));
         player.on('onPlaying', (_tick, seconds) => {
             if (this.midiSeeking) return;
             this.midiPosition = seconds;
@@ -450,8 +603,10 @@ class GusPatchApp {
         });
         player.on('onEnded', () => {
             this.midiPosition = this.midiDuration;
+            this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
         });
+        player.on('onStop', () => this.clearActiveMidiNotes());
         player.on('onRenderProgress', progress => {
             if (this.midiRenderInProgress) {
                 this.$('midiStatus').textContent = `Rendering WAV: ${Math.round(progress)}%`;
@@ -475,7 +630,71 @@ class GusPatchApp {
 
     clearMidiInstrumentList() {
         this.midiInstrumentList.clear();
+        this.midiChannelPrograms.clear();
+        this.clearActiveMidiNotes();
         this.renderMidiInstrumentList();
+    }
+
+    handleMidiNoteOn({channel, pitch}) {
+        const type = channel === 9 ? 'drum' : 'melodic';
+        const program = type === 'drum' ? pitch : (this.midiChannelPrograms.get(channel) ?? 0);
+        const instrumentKey = `${type}:${program}`;
+        const noteKey = `${channel}:${pitch}`;
+        const owners = this.activeMidiNoteOwners.get(noteKey) || [];
+        owners.push(instrumentKey);
+        this.activeMidiNoteOwners.set(noteKey, owners);
+
+        let pitches = this.activeMidiInstrumentNotes.get(instrumentKey);
+        if (!pitches) {
+            pitches = new Map();
+            this.activeMidiInstrumentNotes.set(instrumentKey, pitches);
+        }
+        pitches.set(pitch, (pitches.get(pitch) || 0) + 1);
+        this.updateMidiInstrumentIndicator(instrumentKey);
+    }
+
+    handleMidiNoteOff({channel, pitch}) {
+        const noteKey = `${channel}:${pitch}`;
+        const owners = this.activeMidiNoteOwners.get(noteKey);
+        if (!owners || owners.length === 0) return;
+
+        const instrumentKey = owners.pop();
+        if (owners.length === 0) this.activeMidiNoteOwners.delete(noteKey);
+
+        const pitches = this.activeMidiInstrumentNotes.get(instrumentKey);
+        const count = pitches && pitches.get(pitch);
+        if (count === 1) pitches.delete(pitch);
+        else if (count > 1) pitches.set(pitch, count - 1);
+        if (pitches && pitches.size === 0) this.activeMidiInstrumentNotes.delete(instrumentKey);
+        this.updateMidiInstrumentIndicator(instrumentKey);
+    }
+
+    clearActiveMidiNotes() {
+        const instrumentKeys = new Set([
+            ...this.activeMidiInstrumentNotes.keys(),
+            ...this.midiInstrumentList.keys(),
+        ]);
+        this.activeMidiNoteOwners.clear();
+        this.activeMidiInstrumentNotes.clear();
+        for (const instrumentKey of instrumentKeys) {
+            this.updateMidiInstrumentIndicator(instrumentKey);
+        }
+    }
+
+    updateMidiInstrumentIndicator(instrumentKey) {
+        const item = this.midiInstrumentElements.get(instrumentKey);
+        if (!item) return;
+
+        const pitches = this.activeMidiInstrumentNotes.get(instrumentKey);
+        const activePitches = pitches ? [...pitches.keys()].sort((a, b) => a - b) : [];
+        const button = item.querySelector('.midi-instrument-link');
+        const indicator = item.querySelector('.midi-note-indicator');
+        const isActive = activePitches.length > 0;
+        button.classList.toggle('is-playing', isActive);
+        button.title = isActive ? `Playing pitch: ${activePitches.join(', ')}` : '';
+        indicator.setAttribute('aria-label', isActive
+            ? `Active pitch ${activePitches.join(', ')}`
+            : 'No active notes');
     }
 
     trackMidiInstrument(isDrum, program, bank) {
@@ -495,6 +714,7 @@ class GusPatchApp {
     }
 
     renderMidiInstrumentList() {
+        this.midiInstrumentElements.clear();
         const lists = {
             melodic: this.$('midiMelodicInstrumentList'),
             drum: this.$('midiDrumInstrumentList'),
@@ -517,12 +737,21 @@ class GusPatchApp {
 
             for (const instrument of instruments) {
                 const item = document.createElement('li');
+                item.className = 'midi-instrument-item';
+                item.dataset.instrumentKey = `${type}:${instrument.program}`;
+                this.midiInstrumentElements.set(`${type}:${instrument.program}`, item);
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'midi-instrument-link';
-                button.textContent = type === 'drum'
+                const indicator = document.createElement('span');
+                indicator.className = 'midi-note-indicator';
+                indicator.setAttribute('aria-label', 'No active notes');
+                const name = document.createElement('span');
+                name.className = 'midi-instrument-name';
+                name.textContent = type === 'drum'
                     ? `Drum ${instrument.program} - ${instrument.name}`
                     : `${String(instrument.program).padStart(3, '0')} - ${instrument.name}`;
+                button.append(indicator, name);
                 button.addEventListener('click', () => {
                     this.selectInstrument(type, instrument.program);
                     const selector = `.inst[data-type="${type}"][data-midi="${instrument.program}"]`;
@@ -530,6 +759,7 @@ class GusPatchApp {
                 });
                 item.appendChild(button);
                 list.appendChild(item);
+                this.updateMidiInstrumentIndicator(`${type}:${instrument.program}`);
             }
         }
     }
@@ -548,7 +778,7 @@ class GusPatchApp {
         return lines.join('\n');
     }
 
-    buildMidiPatch(isDrum, program) {
+    buildMidiPatch(isDrum, program, presetOverride = this.getInstrumentPreset(isDrum ? 'drum' : 'melodic', program)) {
         const state = this.getInstrumentGeneratorState(isDrum ? 'drum' : 'melodic', program);
         const sampleRate = state.sampleRate;
         const lowFreq = Math.round(8.1757989156 * 1000);
@@ -557,7 +787,8 @@ class GusPatchApp {
         if (isDrum) {
             const drum = this.lib.findDrum(program);
             if (!drum) throw new Error(`Unknown drum note ${program}.`);
-            const {note, name, preset: basePreset} = drum;
+            const {note, name} = drum;
+            const basePreset = presetOverride;
             const preset = {...basePreset, duration: state.duration};
             const rendered = this.applyOutputGain(
                 new DrumRenderer(preset, sampleRate).render(),
@@ -580,7 +811,8 @@ class GusPatchApp {
 
         const instrument = this.lib.melodic[program];
         if (!instrument) throw new Error(`Unknown melodic program ${program}.`);
-        const {name, preset: basePreset} = instrument;
+        const {name} = instrument;
+        const basePreset = presetOverride;
         const preset = this.presetWithWaveform(basePreset, state.wave);
         const rendered = this.applyOutputGain(
             new MelodicRenderer(preset, {
@@ -799,6 +1031,7 @@ class GusPatchApp {
         this.$('root').value = String(generatorState.root);
         this.$('dur').value = String(generatorState.duration);
         this.$('wave').value = generatorState.wave;
+        this.updatePresetEditor();
         this.drawPreview();
     }
 
@@ -810,7 +1043,7 @@ class GusPatchApp {
         const dur = settings.duration;
 
         if (this.currentType === 'drum') {
-            const {preset: basePreset} = this.lib.findDrum(this.currentMidi);
+            const basePreset = this.getInstrumentPreset('drum', this.currentMidi);
             const p = {...basePreset, duration: dur};
             return this.applyOutputGain(
                 new DrumRenderer(p, SR).render(),
@@ -819,7 +1052,7 @@ class GusPatchApp {
             );
         }
 
-        const {preset: basePreset} = this.lib.melodic[this.currentMidi];
+        const basePreset = this.getInstrumentPreset('melodic', this.currentMidi);
         const p2 = this.presetWithWaveform(basePreset, settings.wave);
         return this.applyOutputGain(
             new MelodicRenderer(p2, { sampleRate: SR, freq, duration: dur }).render(),
@@ -890,59 +1123,20 @@ class GusPatchApp {
     // ---- Build patch ----
     buildPatchForCurrent() {
         this.saveCurrentGeneratorState();
-        const settings = this.getInstrumentGeneratorState(this.currentType, this.currentMidi);
-        const SR = settings.sampleRate;
-        const lowFreq = Math.round(8.1757989156 * 1000);
-        const highFreq = Math.round(12543.853951 * 1000);
-
         if (this.currentType === 'drum') {
-            const {note, name, preset: basePreset} = this.lib.findDrum(this.currentMidi);
-            const p = {...basePreset, duration: settings.duration};
-            const r = this.applyOutputGain(
-                new DrumRenderer(p, SR).render(),
-                p,
-                this.lib.drumMasterGain
-            );
-            const rootFreq = Math.round(settings.root * 1000);
-            const buf = GusPatchEncoder.encode({
-                name: this.slugify(name).slice(0, 15) || `drum${note}`,
-                pcm: r.pcm,
-                loopStart: 0, loopEnd: 0, isLoop: false,
-                rootFreq, sampleRate: SR,
-                lowFreq, highFreq,
-            });
+            const drum = this.lib.findDrum(this.currentMidi);
+            if (!drum) throw new Error(`Unknown drum note ${this.currentMidi}.`);
             return {
-                buf, r,
-                fname: `drum_${String(note).padStart(2, '0')}_${this.slugify(name)}.pat`,
+                buf: this.buildMidiPatch(true, this.currentMidi),
+                fname: `drum_${String(drum.note).padStart(2, '0')}_${this.slugify(drum.name)}.pat`,
             };
         }
 
-        const {name, preset: basePreset} = this.lib.melodic[this.currentMidi];
-        const preset = this.presetWithWaveform(basePreset, settings.wave);
-        const r = this.applyOutputGain(
-            new MelodicRenderer(preset, {
-                sampleRate: SR,
-                freq: settings.root,
-                duration: settings.duration,
-            }).render(),
-            preset,
-            this.lib.melodicMasterGain
-        );
-        const buf = GusPatchEncoder.encode({
-            name: this.slugify(name).slice(0, 15) || `gm${this.currentMidi}`,
-            pcm: r.pcm,
-            loopStart: r.loopStart, loopEnd: r.loopEnd, isLoop: r.loop,
-            rootFreq: Math.round(r.naturalFreq * 1000),
-            sampleRate: SR,
-            lowFreq,
-            highFreq,
-            sustainLoop: basePreset.sustainLoop !== false,
-            envRates: basePreset.patchEnvelope && basePreset.patchEnvelope.rates,
-            envOffsets: basePreset.patchEnvelope && basePreset.patchEnvelope.offsets,
-        });
+        const instrument = this.lib.melodic[this.currentMidi];
+        if (!instrument) throw new Error(`Unknown melodic program ${this.currentMidi}.`);
         return {
-            buf, r,
-            fname: `${String(this.currentMidi).padStart(3, '0')}_${this.slugify(name)}.pat`,
+            buf: this.buildMidiPatch(false, this.currentMidi),
+            fname: `${String(this.currentMidi).padStart(3, '0')}_${this.slugify(instrument.name)}.pat`,
         };
     }
 
@@ -969,32 +1163,10 @@ class GusPatchApp {
         this.log('Building 128 melodic patches...', 'info');
         const melodicNames = [];   // ← simpan nama file untuk timidity.cfg
         for (let i = 0; i < 128; i++) {
-            const {name, preset: basePreset} = this.lib.melodic[i];
+            const {name} = this.lib.melodic[i];
             const settings = this.getInstrumentGeneratorState('melodic', i);
-            const preset = this.presetWithWaveform(basePreset, settings.wave);
-            const SR = settings.sampleRate;
-            sampleRates.add(SR);
-            const r = this.applyOutputGain(
-                new MelodicRenderer(preset, {
-                    sampleRate: SR,
-                    freq: settings.root,
-                    duration: settings.duration,
-                }).render(),
-                preset,
-                this.lib.melodicMasterGain
-            );
-            const buf = GusPatchEncoder.encode({
-                name: this.slugify(name).slice(0, 15) || `gm${i}`,
-                pcm: r.pcm, loopStart: r.loopStart, loopEnd: r.loopEnd,
-                isLoop: r.loop,
-                rootFreq: Math.round(r.naturalFreq * 1000),
-                sampleRate: SR,
-                lowFreq: Math.round(8.1757989156 * 1000),
-                highFreq: Math.round(12543.853951 * 1000),
-                sustainLoop: preset.sustainLoop !== false,
-                envRates: preset.patchEnvelope && preset.patchEnvelope.rates,
-                envOffsets: preset.patchEnvelope && preset.patchEnvelope.offsets,
-            });
+            sampleRates.add(settings.sampleRate);
+            const buf = this.buildMidiPatch(false, i);
             const fname = `${String(i).padStart(3, '0')}_${this.slugify(name)}.pat`;
             zip.folder('melodic').file(fname, buf);
             melodicNames.push(fname);
@@ -1006,25 +1178,10 @@ class GusPatchApp {
         this.log(`Building ${this.lib.drums.length} drum patches...`, 'info');
         const drumNames = [];      // ← simpan note + nama file untuk timidity.cfg
         for (let i = 0; i < this.lib.drums.length; i++) {
-            const {note, name, preset: basePreset} = this.lib.drums[i];
+            const {note, name} = this.lib.drums[i];
             const settings = this.getInstrumentGeneratorState('drum', note);
-            const preset = {...basePreset, duration: settings.duration};
-            const SR = settings.sampleRate;
-            sampleRates.add(SR);
-            const r = this.applyOutputGain(
-                new DrumRenderer(preset, SR).render(),
-                preset,
-                this.lib.drumMasterGain
-            );
-            const rootFreq = Math.round(settings.root * 1000);
-            const buf = GusPatchEncoder.encode({
-                name: this.slugify(name).slice(0, 15) || `drum${note}`,
-                pcm: r.pcm, loopStart: 0, loopEnd: 0, isLoop: false,
-                rootFreq,
-                sampleRate: SR,
-                lowFreq: Math.round(8.1757989156 * 1000),
-                highFreq: Math.round(12543.853951 * 1000),
-            });
+            sampleRates.add(settings.sampleRate);
+            const buf = this.buildMidiPatch(true, note);
             const fname = `drum_${String(note).padStart(2, '0')}_${this.slugify(name)}.pat`;
             zip.folder('drums').file(fname, buf);
             drumNames.push({ note, fname });

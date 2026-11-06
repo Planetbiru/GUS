@@ -2205,13 +2205,6 @@ class MidiController {
       const entries=[];
       let completed=tasks.length-missingTasks.length;
 
-      // Default waveform for each instrument: ('sine', 'triangle', 'square' or 'saw')
-      const defaultWaveform = {
-        "0"  : "saw", // Acoustic Grand Piano use saw for demo
-        "24" : "saw", // Nylon Guitar
-        "25" : "saw", // Steel Guitar
-      };
-      
       showStatus(t("demo_generation_progress",{completed,total:tasks.length}));
       for(let index=0;index<missingTasks.length;index++){
         const {instrument,isDrum,bank}=missingTasks[index];
@@ -2225,7 +2218,6 @@ class MidiController {
           const result=projectPatchGenerator.generate({
             isDrum,
             program:instrument.id,
-            waveform:defaultWaveform[instrument.id] || null,
             ...pitchRange
           });
           if(!generated)generated=result;
