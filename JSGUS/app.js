@@ -1080,7 +1080,7 @@ class GusPatchApp {
             for (const waveform of ['null', 'sine', 'square', 'triangle', 'saw']) {
                 const option = document.createElement('option');
                 option.value = waveform;
-                option.textContent = waveform;
+                option.textContent = waveform == 'null' ? '- Not Specified -' : waveform;
                 input.appendChild(option);
             }
             input.value = parentObj[key] == null ? 'null' : parentObj[key];
