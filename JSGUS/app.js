@@ -130,6 +130,7 @@ class GusPatchApp {
         this.currentMidi = null;
         this.logEl = null;
         this._presetModel = null;
+        this.dialogOpenOrder = [];
     }
 
     $(id) { return document.getElementById(id); }
@@ -178,6 +179,7 @@ class GusPatchApp {
         this.buildSidebar();
         this.restoreInstrumentSearch();
         this.bindUI();
+        this.bindDraggableDialogs();
         this.bindKeyboard();
         this.audio.onPlay = analyser => this.setLiveWaveformSource(analyser);
         this.audio.onStop = () => this.restoreLiveWaveformSource();
@@ -213,6 +215,59 @@ class GusPatchApp {
             midi = 0;
         }
         this.selectInstrument(type, midi);
+    }
+
+    bindDraggableDialogs() {
+        document.querySelectorAll('dialog').forEach(dialog => {
+            dialog.querySelectorAll('.dialog-header, .dialog-footer').forEach(handle => {
+                handle.addEventListener('pointerdown', event => {
+                    if (event.button !== 0 || event.target !== handle) return;
+
+                    const rect = dialog.getBoundingClientRect();
+                    const offsetX = event.clientX - rect.left;
+                    const offsetY = event.clientY - rect.top;
+                    handle.setPointerCapture(event.pointerId);
+                    dialog.style.left = `${rect.left}px`;
+                    dialog.style.top = `${rect.top}px`;
+                    dialog.style.transform = 'none';
+                    dialog.style.margin = '0';
+
+                    const moveDialog = moveEvent => {
+                        if (moveEvent.pointerId !== event.pointerId) return;
+                        const left = Math.max(0, Math.min(
+                            window.innerWidth - rect.width,
+                            moveEvent.clientX - offsetX
+                        ));
+                        const top = Math.max(0, Math.min(
+                            window.innerHeight - rect.height,
+                            moveEvent.clientY - offsetY
+                        ));
+                        dialog.style.left = `${left}px`;
+                        dialog.style.top = `${top}px`;
+                    };
+                    const stopDragging = stopEvent => {
+                        if (stopEvent.pointerId !== event.pointerId) return;
+                        handle.removeEventListener('pointermove', moveDialog);
+                        handle.removeEventListener('pointerup', stopDragging);
+                        handle.removeEventListener('pointercancel', stopDragging);
+                    };
+
+                    handle.addEventListener('pointermove', moveDialog);
+                    handle.addEventListener('pointerup', stopDragging);
+                    handle.addEventListener('pointercancel', stopDragging);
+                });
+            });
+        });
+    }
+
+    showDialogCentered(dialog) {
+        dialog.style.removeProperty('left');
+        dialog.style.removeProperty('top');
+        dialog.style.removeProperty('transform');
+        dialog.style.removeProperty('margin');
+        dialog.showModal();
+        this.dialogOpenOrder = this.dialogOpenOrder.filter(openDialog => openDialog.open);
+        this.dialogOpenOrder.push(dialog);
     }
 
     buildSidebar() {
@@ -366,9 +421,11 @@ class GusPatchApp {
         this.$('projectSelect').addEventListener('change', event => this.switchProject(event.target.value));
         this.$('btnNewProject').onclick = () => this.openNewProjectDialog();
         this.$('btnCancelNewProject').onclick = () => this.$('newProjectDialog').close();
+        this.$('btnCloseNewProject').onclick = () => this.$('newProjectDialog').close();
         this.$('btnConfirmNewProject').onclick = () => this.createProjectFromDialog();
         this.$('btnDeleteProject').onclick = () => this.requestDeleteCurrentProject();
         this.$('btnCancelDeleteProject').onclick = () => this.cancelDestructiveConfirmation();
+        this.$('btnCloseDeleteProject').onclick = () => this.cancelDestructiveConfirmation();
         this.$('deleteProjectChallengeAnswer').addEventListener('input', () => this.validateDeleteChallenge());
         this.$('btnConfirmDeleteProject').onclick = () => {
             if (this.pendingResetChallenge) this.confirmResetGeneratorState();
@@ -385,6 +442,7 @@ class GusPatchApp {
         this.$('btnAutoApplyPreset').onclick = () => this.toggleAutoApplyPreset();
         this.$('btnResetPreset').onclick = () => this.requestResetPreset();
         this.$('btnCancelResetPreset').onclick = () => this.cancelResetPreset();
+        this.$('btnCloseResetPreset').onclick = () => this.cancelResetPreset();
         this.$('btnConfirmResetPreset').onclick = () => this.confirmResetPreset();
         this.$('resetPresetDialog').addEventListener('cancel', event => {
             event.preventDefault();
@@ -544,7 +602,7 @@ class GusPatchApp {
             openNewProjectDialog() {
                 this.$('newProjectName').value = '';
                 this.$('newProjectError').textContent = '';
-                this.$('newProjectDialog').showModal();
+                this.showDialogCentered(this.$('newProjectDialog'));
                 this.$('newProjectName').focus();
             }
 
@@ -629,7 +687,7 @@ class GusPatchApp {
                 this.$('deleteProjectError').textContent = '';
                 this.$('btnConfirmDeleteProject').textContent = 'Delete permanently';
                 this.$('btnConfirmDeleteProject').disabled = true;
-                this.$('deleteProjectDialog').showModal();
+                this.showDialogCentered(this.$('deleteProjectDialog'));
                 this.$('deleteProjectChallengeAnswer').focus();
             }
 
@@ -645,7 +703,7 @@ class GusPatchApp {
                 this.$('deleteProjectError').textContent = '';
                 this.$('btnConfirmDeleteProject').textContent = 'Reset Saved State';
                 this.$('btnConfirmDeleteProject').disabled = true;
-                this.$('deleteProjectDialog').showModal();
+                this.showDialogCentered(this.$('deleteProjectDialog'));
                 this.$('deleteProjectChallengeAnswer').focus();
             }
 
@@ -845,7 +903,7 @@ class GusPatchApp {
             if (this.currentType == null || this.currentMidi == null) return;
             this.cancelAutoApplyPreset();
             this.$('resetPresetMessage').textContent = `Restore the factory preset for ${this.$('title').textContent}? Custom changes to this instrument will be discarded.`;
-            this.$('resetPresetDialog').showModal();
+            this.showDialogCentered(this.$('resetPresetDialog'));
             this.$('btnCancelResetPreset').focus();
         }
 
@@ -2333,6 +2391,16 @@ class GusPatchApp {
 
     bindKeyboard() {
         document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                this.dialogOpenOrder = this.dialogOpenOrder.filter(dialog => dialog.open);
+                const topDialog = this.dialogOpenOrder[this.dialogOpenOrder.length - 1];
+                if (topDialog) {
+                    e.preventDefault();
+                    topDialog.querySelector('.dialog-close')?.click();
+                    return;
+                }
+            }
+
             if (e.key === 'F2') {
                 e.preventDefault();
                 const search = this.$('instrumentSearch');

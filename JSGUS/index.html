@@ -29,39 +29,72 @@
 
     <dialog id="newProjectDialog" aria-labelledby="newProjectTitle">
         <div class="dialog-content">
-            <h2 id="newProjectTitle">Create Project</h2>
-            <label for="newProjectName">Project Name</label>
-            <input id="newProjectName" type="text" maxlength="80" autocomplete="off">
-            <div id="newProjectError" class="dialog-error" role="alert"></div>
-            <div class="dialog-actions">
-                <button id="btnCancelNewProject" type="button">Cancel</button>
-                <button id="btnConfirmNewProject" class="primary" type="button">Create</button>
+            <header class="dialog-header">
+                <h2 id="newProjectTitle">Create Project</h2>
+                <button id="btnCloseNewProject" class="dialog-close" type="button" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <label for="newProjectName">Project Name</label>
+                <input id="newProjectName" type="text" maxlength="80" autocomplete="off">
+                <div id="newProjectError" class="dialog-error" role="alert"></div>
             </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelNewProject" type="button">Cancel</button>
+                    <button id="btnConfirmNewProject" class="primary" type="button">Create</button>
+                </div>
+            </footer>
         </div>
     </dialog>
 
     <dialog id="deleteProjectDialog" aria-labelledby="deleteProjectTitle">
         <div class="dialog-content">
-            <h2 id="deleteProjectTitle">Delete Project</h2>
-            <p id="deleteProjectMessage"></p>
-            <label id="deleteProjectChallengePrompt" for="deleteProjectChallengeAnswer"></label>
-            <input id="deleteProjectChallengeAnswer" type="number" inputmode="numeric">
-            <div id="deleteProjectError" class="dialog-error" role="alert"></div>
-            <div class="dialog-actions">
-                <button id="btnCancelDeleteProject" type="button">Cancel</button>
-                <button id="btnConfirmDeleteProject" class="danger" type="button" disabled>Delete Permanently</button>
+            <header class="dialog-header">
+                <h2 id="deleteProjectTitle">Delete Project</h2>
+                <button id="btnCloseDeleteProject" class="dialog-close" type="button" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <p id="deleteProjectMessage"></p>
+                <label id="deleteProjectChallengePrompt" for="deleteProjectChallengeAnswer"></label>
+                <input id="deleteProjectChallengeAnswer" type="number" inputmode="numeric">
+                <div id="deleteProjectError" class="dialog-error" role="alert"></div>
             </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelDeleteProject" type="button">Cancel</button>
+                    <button id="btnConfirmDeleteProject" class="danger" type="button" disabled>Delete Permanently</button>
+                </div>
+            </footer>
         </div>
     </dialog>
 
     <dialog id="resetPresetDialog" aria-labelledby="resetPresetTitle">
         <div class="dialog-content">
-            <h2 id="resetPresetTitle">Restore Preset</h2>
-            <p id="resetPresetMessage"></p>
-            <div class="dialog-actions">
-                <button id="btnCancelResetPreset" type="button">Cancel</button>
-                <button id="btnConfirmResetPreset" class="danger" type="button">Restore Preset</button>
+            <header class="dialog-header">
+                <h2 id="resetPresetTitle">Restore Preset</h2>
+                <button id="btnCloseResetPreset" class="dialog-close" type="button" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <p id="resetPresetMessage"></p>
             </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelResetPreset" type="button">Cancel</button>
+                    <button id="btnConfirmResetPreset" class="danger" type="button">Restore Preset</button>
+                </div>
+            </footer>
         </div>
     </dialog>
 
