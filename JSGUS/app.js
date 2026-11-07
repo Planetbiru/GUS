@@ -829,7 +829,20 @@ class GusPatchApp {
                 ? this.lib.findDrum(midi)
                 : this.lib.melodic[midi];
             if (!instrument) throw new Error(`Unknown ${type} instrument: ${midi}.`);
-            return this.generatorState.presets[`${type}:${midi}`] || instrument.preset;
+            const preset = this.generatorState.presets[`${type}:${midi}`] || instrument.preset;
+            return this.applyPresetLoopPolicy(type, midi, preset);
+        }
+
+        applyPresetLoopPolicy(type, midi, preset) {
+            const program = Number(midi);
+            const oneShot = type === 'melodic'
+                && ((program >= 0 && program <= 15)
+                    || (program >= 24 && program <= 37)
+                    || (program >= 45 && program <= 47)
+                    || program === 55
+                    || (program >= 96 && program <= 108)
+                    || (program >= 112 && program <= 127));
+            return oneShot && preset.loop ? {...preset, loop: false} : preset;
         }
 
         getCurrentPresetKey() {
@@ -944,11 +957,11 @@ class GusPatchApp {
         }
 
         async applyPresetJson() {
-            const preset = this.validatePresetJson();
-            if (!preset) return;
-
             const type = this.currentType;
             const midi = this.currentMidi;
+            const parsedPreset = this.validatePresetJson();
+            if (!parsedPreset) return;
+            const preset = this.applyPresetLoopPolicy(type, midi, parsedPreset);
             const key = this.getCurrentPresetKey();
             try {
                 this.buildMidiPatch(type === 'drum', midi, preset);
@@ -3030,8 +3043,9 @@ class GusPatchApp {
             '─── Technical notes ───────────────────────',
             '  - All patches are generated purely from JavaScript oscillators.',
             '  - Melodic: 16-bit signed PCM with sustain looping enabled for instruments',
-            '    that sustain (strings, brass, reed, pipe, pad, lead, organ, ensemble,',
-            '    overdriven/distortion guitar, and synth bass), from loopStart → loopEnd.',
+            '    that sustain (organs, synth bass, bowed strings, ensembles, brass,',
+            '    reeds, pipes, leads, pads, bagpipe, fiddle, and shanai).',
+            '    Struck, plucked, and one-shot instruments use non-looped samples.',
             '  - Looped samples include MENV and a default envelope (attack ~10ms,',
             '    release ~148ms) so note-off releases notes correctly.',
             '  - Drum   : one-shot, no loop.',
