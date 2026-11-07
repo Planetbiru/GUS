@@ -2244,6 +2244,18 @@ class GusPatchApp {
         this.restoreLiveWaveformSource();
     }
 
+    syncMidiControllerProgramWithSelection() {
+        if (this.midiMode !== 'controller' || !this.midiControllerInput
+            || this.currentType !== 'melodic' || this.currentMidi == null) return;
+
+        const program = Number(this.currentMidi);
+        this.midiControllerPrograms.fill(program);
+        for (let channel = 0; channel < this.midiControllerPrograms.length; channel++) {
+            if (channel !== 9) this.timidityPlayer.sendEvent(this.timidityPlayer.ME_PROGRAM, channel, program);
+        }
+        this.log(`MIDI Controller instrument selection updated: program ${program} (${this.lib.melodic[program].name}) on melodic channels.`);
+    }
+
     handleMidiControllerMessage(event) {
         if (this.midiMode !== 'controller' || !this.timidityPlayer) return;
         const data = event.data;
@@ -2664,6 +2676,7 @@ class GusPatchApp {
         this.setActiveInstrumentList(type);
         this.currentType = type;
         this.currentMidi = midi;
+        if (selectionChanged) this.syncMidiControllerProgramWithSelection();
         const generatorState = this.getInstrumentGeneratorState(type, midi);
         this.generatorState.selected = {type, midi};
         this.persistGeneratorState();
