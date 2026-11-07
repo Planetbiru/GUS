@@ -81,8 +81,21 @@ class GusPatchApp {
         this.activeMidiNoteOwners = new Map();
         this.activeMidiInstrumentNotes = new Map();
         this.collectingMidiInstruments = false;
-        this.generatorState = this.loadGeneratorState();
+        this.generatorState = {selected: null, instruments: {}, presets: {}};
+        this.projects = [];
+        this.currentProjectId = null;
+        this.projectDb = null;
         this.midiPatchReloadTimer = null;
+        this.autoApplyPreset = false;
+        this.autoApplyPresetTimer = null;
+        this.autoApplyPresetGeneration = 0;
+        this.autoApplyPresetQueue = Promise.resolve();
+        this.midiMode = 'file';
+        this.sequencerPlaying = false;
+        this.sequencerMidiData = null;
+        this.sequencerGeneration = 0;
+        this.sequencerLoadPromise = Promise.resolve();
+        this.sequencerUpdateTimer = null;
         this.currentType = null;
         this.currentMidi = null;
         this.logEl = null;
@@ -115,11 +128,18 @@ class GusPatchApp {
     }
 
     // ---- Inisialisasi ----
-    init() {
+    async init() {
         this.logEl = this.$('log');
+        await this.initializeProjects();
         this.buildSidebar();
         this.bindUI();
         this.bindKeyboard();
+        const waveCanvas = this.$('waveCanvas');
+        if (typeof ResizeObserver === 'function') {
+            this.waveCanvasResizeObserver = new ResizeObserver(() => this.drawPreview());
+            this.waveCanvasResizeObserver.observe(waveCanvas);
+        }
+        window.addEventListener('resize', () => this.drawPreview());
         this.log('Application ready. Choose an instrument from the list.', 'ok');
         this.log('Shortcuts: Up/Down = navigate, Space = preview', 'info');
         const selected = this.generatorState.selected;
@@ -258,16 +278,42 @@ class GusPatchApp {
         this.$('btnStop').onclick = () => this.audio.stop();
         this.$('btnDownload').onclick = () => this.downloadCurrent();
         this.$('btnZip').onclick = () => this.downloadAllZip();
-        this.$('btnResetGeneratorState').onclick = () => this.resetGeneratorState();
+        this.$('btnExportMelodicPresets').onclick = () => this.exportPresetSet('melodic');
+        this.$('btnExportDrumPresets').onclick = () => this.exportPresetSet('drum');
+        this.$('btnResetGeneratorState').onclick = () => this.requestResetGeneratorState();
+        this.$('projectSelect').addEventListener('change', event => this.switchProject(event.target.value));
+        this.$('btnNewProject').onclick = () => this.openNewProjectDialog();
+        this.$('btnCancelNewProject').onclick = () => this.$('newProjectDialog').close();
+        this.$('btnConfirmNewProject').onclick = () => this.createProjectFromDialog();
+        this.$('btnDeleteProject').onclick = () => this.requestDeleteCurrentProject();
+        this.$('btnCancelDeleteProject').onclick = () => this.cancelDestructiveConfirmation();
+        this.$('deleteProjectChallengeAnswer').addEventListener('input', () => this.validateDeleteChallenge());
+        this.$('btnConfirmDeleteProject').onclick = () => {
+            if (this.pendingResetChallenge) this.confirmResetGeneratorState();
+            else this.confirmDeleteProject();
+        };
         this.$('instrumentSearch').addEventListener('input', () => this.filterInstrumentList());
-        this.$('btnApplyPreset').onclick = () => this.applyPresetJson();
+        this.$('btnApplyPreset').onclick = () => {
+            this.cancelAutoApplyPreset();
+            this.applyPresetJson();
+        };
+        this.$('btnAutoApplyPreset').onclick = () => this.toggleAutoApplyPreset();
         this.$('btnResetPreset').onclick = () => this.resetCurrentPreset();
-        this.$('presetJson').addEventListener('input', () => this.validatePresetJson());
+        this.$('presetJson').addEventListener('input', () => this.handlePresetJsonInput());
         this.$('btnChooseMidi').onclick = () => this.$('midiFile').click();
         this.$('midiFile').addEventListener('change', event => this.loadMidiFile(event));
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
         this.$('btnMidiStop').onclick = () => this.stopMidiPlayback();
         this.$('btnMidiRender').onclick = () => this.renderMidiToWav();
+        this.$('btnMidiFileMode').onclick = () => this.setMidiMode('file');
+        this.$('btnMidiSequencerMode').onclick = () => this.setMidiMode('sequencer');
+        this.$('btnSequencerPlay').onclick = () => this.startMidiSequencer();
+        this.$('btnSequencerStop').onclick = () => this.stopMidiSequencer();
+        this.$('sequencerTempo').addEventListener('input', () => this.validateSequencerTempo());
+        this.$('sequencerVelocity').addEventListener('input', () => {
+            this.$('sequencerVelocityValue').value = this.$('sequencerVelocity').value;
+            if (this.sequencerPlaying) this.scheduleSequencerPatternUpdate();
+        });
         this.$('midiSeek').addEventListener('input', event => {
             if (!this.midiData || !this.midiDuration) return;
             this.midiSeeking = true;
@@ -308,11 +354,267 @@ class GusPatchApp {
             }
         }
 
+            async initializeProjects() {
+                if (!window.indexedDB) throw new Error('IndexedDB is not available in this browser.');
+                this.projectDb = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('gus-patch-generator-projects', 1);
+                    request.onupgradeneeded = () => {
+                        if (!request.result.objectStoreNames.contains('projects')) {
+                            request.result.createObjectStore('projects', {keyPath: 'id'});
+                        }
+                    };
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+
+                this.projects = await this.readProjects();
+                if (this.projects.length === 0) {
+                    const project = {
+                        id: this.createProjectId(),
+                        name: 'Project 1',
+                        active: true,
+                        state: this.loadGeneratorState(),
+                    };
+                    this.projects = [project];
+                    await this.writeProjects(this.projects);
+                }
+
+                this.projects = this.projects.map(project => ({
+                    ...project,
+                    name: project.name || 'Untitled project',
+                    state: this.normalizeProjectState(project.state),
+                }));
+                const activeProject = this.projects.find(project => project.active) || this.projects[0];
+                this.projects.forEach(project => { project.active = project.id === activeProject.id; });
+                this.currentProjectId = activeProject.id;
+                this.generatorState = this.normalizeProjectState(activeProject.state);
+                await this.writeProjects(this.projects);
+                this.renderProjectControls();
+            }
+
+            createProjectId() {
+                return `project-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+            }
+
+            normalizeProjectState(value) {
+                const state = value && typeof value === 'object' ? value : {};
+                return {
+                    selected: state.selected && typeof state.selected === 'object' ? state.selected : null,
+                    instruments: state.instruments && typeof state.instruments === 'object'
+                        && !Array.isArray(state.instruments) ? state.instruments : {},
+                    presets: state.presets && typeof state.presets === 'object'
+                        && !Array.isArray(state.presets) ? state.presets : {},
+                };
+            }
+
+            readProjects() {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.projectDb.transaction('projects', 'readonly');
+                    const request = transaction.objectStore('projects').getAll();
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            writeProjects(projects, deletedId = null) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.projectDb.transaction('projects', 'readwrite');
+                    const store = transaction.objectStore('projects');
+                    if (deletedId) store.delete(deletedId);
+                    projects.forEach(project => store.put(project));
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error || new Error('Could not save projects.'));
+                    transaction.onabort = () => reject(transaction.error || new Error('Project update was aborted.'));
+                });
+            }
+
+            renderProjectControls() {
+                const select = this.$('projectSelect');
+                select.replaceChildren(...this.projects.map(project => {
+                    const option = document.createElement('option');
+                    option.value = project.id;
+                    option.textContent = project.name;
+                    option.selected = project.id === this.currentProjectId;
+                    return option;
+                }));
+                this.$('btnDeleteProject').disabled = this.projects.length <= 1;
+            }
+
+            openNewProjectDialog() {
+                this.$('newProjectName').value = '';
+                this.$('newProjectError').textContent = '';
+                this.$('newProjectDialog').showModal();
+                this.$('newProjectName').focus();
+            }
+
+            async createProjectFromDialog() {
+                const name = this.$('newProjectName').value.trim();
+                if (!name) {
+                    this.$('newProjectError').textContent = 'Enter a project name.';
+                    this.$('newProjectName').focus();
+                    return;
+                }
+                const button = this.$('btnConfirmNewProject');
+                button.disabled = true;
+                try {
+                    this.saveCurrentGeneratorState(false);
+                    await this.persistGeneratorState();
+                    const project = {
+                        id: this.createProjectId(),
+                        name,
+                        active: true,
+                        state: {selected: null, instruments: {}, presets: {}},
+                    };
+                    this.projects.forEach(entry => { entry.active = false; });
+                    this.projects.push(project);
+                    await this.writeProjects(this.projects);
+                    this.currentProjectId = project.id;
+                    this.generatorState = project.state;
+                    this.currentType = null;
+                    this.currentMidi = null;
+                    this.renderProjectControls();
+                    this.$('newProjectDialog').close();
+                    this.selectInstrument('melodic', 0);
+                    this.log(`Project created: ${name}.`, 'ok');
+                } catch (error) {
+                    this.$('newProjectError').textContent = error.message;
+                } finally {
+                    button.disabled = false;
+                }
+            }
+
+            async switchProject(projectId) {
+                if (projectId === this.currentProjectId) return;
+                const nextProject = this.projects.find(project => project.id === projectId);
+                if (!nextProject) return;
+                try {
+                    this.saveCurrentGeneratorState(false);
+                    await this.persistGeneratorState();
+                    this.projects.forEach(project => { project.active = project.id === projectId; });
+                    await this.writeProjects(this.projects);
+                    this.currentProjectId = projectId;
+                    this.generatorState = this.normalizeProjectState(nextProject.state);
+                    this.currentType = null;
+                    this.currentMidi = null;
+                    const selected = this.generatorState.selected;
+                    const type = selected && selected.type === 'drum' ? 'drum' : 'melodic';
+                    let midi = Number(selected && selected.midi);
+                    if (type === 'drum' && !this.lib.findDrum(midi)) {
+                        midi = this.lib.drums[0].note;
+                    } else if (type === 'melodic' && !this.lib.melodic[midi]) {
+                        midi = 0;
+                    }
+                    this.selectInstrument(type, midi);
+                    this.renderProjectControls();
+                    await this.reloadAllLoadedMidiPatches();
+                    this.log(`Project opened: ${nextProject.name}.`, 'ok');
+                } catch (error) {
+                    this.log(`Could not switch project: ${error.message}`, 'err');
+                    this.renderProjectControls();
+                }
+            }
+
+            requestDeleteCurrentProject() {
+                const project = this.projects.find(entry => entry.id === this.currentProjectId);
+                if (!project || this.projects.length <= 1) return;
+                this.pendingResetChallenge = null;
+                const first = Math.floor(Math.random() * 10) + 1;
+                const second = Math.floor(Math.random() * 10) + 1;
+                this.pendingProjectDeletion = {id: project.id, result: first + second};
+                this.$('deleteProjectTitle').textContent = 'Delete project';
+                this.$('deleteProjectMessage').textContent = `Delete "${project.name}" and all its saved presets? This cannot be undone.`;
+                this.$('deleteProjectChallengePrompt').textContent = `Solve to continue: ${first} + ${second} = ?`;
+                this.$('deleteProjectChallengeAnswer').value = '';
+                this.$('deleteProjectError').textContent = '';
+                this.$('btnConfirmDeleteProject').textContent = 'Delete permanently';
+                this.$('btnConfirmDeleteProject').disabled = true;
+                this.$('deleteProjectDialog').showModal();
+                this.$('deleteProjectChallengeAnswer').focus();
+            }
+
+            requestResetGeneratorState() {
+                const first = Math.floor(Math.random() * 40) + 10;
+                const second = Math.floor(Math.random() * 40) + 10;
+                this.pendingProjectDeletion = null;
+                this.pendingResetChallenge = {result: first + second};
+                this.$('deleteProjectTitle').textContent = 'Reset saved state';
+                this.$('deleteProjectMessage').textContent = 'Reset all saved generator settings and custom presets in the active project? This cannot be undone.';
+                this.$('deleteProjectChallengePrompt').textContent = `Solve to continue: ${first} + ${second} = ?`;
+                this.$('deleteProjectChallengeAnswer').value = '';
+                this.$('deleteProjectError').textContent = '';
+                this.$('btnConfirmDeleteProject').textContent = 'Reset saved state';
+                this.$('btnConfirmDeleteProject').disabled = true;
+                this.$('deleteProjectDialog').showModal();
+                this.$('deleteProjectChallengeAnswer').focus();
+            }
+
+            cancelDestructiveConfirmation() {
+                this.pendingProjectDeletion = null;
+                this.pendingResetChallenge = null;
+                this.$('deleteProjectDialog').close();
+            }
+
+            validateDeleteChallenge() {
+                const answer = Number(this.$('deleteProjectChallengeAnswer').value);
+                const challenge = this.pendingResetChallenge || this.pendingProjectDeletion;
+                const valid = challenge
+                    && this.$('deleteProjectChallengeAnswer').value !== ''
+                    && answer === challenge.result;
+                this.$('btnConfirmDeleteProject').disabled = !valid;
+                this.$('deleteProjectError').textContent = valid || !this.$('deleteProjectChallengeAnswer').value
+                    ? '' : 'That answer is not correct.';
+            }
+
+
+            confirmResetGeneratorState() {
+                if (this.$('btnConfirmDeleteProject').disabled || !this.pendingResetChallenge) return;
+                this.pendingResetChallenge = null;
+                this.$('deleteProjectDialog').close();
+                this.resetGeneratorState();
+            }
+            async confirmDeleteProject() {
+                if (this.$('btnConfirmDeleteProject').disabled || !this.pendingProjectDeletion) return;
+                const deletedId = this.pendingProjectDeletion.id;
+                const wasActive = deletedId === this.currentProjectId;
+                try {
+                    const remaining = this.projects.filter(project => project.id !== deletedId);
+                    if (wasActive) remaining[0].active = true;
+                    await this.writeProjects(remaining, deletedId);
+                    this.projects = remaining;
+                    this.pendingProjectDeletion = null;
+                    this.$('deleteProjectDialog').close();
+                    if (wasActive) {
+                        this.audio.stop();
+                        this.currentProjectId = remaining[0].id;
+                        this.generatorState = this.normalizeProjectState(remaining[0].state);
+                        this.currentType = null;
+                        this.currentMidi = null;
+                        const selected = this.generatorState.selected;
+                        const type = selected && selected.type === 'drum' ? 'drum' : 'melodic';
+                        const midi = type === 'drum' && this.lib.findDrum(Number(selected && selected.midi))
+                            ? Number(selected.midi) : 0;
+                        this.selectInstrument(type, midi);
+                        await this.reloadAllLoadedMidiPatches();
+                    }
+                    this.renderProjectControls();
+                    this.log('Project deleted.', 'ok');
+                } catch (error) {
+                    this.$('deleteProjectError').textContent = `Could not delete project: ${error.message}`;
+                }
+            }
+
         persistGeneratorState() {
             try {
-                localStorage.setItem('gus-patch-generator-state-v1', JSON.stringify(this.generatorState));
-            } catch (error) {
+            const project = this.projects.find(entry => entry.id === this.currentProjectId);
+            if (!project) return Promise.resolve();
+            project.state = this.generatorState;
+            return this.writeProjects([project]).catch(error => {
                 this.log(`Could not save generator settings: ${error.message}`, 'err');
+                return false;
+            });
+            } catch (error) {
+            this.log(`Could not save generator settings: ${error.message}`, 'err');
+            return Promise.resolve(false);
             }
         }
 
@@ -385,6 +687,59 @@ class GusPatchApp {
             }
         }
 
+        handlePresetJsonInput() {
+            const preset = this.validatePresetJson();
+            if (!this.autoApplyPreset) return;
+            if (!preset) {
+                this.cancelAutoApplyPreset();
+                return;
+            }
+            this.scheduleAutoApplyPreset();
+        }
+
+        cancelAutoApplyPreset() {
+            clearTimeout(this.autoApplyPresetTimer);
+            this.autoApplyPresetTimer = null;
+            this.autoApplyPresetGeneration++;
+        }
+
+        toggleAutoApplyPreset() {
+            this.autoApplyPreset = !this.autoApplyPreset;
+            const button = this.$('btnAutoApplyPreset');
+            button.setAttribute('aria-pressed', String(this.autoApplyPreset));
+            button.textContent = `Auto apply: ${this.autoApplyPreset ? 'On' : 'Off'}`;
+
+            if (this.autoApplyPreset) {
+                if (this.validatePresetJson()) this.scheduleAutoApplyPreset();
+            } else {
+                this.cancelAutoApplyPreset();
+            }
+        }
+
+        scheduleAutoApplyPreset() {
+            clearTimeout(this.autoApplyPresetTimer);
+            const generation = ++this.autoApplyPresetGeneration;
+            const jsonText = this.$('presetJson').value;
+            const projectId = this.currentProjectId;
+            const key = this.currentType == null || this.currentMidi == null
+                ? null
+                : `${this.currentType}:${this.currentMidi}`;
+            this.setPresetEditorStatus('Valid JSON. Applying automatically...');
+
+            this.autoApplyPresetTimer = setTimeout(() => {
+                this.autoApplyPresetTimer = null;
+                this.autoApplyPresetQueue = this.autoApplyPresetQueue.catch(() => {}).then(async () => {
+                    const currentKey = this.currentType == null || this.currentMidi == null
+                        ? null
+                        : `${this.currentType}:${this.currentMidi}`;
+                    if (!this.autoApplyPreset || generation !== this.autoApplyPresetGeneration
+                        || jsonText !== this.$('presetJson').value
+                        || projectId !== this.currentProjectId || key !== currentKey) return;
+                    await this.applyPresetJson();
+                });
+            }, 400);
+        }
+
         updatePresetEditor() {
             this.$('presetJson').value = JSON.stringify(
                 this.getInstrumentPreset(this.currentType, this.currentMidi),
@@ -414,11 +769,13 @@ class GusPatchApp {
             this.updatePresetEditor();
             this.drawPreview();
             await this.reloadMidiInstrumentIfUsed(type, midi);
+            await this.reloadRealtimeInstrumentIfUsed(type, midi);
             this.setPresetEditorStatus('Preset applied and patch regenerated.');
             this.log(`Preset applied: ${type} ${midi}.`, 'ok');
         }
 
         async resetCurrentPreset() {
+            this.cancelAutoApplyPreset();
             const type = this.currentType;
             const midi = this.currentMidi;
             const key = this.getCurrentPresetKey();
@@ -438,8 +795,36 @@ class GusPatchApp {
             this.updatePresetEditor();
             this.drawPreview();
             await this.reloadMidiInstrumentIfUsed(type, midi);
+            await this.reloadRealtimeInstrumentIfUsed(type, midi);
             this.setPresetEditorStatus('Factory preset restored.');
             this.log(`Factory preset restored: ${type} ${midi}.`, 'ok');
+        }
+
+        exportPresetSet(type) {
+            const isDrum = type === 'drum';
+            const factoryPresets = isDrum ? GUS_DRUM_PRESETS : GUS_MELODIC_PRESETS;
+            const instruments = isDrum ? this.lib.drums : this.lib.melodic;
+            const presetSet = {
+                gain: factoryPresets.gain,
+                instruments: instruments.map(instrument => {
+                    const midi = isDrum ? instrument.note : instrument.program;
+                    return {
+                        ...instrument,
+                        preset: this.getInstrumentPreset(type, midi),
+                    };
+                }),
+            };
+            const filename = isDrum ? 'drum-presets.json' : 'melodic-presets.json';
+
+            try {
+                FileDownloader.download(
+                    new Blob([JSON.stringify(presetSet, null, 2)], {type: 'application/json'}),
+                    filename
+                );
+                this.log(`${isDrum ? 'Drum' : 'Melodic'} presets exported: ${filename}.`, 'ok');
+            } catch (error) {
+                this.log(`Preset export failed: ${error.message}`, 'err');
+            }
         }
 
         presetWithWaveform(preset, waveform) {
@@ -456,7 +841,7 @@ class GusPatchApp {
             return result;
         }
 
-        saveCurrentGeneratorState() {
+        saveCurrentGeneratorState(persist = true) {
             if (this.currentType == null || this.currentMidi == null) return;
             const key = `${this.currentType}:${this.currentMidi}`;
             this.generatorState.instruments[key] = this.normalizeGeneratorState(this.currentType, this.currentMidi, {
@@ -466,7 +851,7 @@ class GusPatchApp {
                 wave: this.$('wave').value,
             });
             this.generatorState.selected = {type: this.currentType, midi: this.currentMidi};
-            this.persistGeneratorState();
+            if (persist) this.persistGeneratorState();
         }
 
         handleGeneratorInput() {
@@ -492,6 +877,23 @@ class GusPatchApp {
             if (!loadedFile) return;
 
             await this.reloadMidiPatch(type, midi, loadedFile);
+        }
+
+        async reloadRealtimeInstrumentIfUsed(type, midi) {
+            const player = this.timidityPlayer;
+            if (!player?.realtimeSongPtr || type == null || midi == null) return;
+            const loadedFile = this.findLoadedMidiPatch(this.getMidiPatchFile(type, midi));
+            if (!loadedFile) return;
+
+            player.loadedPatches.delete(loadedFile);
+            try {
+                const loaded = await player.setRealtimeInstrument(type === 'drum' ? 9 : 0, midi, 0);
+                if (!loaded) throw new Error('The instrument could not be loaded.');
+            } catch (error) {
+                const message = `Could not reload realtime instrument ${type} ${midi}: ${error.message}`;
+                this.$('midiStatus').textContent = message;
+                this.log(message, 'err');
+            }
         }
 
         getMidiPatchFile(type, midi) {
@@ -550,9 +952,6 @@ class GusPatchApp {
             this.generatorState = {selected: null, instruments: {}, presets: {}};
             this.currentType = null;
             this.currentMidi = null;
-            try {
-                localStorage.removeItem('gus-patch-generator-state-v1');
-            } catch (error) { }
             this.selectInstrument(type, midi);
             this.persistGeneratorState();
             this.reloadAllLoadedMidiPatches();
@@ -581,6 +980,7 @@ class GusPatchApp {
             this.$('midiStatus').textContent = `Loading GM instruments ${loaded}/${total}...`;
         });
         player.on('onMidiLoaded', (_midi, duration) => {
+            if (this.midiMode === 'sequencer') return;
             this.midiDuration = duration || player.totalDuration || 0;
             this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
@@ -593,7 +993,7 @@ class GusPatchApp {
         player.on('onNoteOn', event => this.handleMidiNoteOn(event));
         player.on('onNoteOff', event => this.handleMidiNoteOff(event));
         player.on('onPlaying', (_tick, seconds) => {
-            if (this.midiSeeking) return;
+            if (this.midiMode === 'sequencer' || this.midiSeeking) return;
             this.midiPosition = seconds;
             this.updateMidiPlaybackUI();
         });
@@ -602,6 +1002,11 @@ class GusPatchApp {
             this.updateMidiPlaybackUI();
         });
         player.on('onEnded', () => {
+            if (this.sequencerPlaying && this.midiMode === 'sequencer') {
+                this.clearActiveMidiNotes();
+                this.restartMidiSequencer();
+                return;
+            }
             this.midiPosition = this.midiDuration;
             this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
@@ -883,8 +1288,181 @@ class GusPatchApp {
         }
     }
 
+    async setMidiMode(mode) {
+        if (!['file', 'sequencer'].includes(mode) || mode === this.midiMode) return;
+        if (mode === 'sequencer') {
+            if (this.timidityPlayer?.songPtr && (this.timidityPlayer.isPlaying || this.timidityPlayer.isPaused)) {
+                this.stopMidiPlayback();
+            }
+        } else if (this.sequencerPlaying) {
+            this.stopMidiSequencer();
+        }
+
+        this.midiMode = mode;
+        const isFileMode = mode === 'file';
+        this.$('midiFileMode').hidden = !isFileMode;
+        this.$('midiSequencerMode').hidden = isFileMode;
+        this.$('btnMidiFileMode').classList.toggle('active', isFileMode);
+        this.$('btnMidiFileMode').setAttribute('aria-selected', String(isFileMode));
+        this.$('btnMidiSequencerMode').classList.toggle('active', !isFileMode);
+        this.$('btnMidiSequencerMode').setAttribute('aria-selected', String(!isFileMode));
+        this.$('midiStatus').textContent = isFileMode
+            ? (this.midiData ? `Ready: ${this.midiFileName}` : 'Select a MIDI file to play with the generated GM bank.')
+            : 'Select an instrument, then start the sequencer.';
+        this.updateMidiPlaybackUI();
+    }
+
+    validateSequencerTempo() {
+        const tempoInput = this.$('sequencerTempo');
+        const tempo = Number(tempoInput.value);
+        const valid = Number.isFinite(tempo) && tempo >= 40 && tempo <= 240;
+        tempoInput.setCustomValidity(valid ? '' : 'Tempo must be between 40 and 240 BPM.');
+        tempoInput.disabled = this.sequencerPlaying;
+        this.$('btnSequencerPlay').disabled = !valid || this.sequencerPlaying;
+        return valid;
+    }
+
+    async startMidiSequencer() {
+        if (this.sequencerPlaying || !this.validateSequencerTempo()) return;
+        if (this.currentType == null || this.currentMidi == null) {
+            this.$('midiStatus').textContent = 'Select an instrument before starting the sequencer.';
+            return;
+        }
+
+        try {
+            const player = await this.ensureTimidityPlayer();
+            if (this.midiMode !== 'sequencer') return;
+            this.sequencerPlaying = true;
+            this.sequencerMidiData = this.buildSequencerMidiData();
+            const generation = ++this.sequencerGeneration;
+            this.validateSequencerTempo();
+            this.$('btnSequencerStop').disabled = false;
+            this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
+            await this.queueSequencerLoad(generation);
+        } catch (error) {
+            this.stopMidiSequencer();
+            this.$('midiStatus').textContent = `Sequencer failed: ${error.message}`;
+            this.log(`Sequencer failed: ${error.message}`, 'err');
+        }
+    }
+
+    buildSequencerMidiData() {
+        const isDrum = this.currentType === 'drum';
+        const channel = isDrum ? 9 : 0;
+        const program = isDrum ? 0 : Number(this.currentMidi);
+        const pitches = isDrum ? [Number(this.currentMidi)] : [60, 62, 64, 65];
+        const tempo = Number(this.$('sequencerTempo').value);
+        const velocity = Math.max(1, Math.min(127, Number(this.$('sequencerVelocity').value) || 100));
+        const ticksPerBeat = 480;
+        const microsecondsPerBeat = Math.round(60000000 / tempo);
+        const track = [];
+        const writeDelta = delta => {
+            const bytes = [delta & 0x7f];
+            for (let value = delta >> 7; value > 0; value >>= 7) {
+                bytes.unshift((value & 0x7f) | 0x80);
+            }
+            track.push(...bytes);
+        };
+
+        writeDelta(0);
+        track.push(0xff, 0x51, 0x03,
+            (microsecondsPerBeat >> 16) & 0xff,
+            (microsecondsPerBeat >> 8) & 0xff,
+            microsecondsPerBeat & 0xff);
+        writeDelta(0);
+        track.push(0xc0 | channel, program & 0x7f);
+
+        for (let index = 0; index < pitches.length * 128; index++) {
+            const pitch = pitches[index % pitches.length];
+            writeDelta(0);
+            track.push(0x90 | channel, pitch & 0x7f, velocity);
+            writeDelta(ticksPerBeat);
+            track.push(0x80 | channel, pitch & 0x7f, 0x40);
+        }
+
+        writeDelta(0);
+        track.push(0xff, 0x2f, 0x00);
+        const trackLength = track.length;
+        const header = [
+            0x4d, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06,
+            0x00, 0x00, 0x00, 0x01, (ticksPerBeat >> 8) & 0xff, ticksPerBeat & 0xff,
+            0x4d, 0x54, 0x72, 0x6b,
+            (trackLength >>> 24) & 0xff, (trackLength >>> 16) & 0xff,
+            (trackLength >>> 8) & 0xff, trackLength & 0xff,
+        ];
+        return new Uint8Array([...header, ...track]);
+    }
+
+    async restartMidiSequencer() {
+        if (!this.sequencerPlaying || !this.sequencerMidiData) return;
+        return this.queueSequencerLoad(this.sequencerGeneration);
+    }
+
+    scheduleSequencerPatternUpdate() {
+        clearTimeout(this.sequencerUpdateTimer);
+        this.sequencerUpdateTimer = setTimeout(() => {
+            this.sequencerUpdateTimer = null;
+            this.refreshSequencerPattern();
+        }, 120);
+    }
+
+    refreshSequencerPattern(instrumentChanged = false) {
+        if (!this.sequencerPlaying || this.midiMode !== 'sequencer') return;
+        if (instrumentChanged) this.timidityPlayer?.panic();
+        this.sequencerMidiData = this.buildSequencerMidiData();
+        return this.queueSequencerLoad(++this.sequencerGeneration, true, instrumentChanged);
+    }
+
+    queueSequencerLoad(generation, preservePlayback = false, applyInstrument = false) {
+        this.sequencerLoadPromise = this.sequencerLoadPromise.catch(() => {}).then(async () => {
+            if (!this.sequencerPlaying || this.midiMode !== 'sequencer'
+                || generation !== this.sequencerGeneration) return;
+
+            const player = this.timidityPlayer;
+            const pattern = this.sequencerMidiData;
+            let updatedInPlace = false;
+            if (preservePlayback && player.songPtr && player.isPlaying && !player.isPaused) {
+                updatedInPlace = await player.updateMidiData(pattern);
+            }
+            if (!updatedInPlace) {
+                if (player.songPtr) player.stop();
+                const loaded = await player.load(pattern);
+                if (!loaded) throw new Error('Could not load the sequencer pattern.');
+            }
+
+            if (!this.sequencerPlaying || this.midiMode !== 'sequencer'
+                || generation !== this.sequencerGeneration) {
+                if (!updatedInPlace && player.songPtr) player.stop();
+                return;
+            }
+            if (applyInstrument && this.currentType === 'melodic') {
+                player.sendEvent(player.ME_PROGRAM, 0, Number(this.currentMidi));
+            }
+            if (!updatedInPlace) player.play(0);
+            this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
+        }).catch(error => {
+            if (generation !== this.sequencerGeneration) return;
+            this.stopMidiSequencer();
+            this.$('midiStatus').textContent = `Sequencer failed: ${error.message}`;
+            this.log(`Sequencer failed: ${error.message}`, 'err');
+        });
+        return this.sequencerLoadPromise;
+    }
+
+    stopMidiSequencer() {
+        this.sequencerPlaying = false;
+        this.sequencerGeneration++;
+        clearTimeout(this.sequencerUpdateTimer);
+        this.sequencerUpdateTimer = null;
+        this.sequencerMidiData = null;
+        if (this.timidityPlayer?.songPtr) this.timidityPlayer.stop();
+        this.$('btnSequencerStop').disabled = true;
+        this.validateSequencerTempo();
+        if (this.midiMode === 'sequencer') this.$('midiStatus').textContent = 'Sequencer stopped.';
+    }
+
     async toggleMidiPlayback() {
-        if (!this.midiData) return;
+        if (this.midiMode !== 'file' || !this.midiData) return;
         try {
             const player = await this.ensureTimidityPlayer();
             if (player.isPlaying && !player.isPaused) {
@@ -918,7 +1496,7 @@ class GusPatchApp {
     }
 
     async renderMidiToWav() {
-        if (!this.midiData || this.midiRenderInProgress) return;
+        if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
         this.midiRenderInProgress = true;
         this.updateMidiPlaybackUI();
         const status = this.$('midiStatus');
@@ -953,11 +1531,13 @@ class GusPatchApp {
         const playButton = this.$('btnMidiPlay');
         const seek = this.$('midiSeek');
         const isPlaying = Boolean(this.timidityPlayer?.isPlaying && !this.timidityPlayer.isPaused);
-        playButton.disabled = !this.midiData;
-        playButton.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
-        this.$('btnMidiStop').disabled = !this.midiData;
-        this.$('btnMidiRender').disabled = !this.midiData || this.midiRenderInProgress;
-        seek.disabled = !this.midiData || !this.midiDuration;
+        playButton.disabled = this.midiMode !== 'file' || !this.midiData;
+        this.$('midiPlayIcon').hidden = isPlaying;
+        this.$('midiPauseIcon').hidden = !isPlaying;
+        this.$('midiPlayLabel').textContent = isPlaying ? 'Pause' : 'Play';
+        this.$('btnMidiStop').disabled = this.midiMode !== 'file' || !this.midiData;
+        this.$('btnMidiRender').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
+        seek.disabled = this.midiMode !== 'file' || !this.midiData || !this.midiDuration;
 
         const position = Math.max(0, Math.min(this.midiDuration, this.midiPosition || 0));
         if (!this.midiSeeking) {
@@ -1003,6 +1583,7 @@ class GusPatchApp {
 
     // ---- Seleksi instrumen ----
     selectInstrument(type, midi) {
+        const selectionChanged = type !== this.currentType || Number(midi) !== Number(this.currentMidi);
         this.saveCurrentGeneratorState();
         this.setActiveInstrumentList(type);
         this.currentType = type;
@@ -1033,6 +1614,9 @@ class GusPatchApp {
         this.$('wave').value = generatorState.wave;
         this.updatePresetEditor();
         this.drawPreview();
+        if (selectionChanged && this.sequencerPlaying && this.midiMode === 'sequencer') {
+            this.refreshSequencerPattern(true);
+        }
     }
 
     // ---- Render → PCM ----
@@ -1066,6 +1650,14 @@ class GusPatchApp {
         const r = this.getCurrentPCM();
         if (!r) return;
         const c = this.$('waveCanvas');
+        const rect = c.getBoundingClientRect();
+        const pixelRatio = window.devicePixelRatio || 1;
+        const width = Math.max(1, Math.round(rect.width * pixelRatio));
+        const height = Math.max(1, Math.round(rect.height * pixelRatio));
+        if (c.width !== width || c.height !== height) {
+            c.width = width;
+            c.height = height;
+        }
         const ctx = c.getContext('2d');
         const W = c.width, H = c.height;
         ctx.clearRect(0, 0, W, H);

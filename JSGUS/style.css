@@ -44,7 +44,9 @@ body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg);
     color: var(--fg);
-    min-height: 100dvh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -61,6 +63,43 @@ header h1 {
     font-size: 18px;
     margin: 0;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.title-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.button-with-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.button-icon {
+    display: block;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.button-icon[hidden] {
+    display: none;
 }
 
 header .sub {
@@ -73,6 +112,29 @@ header .sub {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+}
+
+.project-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.project-controls label {
+    color: var(--dim);
+    font-size: 12px;
+}
+
+.project-controls select {
+    min-width: 150px;
+    max-width: min(260px, 42vw);
+    padding: 8px 10px;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
 }
 
 button {
@@ -118,9 +180,84 @@ button.success:hover {
     background: #56d364;
 }
 
+button.danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+button.danger:hover:not(:disabled) {
+    background: var(--danger);
+    color: #000;
+}
+
+button.toggle-button[aria-pressed="true"] {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #000;
+    font-weight: 600;
+}
+
 button:disabled {
     opacity: .5;
     cursor: not-allowed;
+}
+
+dialog {
+    width: min(420px, calc(100vw - 32px));
+    padding: 0;
+    color: var(--fg);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+dialog::backdrop {
+    background: rgb(0 0 0 / 65%);
+}
+
+.dialog-content {
+    padding: 20px;
+}
+
+.dialog-content h2 {
+    margin: 0 0 14px;
+    font-size: 16px;
+}
+
+.dialog-content p {
+    color: var(--dim);
+    line-height: 1.5;
+}
+
+.dialog-content label {
+    display: block;
+    margin: 12px 0 5px;
+    color: var(--dim);
+    font-size: 12px;
+}
+
+.dialog-content input {
+    width: 100%;
+    padding: 9px 10px;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+}
+
+.dialog-error {
+    min-height: 18px;
+    margin-top: 6px;
+    color: var(--danger);
+    font-size: 12px;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
 }
 
 #btnMidiPlay{
@@ -130,7 +267,9 @@ button:disabled {
 .layout {
     display: grid;
     grid-template-columns: 320px 1fr;
-    height: calc(100dvh - 92px);
+    flex: 1;
+    min-height: 0;
+    height: auto;
 }
 
 aside {
@@ -238,15 +377,109 @@ aside {
 
 main {
     overflow-y: auto;
-    padding: 24px;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+        "instrument midi"
+        "log log";
+    align-content: start;
+    gap: 12px;
+    padding: 12px;
 }
 
 .card {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 18px;
+    padding: 12px;
+    margin-bottom: 0;
+}
+
+.instrument-card {
+    grid-area: instrument;
+}
+
+.midi-card {
+    grid-area: midi;
+}
+
+.log-card {
+    grid-area: log;
+}
+
+.instrument-card canvas {
+    height: 128px;
+}
+
+.preset-editor-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.preset-editor-section > .meta,
+.midi-card > .meta {
+    margin-bottom: 8px;
+}
+
+.midi-card .actions {
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.midi-card .field {
+    margin-top: 8px;
+}
+
+.midi-mode-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.midi-mode-switch button {
+    padding: 6px 10px;
+}
+
+.midi-mode-switch button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 600;
+}
+
+.midi-card [role="tabpanel"][hidden] {
+    display: none;
+}
+
+.sequencer-settings {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+}
+
+.sequencer-settings input[type="number"],
+.sequencer-settings input[type="range"] {
+    width: 100%;
+}
+
+.sequencer-settings output {
+    display: block;
+    color: var(--dim);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.sequencer-actions {
+    margin-top: 10px;
+}
+
+.midi-status {
+    margin: 0 0 8px;
 }
 
 .card h2 {
@@ -257,7 +490,7 @@ main {
 .card .meta {
     color: var(--dim);
     font-size: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .grid {
@@ -298,7 +531,8 @@ select:focus-visible {
 #presetJson {
     display: block;
     width: 100%;
-    min-height: 280px;
+    height: min(20dvh, 160px);
+    min-height: 130px;
     padding: 10px;
     resize: vertical;
     background: var(--bg);
@@ -333,7 +567,7 @@ label[for="presetJson"] {
     align-items: center;
     gap: 10px;
     min-width: 0;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 }
 
 .midi-file-picker input[hidden] {
@@ -356,7 +590,7 @@ label[for="presetJson"] {
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: 150px;
+    max-height: 260px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -448,14 +682,14 @@ canvas {
 }
 
 .log {
-    margin-top: 16px;
-    padding: 12px;
+    margin-top: 8px;
+    padding: 8px;
     background: #0a0e14;
     border-radius: 8px;
     font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--dim);
-    max-height: 180px;
+    max-height: 42px;
     overflow-y: auto;
     border: 1px solid var(--border);
 }
@@ -506,13 +740,30 @@ canvas {
 }
 
 @media (max-width:800px) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+        display: block;
+    }
+
     .layout {
         grid-template-columns: 1fr;
         height: auto;
+        flex: none;
     }
 
     aside {
         max-height: 280px;
+    }
+
+    .project-controls {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .project-controls select {
+        flex: 1;
+        min-width: 120px;
     }
 
     .instrument-search-wrap {
@@ -520,6 +771,22 @@ canvas {
     }
 
     main {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "instrument"
+            "preset"
+            "midi"
+            "log";
+        overflow: visible;
         padding: 16px;
+    }
+
+    #presetJson {
+        height: 200px;
+    }
+
+    .sequencer-settings {
+        grid-template-columns: 1fr;
+        gap: 4px;
     }
 }
