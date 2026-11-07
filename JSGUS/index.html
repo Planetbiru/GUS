@@ -17,27 +17,91 @@
 
     <header>
         <div>
-            <h1>🎛️ GUS Patch Generator</h1>
-            <div class="sub">128 GM instruments from pure JavaScript oscillators — preview & download .pat</div>
-        </div>
-        <div class="controls">
-            <button id="btnZip" class="success">📦 Download All (ZIP)</button>
-            <button id="btnResetGeneratorState" type="button">Reset saved state</button>
+            <h1>
+                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M2 14h4m4-6h4m4 8h4" />
+                </svg>
+                <span>GUS Patch Generator</span>
+            </h1>
+            <div class="sub">128 GM instruments · Preview & export .pat</div>
         </div>
     </header>
 
+    <dialog id="newProjectDialog" aria-labelledby="newProjectTitle">
+        <div class="dialog-content">
+            <h2 id="newProjectTitle">Create Project</h2>
+            <label for="newProjectName">Project Name</label>
+            <input id="newProjectName" type="text" maxlength="80" autocomplete="off">
+            <div id="newProjectError" class="dialog-error" role="alert"></div>
+            <div class="dialog-actions">
+                <button id="btnCancelNewProject" type="button">Cancel</button>
+                <button id="btnConfirmNewProject" class="primary" type="button">Create</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="deleteProjectDialog" aria-labelledby="deleteProjectTitle">
+        <div class="dialog-content">
+            <h2 id="deleteProjectTitle">Delete Project</h2>
+            <p id="deleteProjectMessage"></p>
+            <label id="deleteProjectChallengePrompt" for="deleteProjectChallengeAnswer"></label>
+            <input id="deleteProjectChallengeAnswer" type="number" inputmode="numeric">
+            <div id="deleteProjectError" class="dialog-error" role="alert"></div>
+            <div class="dialog-actions">
+                <button id="btnCancelDeleteProject" type="button">Cancel</button>
+                <button id="btnConfirmDeleteProject" class="danger" type="button" disabled>Delete Permanently</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="resetPresetDialog" aria-labelledby="resetPresetTitle">
+        <div class="dialog-content">
+            <h2 id="resetPresetTitle">Restore Preset</h2>
+            <p id="resetPresetMessage"></p>
+            <div class="dialog-actions">
+                <button id="btnCancelResetPreset" type="button">Cancel</button>
+                <button id="btnConfirmResetPreset" class="danger" type="button">Restore Preset</button>
+            </div>
+        </div>
+    </dialog>
+
     <div class="layout">
         <aside>
+            <div class="project-controls">
+                <label for="projectSelect">Project</label>
+                <select id="projectSelect" aria-label="Active project"></select>
+                <button id="btnNewProject" type="button">New Project</button>
+                <button id="btnDeleteProject" class="danger" type="button">Delete Project</button>
+                <button id="btnResetGeneratorState" type="button">Reset Saved State</button>
+                <details class="project-archive-tools">
+                    <summary>Preset Archives</summary>
+                    <div class="project-archive-actions">
+                        <input id="melodicPresetFile" type="file" accept=".json,application/json" hidden>
+                        <input id="drumPresetFile" type="file" accept=".json,application/json" hidden>
+                        <button id="btnZip" class="success button-with-icon">
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M4 4h16v4H4zM5 8v12h14V8M10 12h4" />
+                            </svg>
+                            <span>Download ZIP</span>
+                        </button>
+                        <button id="btnSoundFont" class="success" type="button">Download SF2</button>
+                        <button id="btnImportMelodicPresets" type="button">Import Melodic</button>
+                        <button id="btnImportDrumPresets" type="button">Import Drum</button>
+                        <button id="btnExportMelodicPresets" type="button">Export Melodic</button>
+                        <button id="btnExportDrumPresets" type="button">Export Drum</button>
+                    </div>
+                </details>
+            </div>
+            <div id="instrumentList"></div>
             <div class="instrument-search-wrap">
                 <input id="instrumentSearch" class="search" type="search"
                     placeholder="Search instruments..." aria-label="Search instruments">
                 <div id="instrumentFilterEmpty" class="meta search-empty" hidden>No instruments match your search.</div>
             </div>
-            <div id="instrumentList"></div>
         </aside>
 
         <main>
-            <div class="card">
+            <div class="card instrument-card">
                 <h2 id="title">— Select an instrument —</h2>
                 <div class="meta" id="familyLabel">Click an instrument on the left to get started</div>
 
@@ -45,7 +109,7 @@
                     <div class="field">
                         <label>Base Waveform</label>
                         <select id="wave">
-                            <option value="preset">— From GM preset —</option>
+                            <option value="preset">— From Preset —</option>
                             <option value="sine">Sine</option>
                             <option value="square">Square</option>
                             <option value="saw">Saw</option>
@@ -70,13 +134,33 @@
                     </div>
                 </div>
 
-                <canvas id="waveCanvas" width="800" height="140"></canvas>
+                <canvas id="waveCanvas" width="800" height="128"></canvas>
 
                 <div class="actions">
-                    <button id="btnPlayNote" class="primary">🎹 Play C4</button>
-                    <button id="btnPlayScale">🎼 Scale</button>
-                    <button id="btnStop">⏹ Stop</button>
-                    <button id="btnDownload">⬇ Download .pat</button>
+                    <button id="btnPlayNote" class="primary button-with-icon">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M9 18V5l12-2v13M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm12-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                        </svg>
+                        <span>Play C4</span>
+                    </button>
+                    <button id="btnPlayScale" class="button-with-icon">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M3 5h18v14H3zM8 5v8m5-8v8m5-8v8M6 13h4m4 0h4" />
+                        </svg>
+                        <span>Scale</span>
+                    </button>
+                    <button id="btnStop" class="button-with-icon">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M6 6h12v12H6z" fill="currentColor" />
+                        </svg>
+                        <span>Stop</span>
+                    </button>
+                    <button id="btnDownload" class="button-with-icon">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                        </svg>
+                        <span>Download .pat</span>
+                    </button>
                 </div>
 
                 <div class="stats">
@@ -84,62 +168,136 @@
                     <div>Loop: <b id="statLoop">—</b></div>
                     <div>Bytes: <b id="statBytes">—</b></div>
                 </div>
+                <section class="preset-editor-section" aria-labelledby="presetEditorTitle">
+                    <h2 id="presetEditorTitle">Instrument Preset</h2>
+                    <div class="meta">Edit the selected instrument preset. Apply valid JSON to regenerate its patch and update MIDI playback.</div>
+                    <label for="presetJson">Preset JSON</label>
+                    <textarea id="presetJson" rows="12" spellcheck="false" aria-describedby="presetJsonStatus"></textarea>
+                    <div id="presetJsonStatus" class="preset-json-status" role="status" aria-live="polite"></div>
+                    <div class="actions">
+                        <button id="btnApplyPreset" class="primary" type="button">Apply preset</button>
+                        <button id="btnResetPreset" type="button">Reset to Factory Preset</button>
+                        <button id="btnAutoApplyPreset" class="toggle-button" type="button" aria-pressed="false">
+                            Auto Apply: Off
+                        </button>
+                    </div>
+                </section>
             </div>
 
-            <div class="card">
-                <h2>Instrument Preset JSON</h2>
-                <div class="meta">Edit the selected instrument preset. Apply valid JSON to regenerate its patch and update MIDI playback.</div>
-                <label for="presetJson">Preset JSON</label>
-                <textarea id="presetJson" rows="18" spellcheck="false" aria-describedby="presetJsonStatus"></textarea>
-                <div id="presetJsonStatus" class="preset-json-status" role="status" aria-live="polite"></div>
-                <div class="actions">
-                    <button id="btnApplyPreset" class="primary" type="button">Apply preset</button>
-                    <button id="btnResetPreset" type="button">Reset to factory preset</button>
-                </div>
-            </div>
-
-            <div class="card">
+            <div class="card midi-card">
                 <h2>MIDI Playback</h2>
-                <div class="midi-file-picker">
+                <div class="midi-mode-switch" role="tablist" aria-label="MIDI playback mode">
+                    <button id="btnMidiFileMode" class="active" type="button" role="tab"
+                        aria-selected="true" aria-controls="midiFileMode">MIDI file</button>
+                    <button id="btnMidiSequencerMode" type="button" role="tab"
+                        aria-selected="false" aria-controls="midiSequencerMode">Sequencer</button>
+                </div>
+                <section class="live-waveform" aria-labelledby="liveWaveformTitle">
+                    <h3 id="liveWaveformTitle">Live Output <span id="liveWaveModeLabel">Amplitude</span></h3>
+                    <canvas id="liveWaveCanvas" width="800" height="80"
+                        aria-label="Live output amplitude waveform. Activate to view frequency spectrum."
+                        aria-controls="liveWaveModeLabel" aria-keyshortcuts="Enter Space"
+                        role="button" tabindex="0" title="Toggle amplitude and frequency views"></canvas>
+                </section>
+                <div id="midiFileMode" role="tabpanel" aria-labelledby="btnMidiFileMode">
+                    <div class="midi-file-picker">
                     <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
-                    <button id="btnChooseMidi" type="button">Choose MIDI file</button>
+                    <button id="btnChooseMidi" type="button">Choose MIDI File</button>
                     <span id="midiFileName" class="meta">No file selected</span>
-                </div>
-                <div class="actions">
-                    <button id="btnMidiPlay" class="primary" disabled>▶ Play</button>
-                    <button id="btnMidiStop" disabled>⏹ Stop</button>
-                    <button id="btnMidiRender" disabled>⬇ Render WAV</button>
-                </div>
-                <div class="field">
-                    <input id="midiSeek" type="range" min="0" max="1000" value="0" step="1"
-                        aria-label="MIDI playback position" disabled>
-                    <div class="meta" style="display:flex;justify-content:space-between">
-                        <span id="midiTimeCurrent">00:00</span>
-                        <span id="midiTimeTotal">00:00</span>
+                    </div>
+                    <div class="actions">
+                        <button id="btnMidiPlay" class="primary button-with-icon" disabled>
+                            <svg id="midiPlayIcon" class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M8 5v14l11-7z" fill="currentColor" />
+                            </svg>
+                            <svg id="midiPauseIcon" class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" hidden>
+                                <path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="currentColor" />
+                            </svg>
+                            <span id="midiPlayLabel">Play</span>
+                        </button>
+                        <button id="btnMidiStop" class="button-with-icon" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M6 6h12v12H6z" fill="currentColor" />
+                            </svg>
+                            <span>Stop</span>
+                        </button>
+                        <button id="btnMidiRender" class="button-with-icon" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                            </svg>
+                            <span>Render WAV</span>
+                        </button>
+                    </div>
+                    <div class="midi-transport-row">
+                        <div class="midi-volume-control">
+                            <label for="midiVolume">Volume</label>
+                            <div class="midi-volume-slider-row">
+                                <input id="midiVolume" type="range" min="0" max="100" step="1" value="100">
+                                <output id="midiVolumeValue" for="midiVolume">100%</output>
+                            </div>
+                        </div>
+                        <div class="midi-seek-control">
+                            <div class="midi-seek-times">
+                                <span id="midiTimeCurrent">00:00</span>
+                                <span id="midiTimeTotal">00:00</span>
+                            </div>
+                            <input id="midiSeek" type="range" min="0" max="1000" value="0" step="1"
+                                aria-label="MIDI playback position" disabled>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="midi-instrument-lists">
+                            <section class="midi-instrument-group" aria-labelledby="midiMelodicTitle">
+                                <h3 id="midiMelodicTitle">Melodic</h3>
+                                <ul id="midiMelodicInstrumentList" class="midi-instrument-list" aria-live="polite">
+                                    <li class="midi-instrument-empty">No MIDI loaded.</li>
+                                </ul>
+                            </section>
+                            <section class="midi-instrument-group" aria-labelledby="midiDrumTitle">
+                                <h3 id="midiDrumTitle">Drum Kit</h3>
+                                <ul id="midiDrumInstrumentList" class="midi-instrument-list" aria-live="polite">
+                                    <li class="midi-instrument-empty">No MIDI loaded.</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="field midi-channel-mixer" id="midiChannelMixer" hidden>
+                        <label>Channels</label>
+                        <ul id="midiChannelList" class="midi-channel-list" aria-label="MIDI channel mute and solo"></ul>
                     </div>
                 </div>
-                <div id="midiStatus" class="meta" role="status" aria-live="polite">Select a MIDI file to play with the generated GM bank.</div>
-                <div class="field">
-                    <label>Instruments used</label>
-                    <div class="midi-instrument-lists">
-                        <section class="midi-instrument-group" aria-labelledby="midiMelodicTitle">
-                            <h3 id="midiMelodicTitle">Melodic</h3>
-                            <ul id="midiMelodicInstrumentList" class="midi-instrument-list" aria-live="polite">
-                                <li class="midi-instrument-empty">No MIDI loaded.</li>
-                            </ul>
-                        </section>
-                        <section class="midi-instrument-group" aria-labelledby="midiDrumTitle">
-                            <h3 id="midiDrumTitle">Drum Kit</h3>
-                            <ul id="midiDrumInstrumentList" class="midi-instrument-list" aria-live="polite">
-                                <li class="midi-instrument-empty">No MIDI loaded.</li>
-                            </ul>
-                        </section>
+                <div id="midiSequencerMode" role="tabpanel" aria-labelledby="btnMidiSequencerMode" hidden>
+                    <div class="sequencer-settings">
+                        <div class="field">
+                            <label for="sequencerTempo">Tempo (BPM)</label>
+                            <input id="sequencerTempo" type="number" min="40" max="240" step="1" value="120">
+                        </div>
+                        <div class="field">
+                            <label for="sequencerVelocity">Velocity</label>
+                            <input id="sequencerVelocity" type="range" min="1" max="127" value="100">
+                            <output id="sequencerVelocityValue" for="sequencerVelocity">100</output>
+                        </div>
+                    </div>
+                    <div class="actions sequencer-actions">
+                        <button id="btnSequencerPlay" class="primary button-with-icon" type="button">
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M8 5v14l11-7z" fill="currentColor" />
+                            </svg>
+                            <span>Play sequence</span>
+                        </button>
+                        <button id="btnSequencerStop" class="button-with-icon" type="button" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M6 6h12v12H6z" fill="currentColor" />
+                            </svg>
+                            <span>Stop</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card log-card">
                 <h2>Log</h2>
+                <div id="midiStatus" class="meta midi-status" role="status" aria-live="polite">Select a MIDI file to play with the generated GM bank.</div>
                 <div class="log" id="log">Ready.</div>
                 <div class="progress" id="progressWrap">
                     <div class="progress-bar" id="progressBar"></div>
@@ -154,20 +312,17 @@
     <script src="melodic-presets.js"></script>
     <script src="drum-presets.js"></script>
     <script src="ProjectPatchGenerator.js"></script>
+    <script src="soundfont-exporter.js"></script>
     <script src="app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // =================================================================
-            //                          SECTION 2
-            //                       IMPLEMENTATION
-            // =================================================================
-
             const library = new InstrumentLibrary();
             const app = new GusPatchApp(library);
-            app.init();
+            app.init().catch(error => {
+                console.error('Application initialization failed:', error);
+                document.getElementById('log').textContent = `Could not initialize project storage: ${error.message}`;
+            });
         });
-
-
     </script>
 </body>
 

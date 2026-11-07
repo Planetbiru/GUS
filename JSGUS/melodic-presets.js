@@ -786,7 +786,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Drawbar Organ",
     "description": "Drawbar Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0,
@@ -815,7 +815,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Percussive Organ",
     "description": "Percussive Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0,
@@ -846,7 +846,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Rock Organ",
     "description": "Rock Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0,
@@ -877,7 +877,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Church Organ",
     "description": "Church Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0.7,
@@ -906,7 +906,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Reed Organ",
     "description": "Reed Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -959,7 +959,7 @@ var GUS_MELODIC_PRESETS = {
     "preset": {
       "gain": 0.4,
       "vibratoOnset": 0.2,
-      "drive": 1.5,
+      "drive": 1.3,
       "formants": [
         {
           "freq": 900,
@@ -1007,7 +1007,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harmonica",
     "description": "Harmonica: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -1057,7 +1057,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tango Accordion",
     "description": "Tango Accordion: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -2005,7 +2005,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Violin: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
-      "drive": 0,
+      "drive": 0.15,
       "formants": [
         {
           "freq": 300,
@@ -2091,7 +2091,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Viola: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "vibratoOnset": 0.2,
-      "drive": 0,
+      "drive": 0.15,
       "formants": [
         {
           "freq": 250,
@@ -5732,6 +5732,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Shanai",
     "description": "Shanai: a distinctive folk tone with a bright attack.",
     "preset": {
+      "gain": 0.3,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -5782,6 +5783,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tinkle Bell",
     "description": "Tinkle Bell: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "inharmonicity": 0.008,
       "partialDecay": [
         3,
@@ -5814,6 +5816,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Agogo",
     "description": "Agogo: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "inharmonicity": 0.008,
       "partialDecay": [
         3,
@@ -5845,6 +5848,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Steel Drums",
     "description": "Steel Drums: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "inharmonicity": 0.008,
       "partialDecay": [
         3,
@@ -5879,6 +5883,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Woodblock",
     "description": "Woodblock: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.3,
@@ -5902,6 +5907,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Taiko Drum",
     "description": "Taiko Drum: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.6,
@@ -5926,6 +5932,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Melodic Tom",
     "description": "Melodic Tom: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.4,
@@ -5950,6 +5957,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Synth Drum",
     "description": "Synth Drum: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.4,
@@ -5974,6 +5982,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Reverse Cymbal",
     "description": "Reverse Cymbal: a pitched strike with clear resonance.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.5,
@@ -6002,6 +6011,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Fret Noise",
     "description": "Fret Noise: a recognizable effect with a distinct texture.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.5,
@@ -6030,6 +6040,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Breath Noise",
     "description": "Breath Noise: a recognizable effect with a distinct texture.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.5,
@@ -6058,6 +6069,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Seashore",
     "description": "Seashore: a recognizable effect with a distinct texture.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.5,
@@ -6114,6 +6126,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Telephone",
     "description": "Telephone: a recognizable effect with a distinct texture.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0,
@@ -6147,6 +6160,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Helicopter",
     "description": "Helicopter: a recognizable effect with a distinct texture.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.5,
@@ -6175,6 +6189,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Applause",
     "description": "Applause: a recognizable effect with a distinct texture.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.5,
@@ -6203,6 +6218,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Gunshot",
     "description": "Gunshot: a recognizable effect with a distinct texture.",
     "preset": {
+      "gain": 0.3,
       "harm": [
         1,
         0.5,
