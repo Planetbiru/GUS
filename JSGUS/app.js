@@ -137,6 +137,7 @@ class GusPatchApp {
         this.logEl = null;
         this._presetModel = null;
         this.dialogOpenOrder = [];
+        this.pendingPresetArrayRemoval = null;
     }
 
     $(id) { return document.getElementById(id); }
@@ -412,37 +413,11 @@ class GusPatchApp {
     }
 
     enhanceNumberInputs() {
-        document.querySelectorAll('input[type="number"]:not([data-custom-spinner])').forEach(input => {
-            this.createNumberSpinner(input);
-        });
+        SharedControls.enhanceNumberInputs(document);
     }
 
     createNumberSpinner(input) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'number-input-wrap';
-        input.dataset.customSpinner = 'true';
-        if (input.parentNode) {
-            input.parentNode.insertBefore(wrapper, input);
-        }
-        wrapper.appendChild(input);
-
-        for (const [direction, label] of [['up', 'Increase value'], ['down', 'Decrease value']]) {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = `number-spinner-button number-spinner-${direction}`;
-            button.setAttribute('aria-label', label);
-            button.addEventListener('click', () => {
-                const previousValue = input.value;
-                if (direction === 'up') input.stepUp();
-                else input.stepDown();
-                if (input.value === previousValue) return;
-                input.dispatchEvent(new Event('input', {bubbles: true}));
-                input.dispatchEvent(new Event('change', {bubbles: true}));
-            });
-            wrapper.appendChild(button);
-        }
-
-        return wrapper;
+        return SharedControls.createNumberSpinner(input);
     }
 
     bindUI() {
@@ -488,6 +463,13 @@ class GusPatchApp {
         this.$('resetPresetDialog').addEventListener('cancel', event => {
             event.preventDefault();
             this.cancelResetPreset();
+        });
+        this.$('btnCancelRemovePresetArrayItem').onclick = () => this.cancelRemovePresetArrayItem();
+        this.$('btnCloseRemovePresetArrayItem').onclick = () => this.cancelRemovePresetArrayItem();
+        this.$('btnConfirmRemovePresetArrayItem').onclick = () => this.confirmRemovePresetArrayItem();
+        this.$('removePresetArrayItemDialog').addEventListener('cancel', event => {
+            event.preventDefault();
+            this.cancelRemovePresetArrayItem();
         });
         this.$('presetJson').addEventListener('input', () => this.handlePresetJsonInput());
         this.$('btnChooseMidi').onclick = () => this.$('midiFile').click();
@@ -1207,6 +1189,32 @@ class GusPatchApp {
             return sample;
         }
 
+        requestRemovePresetArrayItem(parentObj, key, index, itemsContainer, path) {
+            this.pendingPresetArrayRemoval = {parentObj, key, index, itemsContainer, path};
+            const arrayPath = path.join('.');
+            this.$('removePresetArrayItemMessage').textContent =
+                `Remove item ${index + 1} from "${arrayPath}"?`;
+            this.showDialogCentered(this.$('removePresetArrayItemDialog'));
+            this.$('btnCancelRemovePresetArrayItem').focus();
+        }
+
+        cancelRemovePresetArrayItem() {
+            this.pendingPresetArrayRemoval = null;
+            const dialog = this.$('removePresetArrayItemDialog');
+            if (dialog.open) dialog.close();
+        }
+
+        confirmRemovePresetArrayItem() {
+            const pending = this.pendingPresetArrayRemoval;
+            if (!pending) return;
+
+            pending.parentObj[pending.key].splice(pending.index, 1);
+            this.pendingPresetArrayRemoval = null;
+            this.$('removePresetArrayItemDialog').close();
+            this.renderPresetArrayItems(pending.parentObj, pending.key, pending.itemsContainer, pending.path);
+            this.onPresetFormChanged();
+        }
+
         renderPresetArrayItems(parentObj, key, itemsContainer, path) {
             itemsContainer.replaceChildren();
             const arr = parentObj[key];
@@ -1221,9 +1229,7 @@ class GusPatchApp {
                 removeBtn.title = 'Remove item';
                 removeBtn.innerHTML = '<svg class="preset-array-remove-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M10 11v6m4-6v6M5 7l1 13h12l1-13M9 7V4h6v3"></path></svg>';
                 removeBtn.addEventListener('click', () => {
-                    arr.splice(index, 1);
-                    this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
-                    this.onPresetFormChanged();
+                    this.requestRemovePresetArrayItem(parentObj, key, index, itemsContainer, path);
                 });
 
                 if (item !== null && typeof item === 'object' && !Array.isArray(item)) {
