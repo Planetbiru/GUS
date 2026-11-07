@@ -117,6 +117,7 @@ class GusPatchApp {
         this.autoApplyPresetQueue = Promise.resolve();
         this.midiMode = 'file';
         this.sequencerPlaying = false;
+        this.sequencerPaused = false;
         this.sequencerMidiData = null;
         this.sequencerGeneration = 0;
         this.sequencerLoadPromise = Promise.resolve();
@@ -128,6 +129,7 @@ class GusPatchApp {
         this.currentType = null;
         this.currentMidi = null;
         this.logEl = null;
+        this._presetModel = null;
     }
 
     $(id) { return document.getElementById(id); }
@@ -403,6 +405,7 @@ class GusPatchApp {
         this.$('btnMidiFileMode').onclick = () => this.setMidiMode('file');
         this.$('btnMidiSequencerMode').onclick = () => this.setMidiMode('sequencer');
         this.$('btnSequencerPlay').onclick = () => this.startMidiSequencer();
+        this.$('btnSequencerPause').onclick = () => this.toggleSequencerPause();
         this.$('btnSequencerStop').onclick = () => this.stopMidiSequencer();
         this.$('sequencerTempo').addEventListener('input', () => this.validateSequencerTempo());
         this.$('sequencerVelocity').addEventListener('input', () => {
@@ -426,6 +429,9 @@ class GusPatchApp {
         ['sr', 'root', 'dur', 'wave'].forEach(id => {
             this.$(id).addEventListener('input', () => this.handleGeneratorInput());
         });
+
+        this.$('btnPresetFormMode').onclick = () => this.setPresetEditorMode('form');
+        this.$('btnPresetJsonMode').onclick = () => this.setPresetEditorMode('json');
     }
 
     loadGeneratorState() {
@@ -854,11 +860,12 @@ class GusPatchApp {
         }
 
         updatePresetEditor() {
-            this.$('presetJson').value = JSON.stringify(
-                this.getInstrumentPreset(this.currentType, this.currentMidi),
-                null,
-                2
-            );
+            const preset = this.getInstrumentPreset(this.currentType, this.currentMidi);
+            this.$('presetJson').value = JSON.stringify(preset, null, 2);
+            // Rebuild form hanya jika isi preset berbeda dari yang tampil di form.
+            if (JSON.stringify(preset) !== JSON.stringify(this._presetModel)) {
+                this.buildPresetForm(preset);
+            }
             this.validatePresetJson();
         }
 
@@ -883,8 +890,337 @@ class GusPatchApp {
             this.drawPreview();
             await this.reloadMidiInstrumentIfUsed(type, midi);
             await this.reloadRealtimeInstrumentIfUsed(type, midi);
+            if (this.sequencerPlaying && this.midiMode === 'sequencer') {
+                await this.restartMidiSequencer();
+            }
             this.setPresetEditorStatus('Preset applied and patch regenerated.');
             this.log(`Preset applied: ${type} ${midi}.`, 'ok');
+        }
+
+        // ---- Preset form editor ----
+
+        setPresetEditorMode(mode) {
+            const isForm = mode === 'form';
+            this.$('presetFormPanel').hidden = !isForm;
+            this.$('presetJsonPanel').hidden = isForm;
+            this.$('btnPresetFormMode').classList.toggle('active', isForm);
+            this.$('btnPresetJsonMode').classList.toggle('active', !isForm);
+            this.$('btnPresetFormMode').setAttribute('aria-selected', String(isForm));
+            this.$('btnPresetJsonMode').setAttribute('aria-selected', String(!isForm));
+            if (isForm) {
+                // Sinkronkan form dari textarea jika isinya berbeda.
+                try {
+                    const parsed = JSON.parse(this.$('presetJson').value);
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+                        && JSON.stringify(parsed) !== JSON.stringify(this._presetModel)) {
+                        this.buildPresetForm(parsed);
+                    }
+                } catch (e) { /* biarkan form apa adanya jika JSON tidak valid */ }
+            }
+        }
+
+        buildPresetForm(preset) {
+            const form = this.$('presetForm');
+            if (!form) return;
+            form.replaceChildren();
+            this._presetModel = JSON.parse(JSON.stringify(preset));
+            this.renderPresetObjectInto(this._presetModel, form, []);
+            form.scrollTop = 0;
+        }
+
+        renderPresetObjectInto(obj, container, path) {
+            for (const key of Object.keys(obj)) {
+                this.renderPresetField(obj, key, container, path);
+            }
+        }
+
+        renderPresetField(parentObj, key, container, path) {
+            const value = parentObj[key];
+            const fieldPath = [...path, key];
+
+            if (key === 'defaultWaveform') {
+                this.renderPresetWaveformField(parentObj, key, container, fieldPath);
+            } else if (Array.isArray(value)) {
+                this.renderPresetArrayField(parentObj, key, container, fieldPath);
+            } else if (value !== null && typeof value === 'object') {
+                this.renderPresetObjectField(parentObj, key, container, fieldPath);
+            } else {
+                this.renderPresetScalarField(parentObj, key, container, fieldPath);
+            }
+        }
+
+        labelForKey(key) {
+            return key
+                .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+                .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+                .split(' ')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(' ');
+        }
+
+        renderPresetWaveformField(parentObj, key, container, path) {
+            const row = document.createElement('div');
+            row.className = 'preset-field';
+
+            const label = document.createElement('label');
+            label.textContent = this.labelForKey(key);
+            const input = document.createElement('select');
+            input.id = 'presetField_' + path.join('_');
+            label.htmlFor = input.id;
+
+            for (const waveform of ['null', 'sine', 'square', 'triangle', 'saw']) {
+                const option = document.createElement('option');
+                option.value = waveform;
+                option.textContent = waveform;
+                input.appendChild(option);
+            }
+            input.value = parentObj[key] == null ? 'null' : parentObj[key];
+            input.addEventListener('change', () => {
+                parentObj[key] = input.value === 'null' ? null : input.value;
+                this.onPresetFormChanged();
+                this.cancelAutoApplyPreset();
+                this.applyPresetJson().catch(error => {
+                    this.setPresetEditorStatus(`Preset apply failed: ${error.message}`, true);
+                    this.log(`Preset apply failed: ${error.message}`, 'err');
+                });
+            });
+
+            row.append(label, input);
+            container.appendChild(row);
+        }
+
+        renderPresetScalarField(parentObj, key, container, path) {
+            const value = parentObj[key];
+            const row = document.createElement('div');
+            row.className = 'preset-field';
+
+            const label = document.createElement('label');
+            label.textContent = this.labelForKey(key);
+            const inputId = 'presetField_' + path.join('_');
+            label.htmlFor = inputId;
+
+            let input;
+            if (typeof value === 'boolean') {
+                input = document.createElement('input');
+                input.type = 'checkbox';
+                input.checked = value;
+                input.addEventListener('change', () => {
+                    parentObj[key] = input.checked;
+                    this.onPresetFormChanged();
+                });
+            } else if (typeof value === 'number') {
+                input = this.createPresetNumberInput(
+                    () => parentObj[key],
+                    (n) => { parentObj[key] = n; }
+                );
+            } else if (typeof value === 'string') {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.value = value;
+                input.addEventListener('input', () => {
+                    parentObj[key] = input.value;
+                    this.onPresetFormChanged();
+                });
+            } else {
+                return;
+            }
+            input.id = inputId;
+            row.append(label, input);
+            container.appendChild(row);
+        }
+
+        renderPresetObjectField(parentObj, key, container, path) {
+            const value = parentObj[key];
+            const fieldset = document.createElement('fieldset');
+            fieldset.className = 'preset-fieldset';
+            const legend = document.createElement('legend');
+            legend.textContent = this.labelForKey(key);
+            fieldset.appendChild(legend);
+            for (const subKey of Object.keys(value)) {
+                this.renderPresetField(value, subKey, fieldset, [...path, subKey]);
+            }
+            container.appendChild(fieldset);
+        }
+
+        renderPresetArrayField(parentObj, key, container, path) {
+            const fieldset = document.createElement('fieldset');
+            fieldset.className = 'preset-fieldset';
+            const legend = document.createElement('legend');
+            legend.textContent = this.labelForKey(key);
+            fieldset.appendChild(legend);
+
+            const itemsContainer = document.createElement('div');
+            itemsContainer.className = 'preset-array-items';
+            fieldset.appendChild(itemsContainer);
+
+            this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
+
+            // Tombol Add hanya muncul jika tipe item bisa dideteksi (array tidak kosong).
+            // Untuk array objek kosong kita tidak tahu shape-nya, jadi Add disembunyikan.
+            const arr = parentObj[key];
+            const canAdd = arr.length > 0;
+            if (canAdd) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'preset-array-add';
+                addBtn.textContent = '+ Add';
+                addBtn.addEventListener('click', () => {
+                    const sample = arr[arr.length - 1];
+                    arr.push(this.cloneArraySample(sample));
+                    this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
+                    this.onPresetFormChanged();
+                });
+                fieldset.appendChild(addBtn);
+            }
+            container.appendChild(fieldset);
+        }
+
+        cloneArraySample(sample) {
+            if (sample === null || sample === undefined) return 0;
+            if (typeof sample === 'object') return JSON.parse(JSON.stringify(sample));
+            return sample;
+        }
+
+        renderPresetArrayItems(parentObj, key, itemsContainer, path) {
+            itemsContainer.replaceChildren();
+            const arr = parentObj[key];
+            arr.forEach((item, index) => {
+                const itemWrap = document.createElement('div');
+                itemWrap.className = 'preset-array-item';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'preset-array-remove';
+                removeBtn.textContent = '−';
+                removeBtn.title = 'Remove item';
+                removeBtn.addEventListener('click', () => {
+                    arr.splice(index, 1);
+                    this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
+                    this.onPresetFormChanged();
+                });
+
+                if (item !== null && typeof item === 'object' && !Array.isArray(item)) {
+                    const body = document.createElement('div');
+                    body.className = 'preset-array-item-body';
+                    for (const subKey of Object.keys(item)) {
+                        this.renderPresetField(item, subKey, body, [...path, String(index), subKey]);
+                    }
+                    itemWrap.append(body, removeBtn);
+                } else if (typeof item === 'number') {
+                    const input = this.createPresetNumberInput(
+                        () => arr[index],
+                        (n) => { arr[index] = n; }
+                    );
+                    itemWrap.append(input, removeBtn);
+                } else if (typeof item === 'boolean') {
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.checked = item;
+                    input.addEventListener('change', () => {
+                        arr[index] = input.checked;
+                        this.onPresetFormChanged();
+                    });
+                    itemWrap.append(input, removeBtn);
+                } else if (typeof item === 'string') {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = item;
+                    input.addEventListener('input', () => {
+                        arr[index] = input.value;
+                        this.onPresetFormChanged();
+                    });
+                    itemWrap.append(input, removeBtn);
+                } else {
+                    return;
+                }
+
+                itemsContainer.appendChild(itemWrap);
+            });
+        }
+
+        onPresetFormChanged() {
+            // Sinkronkan ke textarea & jalankan alur validasi/auto-apply yang sudah ada.
+            this.$('presetJson').value = JSON.stringify(this._presetModel, null, 2);
+            this.handlePresetJsonInput();
+        }
+
+        // ---- Number input helpers untuk form preset ----
+
+        parsePresetNumber(raw) {
+            if (typeof raw !== 'string') return NaN;
+            const trimmed = raw.trim();
+            if (!trimmed) return NaN;
+            // Normalisasi koma desimal (locale id-ID, dll.) → titik
+            const normalized = trimmed.replace(',', '.');
+            const n = parseFloat(normalized);
+            return Number.isFinite(n) ? n : NaN;
+        }
+
+        createPresetNumberInput(get, set) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.setAttribute('inputmode', 'decimal');
+
+            const initial = get();
+            input.value = String(initial);
+            input.step = String(this.computePresetStep(initial));
+
+            const syncStep = value => {
+                input.step = String(this.computePresetStep(value));
+            };
+
+            input.addEventListener('input', () => {
+                const n = this.parsePresetNumber(input.value);
+                if (!Number.isFinite(n)) return;   // transien (mis. user mengetik "0.")
+                syncStep(n);
+                set(n);
+                this.onPresetFormChanged();
+            });
+
+            input.addEventListener('blur', () => {
+                const n = this.parsePresetNumber(input.value);
+                if (!Number.isFinite(n)) {
+                    input.value = String(get());   // kembalikan ke nilai model terakhir
+                } else {
+                    syncStep(n);
+                }
+            });
+
+            return input;
+        }
+
+        computePresetStep(value) {
+            const abs = Math.abs(value);
+            if (!Number.isFinite(abs) || abs === 0) return 0.001;
+
+            // 1) Langkah minimum berdasarkan magnitude — supaya nilai besar
+            //    tidak perlu diklik ratusan kali.
+            let magnitudeStep;
+            if (abs >= 100)          magnitudeStep = 1;
+            else if (abs >= 10)      magnitudeStep = 0.1;
+            else if (abs >= 1)       magnitudeStep = 0.01;
+            else if (abs >= 0.1)     magnitudeStep = 0.001;
+            else if (abs >= 0.001)   magnitudeStep = 0.001;
+            else if (abs >= 0.0001)  magnitudeStep = 0.0001;
+            else if (abs >= 0.00001) magnitudeStep = 0.00001;
+            else                     magnitudeStep = 0.000001;
+
+            // 2) Jika nilai punya lebih banyak desimal daripada langkah magnitude,
+            //    turunkan step agar nilai tersebut tetap on-grid (tidak di-snap
+            //    browser ke grid yang lebih kasar).
+            const str = abs.toString();
+            let decimals = 0;
+            if (str.includes('e-')) {
+                decimals = parseInt(str.split('e-')[1], 10) || 0;
+            } else if (str.includes('.')) {
+                decimals = (str.split('.')[1] || '').length;
+            }
+            if (decimals > 0 && decimals <= 10) {
+                const valueStep = Number('1e-' + decimals);
+                if (valueStep < magnitudeStep) return valueStep;
+            }
+
+            return magnitudeStep;
         }
 
         async resetCurrentPreset() {
@@ -1003,14 +1339,25 @@ class GusPatchApp {
 
         presetWithWaveform(preset, waveform) {
             const result = {...preset};
-            if (waveform === 'preset') return result;
+            const usePresetWaveform = waveform === 'preset';
+            const selectedWaveform = usePresetWaveform
+                ? preset.defaultWaveform
+                : waveform;
+            if (selectedWaveform == null) return result;
             const waves = {
                 sine: [1],
                 square: [1, 0, .33, 0, .2, 0, .14, 0, .11, 0, .09],
                 saw: [1, .5, .33, .25, .2, .16, .14, .12, .1, .09, .08, .07],
                 triangle: [1, 0, -.11, 0, .04, 0, -.02, 0, .012],
             };
-            result.harm = waves[waveform];
+            const harmonics = usePresetWaveform
+                ? ProjectPatchGenerator.waveformHarmonics(
+                    selectedWaveform,
+                    (preset.harm || [1]).length
+                )
+                : waves[selectedWaveform];
+            if (!harmonics) throw new Error(`Unknown waveform: ${selectedWaveform}.`);
+            result.harm = harmonics;
             delete result.fm;
             return result;
         }
@@ -1163,6 +1510,7 @@ class GusPatchApp {
         player.on('onMidiEvent', event => {
             if (event.eventType === player.ME_PROGRAM) {
                 this.midiChannelPrograms.set(event.channel, event.a & 0x7f);
+                this.renderMidiChannelList();
             }
         });
         player.on('onNoteOn', event => this.handleMidiNoteOn(event));
@@ -1177,7 +1525,12 @@ class GusPatchApp {
         player.on('onPause', () => {
             this.midiPosition = player.getTime() / 1000;
             this.updateMidiPlaybackUI();
-            this.restoreLiveWaveformSource();
+            if (this.midiMode === 'sequencer' && this.sequencerPaused) {
+                if (this.liveWaveformFrame) cancelAnimationFrame(this.liveWaveformFrame);
+                this.liveWaveformFrame = null;
+            } else {
+                this.restoreLiveWaveformSource();
+            }
         });
         player.on('onEnded', () => {
             if (this.sequencerPlaying && this.midiMode === 'sequencer') {
@@ -1185,9 +1538,8 @@ class GusPatchApp {
                 this.restartMidiSequencer();
                 return;
             }
-            this.midiPosition = this.midiDuration;
-            this.clearActiveMidiNotes();
-            this.updateMidiPlaybackUI();
+            this.stopMidiPlayback();
+            this.$('midiStatus').textContent = `Ready: ${this.midiFileName}`;
         });
         player.on('onStop', () => {
             this.clearActiveMidiNotes();
@@ -1338,6 +1690,13 @@ class GusPatchApp {
         this.midiChannelsUsed = [...new Set(channels)]
             .filter(channel => Number.isInteger(channel) && channel >= 0 && channel < 16)
             .sort((a, b) => a - b);
+        for (const channel of this.midiChannelsUsed) {
+            if (channel === 9) continue;
+            const program = this.timidityPlayer?.getProgram(channel, 0);
+            if (Number.isInteger(program) && program >= 0 && program < this.lib.melodic.length) {
+                this.midiChannelPrograms.set(channel, program);
+            }
+        }
         const nextStates = new Map();
         for (const channel of this.midiChannelsUsed) {
             nextStates.set(channel, this.midiChannelStates.get(channel) || {mute: false, solo: false});
@@ -1359,7 +1718,12 @@ class GusPatchApp {
             item.className = 'midi-channel-row';
             const name = document.createElement('span');
             name.className = 'midi-channel-name';
-            name.textContent = channel === 9 ? 'Channel 10 · Drums' : `Channel ${channel + 1}`;
+            const instrumentName = channel === 9
+                ? 'Drums'
+                : this.lib.melodic[this.midiChannelPrograms.get(channel) ?? 0]?.name;
+            name.textContent = channel === 9
+                ? 'Channel 10 (Drums)'
+                : `Channel ${channel + 1} (${instrumentName || 'Unknown instrument'})`;
 
             const controls = document.createElement('span');
             controls.className = 'midi-channel-controls';
@@ -1698,6 +2062,14 @@ class GusPatchApp {
         return valid;
     }
 
+    updateSequencerControls() {
+        this.$('btnSequencerPause').disabled = !this.sequencerPlaying;
+        this.$('btnSequencerPause').querySelector('span').textContent =
+            this.sequencerPaused ? 'Resume' : 'Pause';
+        this.$('btnSequencerStop').disabled = !this.sequencerPlaying;
+        this.validateSequencerTempo();
+    }
+
     async startMidiSequencer() {
         if (this.sequencerPlaying || !this.validateSequencerTempo()) return;
         if (this.currentType == null || this.currentMidi == null) {
@@ -1709,16 +2081,42 @@ class GusPatchApp {
             const player = await this.ensureTimidityPlayer();
             if (this.midiMode !== 'sequencer') return;
             this.sequencerPlaying = true;
+            this.sequencerPaused = false;
             this.sequencerMidiData = this.buildSequencerMidiData();
             const generation = ++this.sequencerGeneration;
             this.validateSequencerTempo();
             this.$('btnSequencerStop').disabled = false;
+            this.$('btnSequencerPause').disabled = true;
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
             await this.queueSequencerLoad(generation);
         } catch (error) {
             this.stopMidiSequencer();
             this.$('midiStatus').textContent = `Sequencer failed: ${error.message}`;
             this.log(`Sequencer failed: ${error.message}`, 'err');
+        }
+    }
+
+    async toggleSequencerPause() {
+        const player = this.timidityPlayer;
+        if (!this.sequencerPlaying || !player?.songPtr) return;
+
+        const resuming = this.sequencerPaused;
+        try {
+            if (resuming) {
+                await player.resume();
+                this.sequencerPaused = false;
+                this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
+            } else {
+                this.sequencerPaused = true;
+                player.pause();
+                this.$('midiStatus').textContent = `Sequencer paused: ${this.currentType} ${this.currentMidi}.`;
+            }
+            this.updateSequencerControls();
+        } catch (error) {
+            if (resuming) this.sequencerPaused = true;
+            this.updateSequencerControls();
+            this.$('midiStatus').textContent = `Sequencer ${resuming ? 'resume' : 'pause'} failed: ${error.message}`;
+            this.log(`Sequencer ${resuming ? 'resume' : 'pause'} failed: ${error.message}`, 'err');
         }
     }
 
@@ -1816,6 +2214,7 @@ class GusPatchApp {
             }
             if (!updatedInPlace) player.play(0);
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
+            this.updateSequencerControls();
         }).catch(error => {
             if (generation !== this.sequencerGeneration) return;
             this.stopMidiSequencer();
@@ -1827,13 +2226,13 @@ class GusPatchApp {
 
     stopMidiSequencer() {
         this.sequencerPlaying = false;
+        this.sequencerPaused = false;
         this.sequencerGeneration++;
         clearTimeout(this.sequencerUpdateTimer);
         this.sequencerUpdateTimer = null;
         this.sequencerMidiData = null;
         if (this.timidityPlayer?.songPtr) this.timidityPlayer.stop();
-        this.$('btnSequencerStop').disabled = true;
-        this.validateSequencerTempo();
+        this.updateSequencerControls();
         if (this.midiMode === 'sequencer') this.$('midiStatus').textContent = 'Sequencer stopped.';
     }
 

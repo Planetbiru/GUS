@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="GUS Patch Generator — 128 GM instruments from pure JavaScript oscillators — preview & download .pat">
+        content="Instrument Generator — 128 GM instruments with audio preview and .pat or SoundFont export">
     <meta name="keywords"
         content="GUS, Gravis Ultrasound, patch generator, GM instruments, JavaScript oscillators, preview, download, .pat">
     <meta name="author" content="Kamshory">
-    <title>GUS Patch Generator — 128 GM Instruments</title>
+    <title>Instrument Generator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -21,9 +21,9 @@
                 <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M2 14h4m4-6h4m4 8h4" />
                 </svg>
-                <span>GUS Patch Generator</span>
+                <span>Instrument Generator</span>
             </h1>
-            <div class="sub">128 GM instruments · Preview & export .pat</div>
+            <div class="sub">128 GM Instruments</div>
         </div>
     </header>
 
@@ -165,10 +165,27 @@
                 </div>
                 <section class="preset-editor-section" aria-labelledby="presetEditorTitle">
                     <h2 id="presetEditorTitle">Instrument Preset</h2>
-                    <div class="meta">Edit the selected instrument preset. Apply valid JSON to regenerate its patch and update MIDI playback.</div>
-                    <label for="presetJson">Preset JSON</label>
-                    <textarea id="presetJson" rows="12" spellcheck="false" aria-describedby="presetJsonStatus"></textarea>
+                    <div class="meta">Changing Default Waveform applies immediately. Use Apply preset to apply other valid changes and update MIDI playback.</div>
+
+                    <div class="preset-editor-tabs" role="tablist" aria-label="Preset editor mode">
+                        <button id="btnPresetFormMode" class="active" type="button" role="tab"
+                            aria-selected="true" aria-controls="presetFormPanel">Form</button>
+                        <button id="btnPresetJsonMode" type="button" role="tab"
+                            aria-selected="false" aria-controls="presetJsonPanel">JSON</button>
+                    </div>
+
+                    <div id="presetFormPanel" role="tabpanel" aria-labelledby="btnPresetFormMode">
+                        <div id="presetForm" class="preset-form"></div>
+                    </div>
+
+                    <div id="presetJsonPanel" role="tabpanel" aria-labelledby="btnPresetJsonMode" hidden>
+                        <label for="presetJson">Preset JSON</label>
+                        <textarea id="presetJson" rows="12" spellcheck="false"
+                            aria-describedby="presetJsonStatus"></textarea>
+                    </div>
+
                     <div id="presetJsonStatus" class="preset-json-status" role="status" aria-live="polite"></div>
+
                     <div class="actions">
                         <button id="btnApplyPreset" class="primary" type="button">Apply preset</button>
                         <button id="btnResetPreset" type="button">Reset to Factory Preset</button>
@@ -280,6 +297,9 @@
                             </svg>
                             <span>Play sequence</span>
                         </button>
+                        <button id="btnSequencerPause" class="button-with-icon" type="button" disabled>
+                            <span>Pause</span>
+                        </button>
                         <button id="btnSequencerStop" class="button-with-icon" type="button" disabled>
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <path d="M6 6h12v12H6z" fill="currentColor" />
@@ -303,7 +323,7 @@
 
     <script src="../timidity-player/timidity-player.js"></script>
     <script src="../timidity-player/libtimidity.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="../jszip/jszip.min.js"></script>
     <script src="melodic-presets.js"></script>
     <script src="drum-presets.js"></script>
     <script src="ProjectPatchGenerator.js"></script>
