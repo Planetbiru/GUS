@@ -35,6 +35,7 @@ class ProjectPatchGenerator {
     let rootFreq;
     let appliedWaveform = null;
     let preset = null;
+    let renderSampleRate = this.sampleRate;
     let shortName;
     let description;
 
@@ -91,8 +92,11 @@ class ProjectPatchGenerator {
         rootFreq = isFullPitchRange
             ? (preset.freq || 441)
             : ProjectPatchGenerator.midiPitchToFrequency(rootNote);
+        if (preset.loop && rootFreq > renderSampleRate / 5) {
+            renderSampleRate = Math.ceil(rootFreq * 5);
+        }
         rendered = new MelodicRenderer(preset, {
-        sampleRate: this.sampleRate,
+        sampleRate: renderSampleRate,
         freq: rootFreq,
         duration: this.duration
         }).render();
@@ -159,10 +163,10 @@ class ProjectPatchGenerator {
         dataSize: pcm.length,
         loopStart: rendered.loop ? rendered.loopStart * 2 : 0,
         loopEnd:   rendered.loop ? rendered.loopEnd   * 2 : 0,
-        sampleRate: this.sampleRate,
+        sampleRate: renderSampleRate,
         lowFreq,
         highFreq,
-        rootFreq: Math.round(rootFreq * 1000),
+        rootFreq: Math.round((rendered.naturalFreq || rootFreq) * 1000),
         tune: 0,
         balance: 7,
         envRates: useEnvelope
@@ -877,7 +881,10 @@ class DrumRenderer {
         if (p.highpass) GUSPatchGenerator.highpass(out, p.highpass, SR);
         if (p.lowpass)  GUSPatchGenerator.lowpass(out, p.lowpass, SR);
         GUSPatchGenerator.fadeIn(out, Math.min(64, Math.floor(length * 0.01)));
-        GUSPatchGenerator.fadeOut(out, Math.min(96, Math.floor(length * 0.05)));
+        const fadeOutSamples = Number.isFinite(p.fadeOut) && p.fadeOut > 0
+            ? Math.round(SR * p.fadeOut)
+            : Math.min(96, Math.floor(length * 0.05));
+        GUSPatchGenerator.fadeOut(out, Math.min(length, fadeOutSamples));
         GUSPatchGenerator.normalize(out, 0.9);
         return { pcm: out, length, loop: false, loopStart: 0, loopEnd: 0, SR };
     }

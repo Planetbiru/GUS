@@ -100,6 +100,16 @@ player.sendEvent(256, 0, bendValue);
 ## Documentation
 Please refer to the JSDoc comments within `timidity-player.js` for an exhaustive list of methods and events. For a detailed list of changes made to the C Core, read `CHANGELOG.md`.
 
+### Generated melodic preset anti-aliasing
+
+The GUS melodic presets define an `antiAlias` boolean for each instrument. When enabled, the patch generator omits harmonics whose frequency reaches 49% of the sample rate or higher. This keeps harmonics above the practical Nyquist limit from folding back into the audible range as aliasing, particularly for high notes and bright, distorted waveforms.
+
+### Generated drum preset fade-out
+
+Drum presets can define a `fadeOut` property in seconds to control the fade at the end of the rendered sample. For example, `"fadeOut": 0.18` fades the final 180 ms smoothly to silence. The fade duration is capped at the sample length.
+
+If `fadeOut` is omitted or is not a positive finite number, the generator uses its default short fade of up to 96 samples or 5% of the sample, whichever is smaller. This setting applies to generated drum patches.
+
 ## License
 
 - The original C synthesizer engine (`src/c-core/original`) is licensed under **LGPL v2.1** and the **Artistic License**.  
@@ -183,4 +193,3 @@ LibTiMidityPlayer/
 - If distributing binaries (e.g., npm package or DLL), include a link to this repository so users can access the modified source code as required by LGPL.
 
 - The JavaScript binding (`libtimidity.js`) is fully MIT-licensed, making it free to use in both commercial and open-source projects.
-
