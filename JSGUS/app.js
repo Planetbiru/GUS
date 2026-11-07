@@ -117,6 +117,7 @@ class GusPatchApp {
         this.autoApplyPresetQueue = Promise.resolve();
         this.midiMode = 'file';
         this.sequencerPlaying = false;
+        this.sequencerPaused = false;
         this.sequencerMidiData = null;
         this.sequencerGeneration = 0;
         this.sequencerLoadPromise = Promise.resolve();
@@ -404,6 +405,7 @@ class GusPatchApp {
         this.$('btnMidiFileMode').onclick = () => this.setMidiMode('file');
         this.$('btnMidiSequencerMode').onclick = () => this.setMidiMode('sequencer');
         this.$('btnSequencerPlay').onclick = () => this.startMidiSequencer();
+        this.$('btnSequencerPause').onclick = () => this.toggleSequencerPause();
         this.$('btnSequencerStop').onclick = () => this.stopMidiSequencer();
         this.$('sequencerTempo').addEventListener('input', () => this.validateSequencerTempo());
         this.$('sequencerVelocity').addEventListener('input', () => {
@@ -1508,6 +1510,7 @@ class GusPatchApp {
         player.on('onMidiEvent', event => {
             if (event.eventType === player.ME_PROGRAM) {
                 this.midiChannelPrograms.set(event.channel, event.a & 0x7f);
+                this.renderMidiChannelList();
             }
         });
         player.on('onNoteOn', event => this.handleMidiNoteOn(event));
@@ -1522,7 +1525,12 @@ class GusPatchApp {
         player.on('onPause', () => {
             this.midiPosition = player.getTime() / 1000;
             this.updateMidiPlaybackUI();
-            this.restoreLiveWaveformSource();
+            if (this.midiMode === 'sequencer' && this.sequencerPaused) {
+                if (this.liveWaveformFrame) cancelAnimationFrame(this.liveWaveformFrame);
+                this.liveWaveformFrame = null;
+            } else {
+                this.restoreLiveWaveformSource();
+            }
         });
         player.on('onEnded', () => {
             if (this.sequencerPlaying && this.midiMode === 'sequencer') {
@@ -1530,9 +1538,8 @@ class GusPatchApp {
                 this.restartMidiSequencer();
                 return;
             }
-            this.midiPosition = this.midiDuration;
-            this.clearActiveMidiNotes();
-            this.updateMidiPlaybackUI();
+            this.stopMidiPlayback();
+            this.$('midiStatus').textContent = `Ready: ${this.midiFileName}`;
         });
         player.on('onStop', () => {
             this.clearActiveMidiNotes();
@@ -1683,6 +1690,13 @@ class GusPatchApp {
         this.midiChannelsUsed = [...new Set(channels)]
             .filter(channel => Number.isInteger(channel) && channel >= 0 && channel < 16)
             .sort((a, b) => a - b);
+        for (const channel of this.midiChannelsUsed) {
+            if (channel === 9) continue;
+            const program = this.timidityPlayer?.getProgram(channel, 0);
+            if (Number.isInteger(program) && program >= 0 && program < this.lib.melodic.length) {
+                this.midiChannelPrograms.set(channel, program);
+            }
+        }
         const nextStates = new Map();
         for (const channel of this.midiChannelsUsed) {
             nextStates.set(channel, this.midiChannelStates.get(channel) || {mute: false, solo: false});
@@ -1704,7 +1718,12 @@ class GusPatchApp {
             item.className = 'midi-channel-row';
             const name = document.createElement('span');
             name.className = 'midi-channel-name';
-            name.textContent = channel === 9 ? 'Channel 10 · Drums' : `Channel ${channel + 1}`;
+            const instrumentName = channel === 9
+                ? 'Drums'
+                : this.lib.melodic[this.midiChannelPrograms.get(channel) ?? 0]?.name;
+            name.textContent = channel === 9
+                ? 'Channel 10 (Drums)'
+                : `Channel ${channel + 1} (${instrumentName || 'Unknown instrument'})`;
 
             const controls = document.createElement('span');
             controls.className = 'midi-channel-controls';
@@ -2043,6 +2062,14 @@ class GusPatchApp {
         return valid;
     }
 
+    updateSequencerControls() {
+        this.$('btnSequencerPause').disabled = !this.sequencerPlaying;
+        this.$('btnSequencerPause').querySelector('span').textContent =
+            this.sequencerPaused ? 'Resume' : 'Pause';
+        this.$('btnSequencerStop').disabled = !this.sequencerPlaying;
+        this.validateSequencerTempo();
+    }
+
     async startMidiSequencer() {
         if (this.sequencerPlaying || !this.validateSequencerTempo()) return;
         if (this.currentType == null || this.currentMidi == null) {
@@ -2054,16 +2081,42 @@ class GusPatchApp {
             const player = await this.ensureTimidityPlayer();
             if (this.midiMode !== 'sequencer') return;
             this.sequencerPlaying = true;
+            this.sequencerPaused = false;
             this.sequencerMidiData = this.buildSequencerMidiData();
             const generation = ++this.sequencerGeneration;
             this.validateSequencerTempo();
             this.$('btnSequencerStop').disabled = false;
+            this.$('btnSequencerPause').disabled = true;
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
             await this.queueSequencerLoad(generation);
         } catch (error) {
             this.stopMidiSequencer();
             this.$('midiStatus').textContent = `Sequencer failed: ${error.message}`;
             this.log(`Sequencer failed: ${error.message}`, 'err');
+        }
+    }
+
+    async toggleSequencerPause() {
+        const player = this.timidityPlayer;
+        if (!this.sequencerPlaying || !player?.songPtr) return;
+
+        const resuming = this.sequencerPaused;
+        try {
+            if (resuming) {
+                await player.resume();
+                this.sequencerPaused = false;
+                this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
+            } else {
+                this.sequencerPaused = true;
+                player.pause();
+                this.$('midiStatus').textContent = `Sequencer paused: ${this.currentType} ${this.currentMidi}.`;
+            }
+            this.updateSequencerControls();
+        } catch (error) {
+            if (resuming) this.sequencerPaused = true;
+            this.updateSequencerControls();
+            this.$('midiStatus').textContent = `Sequencer ${resuming ? 'resume' : 'pause'} failed: ${error.message}`;
+            this.log(`Sequencer ${resuming ? 'resume' : 'pause'} failed: ${error.message}`, 'err');
         }
     }
 
@@ -2161,6 +2214,7 @@ class GusPatchApp {
             }
             if (!updatedInPlace) player.play(0);
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
+            this.updateSequencerControls();
         }).catch(error => {
             if (generation !== this.sequencerGeneration) return;
             this.stopMidiSequencer();
@@ -2172,13 +2226,13 @@ class GusPatchApp {
 
     stopMidiSequencer() {
         this.sequencerPlaying = false;
+        this.sequencerPaused = false;
         this.sequencerGeneration++;
         clearTimeout(this.sequencerUpdateTimer);
         this.sequencerUpdateTimer = null;
         this.sequencerMidiData = null;
         if (this.timidityPlayer?.songPtr) this.timidityPlayer.stop();
-        this.$('btnSequencerStop').disabled = true;
-        this.validateSequencerTempo();
+        this.updateSequencerControls();
         if (this.midiMode === 'sequencer') this.$('midiStatus').textContent = 'Sequencer stopped.';
     }
 
