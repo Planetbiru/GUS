@@ -9,7 +9,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Ac. Grand: clear struck-key tone with a controlled decay.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.36,
+      "gain": 0.34,
       "freq": 441,
       "length": 37485,
       "loop": false,
