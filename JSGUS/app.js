@@ -185,6 +185,7 @@ class GusPatchApp {
         this.buildSidebar();
         this.restoreInstrumentSearch();
         this.bindUI();
+        this.enhanceNumberInputs();
         this.bindDraggableDialogs();
         this.bindKeyboard();
         this.audio.onPlay = analyser => this.setLiveWaveformSource(analyser);
@@ -408,6 +409,40 @@ class GusPatchApp {
         d.innerHTML = `<span class="instrument-name">${name}</span><span class="num">${num}</span>`;
         d.onclick = () => this.selectInstrument(type, midi);
         return d;
+    }
+
+    enhanceNumberInputs() {
+        document.querySelectorAll('input[type="number"]:not([data-custom-spinner])').forEach(input => {
+            this.createNumberSpinner(input);
+        });
+    }
+
+    createNumberSpinner(input) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'number-input-wrap';
+        input.dataset.customSpinner = 'true';
+        if (input.parentNode) {
+            input.parentNode.insertBefore(wrapper, input);
+        }
+        wrapper.appendChild(input);
+
+        for (const [direction, label] of [['up', 'Increase value'], ['down', 'Decrease value']]) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `number-spinner-button number-spinner-${direction}`;
+            button.setAttribute('aria-label', label);
+            button.addEventListener('click', () => {
+                const previousValue = input.value;
+                if (direction === 'up') input.stepUp();
+                else input.stepDown();
+                if (input.value === previousValue) return;
+                input.dispatchEvent(new Event('input', {bubbles: true}));
+                input.dispatchEvent(new Event('change', {bubbles: true}));
+            });
+            wrapper.appendChild(button);
+        }
+
+        return wrapper;
     }
 
     bindUI() {
@@ -830,19 +865,7 @@ class GusPatchApp {
                 : this.lib.melodic[midi];
             if (!instrument) throw new Error(`Unknown ${type} instrument: ${midi}.`);
             const preset = this.generatorState.presets[`${type}:${midi}`] || instrument.preset;
-            return this.applyPresetLoopPolicy(type, midi, preset);
-        }
-
-        applyPresetLoopPolicy(type, midi, preset) {
-            const program = Number(midi);
-            const oneShot = type === 'melodic'
-                && ((program >= 0 && program <= 15)
-                    || (program >= 24 && program <= 37)
-                    || (program >= 45 && program <= 47)
-                    || program === 55
-                    || (program >= 96 && program <= 108)
-                    || (program >= 112 && program <= 127));
-            return oneShot && preset.loop ? {...preset, loop: false} : preset;
+            return preset;
         }
 
         getCurrentPresetKey() {
@@ -961,17 +984,16 @@ class GusPatchApp {
             const midi = this.currentMidi;
             const parsedPreset = this.validatePresetJson();
             if (!parsedPreset) return;
-            const preset = this.applyPresetLoopPolicy(type, midi, parsedPreset);
             const key = this.getCurrentPresetKey();
             try {
-                this.buildMidiPatch(type === 'drum', midi, preset);
+                this.buildMidiPatch(type === 'drum', midi, parsedPreset);
             } catch (error) {
                 this.setPresetEditorStatus(`Preset cannot generate a patch: ${error.message}`, true);
                 this.log(`Preset apply failed: ${error.message}`, 'err');
                 return;
             }
 
-            this.generatorState.presets[key] = preset;
+            this.generatorState.presets[key] = parsedPreset;
             this.persistGeneratorState();
             this.updatePresetEditor();
             this.drawPreview();
@@ -1058,7 +1080,7 @@ class GusPatchApp {
             for (const waveform of ['null', 'sine', 'square', 'triangle', 'saw']) {
                 const option = document.createElement('option');
                 option.value = waveform;
-                option.textContent = waveform;
+                option.textContent = waveform == 'null' ? '- Not Specified -' : waveform;
                 input.appendChild(option);
             }
             input.value = parentObj[key] == null ? 'null' : parentObj[key];
@@ -1112,7 +1134,7 @@ class GusPatchApp {
                 return;
             }
             input.id = inputId;
-            row.append(label, input);
+            row.append(label, input.type === 'number' ? this.createNumberSpinner(input) : input);
             container.appendChild(row);
         }
 
@@ -1178,8 +1200,9 @@ class GusPatchApp {
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'preset-array-remove';
-                removeBtn.textContent = '−';
+                removeBtn.setAttribute('aria-label', 'Remove item');
                 removeBtn.title = 'Remove item';
+                removeBtn.innerHTML = '<svg class="preset-array-remove-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M10 11v6m4-6v6M5 7l1 13h12l1-13M9 7V4h6v3"></path></svg>';
                 removeBtn.addEventListener('click', () => {
                     arr.splice(index, 1);
                     this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
@@ -1198,7 +1221,7 @@ class GusPatchApp {
                         () => arr[index],
                         (n) => { arr[index] = n; }
                     );
-                    itemWrap.append(input, removeBtn);
+                    itemWrap.append(this.createNumberSpinner(input), removeBtn);
                 } else if (typeof item === 'boolean') {
                     const input = document.createElement('input');
                     input.type = 'checkbox';
@@ -1575,6 +1598,7 @@ class GusPatchApp {
         const player = new TimidityPlayer({
             sampleRate: +this.$('sr').value || 22050,
             bufferSize: 4096,
+            bufferSizeRealtime: 1024,
             timidityCfgLoader: () => this.buildMidiTimidityConfig(),
             instrumentLoader: (bank, isDrum, program) => {
                 if (this.collectingMidiInstruments) {
@@ -3055,10 +3079,11 @@ class GusPatchApp {
             '',
             '─── Technical notes ───────────────────────',
             '  - All patches are generated purely from JavaScript oscillators.',
-            '  - Melodic: 16-bit signed PCM with sustain looping enabled for instruments',
-            '    that sustain (organs, synth bass, bowed strings, ensembles, brass,',
-            '    reeds, pipes, leads, pads, bagpipe, fiddle, and shanai).',
-            '    Struck, plucked, and one-shot instruments use non-looped samples.',
+            '  - Melodic: each preset defines whether its sample uses sustain looping.',
+            '    Loops are used for sustained instruments (organs, synth bass, bowed',
+            '    strings, ensembles, brass, reeds, pipes, leads, pads, bagpipe, fiddle,',
+            '    shanai, guitar harmonics, and overdriven/distortion guitars).',
+            '    Other struck, plucked, and one-shot presets use non-looped samples.',
             '  - Looped samples include MENV and a default envelope (attack ~10ms,',
             '    release ~148ms) so note-off releases notes correctly.',
             '  - Drum   : one-shot, no loop.',
