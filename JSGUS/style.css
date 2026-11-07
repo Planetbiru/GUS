@@ -115,26 +115,74 @@ header .sub {
 }
 
 .project-controls {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
 }
 
 .project-controls label {
+    grid-column: 1 / -1;
     color: var(--dim);
     font-size: 12px;
 }
 
 .project-controls select {
-    min-width: 150px;
-    max-width: min(260px, 42vw);
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
     padding: 8px 10px;
     background: var(--bg);
     color: var(--fg);
     border: 1px solid var(--border);
     border-radius: 6px;
     font: inherit;
+}
+
+.project-controls button {
+    min-width: 0;
+    padding-right: 6px;
+    padding-left: 6px;
+}
+
+.project-controls #btnResetGeneratorState {
+    grid-column: 1 / -1;
+}
+
+.project-archive-tools {
+    grid-column: 1 / -1;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.project-archive-tools summary {
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 12px;
+    user-select: none;
+}
+
+.project-archive-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.project-archive-actions button {
+    min-width: 0;
+    min-height: 32px;
+    padding: 5px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: normal;
+}
+
+.project-archive-actions #btnZip {
+    grid-column: 1 / -1;
 }
 
 button {
@@ -428,6 +476,30 @@ main {
     margin-top: 8px;
 }
 
+.midi-volume-control {
+    display: grid;
+    grid-template-columns: auto minmax(60px, 1fr) 38px;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.midi-volume-control label,
+.midi-volume-control output {
+    color: var(--dim);
+    font-size: 12px;
+}
+
+.midi-volume-control output {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.midi-volume-control input {
+    width: 100%;
+    min-width: 0;
+}
+
 .midi-card .field {
     margin-top: 8px;
 }
@@ -590,7 +662,7 @@ label[for="presetJson"] {
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: 260px;
+    max-height: 180px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -616,6 +688,61 @@ label[for="presetJson"] {
 
 .midi-instrument-list li + li {
     border-top: 1px solid var(--border);
+}
+
+.midi-channel-list {
+    display: grid;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.midi-channel-row {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 3px 6px 3px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+}
+
+.midi-channel-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.midi-channel-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.channel-toggle {
+    width: 28px;
+    height: 26px;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.channel-toggle[aria-pressed="true"][data-control="mute"] {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #000;
+}
+
+.channel-toggle[aria-pressed="true"][data-control="solo"] {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #000;
 }
 
 .midi-instrument-link {

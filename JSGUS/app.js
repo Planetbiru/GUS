@@ -77,6 +77,8 @@ class GusPatchApp {
         this.midiRenderInProgress = false;
         this.midiInstrumentList = new Map();
         this.midiInstrumentElements = new Map();
+        this.midiChannelsUsed = [];
+        this.midiChannelStates = new Map();
         this.midiChannelPrograms = new Map();
         this.activeMidiNoteOwners = new Map();
         this.activeMidiInstrumentNotes = new Map();
@@ -105,6 +107,19 @@ class GusPatchApp {
 
     // ---- Utility ----
     slugify(s) { return s.replace(/[^A-Za-z0-9]/g, '_'); }
+
+    getProjectZipFilename() {
+        const projectName = this.projects.find(project => project.id === this.currentProjectId)?.name || 'GUS Project';
+        let safeName = projectName.trim()
+            .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_')
+            .replace(/[. ]+$/g, '')
+            .slice(0, 120);
+        if (!safeName) safeName = 'GUS Project';
+        if (/^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)/i.test(safeName)) {
+            safeName = `_${safeName}`;
+        }
+        return `${safeName}.zip`;
+    }
 
     applyOutputGain(rendered, preset, masterGain) {
         const instrumentGain = preset.gain == null ? 1 : preset.gain;
@@ -280,6 +295,10 @@ class GusPatchApp {
         this.$('btnZip').onclick = () => this.downloadAllZip();
         this.$('btnExportMelodicPresets').onclick = () => this.exportPresetSet('melodic');
         this.$('btnExportDrumPresets').onclick = () => this.exportPresetSet('drum');
+        this.$('btnImportMelodicPresets').onclick = () => this.$('melodicPresetFile').click();
+        this.$('btnImportDrumPresets').onclick = () => this.$('drumPresetFile').click();
+        this.$('melodicPresetFile').addEventListener('change', event => this.importPresetSet('melodic', event));
+        this.$('drumPresetFile').addEventListener('change', event => this.importPresetSet('drum', event));
         this.$('btnResetGeneratorState').onclick = () => this.requestResetGeneratorState();
         this.$('projectSelect').addEventListener('change', event => this.switchProject(event.target.value));
         this.$('btnNewProject').onclick = () => this.openNewProjectDialog();
@@ -305,6 +324,12 @@ class GusPatchApp {
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
         this.$('btnMidiStop').onclick = () => this.stopMidiPlayback();
         this.$('btnMidiRender').onclick = () => this.renderMidiToWav();
+        this.$('midiVolume').addEventListener('input', () => this.handleMidiVolumeInput());
+        this.$('midiChannelList').addEventListener('click', event => {
+            const button = event.target.closest('button[data-channel][data-control]');
+            if (!button) return;
+            this.toggleMidiChannelControl(Number(button.dataset.channel), button.dataset.control);
+        });
         this.$('btnMidiFileMode').onclick = () => this.setMidiMode('file');
         this.$('btnMidiSequencerMode').onclick = () => this.setMidiMode('sequencer');
         this.$('btnSequencerPlay').onclick = () => this.startMidiSequencer();
@@ -827,6 +852,67 @@ class GusPatchApp {
             }
         }
 
+        async importPresetSet(type, event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const isDrum = type === 'drum';
+            const instrumentIdKey = isDrum ? 'note' : 'program';
+            const button = this.$(isDrum ? 'btnImportDrumPresets' : 'btnImportMelodicPresets');
+            button.disabled = true;
+
+            try {
+                const archive = JSON.parse(await file.text());
+                if (!archive || typeof archive !== 'object' || Array.isArray(archive)
+                    || !Array.isArray(archive.instruments)) {
+                    throw new Error('The file must contain an instruments array.');
+                }
+
+                const imported = new Map();
+                let skipped = 0;
+                for (const entry of archive.instruments) {
+                    const id = entry && Number(entry[instrumentIdKey]);
+                    const instrument = isDrum ? this.lib.findDrum(id) : this.lib.melodic[id];
+                    const preset = entry && entry.preset;
+                    if (!Number.isInteger(id) || !instrument || !preset
+                        || typeof preset !== 'object' || Array.isArray(preset)) {
+                        skipped++;
+                        continue;
+                    }
+                    imported.set(`${type}:${id}`, preset);
+                }
+                if (imported.size === 0) {
+                    throw new Error(`No valid ${type} presets were found in this file.`);
+                }
+
+                const currentKey = this.currentType == null || this.currentMidi == null
+                    ? null
+                    : `${this.currentType}:${this.currentMidi}`;
+                const activePreset = imported.get(currentKey);
+                if (activePreset) this.buildMidiPatch(isDrum, Number(this.currentMidi), activePreset);
+
+                this.generatorState.presets = {
+                    ...this.generatorState.presets,
+                    ...Object.fromEntries(imported),
+                };
+                await this.persistGeneratorState();
+
+                if (activePreset) {
+                    this.updatePresetEditor();
+                    this.drawPreview();
+                    await this.reloadMidiInstrumentIfUsed(type, Number(this.currentMidi));
+                    await this.reloadRealtimeInstrumentIfUsed(type, Number(this.currentMidi));
+                }
+
+                const skippedMessage = skipped ? `; skipped ${skipped} invalid or unknown entries` : '';
+                this.log(`Imported ${imported.size} ${type} presets into project "${this.projects.find(project => project.id === this.currentProjectId)?.name}"${skippedMessage}.`, 'ok');
+            } catch (error) {
+                this.log(`Preset import failed: ${error.message}`, 'err');
+            } finally {
+                event.target.value = '';
+                button.disabled = false;
+            }
+        }
+
         presetWithWaveform(preset, waveform) {
             const result = {...preset};
             if (waveform === 'preset') return result;
@@ -982,6 +1068,7 @@ class GusPatchApp {
         player.on('onMidiLoaded', (_midi, duration) => {
             if (this.midiMode === 'sequencer') return;
             this.midiDuration = duration || player.totalDuration || 0;
+            this.setMidiChannels(player.getTempoMap()?.channelsUsed || []);
             this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
         });
@@ -1038,6 +1125,71 @@ class GusPatchApp {
         this.midiChannelPrograms.clear();
         this.clearActiveMidiNotes();
         this.renderMidiInstrumentList();
+    }
+
+    setMidiChannels(channels) {
+        this.midiChannelsUsed = [...new Set(channels)]
+            .filter(channel => Number.isInteger(channel) && channel >= 0 && channel < 16)
+            .sort((a, b) => a - b);
+        const nextStates = new Map();
+        for (const channel of this.midiChannelsUsed) {
+            nextStates.set(channel, this.midiChannelStates.get(channel) || {mute: false, solo: false});
+        }
+        this.midiChannelStates = nextStates;
+        this.renderMidiChannelList();
+        this.applyMidiChannelMix();
+    }
+
+    renderMidiChannelList() {
+        const mixer = this.$('midiChannelMixer');
+        const list = this.$('midiChannelList');
+        list.replaceChildren();
+        mixer.hidden = this.midiChannelStates.size === 0;
+
+        for (const channel of this.midiChannelsUsed) {
+            const state = this.midiChannelStates.get(channel);
+            const item = document.createElement('li');
+            item.className = 'midi-channel-row';
+            const name = document.createElement('span');
+            name.className = 'midi-channel-name';
+            name.textContent = channel === 9 ? 'Channel 10 · Drums' : `Channel ${channel + 1}`;
+
+            const controls = document.createElement('span');
+            controls.className = 'midi-channel-controls';
+            for (const [control, label] of [['mute', 'M'], ['solo', 'S']]) {
+                const button = document.createElement('button');
+                const pressed = state[control];
+                button.type = 'button';
+                button.className = 'channel-toggle';
+                button.dataset.channel = String(channel);
+                button.dataset.control = control;
+                button.setAttribute('aria-pressed', String(pressed));
+                button.setAttribute('aria-label', `${control === 'mute' ? 'Mute' : 'Solo'} ${name.textContent}`);
+                button.title = `${control === 'mute' ? 'Mute' : 'Solo'} ${name.textContent}`;
+                button.textContent = label;
+                controls.append(button);
+            }
+            item.append(name, controls);
+            list.appendChild(item);
+        }
+    }
+
+    toggleMidiChannelControl(channel, control) {
+        const state = this.midiChannelStates.get(channel);
+        if (!state || !['mute', 'solo'].includes(control)) return;
+        state[control] = !state[control];
+        this.renderMidiChannelList();
+        this.applyMidiChannelMix();
+    }
+
+    applyMidiChannelMix() {
+        const player = this.timidityPlayer;
+        if (!player || !player.songPtr) return;
+        const hasSolo = [...this.midiChannelStates.values()].some(state => state.solo);
+        for (const channel of this.midiChannelsUsed) {
+            const state = this.midiChannelStates.get(channel);
+            player.setChannelMute(channel, state.mute || (hasSolo && !state.solo));
+        }
     }
 
     handleMidiNoteOn({channel, pitch}) {
@@ -1250,6 +1402,9 @@ class GusPatchApp {
         if (!file) return;
 
         this.clearMidiInstrumentList();
+        this.midiChannelsUsed = [];
+        this.midiChannelStates.clear();
+        this.renderMidiChannelList();
         this.midiFileName = file.name;
         this.$('midiFileName').textContent = file.name;
         const status = this.$('midiStatus');
@@ -1276,10 +1431,14 @@ class GusPatchApp {
             this.midiData = midiData;
             this.midiDuration = player.totalDuration || this.midiDuration;
             this.midiPosition = 0;
+            player.setVolume(this.getMidiVolume());
             this.updateMidiPlaybackUI();
             status.textContent = `Ready: ${file.name}`;
         } catch (error) {
             this.clearMidiInstrumentList();
+            this.midiChannelsUsed = [];
+            this.midiChannelStates.clear();
+            this.renderMidiChannelList();
             status.textContent = `MIDI load failed: ${error.message}`;
             this.log(`MIDI load failed: ${error.message}`, 'err');
             this.updateMidiPlaybackUI();
@@ -1310,6 +1469,16 @@ class GusPatchApp {
             ? (this.midiData ? `Ready: ${this.midiFileName}` : 'Select a MIDI file to play with the generated GM bank.')
             : 'Select an instrument, then start the sequencer.';
         this.updateMidiPlaybackUI();
+    }
+
+    getMidiVolume() {
+        return Math.max(0, Math.min(100, Number(this.$('midiVolume').value) || 0));
+    }
+
+    handleMidiVolumeInput() {
+        const volume = this.getMidiVolume();
+        this.$('midiVolumeValue').value = `${volume}%`;
+        if (this.timidityPlayer?.songPtr) this.timidityPlayer.setVolume(volume);
     }
 
     validateSequencerTempo() {
@@ -1478,7 +1647,7 @@ class GusPatchApp {
                 const loaded = await player.load(this.midiData);
                 if (!loaded) throw new Error('Could not reload the MIDI file.');
             }
-            player.play(this.midiPosition);
+            player.play(this.midiPosition, {volume: this.getMidiVolume()});
             this.updateMidiPlaybackUI();
         } catch (error) {
             this.$('midiStatus').textContent = `MIDI playback failed: ${error.message}`;
@@ -1791,10 +1960,8 @@ class GusPatchApp {
 
         this.log('Creating ZIP archive...', 'info');
         const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-        const rateSuffix = sampleRates.size === 1
-            ? `${sampleRates.values().next().value}hz`
-            : 'mixed-rates';
-        FileDownloader.download(blob, `gm128_plus_drums_${rateSuffix}.zip`);
+        const filename = this.getProjectZipFilename();
+        FileDownloader.download(blob, filename);
         this.log(`✓ Complete: ${(blob.size / 1024).toFixed(1)} KB`, 'ok');
 
         this.$('progressWrap').classList.remove('show');
