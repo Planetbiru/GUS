@@ -3054,7 +3054,7 @@ var GUS_MELODIC_PRESETS = {
     "family": "Ensemble",
     "name": "Voice Oohs",
     "shortName": "Voice Oohs",
-    "description": "Voice Oohs: a layered orchestral blend with smooth sustain.",
+    "description": "Voice Oohs: rounded vowel formants with a soft vocal onset.",
     "preset": {
       "defaultWaveform": null,
       "gain": 0.24,
@@ -3098,27 +3098,33 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.007,
         "sweep": 15
       },
-      "drive": 1.5,
+      "drive": 0.25,
+      "loopSkip": 8,
+      "loopAttack": 0.015,
+      "loopAttackNoise": {
+        "amp": 0.045,
+        "duration": 0.025
+      },
       "formants": [
         {
           "freq": 320,
-          "q": 2.5,
-          "gain": 8
-        },
-        {
-          "freq": 850,
-          "q": 3,
-          "gain": 7
-        },
-        {
-          "freq": 1900,
-          "q": 3.5,
+          "q": 1.3,
           "gain": 4
         },
         {
+          "freq": 850,
+          "q": 1.5,
+          "gain": 3.5
+        },
+        {
+          "freq": 1900,
+          "q": 2,
+          "gain": 1.5
+        },
+        {
           "freq": 3200,
-          "q": 4,
-          "gain": 2
+          "q": 2.2,
+          "gain": 0.5
         }
       ],
       "antiAlias": true
