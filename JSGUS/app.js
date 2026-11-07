@@ -536,7 +536,7 @@ class GusPatchApp {
         });
 
         ['sr', 'root', 'dur', 'wave'].forEach(id => {
-            this.$(id).addEventListener('input', () => this.handleGeneratorInput());
+            this.$(id).addEventListener('input', event => this.handleGeneratorInput(event));
         });
 
         this.$('btnPresetFormMode').onclick = () => this.setPresetEditorMode('form');
@@ -829,13 +829,15 @@ class GusPatchApp {
         }
 
         getDefaultGeneratorState(type, midi) {
-            const preset = type === 'drum'
-                ? this.lib.findDrum(midi)?.preset
-                : this.lib.melodic[midi]?.preset;
+            const preset = this.getInstrumentPreset(type, midi);
             const root = type === 'drum'
                 ? this.lib.drumToFreq(midi)
                 : (preset && preset.freq) || 441;
-            return {sampleRate: 22050, root, duration: 0.25, wave: 'preset'};
+            const presetDuration = Number(preset && preset.duration);
+            const duration = Number.isFinite(presetDuration) && presetDuration > 0
+                ? Math.min(3, Math.max(0.05, presetDuration))
+                : 0.25;
+            return {sampleRate: 22050, root, duration, wave: 'preset'};
         }
 
         normalizeGeneratorState(type, midi, value) {
@@ -844,10 +846,17 @@ class GusPatchApp {
             const root = Number(value && value.root);
             const duration = Number(value && value.duration);
             const wave = value && value.wave;
+            const hasStoredDuration = value && value.duration != null && Number.isFinite(duration);
+            const durationCustomized = value && value.durationCustomized === true
+                || (value && value.durationCustomized == null
+                    && hasStoredDuration && Math.abs(duration - 0.25) > 1e-9);
             return {
                 sampleRate: [11025, 22050, 44100].includes(sampleRate) ? sampleRate : defaults.sampleRate,
                 root: Number.isFinite(root) ? Math.min(4000, Math.max(20, root)) : defaults.root,
-                duration: Number.isFinite(duration) ? Math.min(3, Math.max(0.05, duration)) : defaults.duration,
+                duration: durationCustomized && Number.isFinite(duration)
+                    ? Math.min(3, Math.max(0.05, duration))
+                    : defaults.duration,
+                durationCustomized: Boolean(durationCustomized),
                 wave: ['preset', 'sine', 'square', 'saw', 'triangle'].includes(wave) ? wave : 'preset',
             };
         }
@@ -857,6 +866,13 @@ class GusPatchApp {
             const normalized = this.normalizeGeneratorState(type, midi, this.generatorState.instruments[key]);
             this.generatorState.instruments[key] = normalized;
             return normalized;
+        }
+
+        refreshGeneratorDuration(type, midi) {
+            const state = this.getInstrumentGeneratorState(type, midi);
+            if (type === this.currentType && Number(midi) === Number(this.currentMidi)) {
+                this.$('dur').value = String(state.duration);
+            }
         }
 
         getInstrumentPreset(type, midi) {
@@ -994,6 +1010,7 @@ class GusPatchApp {
             }
 
             this.generatorState.presets[key] = parsedPreset;
+            this.refreshGeneratorDuration(type, midi);
             this.persistGeneratorState();
             this.updatePresetEditor();
             this.drawPreview();
@@ -1350,6 +1367,7 @@ class GusPatchApp {
             }
 
             delete this.generatorState.presets[key];
+            this.refreshGeneratorDuration(type, midi);
             this.persistGeneratorState();
             this.updatePresetEditor();
             this.drawPreview();
@@ -1428,6 +1446,7 @@ class GusPatchApp {
                     ...this.generatorState.presets,
                     ...Object.fromEntries(imported),
                 };
+                if (activePreset) this.refreshGeneratorDuration(type, Number(this.currentMidi));
                 await this.persistGeneratorState();
 
                 if (activePreset) {
@@ -1475,17 +1494,25 @@ class GusPatchApp {
         saveCurrentGeneratorState(persist = true) {
             if (this.currentType == null || this.currentMidi == null) return;
             const key = `${this.currentType}:${this.currentMidi}`;
+            const currentState = this.generatorState.instruments[key];
             this.generatorState.instruments[key] = this.normalizeGeneratorState(this.currentType, this.currentMidi, {
                 sampleRate: this.$('sr').value,
                 root: this.$('root').value,
                 duration: this.$('dur').value,
+                durationCustomized: currentState && currentState.durationCustomized,
                 wave: this.$('wave').value,
             });
             this.generatorState.selected = {type: this.currentType, midi: this.currentMidi};
             if (persist) this.persistGeneratorState();
         }
 
-        handleGeneratorInput() {
+        handleGeneratorInput(event) {
+            if (event && event.target.id === 'dur' && this.currentType != null && this.currentMidi != null) {
+                const key = `${this.currentType}:${this.currentMidi}`;
+                const state = this.generatorState.instruments[key] || {};
+                state.durationCustomized = true;
+                this.generatorState.instruments[key] = state;
+            }
             this.saveCurrentGeneratorState();
             this.drawPreview();
             this.scheduleMidiInstrumentReload();
@@ -2028,7 +2055,11 @@ class GusPatchApp {
             if (!drum) throw new Error(`Unknown drum note ${program}.`);
             const {note, name} = drum;
             const basePreset = presetOverride;
-            const preset = {...basePreset, duration: state.duration};
+            const presetDuration = Number(basePreset && basePreset.duration);
+            const duration = state.durationCustomized || !Number.isFinite(presetDuration) || presetDuration <= 0
+                ? state.duration
+                : Math.min(3, Math.max(0.05, presetDuration));
+            const preset = {...basePreset, duration};
             const rendered = this.applyOutputGain(
                 new DrumRenderer(preset, sampleRate).render(),
                 preset,
