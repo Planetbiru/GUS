@@ -61,7 +61,7 @@ class ProjectPatchGenerator {
         description = instrumentDescription;
         preset = melodicPreset;
 
-        const selectedWaveform = waveform === undefined
+        const selectedWaveform = waveform === undefined || waveform === 'preset'
             ? (preset.defaultWaveform ?? null)
             : waveform;
         if (selectedWaveform != null) {

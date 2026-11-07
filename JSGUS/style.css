@@ -1019,7 +1019,8 @@ canvas {
     white-space: nowrap;
 }
 
-.preset-field > input {
+.preset-field > input,
+.preset-field > select {
     width: 100%;
     padding: 4px 8px;
     background: var(--panel);
@@ -1030,6 +1031,11 @@ canvas {
     font-size: 12px;
 }
 
+.preset-field > select {
+    color-scheme: dark;
+    cursor: pointer;
+}
+
 .preset-field > input[type="checkbox"] {
     width: 16px;
     height: 16px;
@@ -1037,7 +1043,8 @@ canvas {
     accent-color: var(--accent);
 }
 
-.preset-field > input:focus-visible {
+.preset-field > input:focus-visible,
+.preset-field > select:focus-visible {
     outline: none;
     border-color: var(--accent);
 }
@@ -1145,4 +1152,3 @@ canvas {
     }
     .preset-form { padding: 6px 8px 10px; }
 }
-

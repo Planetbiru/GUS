@@ -888,6 +888,9 @@ class GusPatchApp {
             this.drawPreview();
             await this.reloadMidiInstrumentIfUsed(type, midi);
             await this.reloadRealtimeInstrumentIfUsed(type, midi);
+            if (this.sequencerPlaying && this.midiMode === 'sequencer') {
+                await this.restartMidiSequencer();
+            }
             this.setPresetEditorStatus('Preset applied and patch regenerated.');
             this.log(`Preset applied: ${type} ${midi}.`, 'ok');
         }
@@ -933,7 +936,9 @@ class GusPatchApp {
             const value = parentObj[key];
             const fieldPath = [...path, key];
 
-            if (Array.isArray(value)) {
+            if (key === 'defaultWaveform') {
+                this.renderPresetWaveformField(parentObj, key, container, fieldPath);
+            } else if (Array.isArray(value)) {
                 this.renderPresetArrayField(parentObj, key, container, fieldPath);
             } else if (value !== null && typeof value === 'object') {
                 this.renderPresetObjectField(parentObj, key, container, fieldPath);
@@ -949,6 +954,37 @@ class GusPatchApp {
                 .split(' ')
                 .map(w => w.charAt(0).toUpperCase() + w.slice(1))
                 .join(' ');
+        }
+
+        renderPresetWaveformField(parentObj, key, container, path) {
+            const row = document.createElement('div');
+            row.className = 'preset-field';
+
+            const label = document.createElement('label');
+            label.textContent = this.labelForKey(key);
+            const input = document.createElement('select');
+            input.id = 'presetField_' + path.join('_');
+            label.htmlFor = input.id;
+
+            for (const waveform of ['null', 'sine', 'square', 'triangle', 'saw']) {
+                const option = document.createElement('option');
+                option.value = waveform;
+                option.textContent = waveform;
+                input.appendChild(option);
+            }
+            input.value = parentObj[key] == null ? 'null' : parentObj[key];
+            input.addEventListener('change', () => {
+                parentObj[key] = input.value === 'null' ? null : input.value;
+                this.onPresetFormChanged();
+                this.cancelAutoApplyPreset();
+                this.applyPresetJson().catch(error => {
+                    this.setPresetEditorStatus(`Preset apply failed: ${error.message}`, true);
+                    this.log(`Preset apply failed: ${error.message}`, 'err');
+                });
+            });
+
+            row.append(label, input);
+            container.appendChild(row);
         }
 
         renderPresetScalarField(parentObj, key, container, path) {
@@ -1301,14 +1337,25 @@ class GusPatchApp {
 
         presetWithWaveform(preset, waveform) {
             const result = {...preset};
-            if (waveform === 'preset') return result;
+            const usePresetWaveform = waveform === 'preset';
+            const selectedWaveform = usePresetWaveform
+                ? preset.defaultWaveform
+                : waveform;
+            if (selectedWaveform == null) return result;
             const waves = {
                 sine: [1],
                 square: [1, 0, .33, 0, .2, 0, .14, 0, .11, 0, .09],
                 saw: [1, .5, .33, .25, .2, .16, .14, .12, .1, .09, .08, .07],
                 triangle: [1, 0, -.11, 0, .04, 0, -.02, 0, .012],
             };
-            result.harm = waves[waveform];
+            const harmonics = usePresetWaveform
+                ? ProjectPatchGenerator.waveformHarmonics(
+                    selectedWaveform,
+                    (preset.harm || [1]).length
+                )
+                : waves[selectedWaveform];
+            if (!harmonics) throw new Error(`Unknown waveform: ${selectedWaveform}.`);
+            result.harm = harmonics;
             delete result.fm;
             return result;
         }
