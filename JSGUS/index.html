@@ -29,8 +29,8 @@
 
     <dialog id="newProjectDialog" aria-labelledby="newProjectTitle">
         <div class="dialog-content">
-            <h2 id="newProjectTitle">Create project</h2>
-            <label for="newProjectName">Project name</label>
+            <h2 id="newProjectTitle">Create Project</h2>
+            <label for="newProjectName">Project Name</label>
             <input id="newProjectName" type="text" maxlength="80" autocomplete="off">
             <div id="newProjectError" class="dialog-error" role="alert"></div>
             <div class="dialog-actions">
@@ -42,14 +42,25 @@
 
     <dialog id="deleteProjectDialog" aria-labelledby="deleteProjectTitle">
         <div class="dialog-content">
-            <h2 id="deleteProjectTitle">Delete project</h2>
+            <h2 id="deleteProjectTitle">Delete Project</h2>
             <p id="deleteProjectMessage"></p>
             <label id="deleteProjectChallengePrompt" for="deleteProjectChallengeAnswer"></label>
             <input id="deleteProjectChallengeAnswer" type="number" inputmode="numeric">
             <div id="deleteProjectError" class="dialog-error" role="alert"></div>
             <div class="dialog-actions">
                 <button id="btnCancelDeleteProject" type="button">Cancel</button>
-                <button id="btnConfirmDeleteProject" class="danger" type="button" disabled>Delete permanently</button>
+                <button id="btnConfirmDeleteProject" class="danger" type="button" disabled>Delete Permanently</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="resetPresetDialog" aria-labelledby="resetPresetTitle">
+        <div class="dialog-content">
+            <h2 id="resetPresetTitle">Restore Preset</h2>
+            <p id="resetPresetMessage"></p>
+            <div class="dialog-actions">
+                <button id="btnCancelResetPreset" type="button">Cancel</button>
+                <button id="btnConfirmResetPreset" class="danger" type="button">Restore Preset</button>
             </div>
         </div>
     </dialog>
@@ -59,11 +70,11 @@
             <div class="project-controls">
                 <label for="projectSelect">Project</label>
                 <select id="projectSelect" aria-label="Active project"></select>
-                <button id="btnNewProject" type="button">New project</button>
-                <button id="btnDeleteProject" class="danger" type="button">Delete project</button>
-                <button id="btnResetGeneratorState" type="button">Reset saved state</button>
+                <button id="btnNewProject" type="button">New Project</button>
+                <button id="btnDeleteProject" class="danger" type="button">Delete Project</button>
+                <button id="btnResetGeneratorState" type="button">Reset Saved State</button>
                 <details class="project-archive-tools">
-                    <summary>Preset archives</summary>
+                    <summary>Preset Archives</summary>
                     <div class="project-archive-actions">
                         <input id="melodicPresetFile" type="file" accept=".json,application/json" hidden>
                         <input id="drumPresetFile" type="file" accept=".json,application/json" hidden>
@@ -73,6 +84,7 @@
                             </svg>
                             <span>Download ZIP</span>
                         </button>
+                        <button id="btnSoundFont" class="success" type="button">Download SF2</button>
                         <button id="btnImportMelodicPresets" type="button">Import Melodic</button>
                         <button id="btnImportDrumPresets" type="button">Import Drum</button>
                         <button id="btnExportMelodicPresets" type="button">Export Melodic</button>
@@ -80,12 +92,12 @@
                     </div>
                 </details>
             </div>
+            <div id="instrumentList"></div>
             <div class="instrument-search-wrap">
                 <input id="instrumentSearch" class="search" type="search"
                     placeholder="Search instruments..." aria-label="Search instruments">
                 <div id="instrumentFilterEmpty" class="meta search-empty" hidden>No instruments match your search.</div>
             </div>
-            <div id="instrumentList"></div>
         </aside>
 
         <main>
@@ -97,7 +109,7 @@
                     <div class="field">
                         <label>Base Waveform</label>
                         <select id="wave">
-                            <option value="preset">— From GM preset —</option>
+                            <option value="preset">— From Preset —</option>
                             <option value="sine">Sine</option>
                             <option value="square">Square</option>
                             <option value="saw">Saw</option>
@@ -164,9 +176,9 @@
                     <div id="presetJsonStatus" class="preset-json-status" role="status" aria-live="polite"></div>
                     <div class="actions">
                         <button id="btnApplyPreset" class="primary" type="button">Apply preset</button>
-                        <button id="btnResetPreset" type="button">Reset to factory preset</button>
+                        <button id="btnResetPreset" type="button">Reset to Factory Preset</button>
                         <button id="btnAutoApplyPreset" class="toggle-button" type="button" aria-pressed="false">
-                            Auto apply: Off
+                            Auto Apply: Off
                         </button>
                     </div>
                 </section>
@@ -180,10 +192,17 @@
                     <button id="btnMidiSequencerMode" type="button" role="tab"
                         aria-selected="false" aria-controls="midiSequencerMode">Sequencer</button>
                 </div>
+                <section class="live-waveform" aria-labelledby="liveWaveformTitle">
+                    <h3 id="liveWaveformTitle">Live Output <span id="liveWaveModeLabel">Amplitude</span></h3>
+                    <canvas id="liveWaveCanvas" width="800" height="80"
+                        aria-label="Live output amplitude waveform. Activate to view frequency spectrum."
+                        aria-controls="liveWaveModeLabel" aria-keyshortcuts="Enter Space"
+                        role="button" tabindex="0" title="Toggle amplitude and frequency views"></canvas>
+                </section>
                 <div id="midiFileMode" role="tabpanel" aria-labelledby="btnMidiFileMode">
                     <div class="midi-file-picker">
                     <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
-                    <button id="btnChooseMidi" type="button">Choose MIDI file</button>
+                    <button id="btnChooseMidi" type="button">Choose MIDI File</button>
                     <span id="midiFileName" class="meta">No file selected</span>
                     </div>
                     <div class="actions">
@@ -209,21 +228,24 @@
                             <span>Render WAV</span>
                         </button>
                     </div>
-                    <div class="midi-volume-control">
-                        <label for="midiVolume">Volume</label>
-                        <input id="midiVolume" type="range" min="0" max="100" step="1" value="100">
-                        <output id="midiVolumeValue" for="midiVolume">100%</output>
-                    </div>
-                    <div class="field">
-                        <input id="midiSeek" type="range" min="0" max="1000" value="0" step="1"
-                            aria-label="MIDI playback position" disabled>
-                        <div class="meta" style="display:flex;justify-content:space-between">
-                            <span id="midiTimeCurrent">00:00</span>
-                            <span id="midiTimeTotal">00:00</span>
+                    <div class="midi-transport-row">
+                        <div class="midi-volume-control">
+                            <label for="midiVolume">Volume</label>
+                            <div class="midi-volume-slider-row">
+                                <input id="midiVolume" type="range" min="0" max="100" step="1" value="100">
+                                <output id="midiVolumeValue" for="midiVolume">100%</output>
+                            </div>
+                        </div>
+                        <div class="midi-seek-control">
+                            <div class="midi-seek-times">
+                                <span id="midiTimeCurrent">00:00</span>
+                                <span id="midiTimeTotal">00:00</span>
+                            </div>
+                            <input id="midiSeek" type="range" min="0" max="1000" value="0" step="1"
+                                aria-label="MIDI playback position" disabled>
                         </div>
                     </div>
                     <div class="field">
-                        <label>Instruments used</label>
                         <div class="midi-instrument-lists">
                             <section class="midi-instrument-group" aria-labelledby="midiMelodicTitle">
                                 <h3 id="midiMelodicTitle">Melodic</h3>
@@ -290,14 +312,10 @@
     <script src="melodic-presets.js"></script>
     <script src="drum-presets.js"></script>
     <script src="ProjectPatchGenerator.js"></script>
+    <script src="soundfont-exporter.js"></script>
     <script src="app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // =================================================================
-            //                          SECTION 2
-            //                       IMPLEMENTATION
-            // =================================================================
-
             const library = new InstrumentLibrary();
             const app = new GusPatchApp(library);
             app.init().catch(error => {
@@ -305,8 +323,6 @@
                 document.getElementById('log').textContent = `Could not initialize project storage: ${error.message}`;
             });
         });
-
-
     </script>
 </body>
 

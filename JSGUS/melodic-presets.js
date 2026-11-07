@@ -786,7 +786,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Drawbar Organ",
     "description": "Drawbar Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0,
@@ -815,7 +815,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Percussive Organ",
     "description": "Percussive Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0,
@@ -846,7 +846,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Rock Organ",
     "description": "Rock Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0,
@@ -877,7 +877,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Church Organ",
     "description": "Church Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "harm": [
         1,
         0.7,
@@ -906,7 +906,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Reed Organ",
     "description": "Reed Organ: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -1007,7 +1007,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harmonica",
     "description": "Harmonica: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -1057,7 +1057,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tango Accordion",
     "description": "Tango Accordion: a steady tone with layered harmonics.",
     "preset": {
-      "gain": 0.7,
+      "gain": 0.4,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [

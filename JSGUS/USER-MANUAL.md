@@ -26,6 +26,7 @@ For melodic instruments, choose a base waveform, sample rate, root frequency, an
 - **Stop** stops the preview.
 - **Download .pat** downloads a patch for the selected instrument.
 - **Download All (ZIP)** generates a ZIP containing the melodic and drum patches and their configuration files.
+- **Download SF2** builds a SoundFont 2 file from the active project's melodic and drum presets and generator settings. It contains the 128 melodic programs and a GM drum bank. The download uses the active project name.
 - **Export Melodic Preset** and **Export Drum Preset** download the corresponding preset sets as JSON.
 - **Import Melodic Preset** and **Import Drum Preset** load JSON archives created by the matching export buttons into the active project. Matching instrument presets are replaced; presets not present in the file are kept. Invalid or unknown entries are skipped, and an import with no valid entries is rejected. If the currently selected instrument is included, its editor, preview, and loaded MIDI patch are refreshed.
 
