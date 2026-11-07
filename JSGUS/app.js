@@ -1833,8 +1833,8 @@ class GusPatchApp {
                 ? 'Drums'
                 : this.lib.melodic[this.midiChannelPrograms.get(channel) ?? 0]?.name;
             name.textContent = channel === 9
-                ? 'Channel 10 (Drums)'
-                : `Channel ${channel + 1} (${instrumentName || 'Unknown instrument'})`;
+                ? 'Channel 9 (Drums)'
+                : `Channel ${channel} (${instrumentName || 'Unknown instrument'})`;
 
             const controls = document.createElement('span');
             controls.className = 'midi-channel-controls';

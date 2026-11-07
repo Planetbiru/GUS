@@ -881,7 +881,10 @@ class DrumRenderer {
         if (p.highpass) GUSPatchGenerator.highpass(out, p.highpass, SR);
         if (p.lowpass)  GUSPatchGenerator.lowpass(out, p.lowpass, SR);
         GUSPatchGenerator.fadeIn(out, Math.min(64, Math.floor(length * 0.01)));
-        GUSPatchGenerator.fadeOut(out, Math.min(96, Math.floor(length * 0.05)));
+        const fadeOutSamples = Number.isFinite(p.fadeOut) && p.fadeOut > 0
+            ? Math.round(SR * p.fadeOut)
+            : Math.min(96, Math.floor(length * 0.05));
+        GUSPatchGenerator.fadeOut(out, Math.min(length, fadeOutSamples));
         GUSPatchGenerator.normalize(out, 0.9);
         return { pcm: out, length, loop: false, loopStart: 0, loopEnd: 0, SR };
     }

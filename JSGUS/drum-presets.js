@@ -415,8 +415,9 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Open Hi-Hat",
     "description": "Open Hi-Hat: bright metallic shimmer with a sustained decay.",
     "preset": {
-      "gain": 0.12,
-      "duration": 0.75,
+      "gain": 0.105,
+      "duration": 0.9,
+      "fadeOut": 0.18,
       "metallic": {
         "baseFreq": 4300,
         "partials": [0.87, 1, 1.19, 1.41, 1.64, 1.89, 2.17],
