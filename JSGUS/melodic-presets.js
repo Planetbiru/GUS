@@ -8,6 +8,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Ac. Grand Piano",
     "description": "Ac. Grand: struck-key tone with a resonant decay.",
     "preset": {
+      "loop": false,
       "defaultWaveform": "saw",
       "gain": 0.42
     ,
@@ -400,6 +401,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harpsichord",
     "description": "Harpsichord: struck-key tone with a resonant decay.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.42
     ,
@@ -454,6 +456,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Clavinet",
     "description": "Clavinet: struck-key tone with a resonant decay.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.42
     ,
@@ -506,6 +509,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Celesta",
     "description": "Celesta: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.42
     ,
@@ -543,6 +547,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Glockenspiel",
     "description": "Glockenspiel: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.008,
       "partialDecay": [
@@ -579,6 +584,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Music Box",
     "description": "Music Box: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.008,
       "partialDecay": [
@@ -612,6 +618,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Vibraphone",
     "description": "Vibraphone: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.008,
       "partialDecay": [
@@ -650,6 +657,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Marimba",
     "description": "Marimba: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.008,
       "partialDecay": [
@@ -683,6 +691,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Xylophone",
     "description": "Xylophone: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.008,
       "partialDecay": [
@@ -715,6 +724,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tubular Bells",
     "description": "Tubular Bells: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.008,
       "partialDecay": [
@@ -750,6 +760,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Dulcimer",
     "description": "Dulcimer: a bright strike with a clear ringing tone.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.00035,
       "attackNoise": {
@@ -820,7 +831,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 1,
         "r": 0.1
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12
     }
   },
@@ -852,7 +863,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 1,
         "r": 0.1
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12
     }
   },
@@ -884,7 +895,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 1,
         "r": 0.1
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12
     }
   },
@@ -914,7 +925,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 1,
         "r": 0.1
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12
     }
   },
@@ -962,7 +973,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5.5,
@@ -1013,7 +1024,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5.5,
@@ -1064,7 +1075,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5.5,
@@ -1116,7 +1127,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5.5,
@@ -1461,6 +1472,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Muted Guitar",
     "description": "Muted Guitar: a plucked-string attack with natural decay.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.35,
       "attackNoise": {
@@ -1530,7 +1542,7 @@ var GUS_MELODIC_PRESETS = {
     "family": "Guitar",
     "name": "Overdriven Gtr",
     "shortName": "Overdriven Gtr",
-    "description": "Overdriven Gtr: a plucked-string attack with natural decay.",
+    "description": "Overdriven Gtr: driven guitar with a sustained loop.",
     "preset": {
       "defaultWaveform": null,
       "gain": 0.45,
@@ -1588,7 +1600,7 @@ var GUS_MELODIC_PRESETS = {
         "preampCutoff": 90,
         "cabinetCutoff": 6200
       },
-      "loop": false,
+      "loop": true,
       "cycles": 18,
       "loopSkip": 10,
       "loopAttackNoise": {
@@ -1607,7 +1619,7 @@ var GUS_MELODIC_PRESETS = {
     "family": "Guitar",
     "name": "Distortion Gtr",
     "shortName": "Distortion Gtr",
-    "description": "Distortion Gtr: a plucked-string attack with natural decay.",
+    "description": "Distortion Gtr: driven guitar with a sustained loop.",
     "preset": {
       "defaultWaveform": null,
       "gain": 0.45,
@@ -1669,7 +1681,7 @@ var GUS_MELODIC_PRESETS = {
         "preampCutoff": 90,
         "cabinetCutoff": 6000
       },
-      "loop": false,
+      "loop": true,
       "cycles": 20,
       "loopSkip": 10,
       "loopAttackNoise": {
@@ -1722,7 +1734,7 @@ var GUS_MELODIC_PRESETS = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3
       ],
       "freq": 441,
-      "loop": false,
+      "loop": true,
       "cycles": 24,
       "loopSkip": 4,
       "loopAttack": 0.008,
@@ -2006,7 +2018,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 33075,
       "freq": 220,
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2}
   },
@@ -2046,7 +2058,7 @@ var GUS_MELODIC_PRESETS = {
         -5,
         5
       ],
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2}
   },
@@ -2107,7 +2119,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.3
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 22,
       "loopAttackNoise": {
         "amp": 0.16,
@@ -2193,7 +2205,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.3
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 22,
       "loopAttackNoise": {
         "amp": 0.13,
@@ -2278,7 +2290,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.3
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 22,
       "vibrato": {
         "rate": 4.6,
@@ -2346,7 +2358,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.3
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 22,
       "vibrato": {
         "rate": 4.2,
@@ -2416,7 +2428,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.3
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 22,
       "vibrato": {
         "rate": 8,
@@ -2437,6 +2449,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pizzicato",
     "description": "Pizzicato: a bowed or plucked tone with rich harmonics.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.34
     ,
@@ -2512,6 +2525,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harp",
     "description": "Harp: a bowed or plucked tone with rich harmonics.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.34
     ,
@@ -2583,6 +2597,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Timpani",
     "description": "Timpani: a bowed or plucked tone with rich harmonics.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.34
     ,
@@ -2657,7 +2672,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.4
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 22,
       "vibrato": {
         "rate": 4.5,
@@ -2731,7 +2746,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.4
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 22,
       "vibrato": {
         "rate": 4.5,
@@ -2796,7 +2811,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 34,
       "detune": [
         0
@@ -2873,7 +2888,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 38,
       "detune": [
         0
@@ -2971,7 +2986,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.35
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 4.5,
@@ -3045,7 +3060,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.35
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -3123,7 +3138,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.35
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5.5,
@@ -3225,7 +3240,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 24,
       "vibrato": {
         "rate": 5.2,
@@ -3308,7 +3323,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 26,
       "vibrato": {
         "rate": 4.8,
@@ -3380,7 +3395,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 28,
       "vibrato": {
         "rate": 4.2,
@@ -3454,7 +3469,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 24,
       "vibrato": {
         "rate": 5.5,
@@ -3526,7 +3541,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 28,
       "vibrato": {
         "rate": 4.8,
@@ -3600,7 +3615,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 26,
       "vibrato": {
         "rate": 5,
@@ -3685,7 +3700,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -3749,7 +3764,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5.5,
@@ -3790,7 +3805,7 @@ var GUS_MELODIC_PRESETS = {
       "harm": [1, 0.68, 0.55, 0.42, 0.30, 0.21, 0.14, 0.09, 0.06, 0.04],
       "phases": [0, 0.1, 0.22, 0.4, 0.6, 0.8, 0.05, 0.28, 0.5, 0.7],
       "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 8,
       "loopAttack": 0.008,
@@ -3818,7 +3833,7 @@ var GUS_MELODIC_PRESETS = {
         1, 0.62, 0.70, 0.42, 0.36, 0.20, 0.15, 0.08, 0.05
       ],
       "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": { "rate": 5.5, "depth": 0.007, "sweep": 15 },
       "brightness": { "start": 10000, "end": 5500 },
@@ -3844,7 +3859,7 @@ var GUS_MELODIC_PRESETS = {
       "harm": [1, 0.88, 0.45, 0.28, 0.16, 0.09, 0.05, 0.03],
       "phases": [0, 0.08, 0.18, 0.3, 0.45, 0.6, 0.75, 0.9],
       "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 8,
       "loopAttack": 0.012,
@@ -3872,7 +3887,7 @@ var GUS_MELODIC_PRESETS = {
       "harm": [1, 0.60, 0.72, 0.42, 0.34, 0.20, 0.13, 0.08, 0.05],
       "phases": [0, 0.2, 0.4, 0.6, 0.8, 0.1, 0.35, 0.6, 0.85],
       "env": { "a": 0.05, "d": 0.1, "s": 0.9, "r": 0.2 },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 8,
       "loopAttack": 0.01,
@@ -3924,7 +3939,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5.5,
@@ -3977,7 +3992,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -4029,7 +4044,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 4,
@@ -4079,7 +4094,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -4127,7 +4142,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 6,
@@ -4172,7 +4187,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 28,
       "vibrato": {
         "rate": 5.2,
@@ -4226,7 +4241,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 26,
       "vibrato": {
         "rate": 4.8,
@@ -4280,7 +4295,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 28,
       "vibrato": {
         "rate": 5.5,
@@ -4331,7 +4346,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -4377,7 +4392,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -4421,7 +4436,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -4465,7 +4480,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 5,
@@ -4502,7 +4517,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.85,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "drive": 1.4,
       "brightness": {
@@ -4537,7 +4552,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.85,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "drive": 1.4,
       "brightness": {
@@ -4574,7 +4589,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.85,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "drive": 1.4,
       "brightness": {
@@ -4609,7 +4624,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "noise": 0.1,
       "drive": 1.4,
@@ -4644,7 +4659,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.85,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "drive": 1.4,
       "brightness": {
@@ -4674,7 +4689,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.85,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "vibrato": {
         "rate": 6,
@@ -4712,7 +4727,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.85,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "drive": 1.4,
       "brightness": {
@@ -4746,7 +4761,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.85,
         "r": 0.15
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 12,
       "drive": 1.4,
       "brightness": {
@@ -4805,7 +4820,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -15,
@@ -4869,7 +4884,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -15,
@@ -4934,7 +4949,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -8,
@@ -4998,7 +5013,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -15,
@@ -5063,7 +5078,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -15,
@@ -5127,7 +5142,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -15,
@@ -5196,7 +5211,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -15,
@@ -5260,7 +5275,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.95,
         "r": 0.5
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 16,
       "detune": [
         -15,
@@ -5285,6 +5300,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (rain)",
     "description": "FX (rain): an evolving synthetic texture with distinct.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5314,6 +5330,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (soundtrack)",
     "description": "FX (soundtrack): an evolving synthetic texture with.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5343,6 +5360,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (crystal)",
     "description": "FX (crystal): an evolving synthetic texture with distinct.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5372,6 +5390,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (atmosphere)",
     "description": "FX (atmosphere): nylon pluck with a faint airy shimmer.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "attackNoise": {
         "amp": 0.045,
@@ -5434,6 +5453,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (brightness)",
     "description": "FX (brightness): an evolving synthetic texture with.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5463,6 +5483,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (goblins)",
     "description": "FX (goblins): an evolving synthetic texture with distinct.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5492,6 +5513,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (echoes)",
     "description": "FX (echoes): an evolving synthetic texture with distinct.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5521,6 +5543,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (sci-fi)",
     "description": "FX (sci-fi): an evolving synthetic texture with distinct.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5550,6 +5573,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Sitar",
     "description": "Sitar: a distinctive folk tone with a bright attack.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5583,6 +5607,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Banjo",
     "description": "Banjo: a distinctive folk tone with a bright attack.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "attackNoise": {
         "amp": 0.12,
@@ -5651,6 +5676,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Shamisen",
     "description": "Shamisen: a distinctive folk tone with a bright attack.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5682,6 +5708,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Koto",
     "description": "Koto: a distinctive folk tone with a bright attack.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -5713,6 +5740,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Kalimba",
     "description": "Kalimba: a distinctive folk tone with a bright attack.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "inharmonicity": 0.008,
       "partialDecay": [
@@ -5774,7 +5802,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 6,
@@ -5837,7 +5865,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.3
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 6.5,
@@ -5892,7 +5920,7 @@ var GUS_MELODIC_PRESETS = {
         "s": 0.9,
         "r": 0.2
       },
-      "loop": 1,
+      "loop": true,
       "cycles": 14,
       "vibrato": {
         "rate": 7,
@@ -5908,6 +5936,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tinkle Bell",
     "description": "Tinkle Bell: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "inharmonicity": 0.008,
@@ -5942,6 +5971,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Agogo",
     "description": "Agogo: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "inharmonicity": 0.008,
@@ -5975,6 +6005,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Steel Drums",
     "description": "Steel Drums: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "inharmonicity": 0.008,
@@ -6011,6 +6042,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Woodblock",
     "description": "Woodblock: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6036,6 +6068,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Taiko Drum",
     "description": "Taiko Drum: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6062,6 +6095,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Melodic Tom",
     "description": "Melodic Tom: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6088,6 +6122,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Synth Drum",
     "description": "Synth Drum: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6114,6 +6149,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Reverse Cymbal",
     "description": "Reverse Cymbal: a pitched strike with clear resonance.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6144,6 +6180,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Fret Noise",
     "description": "Fret Noise: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6174,6 +6211,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Breath Noise",
     "description": "Breath Noise: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6204,6 +6242,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Seashore",
     "description": "Seashore: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6234,6 +6273,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Bird Tweet",
     "description": "Bird Tweet: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "harm": [
         1,
@@ -6263,6 +6303,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Telephone",
     "description": "Telephone: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6298,6 +6339,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Helicopter",
     "description": "Helicopter: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6328,6 +6370,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Applause",
     "description": "Applause: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [
@@ -6358,6 +6401,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Gunshot",
     "description": "Gunshot: a recognizable effect with a distinct texture.",
     "preset": {
+      "loop": false,
       "defaultWaveform": null,
       "gain": 0.3,
       "harm": [

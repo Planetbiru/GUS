@@ -865,19 +865,7 @@ class GusPatchApp {
                 : this.lib.melodic[midi];
             if (!instrument) throw new Error(`Unknown ${type} instrument: ${midi}.`);
             const preset = this.generatorState.presets[`${type}:${midi}`] || instrument.preset;
-            return this.applyPresetLoopPolicy(type, midi, preset);
-        }
-
-        applyPresetLoopPolicy(type, midi, preset) {
-            const program = Number(midi);
-            const oneShot = type === 'melodic'
-                && ((program >= 0 && program <= 15)
-                    || (program >= 24 && program <= 37)
-                    || (program >= 45 && program <= 47)
-                    || program === 55
-                    || (program >= 96 && program <= 108)
-                    || (program >= 112 && program <= 127));
-            return oneShot && preset.loop ? {...preset, loop: false} : preset;
+            return preset;
         }
 
         getCurrentPresetKey() {
@@ -996,17 +984,16 @@ class GusPatchApp {
             const midi = this.currentMidi;
             const parsedPreset = this.validatePresetJson();
             if (!parsedPreset) return;
-            const preset = this.applyPresetLoopPolicy(type, midi, parsedPreset);
             const key = this.getCurrentPresetKey();
             try {
-                this.buildMidiPatch(type === 'drum', midi, preset);
+                this.buildMidiPatch(type === 'drum', midi, parsedPreset);
             } catch (error) {
                 this.setPresetEditorStatus(`Preset cannot generate a patch: ${error.message}`, true);
                 this.log(`Preset apply failed: ${error.message}`, 'err');
                 return;
             }
 
-            this.generatorState.presets[key] = preset;
+            this.generatorState.presets[key] = parsedPreset;
             this.persistGeneratorState();
             this.updatePresetEditor();
             this.drawPreview();
@@ -1611,6 +1598,7 @@ class GusPatchApp {
         const player = new TimidityPlayer({
             sampleRate: +this.$('sr').value || 22050,
             bufferSize: 4096,
+            bufferSizeRealtime: 1024,
             timidityCfgLoader: () => this.buildMidiTimidityConfig(),
             instrumentLoader: (bank, isDrum, program) => {
                 if (this.collectingMidiInstruments) {
@@ -3091,10 +3079,11 @@ class GusPatchApp {
             '',
             '─── Technical notes ───────────────────────',
             '  - All patches are generated purely from JavaScript oscillators.',
-            '  - Melodic: 16-bit signed PCM with sustain looping enabled for instruments',
-            '    that sustain (organs, synth bass, bowed strings, ensembles, brass,',
-            '    reeds, pipes, leads, pads, bagpipe, fiddle, and shanai).',
-            '    Struck, plucked, and one-shot instruments use non-looped samples.',
+            '  - Melodic: each preset defines whether its sample uses sustain looping.',
+            '    Loops are used for sustained instruments (organs, synth bass, bowed',
+            '    strings, ensembles, brass, reeds, pipes, leads, pads, bagpipe, fiddle,',
+            '    shanai, guitar harmonics, and overdriven/distortion guitars).',
+            '    Other struck, plucked, and one-shot presets use non-looped samples.',
             '  - Looped samples include MENV and a default envelope (attack ~10ms,',
             '    release ~148ms) so note-off releases notes correctly.',
             '  - Drum   : one-shot, no loop.',
