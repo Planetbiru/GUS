@@ -1106,7 +1106,7 @@ canvas {
     font-weight: 600;
 }
 
-.preset-array-add:hover {
+.preset-array-add:hover:not(:disabled) {
     background: var(--accent2);
     color: #000;
     border-color: var(--accent2);
