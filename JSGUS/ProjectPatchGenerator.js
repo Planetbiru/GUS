@@ -593,13 +593,15 @@ class MelodicRenderer {
 
         let length, baseFreq, loopStart = 0, loopEnd = 0, cs = 50;
         let naturalFreq;
+        const env = p.env || { a: 0.005, d: 0.5, s: 0, r: 0.3 };
 
         if (isLoop) {
             const targetFreq = o.freq || p.freq || 441;
             cs = p.cycleSamples || Math.max(2, Math.round(SR / targetFreq));
             naturalFreq = SR / cs;
             const cycles = p.cycles || 12;
-            const tailCycles = p.tailCycles || 4;
+            const releaseSeconds = Number.isFinite(env.r) && env.r > 0 ? env.r : 0.3;
+            const tailCycles = p.tailCycles || Math.max(4, Math.ceil(targetFreq * releaseSeconds));
             loopStart = (p.loopSkip || 3) * cs;
             loopEnd = cs * cycles;
             // Loop sample size is defined by cycles/tailCycles; p.length only applies to one-shots.
@@ -628,7 +630,6 @@ class MelodicRenderer {
         // ─────────────────────────────────────────────────────────────
         const vib       = isLoop ? null : (p.vibrato || null);
         const detunes   = isLoop ? [0]  : (p.detune || [0]);
-        const env       = p.env || { a: 0.005, d: 0.5, s: 0, r: 0.3 };
         const noiseAmt  = p.noise || 0;
         const fm        = p.fm && (!isLoop || Number.isInteger(p.fm.ratio)) ? p.fm : null;
         const harm      = p.harm || [1];
@@ -701,8 +702,10 @@ class MelodicRenderer {
                         const stretch = inharmB > 0
                             ? order * Math.sqrt(1 + inharmB * order * order)
                             : order;
-                        v.phases[k] += (f0 * stretch) / SR;
+                        const partialFrequency = f0 * stretch;
+                        v.phases[k] += partialFrequency / SR;
                         v.phases[k] -= Math.floor(v.phases[k]);
+                        if (p.antiAlias && partialFrequency >= SR * 0.49) continue;
                         let pAmp = a;
                         if (pluckPosition !== null) {
                             const fundamentalExcitation = Math.max(0.01, Math.abs(Math.sin(Math.PI * pluckPosition)));

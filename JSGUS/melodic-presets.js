@@ -105,7 +105,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 44100,
       "freq": 441,
-      "loop": 1,
+      "loop": false,
       "cycles": 36,
       "loopSkip": 16,
       "tailCycles": 180,
@@ -162,7 +162,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 55125,
       "freq": 441,
-      "loop": 1,
+      "loop": false,
       "cycles": 36,
       "loopSkip": 16,
       "tailCycles": 180,
@@ -244,7 +244,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 66150,
       "freq": 441,
-      "loop": 1,
+      "loop": false,
       "cycles": 36,
       "loopSkip": 16,
       "tailCycles": 180,
@@ -307,7 +307,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 55125,
       "freq": 441,
-      "loop": 1,
+      "loop": false,
       "cycles": 36,
       "loopSkip": 16,
       "tailCycles": 180,
@@ -364,7 +364,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 55125,
       "freq": 441,
-      "loop": 1,
+      "loop": false,
       "cycles": 36,
       "loopSkip": 16,
       "tailCycles": 180,
@@ -1129,67 +1129,82 @@ var GUS_MELODIC_PRESETS = {
     "family": "Guitar",
     "name": "Nylon Guitar",
     "shortName": "Nylon Guitar",
-    "description": "Nylon Guitar: a plucked-string attack with natural decay.",
+    "description": "Nylon Guitar: warm finger-plucked tone with a soft decay.",
     "preset": {
       "defaultWaveform": "saw",
-      "gain": 0.40
-    ,
+      "gain": 0.40,
+      "loop": false,
+      "antiAlias": true,
       "attackNoise": {
-        "amp": 0.032,
-        "duration": 0.022
+        "amp": 0.012,
+        "duration": 0.009
       },
       "brightness": {
-        "start": 7600,
-        "end": 1800
+        "start": 10500,
+        "end": 2500
       },
       "partialDecay": [
-        3.2,
-        1.9,
-        1.15,
-        0.78,
-        0.52,
-        0.36,
-        0.25,
-        0.18,
-        0.13
+        2.4, 1.6, 1.1, 0.78, 0.58, 0.44, 0.34, 0.27, 0.22,
+        0.18, 0.15, 0.13, 0.11, 0.095, 0.082, 0.072, 0.063,
+        0.056, 0.05, 0.045, 0.041, 0.037, 0.034, 0.031
       ],
       "formants": [
         {
-          "freq": 105,
-          "q": 1.2,
-          "gain": 2.5
+          "freq": 150,
+          "q": 0.8,
+          "gain": 4
         },
         {
-          "freq": 210,
-          "q": 1.8,
+          "freq": 230,
+          "q": 0.8,
+          "gain": 5
+        },
+        {
+          "freq": 410,
+          "q": 0.85,
           "gain": 3.5
         },
         {
-          "freq": 390,
-          "q": 2.1,
-          "gain": 3
+          "freq": 780,
+          "q": 0.95,
+          "gain": 2
         },
         {
-          "freq": 850,
-          "q": 1.6,
+          "freq": 3000,
+          "q": 1,
           "gain": 1
         },
         {
-          "freq": 2300,
-          "q": 1.3,
-          "gain": -2
+          "freq": 4600,
+          "q": 1,
+          "gain": 0.5
         }
       ],
       "harm": [
         1,
-        0.8,
-        0.6,
-        0.4,
         0.25,
-        0.15,
-        0.08,
+        0.1111,
+        0.0625,
         0.04,
-        0.02
+        0.0278,
+        0.0204,
+        0.0156,
+        0.0123,
+        0.01,
+        0.0083,
+        0.0069,
+        0.0059,
+        0.0051,
+        0.0044,
+        0.0039,
+        0.0035,
+        0.0031,
+        0.0028,
+        0.0025,
+        0.0023,
+        0.0021,
+        0.0019,
+        0.0017
       ],
       "env": {
         "a": 0.002,
@@ -1199,13 +1214,13 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 66150,
       "freq": 441,
-      "pluckPosition": 0.16,
+      "pluckPosition": 0.12,
       "pluckTransient": {
-        "freq": 1900,
-        "q": 0.8,
-        "amp": 0.026,
-        "duration": 0.02,
-        "decay": 0.009
+        "freq": 2600,
+        "q": 0.9,
+        "amp": 0.025,
+        "duration": 0.016,
+        "decay": 0.007
       },
       "inharmonicity": 0.00004,
       "pitchScoop": {
@@ -1223,6 +1238,7 @@ var GUS_MELODIC_PRESETS = {
       "defaultWaveform": "saw",
       "gain": 0.40
     ,
+      "loop": false,
       "attackNoise": {
         "amp": 0.09,
         "duration": 0.009
@@ -1376,7 +1392,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 44100,
       "freq": 441,
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2
     }
@@ -1433,7 +1449,7 @@ var GUS_MELODIC_PRESETS = {
         "preampCutoff": 75,
         "cabinetCutoff": 6500
       },
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2
     }
@@ -1572,7 +1588,7 @@ var GUS_MELODIC_PRESETS = {
         "preampCutoff": 90,
         "cabinetCutoff": 6200
       },
-      "loop": 1,
+      "loop": false,
       "cycles": 18,
       "loopSkip": 10,
       "loopAttackNoise": {
@@ -1653,7 +1669,7 @@ var GUS_MELODIC_PRESETS = {
         "preampCutoff": 90,
         "cabinetCutoff": 6000
       },
-      "loop": 1,
+      "loop": false,
       "cycles": 20,
       "loopSkip": 10,
       "loopAttackNoise": {
@@ -1706,7 +1722,7 @@ var GUS_MELODIC_PRESETS = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3
       ],
       "freq": 441,
-      "loop": true,
+      "loop": false,
       "cycles": 24,
       "loopSkip": 4,
       "loopAttack": 0.008,
@@ -1751,7 +1767,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 33075,
       "freq": 220,
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2}
   },
@@ -1790,7 +1806,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 33075,
       "freq": 220,
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2}
   },
@@ -1829,7 +1845,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 33075,
       "freq": 220,
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2}
   },
@@ -1872,7 +1888,7 @@ var GUS_MELODIC_PRESETS = {
         "rate": 5,
         "depth": 0.01
       },
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2}
   },
@@ -1912,7 +1928,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 33075,
       "freq": 220,
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2}
   },
@@ -1952,7 +1968,7 @@ var GUS_MELODIC_PRESETS = {
       "length": 33075,
       "freq": 220,
       "noise": 0.05,
-      "loop": 1,
+      "loop": false,
       "cycles": 14,
       "loopSkip": 2}
   },
