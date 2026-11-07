@@ -1131,7 +1131,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Nylon Guitar",
     "description": "Nylon Guitar: warm finger-plucked tone with a soft decay.",
     "preset": {
-      "defaultWaveform": "saw",
+      "defaultWaveform": null,
       "gain": 0.40,
       "loop": false,
       "antiAlias": true,
