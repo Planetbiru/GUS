@@ -19,6 +19,8 @@ Do not clear the browser's site data if you want to keep locally stored projects
 
 Use the **Melodic** and **Drum Kit** tabs in the instrument list. Search by instrument name with the search field, then select an instrument to load it into the editor.
 
+Press **F2** anywhere in the app to focus the instrument search and select its current text. The search query is restored after a page reload.
+
 For melodic instruments, choose a base waveform, sample rate, root frequency, and duration. Waveform selection is unavailable for drums. The waveform canvas shows the generated preview.
 
 - **Play C4** previews the selected instrument. For a drum, it plays the selected drum sound.

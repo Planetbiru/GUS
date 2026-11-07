@@ -200,7 +200,7 @@ class GusPatchApp {
         window.addEventListener('resize', () => this.drawLiveWaveform());
         this.drawLiveWaveform();
         this.log('Application ready. Choose an instrument from the list.', 'ok');
-        this.log('Shortcuts: Up/Down = navigate, Space = preview', 'info');
+        this.log('Shortcuts: F2 = search instruments, Up/Down = navigate, Space = preview', 'info');
         const selected = this.generatorState.selected;
         let type = selected && selected.type === 'drum' ? 'drum' : 'melodic';
         let midi = Number(selected && selected.midi);
@@ -1934,6 +1934,14 @@ class GusPatchApp {
 
     bindKeyboard() {
         document.addEventListener('keydown', e => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                const search = this.$('instrumentSearch');
+                search.focus();
+                search.select();
+                return;
+            }
+
             const tag = e.target.tagName;
             if (tag === 'INPUT' || tag === 'SELECT') return;
 
