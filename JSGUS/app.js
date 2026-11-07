@@ -116,6 +116,12 @@ class GusPatchApp {
         this.autoApplyPresetGeneration = 0;
         this.autoApplyPresetQueue = Promise.resolve();
         this.midiMode = 'file';
+        this.midiControllerAccess = null;
+        this.midiControllerInput = null;
+        this.midiControllerPrograms = new Array(16).fill(0);
+        this.midiControllerBanks = new Array(16).fill(0);
+        this.midiControllerActiveNotes = new Set();
+        this.midiControllerPendingNotes = new Set();
         this.sequencerPlaying = false;
         this.sequencerPaused = false;
         this.sequencerMidiData = null;
@@ -462,6 +468,16 @@ class GusPatchApp {
         });
         this.$('btnMidiFileMode').onclick = () => this.setMidiMode('file');
         this.$('btnMidiSequencerMode').onclick = () => this.setMidiMode('sequencer');
+        this.$('btnMidiControllerMode').onclick = () => this.setMidiMode('controller');
+        this.$('btnMidiControllerConnect').onclick = () => this.toggleMidiControllerConnection();
+        this.$('midiControllerInput').addEventListener('change', () => {
+            if (this.midiControllerInput) {
+                this.connectMidiControllerInput().catch(error => {
+                    this.$('midiStatus').textContent = `MIDI controller connection failed: ${error.message}`;
+                    this.log(`MIDI controller connection failed: ${error.message}`, 'err');
+                });
+            }
+        });
         this.$('btnSequencerPlay').onclick = () => this.startMidiSequencer();
         this.$('btnSequencerPause').onclick = () => this.toggleSequencerPause();
         this.$('btnSequencerStop').onclick = () => this.stopMidiSequencer();
@@ -2077,27 +2093,223 @@ class GusPatchApp {
     }
 
     async setMidiMode(mode) {
-        if (!['file', 'sequencer'].includes(mode) || mode === this.midiMode) return;
-        if (mode === 'sequencer') {
-            if (this.timidityPlayer?.songPtr && (this.timidityPlayer.isPlaying || this.timidityPlayer.isPaused)) {
-                this.stopMidiPlayback();
-            }
-        } else if (this.sequencerPlaying) {
-            this.stopMidiSequencer();
+        if (!['file', 'sequencer', 'controller'].includes(mode) || mode === this.midiMode) return;
+        if (this.midiMode === 'controller') this.disconnectMidiControllerInput();
+        if (mode !== 'file'
+            && this.timidityPlayer?.songPtr
+            && (this.timidityPlayer.isPlaying || this.timidityPlayer.isPaused)) {
+            this.stopMidiPlayback();
         }
+        if (mode !== 'sequencer' && this.sequencerPlaying) this.stopMidiSequencer();
 
         this.midiMode = mode;
         const isFileMode = mode === 'file';
-        this.$('midiFileMode').hidden = !isFileMode;
-        this.$('midiSequencerMode').hidden = isFileMode;
-        this.$('btnMidiFileMode').classList.toggle('active', isFileMode);
-        this.$('btnMidiFileMode').setAttribute('aria-selected', String(isFileMode));
-        this.$('btnMidiSequencerMode').classList.toggle('active', !isFileMode);
-        this.$('btnMidiSequencerMode').setAttribute('aria-selected', String(!isFileMode));
+        const isSequencerMode = mode === 'sequencer';
+        const modes = [
+            ['file', 'btnMidiFileMode', 'midiFileMode'],
+            ['sequencer', 'btnMidiSequencerMode', 'midiSequencerMode'],
+            ['controller', 'btnMidiControllerMode', 'midiControllerMode'],
+        ];
+        for (const [modeName, buttonId, panelId] of modes) {
+            const active = mode === modeName;
+            this.$(panelId).hidden = !active;
+            this.$(buttonId).classList.toggle('active', active);
+            this.$(buttonId).setAttribute('aria-selected', String(active));
+        }
         this.$('midiStatus').textContent = isFileMode
             ? (this.midiData ? `Ready: ${this.midiFileName}` : 'Select a MIDI file to play with the generated GM bank.')
-            : 'Select an instrument, then start the sequencer.';
+            : isSequencerMode
+                ? 'Select an instrument, then start the sequencer.'
+                : this.midiControllerInput
+                    ? `MIDI controller connected: ${this.midiControllerInput.name || 'Input'}`
+                    : 'Connect a MIDI controller to play instruments in real time.';
         this.updateMidiPlaybackUI();
+    }
+
+    async toggleMidiControllerConnection() {
+        if (this.midiControllerInput) {
+            this.disconnectMidiControllerInput();
+            return;
+        }
+
+        if (!navigator.requestMIDIAccess) {
+            this.$('midiStatus').textContent = 'Web MIDI is not supported in this browser.';
+            return;
+        }
+
+        try {
+            this.$('midiStatus').textContent = 'Requesting MIDI access...';
+            this.midiControllerAccess = this.midiControllerAccess
+                || await navigator.requestMIDIAccess();
+            this.midiControllerAccess.onstatechange = () => this.refreshMidiControllerInputs();
+            this.refreshMidiControllerInputs();
+            const inputSelect = this.$('midiControllerInput');
+            if (!inputSelect.value && inputSelect.options.length > 1) {
+                inputSelect.value = inputSelect.options[1].value;
+            }
+            if (!inputSelect.value) {
+                this.$('midiStatus').textContent = 'No MIDI input devices found. Connect a controller, then try again.';
+                return;
+            }
+            await this.connectMidiControllerInput();
+        } catch (error) {
+            this.$('midiStatus').textContent = `MIDI controller connection failed: ${error.message}`;
+            this.log(`MIDI controller connection failed: ${error.message}`, 'err');
+        }
+    }
+
+    refreshMidiControllerInputs() {
+        const select = this.$('midiControllerInput');
+        const selectedId = this.midiControllerInput?.id || select.value;
+        const inputs = this.midiControllerAccess
+            ? Array.from(this.midiControllerAccess.inputs.values())
+            : [];
+        select.replaceChildren();
+        if (!inputs.length) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = this.midiControllerAccess
+                ? 'No MIDI input devices found'
+                : 'Enable MIDI access to list devices';
+            select.appendChild(option);
+            select.disabled = true;
+            if (this.midiControllerInput) {
+                this.disconnectMidiControllerInput();
+                if (this.midiMode === 'controller') {
+                    this.$('midiStatus').textContent = 'MIDI controller disconnected.';
+                }
+            }
+            return;
+        }
+
+        for (const input of inputs) {
+            const option = document.createElement('option');
+            option.value = input.id;
+            option.textContent = input.name || `MIDI Input ${input.id}`;
+            option.selected = input.id === selectedId;
+            select.appendChild(option);
+        }
+        select.disabled = false;
+        if (selectedId && !inputs.some(input => input.id === selectedId)) {
+            select.value = inputs[0].id;
+        }
+        if (this.midiControllerInput
+            && !inputs.some(input => input.id === this.midiControllerInput.id)) {
+            this.disconnectMidiControllerInput();
+            if (this.midiMode === 'controller') {
+                this.$('midiStatus').textContent = 'MIDI controller disconnected. Select an available input and connect again.';
+            }
+        }
+    }
+
+    async connectMidiControllerInput() {
+        const input = this.midiControllerAccess?.inputs.get(this.$('midiControllerInput').value);
+        if (!input) throw new Error('Select an available MIDI input device.');
+        if (this.midiControllerInput?.id === input.id) return;
+        this.disconnectMidiControllerInput();
+        const player = await this.ensureTimidityPlayer();
+        if (this.midiMode !== 'controller') return;
+
+        const initialProgram = this.currentType === 'melodic' ? Number(this.currentMidi) : 0;
+        this.midiControllerPrograms.fill(initialProgram);
+        this.midiControllerBanks.fill(0);
+        input.onmidimessage = event => this.handleMidiControllerMessage(event);
+        this.midiControllerInput = input;
+        this.$('btnMidiControllerConnect').textContent = 'Disconnect';
+        this.$('midiStatus').textContent = `MIDI controller connected: ${input.name || 'Input'}.`;
+        this.setLiveWaveformSource(player.waveformAnalyser);
+    }
+
+    disconnectMidiControllerInput() {
+        if (this.midiControllerInput) this.midiControllerInput.onmidimessage = null;
+        this.midiControllerInput = null;
+        this.midiControllerActiveNotes.clear();
+        this.midiControllerPendingNotes.clear();
+        this.timidityPlayer?.panic();
+        const button = this.$('btnMidiControllerConnect');
+        if (button) button.textContent = 'Connect';
+        this.restoreLiveWaveformSource();
+    }
+
+    handleMidiControllerMessage(event) {
+        if (this.midiMode !== 'controller' || !this.timidityPlayer) return;
+        const data = event.data;
+        if (!data || data.length < 2) return;
+        const command = data[0] & 0xf0;
+        const channel = data[0] & 0x0f;
+        const a = data[1] & 0x7f;
+        const b = (data[2] || 0) & 0x7f;
+        const player = this.timidityPlayer;
+        const eventTime = Number.isFinite(event.timeStamp) ? `${event.timeStamp.toFixed(1)}ms` : 'time unknown';
+
+        if (command === 0x90 && b > 0) {
+            const key = `${channel}:${a}`;
+            if (this.midiControllerActiveNotes.has(key)) {
+                this.log(`MIDI Controller ${eventTime}: repeated Note On ignored (channel ${channel + 1}, note ${a}, velocity ${b}).`);
+                return;
+            }
+            this.midiControllerActiveNotes.add(key);
+            if (this.midiControllerPendingNotes.has(key)) {
+                this.log(`MIDI Controller ${eventTime}: Note On queued behind pending load (channel ${channel + 1}, note ${a}, velocity ${b}).`);
+                return;
+            }
+            this.midiControllerPendingNotes.add(key);
+            const program = this.midiControllerPrograms[channel];
+            const bank = this.midiControllerBanks[channel];
+            this.log(`MIDI Controller ${eventTime}: calling TimidityPlayer.noteOn(channel ${channel + 1}, program ${program}, note ${a}, velocity ${b}, bank ${bank}).`);
+            Promise.resolve(player.noteOn(channel, program, a, b, {bank})).then(() => {
+                this.midiControllerPendingNotes.delete(key);
+                if (!this.midiControllerActiveNotes.has(key)) {
+                    this.log(`MIDI Controller ${eventTime}: calling TimidityPlayer.noteOff(channel ${channel + 1}, note ${a}) after pending Note On completed.`);
+                    player.noteOff(channel, a);
+                } else {
+                    this.log(`MIDI Controller ${eventTime}: TimidityPlayer.noteOn completed; note ${a} remains held.`);
+                }
+            }).catch(error => {
+                this.midiControllerPendingNotes.delete(key);
+                this.midiControllerActiveNotes.delete(key);
+                this.$('midiStatus').textContent = `MIDI note failed: ${error.message}`;
+                this.log(`MIDI Controller ${eventTime}: TimidityPlayer.noteOn failed for channel ${channel + 1}, note ${a}: ${error.message}`, 'err');
+                this.log(`MIDI controller note failed: ${error.message}`, 'err');
+            });
+        } else if (command === 0x80 || (command === 0x90 && b === 0)) {
+            const key = `${channel}:${a}`;
+            if (!this.midiControllerActiveNotes.delete(key)) {
+                this.log(`MIDI Controller ${eventTime}: unmatched Note Off ignored (channel ${channel + 1}, note ${a}).`);
+                return;
+            }
+            if (!this.midiControllerPendingNotes.has(key)) {
+                this.log(`MIDI Controller ${eventTime}: calling TimidityPlayer.noteOff(channel ${channel + 1}, note ${a}).`);
+                player.noteOff(channel, a);
+            } else {
+                this.log(`MIDI Controller ${eventTime}: Note Off received while Note On is pending; release will follow load (channel ${channel + 1}, note ${a}).`);
+            }
+        } else if (command === 0xc0) {
+            this.midiControllerPrograms[channel] = a;
+            player.sendEvent(player.ME_PROGRAM, channel, a);
+        } else if (command === 0xe0) {
+            player.sendEvent(player.ME_PITCHWHEEL, channel, a, b);
+        } else if (command === 0xb0) {
+            if (a === 0) {
+                this.midiControllerBanks[channel] = b;
+            } else if (a === 7) {
+                player.sendEvent(player.ME_MAINVOLUME, channel, b);
+            } else if (a === 10) {
+                player.sendEvent(player.ME_PAN, channel, b);
+            } else if (a === 11) {
+                player.sendEvent(player.ME_EXPRESSION, channel, b);
+            } else if (a === 64) {
+                player.sendEvent(player.ME_SUSTAIN, channel, b);
+            } else if (a === 120 || a === 123) {
+                const eventType = a === 120 ? player.ME_ALL_SOUNDS_OFF : player.ME_ALL_NOTES_OFF;
+                player.sendEvent(eventType, channel, 0);
+                for (const key of this.midiControllerActiveNotes) {
+                    if (key.startsWith(`${channel}:`)) this.midiControllerActiveNotes.delete(key);
+                }
+            } else {
+                player.sendEvent(player.ME_CONTROL_CHANGE, channel, a, b);
+            }
+        }
     }
 
     getMidiVolume() {

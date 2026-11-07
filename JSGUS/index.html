@@ -236,6 +236,8 @@
                         aria-selected="true" aria-controls="midiFileMode">MIDI file</button>
                     <button id="btnMidiSequencerMode" type="button" role="tab"
                         aria-selected="false" aria-controls="midiSequencerMode">Sequencer</button>
+                    <button id="btnMidiControllerMode" type="button" role="tab"
+                        aria-selected="false" aria-controls="midiControllerMode">MIDI Controller</button>
                 </div>
                 <section class="live-waveform" aria-labelledby="liveWaveformTitle">
                     <h3 id="liveWaveformTitle">Live Output <span id="liveWaveModeLabel">Amplitude</span></h3>
@@ -328,7 +330,7 @@
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <path d="M8 5v14l11-7z" fill="currentColor" />
                             </svg>
-                            <span>Play sequence</span>
+                            <span>Play Sequence</span>
                         </button>
                         <button id="btnSequencerPause" class="button-with-icon" type="button" disabled>
                             <span>Pause</span>
@@ -340,6 +342,18 @@
                             <span>Stop</span>
                         </button>
                     </div>
+                </div>
+                <div id="midiControllerMode" role="tabpanel" aria-labelledby="btnMidiControllerMode" hidden>
+                    <div class="midi-controller-settings">
+                        <div class="field">
+                            <label for="midiControllerInput">MIDI Input</label>
+                            <select id="midiControllerInput" disabled>
+                                <option value="">Enable MIDI access to list devices</option>
+                            </select>
+                        </div>
+                        <button id="btnMidiControllerConnect" type="button">Connect</button>
+                    </div>
+                    <p class="midi-controller-help">Play notes from a connected MIDI keyboard. Program changes select instruments; channel 10 plays drums.</p>
                 </div>
             </div>
 

@@ -388,8 +388,24 @@ dialog::backdrop {
     margin-left: auto;
 }
 
-#btnMidiPlay{
-    width: 90px;
+#btnMidiPlay {
+    min-width: 90px;
+}
+
+#btnSequencerPause {
+    min-width: 76px;
+}
+
+#btnMidiControllerConnect {
+    min-width: 88px;
+}
+
+#btnAutoApplyPreset {
+    min-width: 120px;
+}
+
+#btnConfirmDeleteProject {
+    min-width: 150px;
 }
 
 .layout {
@@ -637,7 +653,7 @@ main {
 
 .midi-mode-switch {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 4px;
     margin-bottom: 10px;
 }
@@ -662,6 +678,35 @@ main {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
     align-items: start;
+}
+
+.midi-controller-settings {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: end;
+}
+
+.midi-controller-settings .field {
+    min-width: 0;
+}
+
+.midi-controller-settings select {
+    width: 100%;
+    padding: 7px 32px 7px 10px;
+    background-color: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font: inherit;
+    font-size: 13px;
+}
+
+.midi-controller-help {
+    margin: 8px 0 0;
+    color: var(--dim);
+    font-size: 11px;
+    line-height: 1.4;
 }
 
 .sequencer-settings input[type="number"],
