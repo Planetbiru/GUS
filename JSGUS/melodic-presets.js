@@ -9,6 +9,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Ac. Grand: struck-key tone with a resonant decay.",
     "preset": {
       "defaultWaveform": "saw",
+      "gain": 0.42
+    ,
       "inharmonicity": 0.0005,
       "attackNoise": {
         "amp": 0.9,
@@ -46,9 +48,7 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.35
       },
       "length": 55125,
-      "freq": 441,
-      "gain": 0.42
-    }
+      "freq": 441}
   },
   {
     "program": 1,
@@ -58,6 +58,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Bright Piano: struck-key tone with a resonant decay.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -130,9 +132,7 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      },
-      "gain": 0.42
-    }
+      }}
   },
   {
     "program": 2,
@@ -142,6 +142,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Elec. Grand: struck-key tone with a resonant decay.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "harm": [
         1,
         0.2,
@@ -187,9 +189,7 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      },
-      "gain": 0.42
-    }
+      }}
   },
   {
     "program": 3,
@@ -287,6 +287,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "E.Piano 1: struck-key tone with a resonant decay.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "harm": [
         1,
         0.2,
@@ -332,9 +334,7 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      },
-      "gain": 0.42
-    }
+      }}
   },
   {
     "program": 5,
@@ -344,6 +344,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "E.Piano 2: struck-key tone with a resonant decay.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "harm": [
         1,
         0.2,
@@ -389,9 +391,7 @@ var GUS_MELODIC_PRESETS = {
           0,
           0
         ]
-      },
-      "gain": 0.42
-    }
+      }}
   },
   {
     "program": 6,
@@ -401,6 +401,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Harpsichord: struck-key tone with a resonant decay.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -443,9 +445,7 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.2
       },
       "length": 66150,
-      "freq": 441,
-      "gain": 0.42
-    }
+      "freq": 441}
   },
   {
     "program": 7,
@@ -455,6 +455,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Clavinet: struck-key tone with a resonant decay.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "inharmonicity": 0.00035,
       "attackNoise": {
         "amp": 0.15,
@@ -495,9 +497,7 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.2
       },
       "length": 66150,
-      "freq": 441,
-      "gain": 0.42
-    }
+      "freq": 441}
   },
   {
     "program": 8,
@@ -507,6 +507,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Celesta: a bright strike with a clear ringing tone.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "inharmonicity": 0.008,
       "partialDecay": [
         3,
@@ -532,9 +534,7 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.6
       },
       "length": 55125,
-      "freq": 441,
-      "gain": 0.42
-    }
+      "freq": 441}
   },
   {
     "program": 9,
@@ -1132,6 +1132,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Nylon Guitar: a plucked-string attack with natural decay.",
     "preset": {
       "defaultWaveform": "saw",
+      "gain": 0.40
+    ,
       "attackNoise": {
         "amp": 0.032,
         "duration": 0.022
@@ -1209,9 +1211,7 @@ var GUS_MELODIC_PRESETS = {
       "pitchScoop": {
         "depth": 0.0012,
         "time": 0.014
-      },
-      "gain": 0.40
-    }
+      }}
   },
   {
     "program": 25,
@@ -1221,6 +1221,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Steel Guitar: a plucked-string attack with natural decay.",
     "preset": {
       "defaultWaveform": "saw",
+      "gain": 0.40
+    ,
       "attackNoise": {
         "amp": 0.09,
         "duration": 0.009
@@ -1307,9 +1309,7 @@ var GUS_MELODIC_PRESETS = {
       "pitchScoop": {
         "depth": 0.0022,
         "time": 0.009
-      },
-      "gain": 0.40
-    }
+      }}
   },
   {
     "program": 26,
@@ -1724,6 +1724,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Ac. Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -1751,9 +1753,7 @@ var GUS_MELODIC_PRESETS = {
       "freq": 220,
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.38
-    }
+      "loopSkip": 2}
   },
   {
     "program": 33,
@@ -1763,6 +1763,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Finger Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -1790,9 +1792,7 @@ var GUS_MELODIC_PRESETS = {
       "freq": 220,
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.38
-    }
+      "loopSkip": 2}
   },
   {
     "program": 34,
@@ -1802,6 +1802,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Pick Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -1829,9 +1831,7 @@ var GUS_MELODIC_PRESETS = {
       "freq": 220,
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.38
-    }
+      "loopSkip": 2}
   },
   {
     "program": 35,
@@ -1841,6 +1841,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Fretless Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -1872,9 +1874,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.38
-    }
+      "loopSkip": 2}
   },
   {
     "program": 36,
@@ -1884,6 +1884,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Slap Bass 1: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.36
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -1912,9 +1914,7 @@ var GUS_MELODIC_PRESETS = {
       "freq": 220,
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.36
-    }
+      "loopSkip": 2}
   },
   {
     "program": 37,
@@ -1924,6 +1924,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Slap Bass 2: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -1952,9 +1954,7 @@ var GUS_MELODIC_PRESETS = {
       "noise": 0.05,
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.38
-    }
+      "loopSkip": 2}
   },
   {
     "program": 38,
@@ -1964,6 +1964,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Synth Bass 1: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -1990,9 +1992,7 @@ var GUS_MELODIC_PRESETS = {
       "freq": 220,
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.38
-    }
+      "loopSkip": 2}
   },
   {
     "program": 39,
@@ -2002,6 +2002,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Synth Bass 2: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "attackNoise": {
         "amp": 0.07,
         "duration": 0.008
@@ -2030,9 +2032,7 @@ var GUS_MELODIC_PRESETS = {
       ],
       "loop": 1,
       "cycles": 14,
-      "loopSkip": 2,
-      "gain": 0.38
-    }
+      "loopSkip": 2}
   },
   {
     "program": 40,
@@ -2042,6 +2042,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Violin: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.50
+    ,
       "vibratoOnset": 0.2,
       "drive": 0.15,
       "formants": [
@@ -2117,9 +2119,7 @@ var GUS_MELODIC_PRESETS = {
         0.48,
         0.75
       ],
-      "loopSkip": 8,
-      "gain": 0.50
-    }
+      "loopSkip": 8}
   },
   {
     "program": 41,
@@ -2129,6 +2129,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Viola: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.50
+    ,
       "vibratoOnset": 0.2,
       "drive": 0.15,
       "formants": [
@@ -2203,9 +2205,7 @@ var GUS_MELODIC_PRESETS = {
         0.4,
         0.8
       ],
-      "loopSkip": 8,
-      "gain": 0.50
-    }
+      "loopSkip": 8}
   },
   {
     "program": 42,
@@ -2215,6 +2215,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Cello: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.34
+    ,
       "vibratoOnset": 0.2,
       "drive": 0,
       "formants": [
@@ -2272,9 +2274,7 @@ var GUS_MELODIC_PRESETS = {
         8
       ],
       "loopSkip": 8,
-      "noise": 0.005,
-      "gain": 0.34
-    }
+      "noise": 0.005}
   },
   {
     "program": 43,
@@ -2284,6 +2284,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Contrabass: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.34
+    ,
       "vibratoOnset": 0.2,
       "drive": 0,
       "formants": [
@@ -2341,9 +2343,7 @@ var GUS_MELODIC_PRESETS = {
       ],
       "freq": 220,
       "loopSkip": 8,
-      "noise": 0.004,
-      "gain": 0.34
-    }
+      "noise": 0.004}
   },
   {
     "program": 44,
@@ -2353,6 +2353,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Tremolo Str: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.34
+    ,
       "vibratoOnset": 0.2,
       "drive": 0,
       "formants": [
@@ -2410,9 +2412,7 @@ var GUS_MELODIC_PRESETS = {
         8
       ],
       "noise": 0.006,
-      "loopSkip": 8,
-      "gain": 0.34
-    }
+      "loopSkip": 8}
   },
   {
     "program": 45,
@@ -2422,6 +2422,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Pizzicato: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.34
+    ,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -2485,9 +2487,7 @@ var GUS_MELODIC_PRESETS = {
       "detune": [
         -8,
         8
-      ],
-      "gain": 0.34
-    }
+      ]}
   },
   {
     "program": 46,
@@ -2497,6 +2497,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Harp: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.34
+    ,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -2556,9 +2558,7 @@ var GUS_MELODIC_PRESETS = {
         "r": 0.6
       },
       "length": 44100,
-      "freq": 441,
-      "gain": 0.34
-    }
+      "freq": 441}
   },
   {
     "program": 47,
@@ -2568,6 +2568,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Timpani: a bowed or plucked tone with rich harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.34
+    ,
       "harm": [
         1,
         0.7,
@@ -2582,9 +2584,7 @@ var GUS_MELODIC_PRESETS = {
       },
       "length": 6615,
       "freq": 441,
-      "noise": 0.1,
-      "gain": 0.34
-    }
+      "noise": 0.1}
   },
   {
     "program": 48,
@@ -2594,6 +2594,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Strings 1: a layered orchestral blend with smooth sustain.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.35,
       "vibratoOnset": 0.2,
       "drive": 0,
       "formants": [
@@ -2657,7 +2658,6 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.35,
       "loopSkip": 8
     }
   },
@@ -2669,6 +2669,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Strings 2: a layered orchestral blend with smooth sustain.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.35,
       "vibratoOnset": 0.2,
       "drive": 0,
       "formants": [
@@ -2731,7 +2732,6 @@ var GUS_MELODIC_PRESETS = {
         0.9,
         0.5
       ],
-      "gain": 0.35,
       "loopSkip": 8
     }
   },
@@ -2897,6 +2897,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Choir Aahs: a layered orchestral blend with smooth sustain.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.24
+    ,
       "drive": 1.3,
       "vibratoOnset": 0.2,
       "phases": [
@@ -2961,9 +2963,7 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 25
       },
       "noise": 0.04,
-      "phaseScale": 0.012,
-      "gain": 0.24
-    }
+      "phaseScale": 0.012}
   },
   {
     "program": 53,
@@ -2973,6 +2973,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Voice Oohs: a layered orchestral blend with smooth sustain.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.24
+    ,
       "drive": 1.5,
       "vibratoOnset": 0.2,
       "phases": [
@@ -3035,9 +3037,7 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 15
       },
       "noise": 0.02,
-      "phaseScale": 0.015,
-      "gain": 0.24
-    }
+      "phaseScale": 0.015}
   },
   {
     "program": 54,
@@ -3047,6 +3047,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Synth Voice: a layered orchestral blend with smooth sustain.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.24
+    ,
       "drive": 1.8,
       "vibratoOnset": 0.2,
       "phases": [
@@ -3113,9 +3115,7 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 15
       },
       "noise": 0.02,
-      "phaseScale": 0.01,
-      "gain": 0.24
-    }
+      "phaseScale": 0.01}
   },
   {
     "program": 55,
@@ -3638,6 +3638,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "SynthBrass 1: a bold attack and bright, focused tone.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.1
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3691,9 +3693,7 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ],
-      "gain": 0.1
-    }
+      ]}
   },
   {
     "program": 63,
@@ -3703,6 +3703,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "SynthBrass 2: a bold attack and bright, focused tone.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.1
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -3750,9 +3752,7 @@ var GUS_MELODIC_PRESETS = {
           "q": 2,
           "gain": 2.5
         }
-      ],
-      "gain": 0.1
-    }
+      ]}
   },
   {
     "program": 64,
@@ -3762,6 +3762,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Soprano Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "vibratoOnset": 0.2,
       "drive": 1.3,
       "formants": [
@@ -3777,9 +3779,7 @@ var GUS_MELODIC_PRESETS = {
       "loopSkip": 8,
       "loopAttack": 0.008,
       "vibrato": { "rate": 6, "depth": 0.006, "sweep": 12 },
-      "freq": 620,
-      "gain": 0.31
-    }
+      "freq": 620}
   },
   {
     "program": 65,
@@ -3789,6 +3789,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Alto Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "vibratoOnset": 0.2,
       "drive": 1.9,
       "formants": [
@@ -3804,9 +3806,7 @@ var GUS_MELODIC_PRESETS = {
       "cycles": 14,
       "vibrato": { "rate": 5.5, "depth": 0.007, "sweep": 15 },
       "brightness": { "start": 10000, "end": 5500 },
-      "freq": 460,
-      "gain": 0.31
-    }
+      "freq": 460}
   },
   {
     "program": 66,
@@ -3816,6 +3816,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Tenor Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "vibratoOnset": 0.2,
       "drive": 1.4,
       "formants": [
@@ -3832,9 +3834,7 @@ var GUS_MELODIC_PRESETS = {
       "loopAttack": 0.012,
       "vibrato": { "rate": 4, "depth": 0.011, "sweep": 18 },
       "freq": 320,
-      "noise": 0.012,
-      "gain": 0.31
-    }
+      "noise": 0.012}
   },
   {
     "program": 67,
@@ -3844,6 +3844,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Bari Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "vibratoOnset": 0.2,
       "drive": 1.9,
       "formants": [
@@ -3859,9 +3861,7 @@ var GUS_MELODIC_PRESETS = {
       "loopSkip": 8,
       "loopAttack": 0.01,
       "vibrato": { "rate": 5.5, "depth": 0.007, "sweep": 15 },
-      "freq": 460,
-      "gain": 0.31
-    }
+      "freq": 460}
   },
   {
     "program": 68,
@@ -3871,6 +3871,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Oboe: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "vibratoOnset": 0.2,
       "drive": 1.4,
       "formants": [
@@ -3913,9 +3915,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.007,
         "sweep": 15
       },
-      "brightness": { "start": 9000, "end": 4800 },
-      "gain": 0.31
-    }
+      "brightness": { "start": 9000, "end": 4800 }}
   },
   {
     "program": 69,
@@ -3925,6 +3925,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "English Horn: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "vibratoOnset": 0.2,
       "drive": 1.5,
       "formants": [
@@ -3966,9 +3968,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.006,
         "sweep": 15
       },
-      "brightness": { "start": 9000, "end": 4800 },
-      "gain": 0.31
-    }
+      "brightness": { "start": 9000, "end": 4800 }}
   },
   {
     "program": 70,
@@ -3978,6 +3978,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Bassoon: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "vibratoOnset": 0.2,
       "drive": 1.8,
       "formants": [
@@ -4019,9 +4021,7 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 15
       },
       "brightness": { "start": 9000, "end": 4800 },
-      "freq": 220,
-      "gain": 0.31
-    }
+      "freq": 220}
   },
   {
     "program": 71,
@@ -4031,6 +4031,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Clarinet: a reedy wind tone with expressive harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4069,9 +4071,7 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 15
       },
       "brightness": { "start": 9000, "end": 5200 },
-      "noise": 0.05,
-      "gain": 0.31
-    }
+      "noise": 0.05}
   },
   {
     "program": 72,
@@ -4081,6 +4081,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Piccolo: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.31
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4117,9 +4119,7 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 15
       },
       "noise": 0.05,
-      "freq": 880,
-      "gain": 0.31
-    }
+      "freq": 880}
   },
   {
     "program": 73,
@@ -4129,6 +4129,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Flute: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.63
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4168,9 +4170,7 @@ var GUS_MELODIC_PRESETS = {
       "loopAttackNoise": {
         "amp": 0.035,
         "duration": 0.012
-      },
-      "gain": 0.63
-    }
+      }}
   },
   {
     "program": 74,
@@ -4180,6 +4180,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Recorder: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4222,9 +4224,7 @@ var GUS_MELODIC_PRESETS = {
       "loopAttackNoise": {
         "amp": 0.025,
         "duration": 0.01
-      },
-      "gain": 0.42
-    }
+      }}
   },
   {
     "program": 75,
@@ -4234,6 +4234,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Pan Flute: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4276,9 +4278,7 @@ var GUS_MELODIC_PRESETS = {
       "loopAttackNoise": {
         "amp": 0.07,
         "duration": 0.018
-      },
-      "gain": 0.42
-    }
+      }}
   },
   {
     "program": 76,
@@ -4288,6 +4288,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Blown Bottle: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4319,9 +4321,7 @@ var GUS_MELODIC_PRESETS = {
         "rate": 5,
         "depth": 0.008
       },
-      "noise": 0.15,
-      "gain": 0.42
-    }
+      "noise": 0.15}
   },
   {
     "program": 77,
@@ -4331,6 +4331,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Shakuhachi: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4367,9 +4369,7 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 15
       },
       "noise": 0.1,
-      "freq": 660,
-      "gain": 0.42
-    }
+      "freq": 660}
   },
   {
     "program": 78,
@@ -4379,6 +4379,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Whistle: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4410,9 +4412,7 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.008
       },
       "noise": 0.05,
-      "freq": 880,
-      "gain": 0.42
-    }
+      "freq": 880}
   },
   {
     "program": 79,
@@ -4422,6 +4422,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Ocarina: a breath-driven tone with a rounded body.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.42
+    ,
       "attackNoise": {
         "amp": 0.08,
         "duration": 0.018
@@ -4453,9 +4455,7 @@ var GUS_MELODIC_PRESETS = {
         "rate": 5,
         "depth": 0.008
       },
-      "noise": 0.05,
-      "gain": 0.42
-    }
+      "noise": 0.05}
   },
   {
     "program": 80,
@@ -4465,6 +4465,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (square): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         0,
@@ -4490,9 +4492,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 81,
@@ -4502,6 +4502,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (saw): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         0.5,
@@ -4525,9 +4527,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 82,
@@ -4537,6 +4537,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (calliope): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         0.5,
@@ -4562,9 +4564,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 83,
@@ -4574,6 +4574,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (chiff): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         0.5,
@@ -4598,9 +4600,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 84,
@@ -4610,6 +4610,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (charang): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         0.8,
@@ -4632,9 +4634,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 85,
@@ -4644,6 +4644,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (voice): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         0.3,
@@ -4667,9 +4669,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 86,
@@ -4679,6 +4679,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (fifths): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         0,
@@ -4700,9 +4702,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 87,
@@ -4712,6 +4712,8 @@ var GUS_MELODIC_PRESETS = {
     "description": "Lead (bass+ld): a focused synth tone with strong harmonics.",
     "preset": {
       "defaultWaveform": null,
+      "gain": 0.38
+    ,
       "harm": [
         1,
         1,
@@ -4734,9 +4736,7 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      },
-      "gain": 0.38
-    }
+      }}
   },
   {
     "program": 88,
