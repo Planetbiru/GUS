@@ -128,6 +128,7 @@ class GusPatchApp {
         this.currentType = null;
         this.currentMidi = null;
         this.logEl = null;
+        this._presetModel = null;
     }
 
     $(id) { return document.getElementById(id); }
@@ -426,6 +427,9 @@ class GusPatchApp {
         ['sr', 'root', 'dur', 'wave'].forEach(id => {
             this.$(id).addEventListener('input', () => this.handleGeneratorInput());
         });
+
+        this.$('btnPresetFormMode').onclick = () => this.setPresetEditorMode('form');
+        this.$('btnPresetJsonMode').onclick = () => this.setPresetEditorMode('json');
     }
 
     loadGeneratorState() {
@@ -854,11 +858,12 @@ class GusPatchApp {
         }
 
         updatePresetEditor() {
-            this.$('presetJson').value = JSON.stringify(
-                this.getInstrumentPreset(this.currentType, this.currentMidi),
-                null,
-                2
-            );
+            const preset = this.getInstrumentPreset(this.currentType, this.currentMidi);
+            this.$('presetJson').value = JSON.stringify(preset, null, 2);
+            // Rebuild form hanya jika isi preset berbeda dari yang tampil di form.
+            if (JSON.stringify(preset) !== JSON.stringify(this._presetModel)) {
+                this.buildPresetForm(preset);
+            }
             this.validatePresetJson();
         }
 
@@ -885,6 +890,299 @@ class GusPatchApp {
             await this.reloadRealtimeInstrumentIfUsed(type, midi);
             this.setPresetEditorStatus('Preset applied and patch regenerated.');
             this.log(`Preset applied: ${type} ${midi}.`, 'ok');
+        }
+
+        // ---- Preset form editor ----
+
+        setPresetEditorMode(mode) {
+            const isForm = mode === 'form';
+            this.$('presetFormPanel').hidden = !isForm;
+            this.$('presetJsonPanel').hidden = isForm;
+            this.$('btnPresetFormMode').classList.toggle('active', isForm);
+            this.$('btnPresetJsonMode').classList.toggle('active', !isForm);
+            this.$('btnPresetFormMode').setAttribute('aria-selected', String(isForm));
+            this.$('btnPresetJsonMode').setAttribute('aria-selected', String(!isForm));
+            if (isForm) {
+                // Sinkronkan form dari textarea jika isinya berbeda.
+                try {
+                    const parsed = JSON.parse(this.$('presetJson').value);
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+                        && JSON.stringify(parsed) !== JSON.stringify(this._presetModel)) {
+                        this.buildPresetForm(parsed);
+                    }
+                } catch (e) { /* biarkan form apa adanya jika JSON tidak valid */ }
+            }
+        }
+
+        buildPresetForm(preset) {
+            const form = this.$('presetForm');
+            if (!form) return;
+            form.replaceChildren();
+            this._presetModel = JSON.parse(JSON.stringify(preset));
+            this.renderPresetObjectInto(this._presetModel, form, []);
+            form.scrollTop = 0;
+        }
+
+        renderPresetObjectInto(obj, container, path) {
+            for (const key of Object.keys(obj)) {
+                this.renderPresetField(obj, key, container, path);
+            }
+        }
+
+        renderPresetField(parentObj, key, container, path) {
+            const value = parentObj[key];
+            const fieldPath = [...path, key];
+
+            if (Array.isArray(value)) {
+                this.renderPresetArrayField(parentObj, key, container, fieldPath);
+            } else if (value !== null && typeof value === 'object') {
+                this.renderPresetObjectField(parentObj, key, container, fieldPath);
+            } else {
+                this.renderPresetScalarField(parentObj, key, container, fieldPath);
+            }
+        }
+
+        labelForKey(key) {
+            return key
+                .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+                .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+                .split(' ')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(' ');
+        }
+
+        renderPresetScalarField(parentObj, key, container, path) {
+            const value = parentObj[key];
+            const row = document.createElement('div');
+            row.className = 'preset-field';
+
+            const label = document.createElement('label');
+            label.textContent = this.labelForKey(key);
+            const inputId = 'presetField_' + path.join('_');
+            label.htmlFor = inputId;
+
+            let input;
+            if (typeof value === 'boolean') {
+                input = document.createElement('input');
+                input.type = 'checkbox';
+                input.checked = value;
+                input.addEventListener('change', () => {
+                    parentObj[key] = input.checked;
+                    this.onPresetFormChanged();
+                });
+            } else if (typeof value === 'number') {
+                input = this.createPresetNumberInput(
+                    () => parentObj[key],
+                    (n) => { parentObj[key] = n; }
+                );
+            } else if (typeof value === 'string') {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.value = value;
+                input.addEventListener('input', () => {
+                    parentObj[key] = input.value;
+                    this.onPresetFormChanged();
+                });
+            } else {
+                return;
+            }
+            input.id = inputId;
+            row.append(label, input);
+            container.appendChild(row);
+        }
+
+        renderPresetObjectField(parentObj, key, container, path) {
+            const value = parentObj[key];
+            const fieldset = document.createElement('fieldset');
+            fieldset.className = 'preset-fieldset';
+            const legend = document.createElement('legend');
+            legend.textContent = this.labelForKey(key);
+            fieldset.appendChild(legend);
+            for (const subKey of Object.keys(value)) {
+                this.renderPresetField(value, subKey, fieldset, [...path, subKey]);
+            }
+            container.appendChild(fieldset);
+        }
+
+        renderPresetArrayField(parentObj, key, container, path) {
+            const fieldset = document.createElement('fieldset');
+            fieldset.className = 'preset-fieldset';
+            const legend = document.createElement('legend');
+            legend.textContent = this.labelForKey(key);
+            fieldset.appendChild(legend);
+
+            const itemsContainer = document.createElement('div');
+            itemsContainer.className = 'preset-array-items';
+            fieldset.appendChild(itemsContainer);
+
+            this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
+
+            // Tombol Add hanya muncul jika tipe item bisa dideteksi (array tidak kosong).
+            // Untuk array objek kosong kita tidak tahu shape-nya, jadi Add disembunyikan.
+            const arr = parentObj[key];
+            const canAdd = arr.length > 0;
+            if (canAdd) {
+                const addBtn = document.createElement('button');
+                addBtn.type = 'button';
+                addBtn.className = 'preset-array-add';
+                addBtn.textContent = '+ Add';
+                addBtn.addEventListener('click', () => {
+                    const sample = arr[arr.length - 1];
+                    arr.push(this.cloneArraySample(sample));
+                    this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
+                    this.onPresetFormChanged();
+                });
+                fieldset.appendChild(addBtn);
+            }
+            container.appendChild(fieldset);
+        }
+
+        cloneArraySample(sample) {
+            if (sample === null || sample === undefined) return 0;
+            if (typeof sample === 'object') return JSON.parse(JSON.stringify(sample));
+            return sample;
+        }
+
+        renderPresetArrayItems(parentObj, key, itemsContainer, path) {
+            itemsContainer.replaceChildren();
+            const arr = parentObj[key];
+            arr.forEach((item, index) => {
+                const itemWrap = document.createElement('div');
+                itemWrap.className = 'preset-array-item';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'preset-array-remove';
+                removeBtn.textContent = '−';
+                removeBtn.title = 'Remove item';
+                removeBtn.addEventListener('click', () => {
+                    arr.splice(index, 1);
+                    this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
+                    this.onPresetFormChanged();
+                });
+
+                if (item !== null && typeof item === 'object' && !Array.isArray(item)) {
+                    const body = document.createElement('div');
+                    body.className = 'preset-array-item-body';
+                    for (const subKey of Object.keys(item)) {
+                        this.renderPresetField(item, subKey, body, [...path, String(index), subKey]);
+                    }
+                    itemWrap.append(body, removeBtn);
+                } else if (typeof item === 'number') {
+                    const input = this.createPresetNumberInput(
+                        () => arr[index],
+                        (n) => { arr[index] = n; }
+                    );
+                    itemWrap.append(input, removeBtn);
+                } else if (typeof item === 'boolean') {
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.checked = item;
+                    input.addEventListener('change', () => {
+                        arr[index] = input.checked;
+                        this.onPresetFormChanged();
+                    });
+                    itemWrap.append(input, removeBtn);
+                } else if (typeof item === 'string') {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = item;
+                    input.addEventListener('input', () => {
+                        arr[index] = input.value;
+                        this.onPresetFormChanged();
+                    });
+                    itemWrap.append(input, removeBtn);
+                } else {
+                    return;
+                }
+
+                itemsContainer.appendChild(itemWrap);
+            });
+        }
+
+        onPresetFormChanged() {
+            // Sinkronkan ke textarea & jalankan alur validasi/auto-apply yang sudah ada.
+            this.$('presetJson').value = JSON.stringify(this._presetModel, null, 2);
+            this.handlePresetJsonInput();
+        }
+
+        // ---- Number input helpers untuk form preset ----
+
+        parsePresetNumber(raw) {
+            if (typeof raw !== 'string') return NaN;
+            const trimmed = raw.trim();
+            if (!trimmed) return NaN;
+            // Normalisasi koma desimal (locale id-ID, dll.) → titik
+            const normalized = trimmed.replace(',', '.');
+            const n = parseFloat(normalized);
+            return Number.isFinite(n) ? n : NaN;
+        }
+
+        createPresetNumberInput(get, set) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.setAttribute('inputmode', 'decimal');
+
+            const initial = get();
+            input.value = String(initial);
+            input.step = String(this.computePresetStep(initial));
+
+            const syncStep = value => {
+                input.step = String(this.computePresetStep(value));
+            };
+
+            input.addEventListener('input', () => {
+                const n = this.parsePresetNumber(input.value);
+                if (!Number.isFinite(n)) return;   // transien (mis. user mengetik "0.")
+                syncStep(n);
+                set(n);
+                this.onPresetFormChanged();
+            });
+
+            input.addEventListener('blur', () => {
+                const n = this.parsePresetNumber(input.value);
+                if (!Number.isFinite(n)) {
+                    input.value = String(get());   // kembalikan ke nilai model terakhir
+                } else {
+                    syncStep(n);
+                }
+            });
+
+            return input;
+        }
+
+        computePresetStep(value) {
+            const abs = Math.abs(value);
+            if (!Number.isFinite(abs) || abs === 0) return 0.001;
+
+            // 1) Langkah minimum berdasarkan magnitude — supaya nilai besar
+            //    tidak perlu diklik ratusan kali.
+            let magnitudeStep;
+            if (abs >= 100)          magnitudeStep = 1;
+            else if (abs >= 10)      magnitudeStep = 0.1;
+            else if (abs >= 1)       magnitudeStep = 0.01;
+            else if (abs >= 0.1)     magnitudeStep = 0.001;
+            else if (abs >= 0.001)   magnitudeStep = 0.001;
+            else if (abs >= 0.0001)  magnitudeStep = 0.0001;
+            else if (abs >= 0.00001) magnitudeStep = 0.00001;
+            else                     magnitudeStep = 0.000001;
+
+            // 2) Jika nilai punya lebih banyak desimal daripada langkah magnitude,
+            //    turunkan step agar nilai tersebut tetap on-grid (tidak di-snap
+            //    browser ke grid yang lebih kasar).
+            const str = abs.toString();
+            let decimals = 0;
+            if (str.includes('e-')) {
+                decimals = parseInt(str.split('e-')[1], 10) || 0;
+            } else if (str.includes('.')) {
+                decimals = (str.split('.')[1] || '').length;
+            }
+            if (decimals > 0 && decimals <= 10) {
+                const valueStep = Number('1e-' + decimals);
+                if (valueStep < magnitudeStep) return valueStep;
+            }
+
+            return magnitudeStep;
         }
 
         async resetCurrentPreset() {

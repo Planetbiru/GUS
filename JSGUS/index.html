@@ -165,10 +165,27 @@
                 </div>
                 <section class="preset-editor-section" aria-labelledby="presetEditorTitle">
                     <h2 id="presetEditorTitle">Instrument Preset</h2>
-                    <div class="meta">Edit the selected instrument preset. Apply valid JSON to regenerate its patch and update MIDI playback.</div>
-                    <label for="presetJson">Preset JSON</label>
-                    <textarea id="presetJson" rows="12" spellcheck="false" aria-describedby="presetJsonStatus"></textarea>
+                    <div class="meta">Edit the selected instrument preset. Apply valid changes to regenerate its patch and update MIDI playback.</div>
+
+                    <div class="preset-editor-tabs" role="tablist" aria-label="Preset editor mode">
+                        <button id="btnPresetFormMode" class="active" type="button" role="tab"
+                            aria-selected="true" aria-controls="presetFormPanel">Form</button>
+                        <button id="btnPresetJsonMode" type="button" role="tab"
+                            aria-selected="false" aria-controls="presetJsonPanel">JSON</button>
+                    </div>
+
+                    <div id="presetFormPanel" role="tabpanel" aria-labelledby="btnPresetFormMode">
+                        <div id="presetForm" class="preset-form"></div>
+                    </div>
+
+                    <div id="presetJsonPanel" role="tabpanel" aria-labelledby="btnPresetJsonMode" hidden>
+                        <label for="presetJson">Preset JSON</label>
+                        <textarea id="presetJson" rows="12" spellcheck="false"
+                            aria-describedby="presetJsonStatus"></textarea>
+                    </div>
+
                     <div id="presetJsonStatus" class="preset-json-status" role="status" aria-live="polite"></div>
+
                     <div class="actions">
                         <button id="btnApplyPreset" class="primary" type="button">Apply preset</button>
                         <button id="btnResetPreset" type="button">Reset to Factory Preset</button>
