@@ -35,6 +35,7 @@ class ProjectPatchGenerator {
     let rootFreq;
     let appliedWaveform = null;
     let preset = null;
+    let renderSampleRate = this.sampleRate;
     let shortName;
     let description;
 
@@ -91,8 +92,11 @@ class ProjectPatchGenerator {
         rootFreq = isFullPitchRange
             ? (preset.freq || 441)
             : ProjectPatchGenerator.midiPitchToFrequency(rootNote);
+        if (preset.loop && rootFreq > renderSampleRate / 5) {
+            renderSampleRate = Math.ceil(rootFreq * 5);
+        }
         rendered = new MelodicRenderer(preset, {
-        sampleRate: this.sampleRate,
+        sampleRate: renderSampleRate,
         freq: rootFreq,
         duration: this.duration
         }).render();
@@ -159,10 +163,10 @@ class ProjectPatchGenerator {
         dataSize: pcm.length,
         loopStart: rendered.loop ? rendered.loopStart * 2 : 0,
         loopEnd:   rendered.loop ? rendered.loopEnd   * 2 : 0,
-        sampleRate: this.sampleRate,
+        sampleRate: renderSampleRate,
         lowFreq,
         highFreq,
-        rootFreq: Math.round(rootFreq * 1000),
+        rootFreq: Math.round((rendered.naturalFreq || rootFreq) * 1000),
         tune: 0,
         balance: 7,
         envRates: useEnvelope

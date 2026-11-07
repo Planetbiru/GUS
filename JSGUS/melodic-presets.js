@@ -48,7 +48,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 10000,
         "end": 3800
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -132,7 +133,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2000
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -189,7 +191,8 @@ var GUS_MELODIC_PRESETS = {
       "fm": {
         "ratio": 3,
         "index": 1.8
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -277,7 +280,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2000
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -334,7 +338,8 @@ var GUS_MELODIC_PRESETS = {
       "fm": {
         "ratio": 3,
         "index": 1.8
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -391,7 +396,8 @@ var GUS_MELODIC_PRESETS = {
       "fm": {
         "ratio": 2,
         "index": 2.5
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -446,7 +452,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2000
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -499,7 +506,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2000
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -537,7 +545,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -574,7 +583,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -608,7 +618,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -647,7 +658,8 @@ var GUS_MELODIC_PRESETS = {
       "vibrato": {
         "rate": 5,
         "depth": 0.02
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -681,7 +693,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -714,7 +727,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -750,7 +764,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -802,7 +817,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2000
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -832,7 +848,8 @@ var GUS_MELODIC_PRESETS = {
         0.2,
         0,
         0.1
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -864,7 +881,8 @@ var GUS_MELODIC_PRESETS = {
         0.2,
         0,
         0.1
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -896,7 +914,8 @@ var GUS_MELODIC_PRESETS = {
         0.25,
         0,
         0.2
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -926,7 +945,8 @@ var GUS_MELODIC_PRESETS = {
         0.15,
         0.12,
         0.1
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -978,7 +998,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1029,7 +1050,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1080,7 +1102,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1132,7 +1155,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1336,7 +1360,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 1,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1406,7 +1431,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3,
           "gain": 1
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1463,7 +1489,8 @@ var GUS_MELODIC_PRESETS = {
         "start": 7000,
         "end": 2600,
         "loopCutoff": 5200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1535,7 +1562,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1612,7 +1640,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 7000,
         "end": 1200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1693,7 +1722,8 @@ var GUS_MELODIC_PRESETS = {
         "start": 7000,
         "end": 3200,
         "loopCutoff": 3600
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1742,7 +1772,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -1781,7 +1812,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1820,7 +1852,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1859,7 +1892,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1902,7 +1936,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1942,7 +1977,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -1982,7 +2018,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -2020,7 +2057,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -2060,7 +2098,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 5000,
         "end": 900
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -2147,7 +2186,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": -1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2233,7 +2273,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2302,7 +2343,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": -2.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2371,7 +2413,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.4,
           "gain": -2.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2440,7 +2483,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": -3
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2516,7 +2560,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2588,7 +2633,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2615,7 +2661,8 @@ var GUS_MELODIC_PRESETS = {
         0.4,
         0.2
       ],
-      "noise": 0.1
+      "noise": 0.1,
+      "antiAlias": true
     }
   },
   {
@@ -2690,7 +2737,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": -2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2764,7 +2812,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": -2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2840,7 +2889,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 1.8,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2918,7 +2968,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 1.7,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -2994,7 +3045,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 4,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3068,7 +3120,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 4,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3146,7 +3199,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3193,7 +3247,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 7000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -3282,7 +3337,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 1.5,
           "gain": 5.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3355,7 +3411,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2,
           "gain": 1
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3428,7 +3485,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 1.8,
           "gain": 1
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3501,7 +3559,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.3,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3573,7 +3632,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 1.8,
           "gain": 1
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3659,7 +3719,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 1.8,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3724,7 +3785,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3783,7 +3845,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2,
           "gain": 2.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3810,7 +3873,8 @@ var GUS_MELODIC_PRESETS = {
         { "freq": 1400, "q": 1.5, "gain": 5 },
         { "freq": 2600, "q": 2,   "gain": 5 },
         { "freq": 4300, "q": 2.5, "gain": 6 }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3837,7 +3901,8 @@ var GUS_MELODIC_PRESETS = {
         { "freq": 1050, "q": 1.5, "gain": 5   },
         { "freq": 1950, "q": 2,   "gain": 4   },
         { "freq": 3650, "q": 2.5, "gain": 5   }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3865,7 +3930,8 @@ var GUS_MELODIC_PRESETS = {
         { "freq": 680,  "q": 1.4, "gain": 6 },
         { "freq": 1300, "q": 1.8, "gain": 4 },
         { "freq": 2400, "q": 2.2, "gain": 4 }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3892,7 +3958,8 @@ var GUS_MELODIC_PRESETS = {
         { "freq": 1100, "q": 1.5, "gain": 5 },
         { "freq": 2000, "q": 2,   "gain": 5 },
         { "freq": 3400, "q": 2.5, "gain": 6 }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3946,7 +4013,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -3999,7 +4067,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2, 
           "gain": 4 
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -4052,7 +4121,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2, 
           "gain": 3.5 
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -4102,7 +4172,8 @@ var GUS_MELODIC_PRESETS = {
         "start": 7000,
         "end": 2500
       },
-      "brightness": { "start": 9000, "end": 5200 }
+      "brightness": { "start": 9000, "end": 5200 },
+      "antiAlias": true
     }
   },
   {
@@ -4150,7 +4221,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 7000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4201,7 +4273,8 @@ var GUS_MELODIC_PRESETS = {
         "depth": 0.004,
         "sweep": 20
       },
-      "brightness": { "start": 9000, "end": 5200 }
+      "brightness": { "start": 9000, "end": 5200 },
+      "antiAlias": true
     }
   },
   {
@@ -4255,7 +4328,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 9000,
         "end": 5200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4309,7 +4383,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 9000,
         "end": 5200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4352,7 +4427,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 9000,
         "end": 5200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4400,7 +4476,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 9000,
         "end": 5200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4443,7 +4520,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 9000,
         "end": 5200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4486,7 +4564,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 9000,
         "end": 5200
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4523,7 +4602,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4558,7 +4638,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4595,7 +4676,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4631,7 +4713,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4665,7 +4748,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4700,7 +4784,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4733,7 +4818,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4767,7 +4853,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 8000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -4831,7 +4918,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -4895,7 +4983,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -4960,7 +5049,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5025,7 +5115,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5089,7 +5180,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5157,7 +5249,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5222,7 +5315,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5291,7 +5385,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5321,7 +5416,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.3
+      "noise": 0.3,
+      "antiAlias": true
     }
   },
   {
@@ -5351,7 +5447,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -5381,7 +5478,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 3,
         "index": 3
       },
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -5444,7 +5542,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 9500,
         "end": 2600
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -5474,7 +5573,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 4,
         "index": 2
       },
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -5504,7 +5604,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 0.5,
         "index": 4
       },
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -5534,7 +5635,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 2.1,
         "index": 2.5
       },
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -5564,7 +5666,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.7,
         "index": 3.5
       },
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -5598,7 +5701,8 @@ var GUS_MELODIC_PRESETS = {
       "vibrato": {
         "rate": 5,
         "depth": 0.01
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -5667,7 +5771,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3,
           "gain": 2
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5699,7 +5804,8 @@ var GUS_MELODIC_PRESETS = {
       "vibrato": {
         "rate": 5,
         "depth": 0.01
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -5731,7 +5837,8 @@ var GUS_MELODIC_PRESETS = {
       "vibrato": {
         "rate": 5,
         "depth": 0.01
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -5764,7 +5871,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -5810,7 +5918,8 @@ var GUS_MELODIC_PRESETS = {
       "brightness": {
         "start": 7000,
         "end": 2500
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -5875,7 +5984,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 3.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5927,7 +6037,8 @@ var GUS_MELODIC_PRESETS = {
           "q": 2.5,
           "gain": 1.5
         }
-      ]
+      ],
+      "antiAlias": true
     }
   },
   {
@@ -5962,7 +6073,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -5996,7 +6108,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -6033,7 +6146,8 @@ var GUS_MELODIC_PRESETS = {
         0.7,
         0.5
       ],
-      "inharmonicity": 0.008
+      "inharmonicity": 0.008,
+      "antiAlias": true
     }
   },
   {
@@ -6059,7 +6173,8 @@ var GUS_MELODIC_PRESETS = {
         0.3,
         0.15
       ],
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -6086,7 +6201,8 @@ var GUS_MELODIC_PRESETS = {
         0.3,
         0.15
       ],
-      "noise": 0.1
+      "noise": 0.1,
+      "antiAlias": true
     }
   },
   {
@@ -6113,7 +6229,8 @@ var GUS_MELODIC_PRESETS = {
         0.2,
         0.1
       ],
-      "noise": 0.3
+      "noise": 0.3,
+      "antiAlias": true
     }
   },
   {
@@ -6140,7 +6257,8 @@ var GUS_MELODIC_PRESETS = {
         0.2,
         0.1
       ],
-      "noise": 0.15
+      "noise": 0.15,
+      "antiAlias": true
     }
   },
   {
@@ -6171,7 +6289,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.6
+      "noise": 0.6,
+      "antiAlias": true
     }
   },
   {
@@ -6202,7 +6321,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.7
+      "noise": 0.7,
+      "antiAlias": true
     }
   },
   {
@@ -6233,7 +6353,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.8
+      "noise": 0.8,
+      "antiAlias": true
     }
   },
   {
@@ -6264,7 +6385,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.9
+      "noise": 0.9,
+      "antiAlias": true
     }
   },
   {
@@ -6294,7 +6416,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 4,
         "index": 5
       },
-      "noise": 0.2
+      "noise": 0.2,
+      "antiAlias": true
     }
   },
   {
@@ -6330,7 +6453,8 @@ var GUS_MELODIC_PRESETS = {
         "rate": 15,
         "depth": 0.05,
         "sweep": 15
-      }
+      },
+      "antiAlias": true
     }
   },
   {
@@ -6361,7 +6485,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.02,
         "index": 2
       },
-      "noise": 0.5
+      "noise": 0.5,
+      "antiAlias": true
     }
   },
   {
@@ -6392,7 +6517,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.9
+      "noise": 0.9,
+      "antiAlias": true
     }
   },
   {
@@ -6423,7 +6549,8 @@ var GUS_MELODIC_PRESETS = {
         "ratio": 1.5,
         "index": 3
       },
-      "noise": 0.9
+      "noise": 0.9,
+      "antiAlias": true
     }
   }
   ]

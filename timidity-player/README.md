@@ -100,6 +100,10 @@ player.sendEvent(256, 0, bendValue);
 ## Documentation
 Please refer to the JSDoc comments within `timidity-player.js` for an exhaustive list of methods and events. For a detailed list of changes made to the C Core, read `CHANGELOG.md`.
 
+### Generated melodic preset anti-aliasing
+
+The GUS melodic presets define an `antiAlias` boolean for each instrument. When enabled, the patch generator omits harmonics whose frequency reaches 49% of the sample rate or higher. This keeps harmonics above the practical Nyquist limit from folding back into the audible range as aliasing, particularly for high notes and bright, distorted waveforms.
+
 ## License
 
 - The original C synthesizer engine (`src/c-core/original`) is licensed under **LGPL v2.1** and the **Artistic License**.  
