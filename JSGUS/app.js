@@ -185,6 +185,7 @@ class GusPatchApp {
         this.buildSidebar();
         this.restoreInstrumentSearch();
         this.bindUI();
+        this.enhanceNumberInputs();
         this.bindDraggableDialogs();
         this.bindKeyboard();
         this.audio.onPlay = analyser => this.setLiveWaveformSource(analyser);
@@ -408,6 +409,40 @@ class GusPatchApp {
         d.innerHTML = `<span class="instrument-name">${name}</span><span class="num">${num}</span>`;
         d.onclick = () => this.selectInstrument(type, midi);
         return d;
+    }
+
+    enhanceNumberInputs() {
+        document.querySelectorAll('input[type="number"]:not([data-custom-spinner])').forEach(input => {
+            this.createNumberSpinner(input);
+        });
+    }
+
+    createNumberSpinner(input) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'number-input-wrap';
+        input.dataset.customSpinner = 'true';
+        if (input.parentNode) {
+            input.parentNode.insertBefore(wrapper, input);
+        }
+        wrapper.appendChild(input);
+
+        for (const [direction, label] of [['up', 'Increase value'], ['down', 'Decrease value']]) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `number-spinner-button number-spinner-${direction}`;
+            button.setAttribute('aria-label', label);
+            button.addEventListener('click', () => {
+                const previousValue = input.value;
+                if (direction === 'up') input.stepUp();
+                else input.stepDown();
+                if (input.value === previousValue) return;
+                input.dispatchEvent(new Event('input', {bubbles: true}));
+                input.dispatchEvent(new Event('change', {bubbles: true}));
+            });
+            wrapper.appendChild(button);
+        }
+
+        return wrapper;
     }
 
     bindUI() {
@@ -1112,7 +1147,7 @@ class GusPatchApp {
                 return;
             }
             input.id = inputId;
-            row.append(label, input);
+            row.append(label, input.type === 'number' ? this.createNumberSpinner(input) : input);
             container.appendChild(row);
         }
 
@@ -1178,8 +1213,9 @@ class GusPatchApp {
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'preset-array-remove';
-                removeBtn.textContent = '−';
+                removeBtn.setAttribute('aria-label', 'Remove item');
                 removeBtn.title = 'Remove item';
+                removeBtn.innerHTML = '<svg class="preset-array-remove-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M10 11v6m4-6v6M5 7l1 13h12l1-13M9 7V4h6v3"></path></svg>';
                 removeBtn.addEventListener('click', () => {
                     arr.splice(index, 1);
                     this.renderPresetArrayItems(parentObj, key, itemsContainer, path);
@@ -1198,7 +1234,7 @@ class GusPatchApp {
                         () => arr[index],
                         (n) => { arr[index] = n; }
                     );
-                    itemWrap.append(input, removeBtn);
+                    itemWrap.append(this.createNumberSpinner(input), removeBtn);
                 } else if (typeof item === 'boolean') {
                     const input = document.createElement('input');
                     input.type = 'checkbox';
