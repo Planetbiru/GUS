@@ -6,31 +6,31 @@ var GUS_MELODIC_PRESETS = {
     "family": "Piano",
     "name": "Acoustic Grand Piano",
     "shortName": "Ac. Grand Piano",
-    "description": "Ac. Grand: struck-key tone with a resonant decay.",
+    "description": "Ac. Grand: clear struck-key tone with a controlled decay.",
     "preset": {
-      "defaultWaveform": "saw",
-      "gain": 0.42,
+      "defaultWaveform": null,
+      "gain": 0.36,
       "freq": 441,
-      "length": 55125,
+      "length": 37485,
       "loop": false,
       "env": {
         "a": 0.001,
-        "d": 3.0,
+        "d": 1.4,
         "s": 0,
-        "r": 0.35
+        "r": 0.22
       },
       "harm": [
         1, 0.68, 0.48, 0.34, 0.24, 0.17, 0.12, 0.085, 0.06, 0.042, 0.03, 0.021
       ],
       "partialDecay": [
-        4.5, 2.8, 1.7, 1.15, 0.82, 0.6, 0.44, 0.32, 0.23, 0.17, 0.12, 0.085
+        2.4, 1.5, 0.95, 0.65, 0.46, 0.34, 0.25, 0.18, 0.13, 0.095, 0.07, 0.05
       ],
       "phases": [
         0, 0.06, 0.16, 0.29, 0.44, 0.6, 0.78, 0.97, 0.18, 0.4, 0.63, 0.87
       ],
       "inharmonicity": 0.0005,
       "attackNoise": {
-        "amp": 0.9,
+        "amp": 0.35,
         "duration": 0.007
       },
       "pluckTransient": {
@@ -46,8 +46,8 @@ var GUS_MELODIC_PRESETS = {
         "time": 0.006
       },
       "brightness": {
-        "start": 10000,
-        "end": 3800
+        "start": 9000,
+        "end": 5200
       },
       "antiAlias": true
     }
