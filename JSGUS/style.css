@@ -1438,7 +1438,12 @@ canvas {
     color: var(--danger);
     border-color: var(--border);
 }
-
+.preset-array-item .preset-array-item-body{
+    /*  This is a fix for the remove button being slightly misaligned with the input fields in the array item.
+        The remove button is 23px tall, while the input fields are 22px tall, so we need to adjust the margin-top of the remove button to align it with the input fields.
+    */
+    margin-top: -3px;
+}
 .preset-array-remove-icon {
     display: block;
     width: 12px;
