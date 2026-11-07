@@ -413,17 +413,24 @@ var GUS_DRUM_PRESETS = {
     "note": 46,
     "name": "Open Hi-Hat",
     "shortName": "Open Hi-Hat",
-    "description": "Open Hi-Hat: open cymbal wash with a sustained metallic.",
+    "description": "Open Hi-Hat: bright metallic shimmer with a sustained decay.",
     "preset": {
-      "gain": 0.08,
-      "duration": 0.62,
+      "gain": 0.12,
+      "duration": 0.75,
+      "metallic": {
+        "baseFreq": 4300,
+        "partials": [0.87, 1, 1.19, 1.41, 1.64, 1.89, 2.17],
+        "decay": 0.38,
+        "amp": 0.04,
+        "randomPhase": true
+      },
       "noiseLayers": [
-        { "amp": 1,    "decay": 0.14, "type": "white", "bandpass": { "center": 10200, "q": 0.6  } },
-        { "amp": 0.62, "decay": 0.13, "type": "white", "bandpass": { "center": 9000,  "q": 0.65 } },
-        { "amp": 0.18, "decay": 0.11, "type": "pink",  "bandpass": { "center": 4600,  "q": 0.65 } }
+        { "amp": 0.82, "decay": 0.23, "type": "white", "bandpass": { "center": 9800, "q": 0.62 } },
+        { "amp": 0.65, "decay": 0.27, "type": "white", "bandpass": { "center": 7400, "q": 0.62 } },
+        { "amp": 0.3,  "decay": 0.34, "type": "pink",  "bandpass": { "center": 4700, "q": 0.7  } }
       ],
-      "highpass": 3700,
-      "lowpass": 10200
+      "highpass": 3000,
+      "lowpass": 10800
     }
   },
   {
