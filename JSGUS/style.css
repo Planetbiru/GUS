@@ -1049,10 +1049,31 @@ label[for="presetJson"] {
 
 .midi-channel-name {
     min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.midi-channel-label {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 12px;
+}
+
+.midi-channel-note-indicator {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background-color .08s, box-shadow .08s;
+}
+
+.midi-channel-note-indicator.is-playing {
+    background: var(--accent2);
+    box-shadow: 0 0 7px var(--accent2);
 }
 
 .midi-channel-controls {

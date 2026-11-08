@@ -841,44 +841,69 @@ var GUS_DRUM_PRESETS = {
     "note": 65,
     "name": "High Timbale",
     "shortName": "High Timbale",
-    "description": "High Timbale: tight drum strike without snare wires.",
+    "description": "High Timbale: thin, taut sheet with a bright ring.",
     "preset": {
-      "gain": 0.55,
+      "gain": 0.35,
       "duration": 0.24,
       "membrane": {
-        "freq": 230,
-        "pitchDecay": 0.018,
-        "decay": 0.06,
+        "freq": 360,
+        "pitchDecay": 0.003,
+        "decay": 0.18,
         "modes": [
-          { "ratio": 1,    "amp": 0.3,  "decay": 0.75 },
-          { "ratio": 1.83, "amp": 0.26, "decay": 0.68 },
-          { "ratio": 2.13, "amp": 0.16, "decay": 0.48 }
+          { "ratio": 1,    "startRatio": 1, "amp": 0.48, "decay": 0.48 },
+          { "ratio": 1.42, "startRatio": 1, "amp": 0.3,  "decay": 0.55 },
+          { "ratio": 2.42, "startRatio": 1, "amp": 0.48, "decay": 0.55 },
+          { "ratio": 4.33, "startRatio": 1, "amp": 0.33, "decay": 0.38 },
+          { "ratio": 6.85, "startRatio": 1, "amp": 0.07, "decay": 0.2 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.28 },
-      "highpass": 180
+      "click": { "duration": 0.002, "amp": 0.17 },
+      "noise": {
+        "amp": 0.075,
+        "decay": 0.01,
+        "type": "pink",
+        "bandpass": { "center": 2800, "q": 0.6 }
+      },
+      "noiseLayers": [
+        { "amp": 0.045, "decay": 0.018, "type": "pink", "bandpass": { "center": 2100, "q": 0.55 } }
+      ],
+      "highpass": 140,
+      "lowpass": 6500
     }
   },
   {
     "note": 66,
     "name": "Low Timbale",
     "shortName": "Low Timbale",
-    "description": "Low Timbale: low drum strike without snare wires.",
+    "description": "Low Timbale: low, taut sheet with a bright ring.",
     "preset": {
-      "gain": 0.55,
+      "gain": 0.35,
       "duration": 0.24,
       "membrane": {
-        "freq": 180,
-        "pitchDecay": 0.02,
-        "decay": 0.065,
+        "freq": 183,
+        "pitchDecay": 0.003,
+        "decay": 0.18,
         "modes": [
-          { "ratio": 1,    "amp": 0.34, "decay": 0.78 },
-          { "ratio": 1.83, "amp": 0.28, "decay": 0.7 },
-          { "ratio": 2.13, "amp": 0.18, "decay": 0.5 }
+          { "ratio": 1,    "startRatio": 1, "amp": 0.3,  "decay": 0.5 },
+          { "ratio": 1.97, "startRatio": 1, "amp": 0.42, "decay": 0.55 },
+          { "ratio": 2.79, "startRatio": 1, "amp": 0.45, "decay": 0.55 },
+          { "ratio": 4.76, "startRatio": 1, "amp": 0.45, "decay": 0.45 },
+          { "ratio": 5.5,  "startRatio": 1, "amp": 0.22, "decay": 0.38 },
+          { "ratio": 8.52, "startRatio": 1, "amp": 0.12, "decay": 0.25 }
         ]
       },
-      "click": { "duration": 0.004, "amp": 0.26 },
-      "highpass": 130
+      "click": { "duration": 0.002, "amp": 0.15 },
+      "noise": {
+        "amp": 0.067,
+        "decay": 0.012,
+        "type": "pink",
+        "bandpass": { "center": 2300, "q": 0.6 }
+      },
+      "noiseLayers": [
+        { "amp": 0.04, "decay": 0.02, "type": "pink", "bandpass": { "center": 1800, "q": 0.55 } }
+      ],
+      "highpass": 100,
+      "lowpass": 5200
     }
   },
   {

@@ -5624,26 +5624,29 @@ var GUS_MELODIC_PRESETS = {
     "description": "FX (echoes): an evolving synthetic texture with distinct.",
     "preset": {
       "defaultWaveform": null,
-      "length": 44100,
+      "length": 13230,
       "loop": false,
       "env": {
-        "a": 0.05,
-        "d": 0.5,
-        "s": 0.5,
-        "r": 0.4
+        "a": 0.02,
+        "d": 0.4,
+        "s": 0.15,
+        "r": 0.14
       },
-      "harm": [
-        1,
-        0.5,
-        0.33,
-        0.25,
-        0.2
-      ],
       "fm": {
         "ratio": 2.1,
-        "index": 2.5
+        "index": 2.2
       },
-      "noise": 0.2,
+      "detune": [
+        -9,
+        -3,
+        3,
+        9
+      ],
+      "vibrato": {
+        "rate": 5,
+        "depth": 0.004
+      },
+      "noise": 0.035,
       "antiAlias": true
     }
   },
