@@ -2114,8 +2114,9 @@ var GUS_MELODIC_PRESETS = {
       "loop": true,
       "cycles": 22,
       "loopSkip": 8,
+      "loopAttack": 0.08,
       "loopAttackNoise": {
-        "amp": 0.16,
+        "amp": 0.06,
         "duration": 0.017
       },
       "env": {
@@ -2202,8 +2203,9 @@ var GUS_MELODIC_PRESETS = {
       "loop": true,
       "cycles": 22,
       "loopSkip": 8,
+      "loopAttack": 0.08,
       "loopAttackNoise": {
-        "amp": 0.13,
+        "amp": 0.05,
         "duration": 0.017
       },
       "env": {
@@ -5623,25 +5625,25 @@ var GUS_MELODIC_PRESETS = {
     "preset": {
       "defaultWaveform": null,
       "length": 44100,
-      "loop": false,
+      "loop": true,
+      "sustainLoop": false,
+      "cycles": 24,
+      "loopSkip": 8,
+      "loopAttack": 0.08,
       "env": {
-        "a": 0.05,
-        "d": 0.5,
-        "s": 0.5,
-        "r": 0.4
+        "a": 0.12,
+        "d": 0.2,
+        "s": 0.9,
+        "r": 0.35
       },
       "harm": [
         1,
-        0.5,
-        0.33,
-        0.25,
-        0.2
+        0.3,
+        0.16,
+        0.08,
+        0.04
       ],
-      "fm": {
-        "ratio": 2.1,
-        "index": 2.5
-      },
-      "noise": 0.2,
+      "noise": 0.01,
       "antiAlias": true
     }
   },
