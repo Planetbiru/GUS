@@ -841,46 +841,44 @@ var GUS_DRUM_PRESETS = {
     "note": 65,
     "name": "High Timbale",
     "shortName": "High Timbale",
-    "description": "High Timbale: pitched timbale strike with a bright, firm.",
+    "description": "High Timbale: tight drum strike without snare wires.",
     "preset": {
       "gain": 0.55,
-      "duration": 0.35,
+      "duration": 0.24,
       "membrane": {
-        "freq": 280,
-        "pitchDecay": 0.06,
-        "decay": 0.42,
+        "freq": 230,
+        "pitchDecay": 0.018,
+        "decay": 0.06,
         "modes": [
-          { "ratio": 1,     "amp": 1,    "decay": 1 },
-          { "ratio": 1.593, "amp": 0.5,  "decay": 0.75 },
-          { "ratio": 2.136, "amp": 0.25, "decay": 0.55 },
-          { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
+          { "ratio": 1,    "amp": 0.3,  "decay": 0.75 },
+          { "ratio": 1.83, "amp": 0.26, "decay": 0.68 },
+          { "ratio": 2.13, "amp": 0.16, "decay": 0.48 }
         ]
       },
-      "noise": { "amp": 0.15, "decay": 0.015, "type": "pink" },
-      "lowpass": 2240
+      "click": { "duration": 0.004, "amp": 0.28 },
+      "highpass": 180
     }
   },
   {
     "note": 66,
     "name": "Low Timbale",
     "shortName": "Low Timbale",
-    "description": "Low Timbale: pitched timbale strike with a bright, firm.",
+    "description": "Low Timbale: low drum strike without snare wires.",
     "preset": {
       "gain": 0.55,
-      "duration": 0.4,
+      "duration": 0.24,
       "membrane": {
-        "freq": 220,
-        "pitchDecay": 0.06,
-        "decay": 0.42,
+        "freq": 180,
+        "pitchDecay": 0.02,
+        "decay": 0.065,
         "modes": [
-          { "ratio": 1,     "amp": 1,    "decay": 1 },
-          { "ratio": 1.593, "amp": 0.5,  "decay": 0.75 },
-          { "ratio": 2.136, "amp": 0.25, "decay": 0.55 },
-          { "ratio": 2.296, "amp": 0.15, "decay": 0.42 }
+          { "ratio": 1,    "amp": 0.34, "decay": 0.78 },
+          { "ratio": 1.83, "amp": 0.28, "decay": 0.7 },
+          { "ratio": 2.13, "amp": 0.18, "decay": 0.5 }
         ]
       },
-      "noise": { "amp": 0.15, "decay": 0.015, "type": "pink" },
-      "lowpass": 1760
+      "click": { "duration": 0.004, "amp": 0.26 },
+      "highpass": 130
     }
   },
   {
