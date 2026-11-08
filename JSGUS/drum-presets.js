@@ -706,24 +706,24 @@ var GUS_DRUM_PRESETS = {
     "description": "Hi Bongo: skin-drum strike with a crisp, woody tone.",
     "preset": {
       "gain": 0.55,
-      "duration": 0.27,
+      "duration": 0.19,
       "membrane": {
         "freq": 400,
-        "pitchDecay": 0.018,
-        "decay": 0.06,
+        "pitchDecay": 0.012,
+        "decay": 0.045,
         "modes": [
-          { "ratio": 1,     "amp": 0.52, "decay": 0.72 },
-          { "ratio": 1.593, "amp": 0.3,  "decay": 0.45 }
+          { "ratio": 1,     "amp": 0.48, "decay": 0.7 },
+          { "ratio": 1.593, "amp": 0.22, "decay": 0.45 }
         ]
       },
-      "click": { "duration": 0.003, "amp": 0.24 },
+      "click": { "duration": 0.003, "amp": 0.27 },
       "noise": {
-        "amp": 0.16,
-        "decay": 0.008,
+        "amp": 0.18,
+        "decay": 0.006,
         "type": "pink",
-        "bandpass": { "center": 1700, "q": 0.8 }
+        "bandpass": { "center": 2100, "q": 0.8 }
       },
-      "highpass": 260
+      "highpass": 280
     }
   },
   {
@@ -733,24 +733,24 @@ var GUS_DRUM_PRESETS = {
     "description": "Low Bongo: skin-drum strike with a crisp, woody tone.",
     "preset": {
       "gain": 0.55,
-      "duration": 0.27,
+      "duration": 0.22,
       "membrane": {
         "freq": 280,
-        "pitchDecay": 0.018,
-        "decay": 0.07,
+        "pitchDecay": 0.014,
+        "decay": 0.055,
         "modes": [
-          { "ratio": 1,     "amp": 0.56, "decay": 0.72 },
-          { "ratio": 1.593, "amp": 0.32, "decay": 0.45 }
+          { "ratio": 1,     "amp": 0.52, "decay": 0.7 },
+          { "ratio": 1.593, "amp": 0.24, "decay": 0.45 }
         ]
       },
-      "click": { "duration": 0.003, "amp": 0.22 },
+      "click": { "duration": 0.003, "amp": 0.25 },
       "noise": {
-        "amp": 0.16,
-        "decay": 0.008,
+        "amp": 0.17,
+        "decay": 0.007,
         "type": "pink",
-        "bandpass": { "center": 1400, "q": 0.8 }
+        "bandpass": { "center": 1450, "q": 0.8 }
       },
-      "highpass": 220
+      "highpass": 190
     }
   },
   {
