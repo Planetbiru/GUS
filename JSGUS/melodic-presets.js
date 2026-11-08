@@ -2114,8 +2114,9 @@ var GUS_MELODIC_PRESETS = {
       "loop": true,
       "cycles": 22,
       "loopSkip": 8,
+      "loopAttack": 0.08,
       "loopAttackNoise": {
-        "amp": 0.16,
+        "amp": 0.06,
         "duration": 0.017
       },
       "env": {
@@ -2202,8 +2203,9 @@ var GUS_MELODIC_PRESETS = {
       "loop": true,
       "cycles": 22,
       "loopSkip": 8,
+      "loopAttack": 0.08,
       "loopAttackNoise": {
-        "amp": 0.13,
+        "amp": 0.05,
         "duration": 0.017
       },
       "env": {
