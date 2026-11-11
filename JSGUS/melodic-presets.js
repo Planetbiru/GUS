@@ -1787,7 +1787,7 @@ var GUS_MELODIC_PRESETS = {
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
-      "loop": false,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2,
       "env": {
@@ -1827,7 +1827,7 @@ var GUS_MELODIC_PRESETS = {
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
-      "loop": false,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2,
       "env": {
@@ -1867,7 +1867,7 @@ var GUS_MELODIC_PRESETS = {
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
-      "loop": false,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2,
       "env": {
@@ -1907,7 +1907,7 @@ var GUS_MELODIC_PRESETS = {
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
-      "loop": false,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2,
       "env": {
@@ -1951,7 +1951,7 @@ var GUS_MELODIC_PRESETS = {
       "gain": 0.34,
       "freq": 220,
       "length": 33075,
-      "loop": false,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2,
       "env": {
@@ -1992,7 +1992,7 @@ var GUS_MELODIC_PRESETS = {
       "gain": 0.34,
       "freq": 220,
       "length": 33075,
-      "loop": false,
+      "loop": true,
       "cycles": 14,
       "loopSkip": 2,
       "env": {
