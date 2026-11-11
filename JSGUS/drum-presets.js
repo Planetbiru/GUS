@@ -953,18 +953,40 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Short Whistle",
     "description": "Short Whistle: breathy whistle tone with a clear sustained.",
     "preset": {
-      "gain": 0.45,
-      "duration": 0.15,
+      "gain": 0.75,
       "tones": [
-        { "fStart": 2200, "fEnd": 2200, "pitchDecay": 1, "decay": 0.15, "amp": 1 }
+        {
+          "fStart": 3700,
+          "fEnd": 3700,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.9
+        },
+        {
+          "fStart": 3740,
+          "fEnd": 3740,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.85
+        },
+        {
+          "fStart": 7400,
+          "fEnd": 7400,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.15
+        }
       ],
       "noise": {
-        "amp": 0.05,
-        "decay": 0.02,
+        "amp": 0.06,
+        "decay": 0.05,
         "type": "pink",
-        "bandpass": { "center": 2200, "q": 3 }
+        "bandpass": {
+          "center": 3720,
+          "q": 10
+        }
       },
-      "highpass": 1500
+      "highpass": 3200
     }
   },
   {
@@ -973,18 +995,41 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Long Whistle",
     "description": "Long Whistle: breathy whistle tone with a clear sustained.",
     "preset": {
-      "gain": 0.45,
-      "duration": 0.5,
+      "gain": 0.7,
+      "duration": 0.55,
       "tones": [
-        { "fStart": 2200, "fEnd": 2200, "pitchDecay": 1, "decay": 0.5, "amp": 1 }
+        {
+          "fStart": 3700,
+          "fEnd": 3700,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.9
+        },
+        {
+          "fStart": 3740,
+          "fEnd": 3740,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.85
+        },
+        {
+          "fStart": 7400,
+          "fEnd": 7400,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.2
+        }
       ],
       "noise": {
-        "amp": 0.05,
-        "decay": 0.02,
+        "amp": 0.03,
+        "decay": 0.3,
         "type": "pink",
-        "bandpass": { "center": 2200, "q": 3 }
+        "bandpass": {
+          "center": 3720,
+          "q": 12
+        }
       },
-      "highpass": 1500
+      "highpass": 3200
     }
   },
   {
