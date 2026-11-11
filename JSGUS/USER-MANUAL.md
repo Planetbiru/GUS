@@ -10,8 +10,9 @@ Projects keep instrument selections, generator settings, and custom preset chang
 
 - Use the **Project** selector to switch projects.
 - Select **New project**, enter a name, and choose **Create** to make a project with default settings.
-- Select **Delete project** to remove the active project and its saved settings. Solve the arithmetic challenge to confirm. The last remaining project cannot be deleted.
+- Select **Edit Project** to update the active project's name, description, year created, and creator name. The name is required; the other details are optional.
 - Select **Reset saved state** to clear generator settings and custom presets in the active project while keeping the project itself. Solve the arithmetic challenge to confirm.
+- Select **Delete project** to remove the active project and its saved settings. Solve the arithmetic challenge to confirm. The last remaining project cannot be deleted.
 
 Do not clear the browser's site data if you want to keep locally stored projects.
 

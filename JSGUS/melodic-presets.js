@@ -1651,7 +1651,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Distortion Gtr",
     "description": "Distortion Gtr: driven guitar with a sustained loop.",
     "preset": {
-      "defaultWaveform": null,
+      "defaultWaveform": "square",
       "gain": 0.45,
       "freq": 441,
       "length": 44100,

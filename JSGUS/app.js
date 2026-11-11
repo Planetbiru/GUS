@@ -439,6 +439,10 @@ class GusPatchApp {
         this.$('btnCancelNewProject').onclick = () => this.$('newProjectDialog').close();
         this.$('btnCloseNewProject').onclick = () => this.$('newProjectDialog').close();
         this.$('btnConfirmNewProject').onclick = () => this.createProjectFromDialog();
+        this.$('btnEditProject').onclick = () => this.openEditProjectDialog();
+        this.$('btnCancelEditProject').onclick = () => this.$('editProjectDialog').close();
+        this.$('btnCloseEditProject').onclick = () => this.$('editProjectDialog').close();
+        this.$('btnConfirmEditProject').onclick = () => this.saveProjectFromDialog();
         this.$('btnDeleteProject').onclick = () => this.requestDeleteCurrentProject();
         this.$('btnCancelDeleteProject').onclick = () => this.cancelDestructiveConfirmation();
         this.$('btnCloseDeleteProject').onclick = () => this.cancelDestructiveConfirmation();
@@ -564,6 +568,9 @@ class GusPatchApp {
                     const project = {
                         id: this.createProjectId(),
                         name: 'Project 1',
+                        description: '',
+                        yearCreated: null,
+                        creatorName: '',
                         active: true,
                         state: this.loadGeneratorState(),
                     };
@@ -574,6 +581,9 @@ class GusPatchApp {
                 this.projects = this.projects.map(project => ({
                     ...project,
                     name: project.name || 'Untitled project',
+                    description: typeof project.description === 'string' ? project.description : '',
+                    yearCreated: Number.isInteger(project.yearCreated) ? project.yearCreated : null,
+                    creatorName: typeof project.creatorName === 'string' ? project.creatorName : '',
                     state: this.normalizeProjectState(project.state),
                 }));
                 const activeProject = this.projects.find(project => project.active) || this.projects[0];
@@ -630,6 +640,59 @@ class GusPatchApp {
                     return option;
                 }));
                 this.$('btnDeleteProject').disabled = this.projects.length <= 1;
+                this.$('btnEditProject').disabled = !this.currentProjectId;
+            }
+
+            openEditProjectDialog() {
+                const project = this.projects.find(entry => entry.id === this.currentProjectId);
+                if (!project) return;
+                this.$('editProjectName').value = project.name;
+                this.$('editProjectDescription').value = project.description || '';
+                this.$('editProjectYear').value = project.yearCreated == null ? '' : String(project.yearCreated);
+                this.$('editProjectCreator').value = project.creatorName || '';
+                this.$('editProjectError').textContent = '';
+                this.showDialogCentered(this.$('editProjectDialog'));
+                this.$('editProjectName').focus();
+            }
+
+            async saveProjectFromDialog() {
+                const project = this.projects.find(entry => entry.id === this.currentProjectId);
+                if (!project) return;
+
+                const name = this.$('editProjectName').value.trim();
+                const description = this.$('editProjectDescription').value.trim();
+                const yearValue = this.$('editProjectYear').value.trim();
+                const creatorName = this.$('editProjectCreator').value.trim();
+                const error = this.$('editProjectError');
+                if (!name) {
+                    error.textContent = 'Enter a project name.';
+                    this.$('editProjectName').focus();
+                    return;
+                }
+                const yearCreated = yearValue === '' ? null : Number(yearValue);
+                if (yearCreated !== null && (!Number.isInteger(yearCreated) || yearCreated < 1 || yearCreated > 9999)) {
+                    error.textContent = 'Enter a year between 1 and 9999.';
+                    this.$('editProjectYear').focus();
+                    return;
+                }
+
+                const button = this.$('btnConfirmEditProject');
+                button.disabled = true;
+                error.textContent = '';
+                try {
+                    const updatedProject = {...project, name, description, yearCreated, creatorName};
+                    await this.writeProjects([updatedProject]);
+                    this.projects = this.projects.map(entry =>
+                        entry.id === updatedProject.id ? updatedProject : entry
+                    );
+                    this.renderProjectControls();
+                    this.$('editProjectDialog').close();
+                    this.log(`Project details saved: ${name}.`, 'ok');
+                } catch (saveError) {
+                    error.textContent = `Could not save project: ${saveError.message}`;
+                } finally {
+                    button.disabled = false;
+                }
             }
 
             openNewProjectDialog() {
@@ -654,6 +717,9 @@ class GusPatchApp {
                     const project = {
                         id: this.createProjectId(),
                         name,
+                        description: '',
+                        yearCreated: null,
+                        creatorName: '',
                         active: true,
                         state: {selected: null, instruments: {}, presets: {}},
                     };

@@ -52,6 +52,46 @@
         </div>
     </dialog>
 
+    <dialog id="editProjectDialog" aria-labelledby="editProjectTitle">
+        <div class="dialog-content">
+            <header class="dialog-header">
+                <h2 id="editProjectTitle">Edit Project</h2>
+                <button id="btnCloseEditProject" class="dialog-close" type="button" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div class="project-edit-fields">
+                    <div>
+                        <label for="editProjectName">Project Name</label>
+                        <input id="editProjectName" type="text" maxlength="80" autocomplete="off">
+                    </div>
+                    <div>
+                        <label for="editProjectDescription">Description</label>
+                        <textarea id="editProjectDescription" maxlength="1000" rows="4"></textarea>
+                    </div>
+                    <div>
+                        <label for="editProjectYear">Year Created</label>
+                        <input id="editProjectYear" type="number" min="1" max="9999" step="1" inputmode="numeric">
+                    </div>
+                    <div>
+                        <label for="editProjectCreator">Creator Name</label>
+                        <input id="editProjectCreator" type="text" maxlength="80" autocomplete="name">
+                    </div>
+                </div>
+                <div id="editProjectError" class="dialog-error" role="alert"></div>
+            </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelEditProject" type="button">Cancel</button>
+                    <button id="btnConfirmEditProject" class="primary" type="button">Save Changes</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
     <dialog id="deleteProjectDialog" aria-labelledby="deleteProjectTitle">
         <div class="dialog-content">
             <header class="dialog-header">
@@ -128,8 +168,9 @@
                 <label for="projectSelect">Project</label>
                 <select id="projectSelect" aria-label="Active project"></select>
                 <button id="btnNewProject" type="button">New Project</button>
-                <button id="btnDeleteProject" class="danger" type="button">Delete Project</button>
+                <button id="btnEditProject" type="button">Edit Project</button>
                 <button id="btnResetGeneratorState" type="button">Reset Saved State</button>
+                <button id="btnDeleteProject" class="danger" type="button">Delete Project</button>
                 <details class="project-archive-tools">
                     <summary>Preset Archives</summary>
                     <div class="project-archive-actions">
