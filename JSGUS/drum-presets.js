@@ -422,16 +422,15 @@ var GUS_DRUM_PRESETS = {
         "baseFreq": 4300,
         "partials": [0.87, 1, 1.19, 1.41, 1.64, 1.89, 2.17],
         "decay": 0.38,
-        "amp": 0.04,
+        "amp": 0.12,
         "randomPhase": true
       },
       "noiseLayers": [
-        { "amp": 0.82, "decay": 0.23, "type": "white", "bandpass": { "center": 9800, "q": 0.62 } },
-        { "amp": 0.65, "decay": 0.27, "type": "white", "bandpass": { "center": 7400, "q": 0.62 } },
-        { "amp": 0.3,  "decay": 0.34, "type": "pink",  "bandpass": { "center": 4700, "q": 0.7  } }
+        { "amp": 0.42, "decay": 0.23, "type": "white", "bandpass": { "center": 8500, "q": 0.9 } },
+        { "amp": 0.24, "decay": 0.27, "type": "white", "bandpass": { "center": 6500, "q": 0.9 } }
       ],
-      "highpass": 3000,
-      "lowpass": 10800
+      "highpass": 3600,
+      "lowpass": 9800
     }
   },
   {
@@ -498,15 +497,11 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Crash Cymbal 1",
     "description": "Crash Cymbal 1: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.15,
+      "gain": 0.04,
       "duration": 1.5,
-      "noiseLayers": [
-        { "amp": 0.9,  "decay": 0.65,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
-        { "amp": 0.7,  "decay": 0.52,  "type": "white", "bandpass": { "center": 6200,  "q": 0.5  } },
-        { "amp": 0.45, "decay": 0.3575,"type": "pink",  "bandpass": { "center": 3900,  "q": 0.6  } },
-        { "amp": 0.3,  "decay": 0.2275,"type": "white", "bandpass": { "center": 10200, "q": 0.7  } }
-      ],
-      "highpass": 3000
+      "noise": { "amp": 0.9, "decay": 0.65, "type": "white" },
+      "highpass": 5500,
+      "lowpass": 10200
     }
   },
   {
@@ -650,15 +645,11 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Crash Cymbal 2",
     "description": "Crash Cymbal 2: bright cymbal crash with a broad metallic.",
     "preset": {
-      "gain": 0.08,
+      "gain": 0.025,
       "duration": 1.4,
-      "noiseLayers": [
-        { "amp": 0.9,  "decay": 0.65,  "type": "white", "bandpass": { "center": 8500,  "q": 0.45 } },
-        { "amp": 0.7,  "decay": 0.52,  "type": "white", "bandpass": { "center": 6200,  "q": 0.5  } },
-        { "amp": 0.45, "decay": 0.3575,"type": "pink",  "bandpass": { "center": 3900,  "q": 0.6  } },
-        { "amp": 0.3,  "decay": 0.2275,"type": "white", "bandpass": { "center": 10200, "q": 0.7  } }
-      ],
-      "highpass": 3000
+      "noise": { "amp": 0.9, "decay": 0.65, "type": "white" },
+      "highpass": 5500,
+      "lowpass": 10200
     }
   },
   {

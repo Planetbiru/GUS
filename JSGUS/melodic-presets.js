@@ -1784,7 +1784,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Ac. Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.38,
+      "gain": 0.24,
       "freq": 220,
       "length": 33075,
       "loop": false,
@@ -1824,7 +1824,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Finger Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.38,
+      "gain": 0.24,
       "freq": 220,
       "length": 33075,
       "loop": false,
@@ -1864,7 +1864,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Pick Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.38,
+      "gain": 0.24,
       "freq": 220,
       "length": 33075,
       "loop": false,
@@ -1904,7 +1904,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Fretless Bass: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.38,
+      "gain": 0.24,
       "freq": 220,
       "length": 33075,
       "loop": false,
@@ -1948,7 +1948,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Slap Bass 1: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.36,
+      "gain": 0.23,
       "freq": 220,
       "length": 33075,
       "loop": false,
@@ -1989,7 +1989,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Slap Bass 2: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.38,
+      "gain": 0.24,
       "freq": 220,
       "length": 33075,
       "loop": false,
@@ -2030,7 +2030,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Synth Bass 1: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.38,
+      "gain": 0.24,
       "freq": 220,
       "length": 33075,
       "loop": true,
@@ -2069,7 +2069,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Synth Bass 2: a focused low end and firm fundamental.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.38,
+      "gain": 0.24,
       "freq": 220,
       "length": 33075,
       "loop": true,
