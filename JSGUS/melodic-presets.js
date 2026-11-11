@@ -2982,70 +2982,75 @@ var GUS_MELODIC_PRESETS = {
     "description": "Choir Aahs: a layered orchestral blend with smooth sustain.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.24,
+      "gain": 0.5,
       "loop": true,
       "cycles": 14,
       "env": {
-        "a": 0.12,
-        "d": 0.25,
+        "a": 0.18,
+        "d": 0.3,
         "s": 0.9,
-        "r": 0.35
+        "r": 0.4
       },
       "harm": [
         1,
-        0.85,
-        0.7,
-        0.55,
-        0.42,
+        0.72,
+        0.48,
         0.3,
-        0.22,
-        0.16,
-        0.11,
-        0.07,
-        0.04
+        0.18,
+        0.1,
+        0.055,
+        0.03,
+        0.016,
+        0.008,
+        0.004
       ],
       "phases": [
-        -0.012,
-        -0.048,
-        -0.10800000000000001,
-        -0.192,
-        -0.3,
-        -0.43200000000000005,
-        -0.5880000000000001,
-        -0.768,
-        -0.972,
-        -1.2,
-        -1.452
+        -0.01,
+        -0.04,
+        -0.09,
+        -0.16,
+        -0.25,
+        -0.36,
+        -0.49,
+        -0.64,
+        -0.81,
+        -1,
+        -1.21
       ],
-      "phaseScale": 0.012,
-      "noise": 0.04,
+      "phaseScale": 0.01,
+      "noise": 0.025,
       "vibratoOnset": 0.2,
       "vibrato": {
-        "rate": 4.5,
-        "depth": 0.005,
-        "sweep": 25
+        "rate": 4.8,
+        "depth": 0.006,
+        "sweep": 20
       },
-      "drive": 1.3,
+      "drive": 0.15,
+      "loopAttack": 0.02,
+      "loopAttackNoise": {
+        "amp": 0.025,
+        "duration": 0.04
+      },
       "formants": [
         {
           "freq": 700,
-          "q": 2.5,
-          "gain": 7
+          "q": 1.1,
+          "gain": 4
         },
         {
-          "freq": 1150,
-          "q": 3,
-          "gain": 5
-        },
-        {
-          "freq": 2500,
-          "q": 3.5,
+          "freq": 1200,
+          "q": 1.2,
           "gain": 3
         },
         {
+          "freq": 2600,
+          "q": 1.5,
+          "gain": 1.5
+        },
+        {
           "freq": 3500,
-          "q": 4,
-          "gain": 2
+          "q": 1.8,
+          "gain": 0.3
         }
       ],
       "antiAlias": true
@@ -3059,7 +3064,7 @@ var GUS_MELODIC_PRESETS = {
     "description": "Voice Oohs: rounded vowel formants with a soft vocal onset.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.24,
+      "gain": 0.5,
       "loop": true,
       "cycles": 14,
       "env": {
@@ -3070,37 +3075,37 @@ var GUS_MELODIC_PRESETS = {
       },
       "harm": [
         1,
-        0.9,
-        0.75,
-        0.6,
-        0.45,
-        0.32,
-        0.22,
-        0.14,
-        0.09,
-        0.05
+        0.72,
+        0.48,
+        0.3,
+        0.18,
+        0.1,
+        0.055,
+        0.03,
+        0.016,
+        0.008
       ],
       "phases": [
-        -0.015,
-        -0.06,
-        -0.135,
-        -0.24,
-        -0.375,
-        -0.54,
-        -0.735,
-        -0.96,
-        -1.215,
-        -1.5
+        -0.01,
+        -0.04,
+        -0.09,
+        -0.16,
+        -0.25,
+        -0.36,
+        -0.49,
+        -0.64,
+        -0.81,
+        -1
       ],
-      "phaseScale": 0.015,
-      "noise": 0.02,
+      "phaseScale": 0.01,
+      "noise": 0.035,
       "vibratoOnset": 0.2,
       "vibrato": {
         "rate": 5,
         "depth": 0.007,
         "sweep": 15
       },
-      "drive": 0.25,
+      "drive": 0.05,
       "loopSkip": 8,
       "loopAttack": 0.015,
       "loopAttackNoise": {
@@ -3110,23 +3115,23 @@ var GUS_MELODIC_PRESETS = {
       "formants": [
         {
           "freq": 320,
-          "q": 1.3,
-          "gain": 4
+          "q": 1.05,
+          "gain": 3
         },
         {
           "freq": 850,
-          "q": 1.5,
-          "gain": 3.5
+          "q": 1.15,
+          "gain": 2.5
         },
         {
-          "freq": 1900,
-          "q": 2,
-          "gain": 1.5
+          "freq": 2200,
+          "q": 1.5,
+          "gain": 1.2
         },
         {
           "freq": 3200,
-          "q": 2.2,
-          "gain": 0.5
+          "q": 1.8,
+          "gain": 0.2
         }
       ],
       "antiAlias": true
@@ -3140,28 +3145,28 @@ var GUS_MELODIC_PRESETS = {
     "description": "Synth Voice: a layered orchestral blend with smooth sustain.",
     "preset": {
       "defaultWaveform": null,
-      "gain": 0.24,
+      "gain": 0.5,
       "loop": true,
       "cycles": 14,
       "env": {
-        "a": 0.12,
-        "d": 0.25,
+        "a": 0.15,
+        "d": 0.3,
         "s": 0.9,
-        "r": 0.35
+        "r": 0.4
       },
       "harm": [
         1,
-        0.8,
-        0.65,
-        0.5,
-        0.4,
-        0.3,
-        0.22,
-        0.16,
-        0.12,
-        0.09,
-        0.07,
-        0.05
+        0.7,
+        0.46,
+        0.29,
+        0.18,
+        0.11,
+        0.065,
+        0.038,
+        0.022,
+        0.013,
+        0.008,
+        0.004
       ],
       "phases": [
         -0.01,
@@ -3178,34 +3183,34 @@ var GUS_MELODIC_PRESETS = {
         -1.44
       ],
       "phaseScale": 0.01,
-      "noise": 0.02,
+      "noise": 0.035,
       "vibratoOnset": 0.2,
       "vibrato": {
-        "rate": 5.5,
-        "depth": 0.008,
-        "sweep": 15
+        "rate": 5,
+        "depth": 0.006,
+        "sweep": 18
       },
-      "drive": 1.8,
+      "drive": 0.12,
       "formants": [
         {
-          "freq": 600,
-          "q": 2,
-          "gain": 4
-        },
-        {
-          "freq": 1050,
-          "q": 2.5,
+          "freq": 650,
+          "q": 1.1,
           "gain": 3.5
         },
         {
-          "freq": 2500,
-          "q": 3,
+          "freq": 1150,
+          "q": 1.2,
           "gain": 2.5
         },
         {
-          "freq": 4000,
-          "q": 3.5,
-          "gain": 1.5
+          "freq": 2500,
+          "q": 1.5,
+          "gain": 1.2
+        },
+        {
+          "freq": 3500,
+          "q": 1.8,
+          "gain": 0.2
         }
       ],
       "antiAlias": true
