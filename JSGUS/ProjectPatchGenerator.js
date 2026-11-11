@@ -9,9 +9,11 @@ class ProjectPatchGenerator {
   static MODE_SUSTAIN       = 0x20;
   static MODE_ENVELOPE      = 0x40;
 
-  constructor({sampleRate = 22050, duration = 0.25} = {}) {
+  constructor(options = {}) {
+    const {sampleRate = 22050, duration = 0.25} = options;
     this.sampleRate = sampleRate;
     this.duration = duration;
+    this.usePresetDuration = !Object.prototype.hasOwnProperty.call(options, 'duration');
     this.library = new InstrumentLibrary();
   }
 
@@ -82,6 +84,7 @@ class ProjectPatchGenerator {
                 );
             }
             preset = { ...preset, harm };
+            delete preset.renderMode;
             instrumentName = `${instrumentName} (${appliedWaveform})`;
         }
         // ---------------------------------------------------
@@ -98,7 +101,9 @@ class ProjectPatchGenerator {
         rendered = new MelodicRenderer(preset, {
         sampleRate: renderSampleRate,
         freq: rootFreq,
-        duration: this.duration
+        duration: preset.renderMode === 'drum' && this.usePresetDuration
+            ? preset.duration
+            : this.duration
         }).render();
     }
 
@@ -594,6 +599,42 @@ class MelodicRenderer {
 
     render() {
         const { p, o, SR, isLoop } = this;
+
+        if (p.renderMode === 'drum') {
+            const referenceFreq = Number.isFinite(p.freq) && p.freq > 0
+                ? p.freq
+                : p.tones && p.tones[0] && p.tones[0].fEnd;
+            const renderFreq = Number.isFinite(o.freq) && o.freq > 0
+                ? o.freq
+                : referenceFreq;
+            if (!Number.isFinite(referenceFreq) || referenceFreq <= 0
+                || !Number.isFinite(renderFreq) || renderFreq <= 0) {
+                throw new Error('One-shot melodic presets require a positive reference frequency.');
+            }
+            const frequencyScale = renderFreq / referenceFreq;
+            const preset = {
+                ...p,
+                duration: o.duration ?? p.duration,
+                tones: (p.tones || []).map(tone => ({
+                    ...tone,
+                    fStart: tone.fStart * frequencyScale,
+                    fEnd: tone.fEnd * frequencyScale,
+                })),
+            };
+            if (p.noise && p.noise.bandpass) {
+                preset.noise = {
+                    ...p.noise,
+                    bandpass: {
+                        ...p.noise.bandpass,
+                        center: p.noise.bandpass.center * frequencyScale,
+                    },
+                };
+            }
+            if (Number.isFinite(preset.highpass)) preset.highpass *= frequencyScale;
+            if (Number.isFinite(preset.lowpass)) preset.lowpass *= frequencyScale;
+            const rendered = new DrumRenderer(preset, SR).render();
+            return { ...rendered, naturalFreq: renderFreq };
+        }
 
         let length, baseFreq, loopStart = 0, loopEnd = 0, cs = 50;
         let naturalFreq;

@@ -4495,41 +4495,43 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Whistle",
     "description": "Whistle: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "renderMode": "drum",
       "gain": 0.42,
-      "freq": 880,
-      "loop": true,
-      "cycles": 14,
-      "env": {
-        "a": 0.08,
-        "d": 0.1,
-        "s": 0.9,
-        "r": 0.2
-      },
-      "harm": [
-        1,
-        0.05,
-        0.02
+      "freq": 3720,
+      "duration": 0.55,
+      "tones": [
+        {
+          "fStart": 3700,
+          "fEnd": 3700,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.9
+        },
+        {
+          "fStart": 3740,
+          "fEnd": 3740,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.85
+        },
+        {
+          "fStart": 7400,
+          "fEnd": 7400,
+          "pitchDecay": 20,
+          "decay": 10,
+          "amp": 0.2
+        }
       ],
-      "noise": 0.05,
-      "attackNoise": {
-        "amp": 0.08,
-        "duration": 0.018
+      "noise": {
+        "amp": 0.03,
+        "decay": 0.3,
+        "type": "pink",
+        "bandpass": {
+          "center": 3720,
+          "q": 12
+        }
       },
-      "pitchScoop": {
-        "depth": 0.02,
-        "time": 0.03
-      },
-      "vibratoOnset": 0.18,
-      "vibrato": {
-        "rate": 5,
-        "depth": 0.008
-      },
-      "brightness": {
-        "start": 9000,
-        "end": 5200
-      },
-      "antiAlias": true
+      "highpass": 3200
     }
   },
   {

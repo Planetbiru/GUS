@@ -1559,6 +1559,7 @@ class GusPatchApp {
                 : waves[selectedWaveform];
             if (!harmonics) throw new Error(`Unknown waveform: ${selectedWaveform}.`);
             result.harm = harmonics;
+            delete result.renderMode;
             delete result.fm;
             return result;
         }
