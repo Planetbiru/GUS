@@ -434,22 +434,14 @@ var GUS_DRUM_PRESETS = {
     "description": "Open Hi-Hat: bright metallic shimmer with a sustained decay.",
     "preset": {
       "mute": false,
-      "gain": 0.105,
+      "gain": 0.111,
       "duration": 0.9,
       "fadeOut": 0.18,
-      "metallic": {
-        "baseFreq": 4300,
-        "partials": [0.87, 1, 1.19, 1.41, 1.64, 1.89, 2.17],
-        "decay": 0.22,
-        "amp": 0.025,
-        "randomPhase": true
-      },
       "noiseLayers": [
-        { "amp": 0.42, "decay": 0.23, "type": "white", "bandpass": { "center": 8500, "q": 0.9 } },
-        { "amp": 0.24, "decay": 0.27, "type": "white", "bandpass": { "center": 6500, "q": 0.9 } }
+        { "amp": 0.32, "decay": 0.24, "type": "pink", "bandpass": { "center": 6200, "q": 0.5 } }
       ],
-      "highpass": 3600,
-      "lowpass": 9800
+      "highpass": 3800,
+      "lowpass": 8200
     }
   },
   {
