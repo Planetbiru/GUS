@@ -7,6 +7,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Snare Roll",
     "description": "Snare Roll: rapid, evenly spaced snare-wire strokes.",
     "preset": {
+      "mute": false,
       "gain": 0.5,
       "duration": 0.52,
       "noiseLayers": [
@@ -24,6 +25,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Snap",
     "description": "Snap: dry finger snap with a short broadband crack.",
     "preset": {
+      "mute": false,
       "gain": 0.42,
       "duration": 0.12,
       "tones": [
@@ -42,6 +44,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Q",
     "description": "High Q: bright, articulate short percussion hit.",
     "preset": {
+      "mute": false,
       "gain": 0.45,
       "duration": 0.16,
       "tones": [
@@ -59,6 +62,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Sticks",
     "description": "Sticks: dry crossed-stick click with a woody tone.",
     "preset": {
+      "mute": false,
       "gain": 0.42,
       "duration": 0.12,
       "tones": [
@@ -77,6 +81,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Square Click",
     "description": "Square Click: short, electronic metronome-like pulse.",
     "preset": {
+      "mute": false,
       "gain": 0.38,
       "duration": 0.1,
       "tones": [
@@ -94,6 +99,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Metro. Click",
     "description": "Metronome Click: clear pitched timing tick.",
     "preset": {
+      "mute": false,
       "gain": 0.4,
       "duration": 0.12,
       "tones": [
@@ -111,6 +117,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Metro. Bell",
     "description": "Metronome Bell: bright single timing bell.",
     "preset": {
+      "mute": false,
       "gain": 0.32,
       "duration": 0.45,
       "metallic": {
@@ -129,6 +136,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ac. Bass Drum",
     "description": "Ac. Bass Drum: deep kick thump with a short beater click.",
     "preset": {
+      "mute": false,
       "gain": 0.28,
       "duration": 0.55,
       "membrane": {
@@ -156,6 +164,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Bass Drum 1",
     "description": "Bass Drum 1: punchy kick with a focused low end.",
     "preset": {
+      "mute": false,
       "gain": 0.28,
       "duration": 0.55,
       "membrane": {
@@ -183,6 +192,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Side Stick",
     "description": "Side Stick: dry rim click with a woody snap.",
     "preset": {
+      "mute": false,
       "gain": 0.45,
       "duration": 0.11,
       "noiseLayers": [
@@ -201,6 +211,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ac. Snare",
     "description": "Ac. Snare: crisp snare crack with a broad noise burst.",
     "preset": {
+      "mute": false,
       "gain": 0.95,
       "duration": 0.28,
       "membrane": {
@@ -229,6 +240,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Hand Clap",
     "description": "Hand Clap: layered clap with a sharp, brief transient.",
     "preset": {
+      "mute": false,
       "gain": 0.65,
       "duration": 0.3,
       "noise": {
@@ -247,6 +259,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Elec. Snare",
     "description": "Elec. Snare: bright snare snap with a tight noisy tail.",
     "preset": {
+      "mute": false,
       "gain": 0.95,
       "duration": 0.28,
       "membrane": {
@@ -275,6 +288,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Floor Tom",
     "description": "Low Floor Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
+      "mute": false,
       "gain": 0.85,
       "duration": 0.65,
       "membrane": {
@@ -304,6 +318,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Closed Hi-Hat",
     "description": "Closed Hi-Hat: dry, short hiss with a crisp cymbal edge.",
     "preset": {
+      "mute": false,
       "gain": 0.15,
       "duration": 0.14,
       "noiseLayers": [
@@ -321,6 +336,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Floor Tom",
     "description": "High Floor Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
+      "mute": false,
       "gain": 0.82,
       "duration": 0.6,
       "membrane": {
@@ -350,6 +366,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Pedal Hi-Hat",
     "description": "Pedal Hi-Hat: muted metal chick with a short, dry sizzle.",
     "preset": {
+      "mute": false,
       "gain": 0.20,
       "duration": 0.13,
       "noiseLayers": [
@@ -386,6 +403,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Tom",
     "description": "Low Tom: pitched tom strike with a rounded, resonant decay.",
     "preset": {
+      "mute": false,
       "gain": 0.77,
       "duration": 0.55,
       "membrane": {
@@ -415,6 +433,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Open Hi-Hat",
     "description": "Open Hi-Hat: bright metallic shimmer with a sustained decay.",
     "preset": {
+      "mute": false,
       "gain": 0.105,
       "duration": 0.9,
       "fadeOut": 0.18,
@@ -439,6 +458,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low-Mid Tom",
     "description": "Low-Mid Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
+      "mute": false,
       "gain": 0.77,
       "duration": 0.55,
       "membrane": {
@@ -468,6 +488,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Hi-Mid Tom",
     "description": "Hi-Mid Tom: pitched tom strike with a rounded, resonant.",
     "preset": {
+      "mute": false,
       "gain": 0.77,
       "duration": 0.55,
       "membrane": {
@@ -497,6 +518,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Crash Cymbal 1",
     "description": "Crash Cymbal 1: bright cymbal crash with a broad metallic.",
     "preset": {
+      "mute": false,
       "gain": 0.04,
       "duration": 1.5,
       "noise": { "amp": 0.9, "decay": 0.65, "type": "white" },
@@ -510,6 +532,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Tom",
     "description": "High Tom: pitched tom strike with a rounded, resonant decay.",
     "preset": {
+      "mute": false,
       "gain": 0.77,
       "duration": 0.55,
       "membrane": {
@@ -539,6 +562,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ride Cymbal 1",
     "description": "Ride Cymbal 1: bright ride strike with a clear, ringing.",
     "preset": {
+      "mute": false,
       "gain": 0.08,
       "duration": 1.1,
       "noiseLayers": [
@@ -555,6 +579,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Chinese Cymbal",
     "description": "Chinese Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
+      "mute": false,
       "gain": 0.15,
       "duration": 1.8,
       "noiseLayers": [
@@ -572,6 +597,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ride Bell",
     "description": "Ride Bell: bright ride strike with a clear, ringing sustain.",
     "preset": {
+      "mute": false,
       "gain": 0.25,
       "duration": 0.9,
       "noiseLayers": [
@@ -588,6 +614,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Tambourine",
     "description": "Tambourine: bright tambourine jingle with a rattling tail.",
     "preset": {
+      "mute": false,
       "gain": 0.18,
       "duration": 0.30,
       "metallic": {
@@ -613,6 +640,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Splash Cymbal",
     "description": "Splash Cymbal: bright cymbal crash with a broad metallic.",
     "preset": {
+      "mute": false,
       "gain": 0.15,
       "duration": 0.6,
       "noiseLayers": [
@@ -630,6 +658,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Cowbell",
     "description": "Cowbell: pitched metal strike with a hollow bell-like ring.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.5,
       "tones": [
@@ -645,6 +674,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Crash Cymbal 2",
     "description": "Crash Cymbal 2: bright cymbal crash with a broad metallic.",
     "preset": {
+      "mute": false,
       "gain": 0.025,
       "duration": 1.4,
       "noise": { "amp": 0.9, "decay": 0.65, "type": "white" },
@@ -658,6 +688,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Vibraslap",
     "description": "Vibraslap: springy slap with a rattling, noisy decay.",
     "preset": {
+      "mute": false,
       "gain": 0.45,
       "duration": 0.55,
       "tones": [
@@ -680,6 +711,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ride Cymbal 2",
     "description": "Ride Cymbal 2: bright ride strike with a clear, ringing.",
     "preset": {
+      "mute": false,
       "gain": 0.08,
       "duration": 0.9,
       "noiseLayers": [
@@ -696,6 +728,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Hi Bongo",
     "description": "Hi Bongo: skin-drum strike with a crisp, woody tone.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.27,
       "membrane": {
@@ -723,6 +756,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Bongo",
     "description": "Low Bongo: skin-drum strike with a crisp, woody tone.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.27,
       "membrane": {
@@ -750,6 +784,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Mute Hi Conga",
     "description": "Mute Hi Conga: conga strike with a rounded, resonant skin.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.42,
       "membrane": {
@@ -778,6 +813,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Open Hi Conga",
     "description": "Open Hi Conga: conga strike with a rounded, resonant skin.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.42,
       "membrane": {
@@ -806,6 +842,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Conga",
     "description": "Low Conga: conga strike with a rounded, resonant skin tone.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.42,
       "membrane": {
@@ -834,6 +871,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Timbale",
     "description": "High Timbale: pitched timbale strike with a bright, firm.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.35,
       "membrane": {
@@ -857,6 +895,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Timbale",
     "description": "Low Timbale: pitched timbale strike with a bright, firm.",
     "preset": {
+      "mute": false,
       "gain": 0.55,
       "duration": 0.4,
       "membrane": {
@@ -880,6 +919,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "High Agogo",
     "description": "High Agogo: pitched bell strike with a clear metallic ring.",
     "preset": {
+      "mute": false,
       "gain": 0.50,
       "duration": 0.5,
       "tones": [
@@ -895,6 +935,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Agogo",
     "description": "Low Agogo: pitched bell strike with a clear metallic ring.",
     "preset": {
+      "mute": false,
       "gain": 0.50,
       "duration": 0.5,
       "tones": [
@@ -910,6 +951,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Cabasa",
     "description": "Cabasa: dry shaker rattle with a fine, gritty texture.",
     "preset": {
+      "mute": false,
       "gain": 0.35,
       "duration": 0.16,
       "noise": {
@@ -927,6 +969,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Maracas",
     "description": "Maracas: crisp shaker rattle with a short, bright tail.",
     "preset": {
+      "mute": false,
       "gain": 0.35,
       "duration": 0.13,
       "noise": {
@@ -944,6 +987,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Short Whistle",
     "description": "Short Whistle: breathy whistle tone with a clear sustained.",
     "preset": {
+      "mute": false,
       "gain": 0.75,
       "duration": 0.25,
       "tones": [
@@ -987,6 +1031,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Long Whistle",
     "description": "Long Whistle: breathy whistle tone with a clear sustained.",
     "preset": {
+      "mute": false,
       "gain": 0.7,
       "duration": 0.55,
       "tones": [
@@ -1030,6 +1075,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Short Guiro",
     "description": "Short Guiro: raspy guiro scrape with a textured, rattling.",
     "preset": {
+      "mute": false,
       "gain": 0.42,
       "duration": 0.15,
       "noise": {
@@ -1047,6 +1093,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Long Guiro",
     "description": "Long Guiro: raspy guiro scrape with a textured, rattling.",
     "preset": {
+      "mute": false,
       "gain": 0.42,
       "duration": 0.5,
       "noise": {
@@ -1064,6 +1111,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Claves",
     "description": "Claves: sharp clave click with a dry, woody attack.",
     "preset": {
+      "mute": false,
       "gain": 0.16,
       "duration": 0.13,
       "tones": [
@@ -1079,6 +1127,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Hi Wood Block",
     "description": "Hi Wood Block: woodblock knock with a firm, hollow.",
     "preset": {
+      "mute": false,
       "gain": 0.07,
       "duration": 0.13,
       "tones": [
@@ -1094,6 +1143,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Low Wood Block",
     "description": "Low Wood Block: woodblock knock with a firm, hollow.",
     "preset": {
+      "mute": false,
       "gain": 0.07,
       "duration": 0.13,
       "tones": [
@@ -1109,6 +1159,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Mute Cuica",
     "description": "Mute Cuica: nasal cuica squeak with a sliding pitched.",
     "preset": {
+      "mute": false,
       "gain": 0.45,
       "duration": 0.18,
       "tones": [
@@ -1130,6 +1181,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Open Cuica",
     "description": "Open Cuica: nasal cuica squeak with a sliding pitched.",
     "preset": {
+      "mute": false,
       "gain": 0.45,
       "duration": 0.4,
       "tones": [
@@ -1151,6 +1203,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Mute Triangle",
     "description": "Mute Triangle: short, subdued metallic tick.",
     "preset": {
+      "mute": false,
       "gain": 0.04,
       "duration": 0.12,
       "metallic": {
@@ -1171,6 +1224,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Open Triangle",
     "description": "Open Triangle: metal triangle strike with a bright ringing.",
     "preset": {
+      "mute": false,
       "gain": 0.04,
       "duration": 1,
       "metallic": {
@@ -1188,6 +1242,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Shaker",
     "description": "Shaker: soft maracas-like shaker with a gentle, airy attack.",
     "preset": {
+      "mute": false,
       "gain": 0.05,
       "duration": 0.26,
       "noiseLayers": [
@@ -1204,6 +1259,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Open Cuica 2",
     "description": "Open Cuica: upward squeak with a breathy edge.",
     "preset": {
+      "mute": false,
       "gain": 0.15,
       "duration": 0.42,
       "tones": [
@@ -1219,6 +1275,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Bell Tree",
     "description": "Bell Tree: cascading metallic chime with a long shimmer.",
     "preset": {
+      "mute": false,
       "gain": 0.3,
       "duration": 1.1,
       "metallic": {

@@ -8,7 +8,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Ac. Grand Piano",
     "description": "Ac. Grand: clear struck-key tone with a controlled decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.34,
       "freq": 441,
       "length": 37485,
@@ -59,7 +60,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Bright Piano",
     "description": "Bright Piano: struck-key tone with a resonant decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.42,
       "freq": 441,
       "length": 44100,
@@ -144,7 +146,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Elec. Grand",
     "description": "Elec. Grand: struck-key tone with a resonant decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "gain": 0.42,
       "freq": 441,
       "length": 55125,
@@ -202,7 +205,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Honky-tonk",
     "description": "Honky-tonk: struck-key tone with a resonant decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.20,
       "gain": 0.42,
       "freq": 441,
@@ -291,7 +295,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "E.Piano 1",
     "description": "E.Piano 1: struck-key tone with a resonant decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "gain": 0.42,
       "freq": 441,
       "length": 55125,
@@ -349,7 +354,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "E.Piano 2",
     "description": "E.Piano 2: struck-key tone with a resonant decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "gain": 0.42,
       "freq": 441,
       "length": 55125,
@@ -407,7 +413,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harpsichord",
     "description": "Harpsichord: struck-key tone with a resonant decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.42,
       "freq": 441,
       "length": 66150,
@@ -463,7 +470,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Clavinet",
     "description": "Clavinet: struck-key tone with a resonant decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.42,
       "freq": 441,
       "length": 66150,
@@ -517,7 +525,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Celesta",
     "description": "Celesta: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "gain": 0.42,
       "freq": 441,
       "length": 55125,
@@ -556,7 +565,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Glockenspiel",
     "description": "Glockenspiel: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "freq": 441,
       "length": 55125,
       "loop": false,
@@ -594,7 +604,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Music Box",
     "description": "Music Box: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "freq": 441,
       "length": 55125,
       "loop": false,
@@ -629,7 +640,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Vibraphone",
     "description": "Vibraphone: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "freq": 441,
       "length": 55125,
       "loop": false,
@@ -669,7 +681,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Marimba",
     "description": "Marimba: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "freq": 441,
       "length": 55125,
       "loop": false,
@@ -704,7 +717,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Xylophone",
     "description": "Xylophone: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "freq": 441,
       "length": 55125,
       "loop": false,
@@ -738,7 +752,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tubular Bells",
     "description": "Tubular Bells: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "freq": 441,
       "length": 55125,
       "loop": false,
@@ -775,7 +790,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Dulcimer",
     "description": "Dulcimer: a bright strike with a clear ringing tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "freq": 441,
       "length": 66150,
       "loop": false,
@@ -828,7 +844,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Drawbar Organ",
     "description": "Drawbar Organ: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "organ",
       "gain": 0.4,
       "loop": true,
       "cycles": 12,
@@ -859,7 +876,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Percussive Organ",
     "description": "Percussive Organ: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pulse",
       "gain": 0.4,
       "loop": true,
       "cycles": 12,
@@ -892,7 +910,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Rock Organ",
     "description": "Rock Organ: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "square",
       "gain": 0.4,
       "loop": true,
       "cycles": 12,
@@ -925,7 +944,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Church Organ",
     "description": "Church Organ: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "organ",
       "gain": 0.4,
       "loop": true,
       "cycles": 12,
@@ -956,7 +976,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Reed Organ",
     "description": "Reed Organ: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.4,
       "loop": true,
       "cycles": 14,
@@ -1009,7 +1030,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Accordion",
     "description": "Accordion: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.4,
       "loop": true,
       "cycles": 14,
@@ -1061,7 +1083,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harmonica",
     "description": "Harmonica: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.4,
       "loop": true,
       "cycles": 14,
@@ -1113,7 +1136,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tango Accordion",
     "description": "Tango Accordion: a steady tone with layered harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.4,
       "loop": true,
       "cycles": 14,
@@ -1166,7 +1190,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Nylon Guitar",
     "description": "Nylon Guitar: warm finger-plucked tone with a soft decay.",
     "preset": {
-      "defaultWaveform": "saw",
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.40,
       "freq": 441,
       "length": 66150,
@@ -1271,7 +1296,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Steel Guitar",
     "description": "Steel Guitar: a plucked-string attack with natural decay.",
     "preset": {
-      "defaultWaveform": "saw",
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.40,
       "freq": 441,
       "length": 66150,
@@ -1371,7 +1397,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Jazz Guitar",
     "description": "Jazz Guitar: a plucked-string attack with natural decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.35,
       "freq": 441,
       "length": 44100,
@@ -1442,7 +1469,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Clean Guitar",
     "description": "Clean Guitar: a plucked-string attack with natural decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.35,
       "freq": 441,
       "length": 44100,
@@ -1500,7 +1528,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Muted Guitar",
     "description": "Muted Guitar: a plucked-string attack with natural decay.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.35,
       "freq": 441,
       "length": 44100,
@@ -1573,7 +1602,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Overdriven Gtr",
     "description": "Overdriven Gtr: driven guitar with a sustained loop.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.45,
       "freq": 441,
       "length": 44100,
@@ -1651,7 +1681,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Distortion Gtr",
     "description": "Distortion Gtr: driven guitar with a sustained loop.",
     "preset": {
-      "defaultWaveform": "square",
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.45,
       "freq": 441,
       "length": 44100,
@@ -1688,7 +1719,18 @@ var GUS_MELODIC_PRESETS = {
         0.032,
         0.025,
         0.02,
-        0.016
+        0.016,
+        0.0476, 0.0455, 0.0435, 0.0417, 0.04, 0.0385, 0.037,
+        0.0357, 0.0345, 0.0333, 0.0323, 0.0313, 0.0303, 0.0294,
+        0.0286, 0.0278, 0.027, 0.0263, 0.0256, 0.025, 0.0244,
+        0.0238, 0.0233, 0.0227, 0.0222, 0.0217, 0.0213, 0.0208,
+        0.0204, 0.02, 0.0196, 0.0192, 0.0189, 0.0185, 0.0182,
+        0.0179, 0.0175, 0.0172, 0.0169, 0.0167, 0.0164, 0.0161,
+        0.0159, 0.0156, 0.0154, 0.0152, 0.0149, 0.0147, 0.0145,
+        0.0143, 0.0141, 0.0139, 0.0137, 0.0135, 0.0133, 0.0132,
+        0.013, 0.0128, 0.0127, 0.0125, 0.0123, 0.0122, 0.012,
+        0.0119, 0.0118, 0.0116, 0.0115, 0.0114, 0.0112, 0.0111,
+        0.011, 0.0109, 0.0108, 0.0106, 0.0105, 0.0104
       ],
       "partialDecay": [
         3,
@@ -1701,7 +1743,7 @@ var GUS_MELODIC_PRESETS = {
         0.4,
         0.3
       ],
-      "noise": 0.035,
+      "noise": 0.01,
       "attackNoise": {
         "amp": 0.12,
         "duration": 0.012
@@ -1712,16 +1754,17 @@ var GUS_MELODIC_PRESETS = {
         "sweep": 10
       },
       "guitarAmp": {
-        "drive": 3.6,
-        "bias": 0.005,
-        "mix": 0.9,
-        "preampCutoff": 90,
-        "cabinetCutoff": 6000
+        "drive": 5.2,
+        "bias": 0.02,
+        "mix": 1,
+        "clip": 0.65,
+        "preampCutoff": 35,
+        "cabinetCutoff": 6800
       },
       "brightness": {
         "start": 7000,
         "end": 3200,
-        "loopCutoff": 3600
+        "loopCutoff": 6200
       },
       "antiAlias": true
     }
@@ -1733,6 +1776,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Gtr Harmonics",
     "description": "Gtr Harmonics: sustained guitar overtone with loop.",
     "preset": {
+      "mute": false,
       "defaultWaveform": null,
       "gain": 0.6,
       "freq": 441,
@@ -1783,7 +1827,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Ac. Bass",
     "description": "Ac. Bass: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
@@ -1823,7 +1868,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Finger Bass",
     "description": "Finger Bass: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
@@ -1863,7 +1909,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pick Bass",
     "description": "Pick Bass: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
@@ -1903,7 +1950,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Fretless Bass",
     "description": "Fretless Bass: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "triangle",
       "gain": 0.35,
       "freq": 220,
       "length": 33075,
@@ -1947,7 +1995,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Slap Bass 1",
     "description": "Slap Bass 1: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.34,
       "freq": 220,
       "length": 33075,
@@ -1988,7 +2037,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Slap Bass 2",
     "description": "Slap Bass 2: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.34,
       "freq": 220,
       "length": 33075,
@@ -2029,7 +2079,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Synth Bass 1",
     "description": "Synth Bass 1: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.34,
       "freq": 220,
       "length": 33075,
@@ -2068,7 +2119,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Synth Bass 2",
     "description": "Synth Bass 2: a focused low end and firm fundamental.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "square",
       "gain": 0.34,
       "freq": 220,
       "length": 33075,
@@ -2109,7 +2161,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Violin",
     "description": "Violin: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bow",
       "gain": 0.50,
       "loop": true,
       "cycles": 22,
@@ -2198,7 +2251,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Viola",
     "description": "Viola: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bow",
       "gain": 0.50,
       "loop": true,
       "cycles": 22,
@@ -2286,7 +2340,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Cello",
     "description": "Cello: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bow",
       "gain": 0.34,
       "loop": true,
       "cycles": 22,
@@ -2356,7 +2411,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Contrabass",
     "description": "Contrabass: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bow",
       "gain": 0.34,
       "freq": 220,
       "loop": true,
@@ -2426,7 +2482,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tremolo Str",
     "description": "Tremolo Str: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "string",
       "gain": 0.34,
       "loop": true,
       "cycles": 22,
@@ -2496,7 +2553,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pizzicato",
     "description": "Pizzicato: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.34,
       "freq": 441,
       "length": 4410,
@@ -2573,7 +2631,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Harp",
     "description": "Harp: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "gain": 0.34,
       "freq": 441,
       "length": 44100,
@@ -2646,7 +2705,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Timpani",
     "description": "Timpani: a bowed or plucked tone with rich harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.34,
       "freq": 441,
       "length": 6615,
@@ -2674,7 +2734,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Strings 1",
     "description": "Strings 1: a layered orchestral blend with smooth sustain.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "string",
       "gain": 0.33,
       "loop": true,
       "cycles": 22,
@@ -2750,7 +2811,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Strings 2",
     "description": "Strings 2: a layered orchestral blend with smooth sustain.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bow",
       "gain": 0.33,
       "loop": true,
       "cycles": 22,
@@ -2825,7 +2887,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "SynthStrings 1",
     "description": "SynthStrings 1: a layered orchestral blend with smooth.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.24,
       "gain": 0.33,
       "loop": true,
@@ -2902,7 +2965,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "SynthStrings 2",
     "description": "SynthStrings 2: a layered orchestral blend with smooth.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "triangle",
       "gain": 0.24,
       "gain": 0.33,
       "loop": true,
@@ -2981,7 +3045,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Choir Aahs",
     "description": "Choir Aahs: a layered orchestral blend with smooth sustain.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.5,
       "loop": true,
       "cycles": 14,
@@ -3063,7 +3128,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Voice Oohs",
     "description": "Voice Oohs: rounded vowel formants with a soft vocal onset.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "sine",
       "gain": 0.5,
       "loop": true,
       "cycles": 14,
@@ -3144,7 +3210,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Synth Voice",
     "description": "Synth Voice: a layered orchestral blend with smooth sustain.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.5,
       "loop": true,
       "cycles": 14,
@@ -3223,7 +3290,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Orchestra Hit",
     "description": "Orchestra Hit: a layered orchestral blend with smooth.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.65,
       "length": 4410,
       "loop": false,
@@ -3271,7 +3339,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Trumpet",
     "description": "Trumpet: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.24,
       "loop": true,
       "cycles": 24,
@@ -3361,7 +3430,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Trombone",
     "description": "Trombone: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.12,
       "loop": true,
       "cycles": 26,
@@ -3435,7 +3505,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tuba",
     "description": "Tuba: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "square",
       "gain": 0.12,
       "freq": 220,
       "loop": true,
@@ -3509,7 +3580,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Muted Trpt",
     "description": "Muted Trpt: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pulse",
       "gain": 0.12,
       "loop": true,
       "cycles": 24,
@@ -3583,7 +3655,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "French Horn",
     "description": "French Horn: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.12,
       "loop": true,
       "cycles": 28,
@@ -3656,7 +3729,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Brass Section",
     "description": "Brass Section: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.12,
       "loop": true,
       "cycles": 26,
@@ -3743,7 +3817,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "SynthBrass 1",
     "description": "SynthBrass 1: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.1,
       "loop": true,
       "cycles": 14,
@@ -3809,7 +3884,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "SynthBrass 2",
     "description": "SynthBrass 2: a bold attack and bright, focused tone.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pulse",
       "gain": 0.1,
       "loop": true,
       "cycles": 14,
@@ -3869,7 +3945,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Soprano Sax",
     "description": "Soprano Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.31,
       "freq": 620,
       "loop": true,
@@ -3897,7 +3974,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Alto Sax",
     "description": "Alto Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.31,
       "freq": 460,
       "loop": true,
@@ -3925,7 +4003,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tenor Sax",
     "description": "Tenor Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.31,
       "freq": 320,
       "loop": true,
@@ -3954,7 +4033,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Bari Sax",
     "description": "Bari Sax: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.31,
       "freq": 460,
       "loop": true,
@@ -3982,7 +4062,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Oboe",
     "description": "Oboe: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.31,
       "loop": true,
       "cycles": 14,
@@ -4037,7 +4118,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "English Horn",
     "description": "English Horn: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.31,
       "loop": true,
       "cycles": 14,
@@ -4091,7 +4173,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Bassoon",
     "description": "Bassoon: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "clarinet",
       "gain": 0.31,
       "freq": 220,
       "loop": true,
@@ -4145,7 +4228,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Clarinet",
     "description": "Clarinet: a reedy wind tone with expressive harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "clarinet",
       "gain": 0.31,
       "loop": true,
       "cycles": 14,
@@ -4196,7 +4280,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Piccolo",
     "description": "Piccolo: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "sine",
       "gain": 0.31,
       "freq": 880,
       "loop": true,
@@ -4245,7 +4330,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Flute",
     "description": "Flute: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "flute",
       "gain": 0.63,
       "freq": 880,
       "loop": true,
@@ -4297,7 +4383,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Recorder",
     "description": "Recorder: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "flute",
       "gain": 0.42,
       "freq": 880,
       "loop": true,
@@ -4352,7 +4439,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pan Flute",
     "description": "Pan Flute: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "sine",
       "gain": 0.42,
       "freq": 880,
       "loop": true,
@@ -4407,7 +4495,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Blown Bottle",
     "description": "Blown Bottle: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.42,
       "loop": true,
       "cycles": 14,
@@ -4451,7 +4540,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Shakuhachi",
     "description": "Shakuhachi: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.42,
       "freq": 660,
       "loop": true,
@@ -4500,6 +4590,7 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Whistle",
     "description": "Whistle: a breath-driven tone with a rounded body.",
     "preset": {
+      "mute": false,
       "renderMode": "drum",
       "gain": 0.42,
       "freq": 3720,
@@ -4546,7 +4637,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Ocarina",
     "description": "Ocarina: a breath-driven tone with a rounded body.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "flute",
       "gain": 0.42,
       "loop": true,
       "cycles": 14,
@@ -4590,7 +4682,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (square)",
     "description": "Lead (square): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "square",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4628,7 +4721,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (saw)",
     "description": "Lead (saw): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4664,7 +4758,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (calliope)",
     "description": "Lead (calliope): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pulse",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4702,7 +4797,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (chiff)",
     "description": "Lead (chiff): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "clarinet",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4739,7 +4835,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (charang)",
     "description": "Lead (charang): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4774,7 +4871,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (voice)",
     "description": "Lead (voice): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4810,7 +4908,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (fifths)",
     "description": "Lead (fifths): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4844,7 +4943,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Lead (bass+ld)",
     "description": "Lead (bass+ld): a focused synth tone with strong harmonics.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "square",
       "gain": 0.38,
       "loop": true,
       "cycles": 12,
@@ -4879,7 +4979,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (new age)",
     "description": "Pad (new age): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "sine",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -4944,7 +5045,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (warm)",
     "description": "Pad (warm): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "triangle",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -5009,7 +5111,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (polysynth)",
     "description": "Pad (polysynth): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -5075,7 +5178,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (choir)",
     "description": "Pad (choir): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -5141,7 +5245,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (bowed)",
     "description": "Pad (bowed): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bow",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -5206,7 +5311,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (metallic)",
     "description": "Pad (metallic): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -5275,7 +5381,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (halo)",
     "description": "Pad (halo): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "sine",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -5341,7 +5448,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Pad (sweep)",
     "description": "Pad (sweep): a soft sustained synth texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.65,
       "loop": true,
       "cycles": 16,
@@ -5411,7 +5519,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (rain)",
     "description": "FX (rain): an evolving synthetic texture with distinct.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "length": 44100,
       "loop": false,
       "env": {
@@ -5442,7 +5551,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (soundtrack)",
     "description": "FX (soundtrack): an evolving synthetic texture with.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "string",
       "length": 44100,
       "loop": false,
       "env": {
@@ -5473,7 +5583,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (crystal)",
     "description": "FX (crystal): an evolving synthetic texture with distinct.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "length": 44100,
       "loop": false,
       "env": {
@@ -5504,7 +5615,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (atmosphere)",
     "description": "FX (atmosphere): nylon pluck with a faint airy shimmer.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "freq": 441,
       "length": 44100,
       "loop": false,
@@ -5568,7 +5680,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (brightness)",
     "description": "FX (brightness): an evolving synthetic texture with.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "length": 44100,
       "loop": false,
       "env": {
@@ -5599,7 +5712,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (goblins)",
     "description": "FX (goblins): an evolving synthetic texture with distinct.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "square",
       "length": 44100,
       "loop": false,
       "env": {
@@ -5630,7 +5744,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (echoes)",
     "description": "FX (echoes): an evolving synthetic texture with distinct.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "length": 44100,
       "loop": true,
       "sustainLoop": false,
@@ -5661,7 +5776,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "FX (sci-fi)",
     "description": "FX (sci-fi): an evolving synthetic texture with distinct.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "length": 44100,
       "loop": false,
       "env": {
@@ -5692,7 +5808,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Sitar",
     "description": "Sitar: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "freq": 441,
       "length": 44100,
       "loop": false,
@@ -5727,7 +5844,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Banjo",
     "description": "Banjo: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "freq": 441,
       "length": 44100,
       "loop": false,
@@ -5797,7 +5915,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Shamisen",
     "description": "Shamisen: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "freq": 441,
       "length": 44100,
       "loop": false,
@@ -5830,7 +5949,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Koto",
     "description": "Koto: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pluck",
       "freq": 441,
       "length": 44100,
       "loop": false,
@@ -5863,7 +5983,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Kalimba",
     "description": "Kalimba: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "freq": 441,
       "length": 55125,
       "loop": false,
@@ -5897,7 +6018,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Bagpipe",
     "description": "Bagpipe: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "loop": true,
       "cycles": 14,
       "env": {
@@ -5944,7 +6066,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Fiddle",
     "description": "Fiddle: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bow",
       "loop": true,
       "cycles": 14,
       "env": {
@@ -6010,7 +6133,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Shanai",
     "description": "Shanai: a distinctive folk tone with a bright attack.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "reed",
       "gain": 0.3,
       "loop": true,
       "cycles": 14,
@@ -6063,7 +6187,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Tinkle Bell",
     "description": "Tinkle Bell: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "gain": 0.3,
       "freq": 441,
       "length": 55125,
@@ -6099,7 +6224,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Agogo",
     "description": "Agogo: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "pulse",
       "gain": 0.3,
       "freq": 441,
       "length": 55125,
@@ -6134,7 +6260,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Steel Drums",
     "description": "Steel Drums: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "bell",
       "gain": 0.3,
       "freq": 441,
       "length": 55125,
@@ -6172,7 +6299,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Woodblock",
     "description": "Woodblock: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.3,
       "freq": 441,
       "length": 2205,
@@ -6199,7 +6327,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Taiko Drum",
     "description": "Taiko Drum: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.3,
       "freq": 220,
       "length": 4410,
@@ -6227,7 +6356,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Melodic Tom",
     "description": "Melodic Tom: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.3,
       "freq": 330,
       "length": 3307,
@@ -6255,7 +6385,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Synth Drum",
     "description": "Synth Drum: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "sine",
       "gain": 0.3,
       "freq": 220,
       "length": 3307,
@@ -6283,7 +6414,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Reverse Cymbal",
     "description": "Reverse Cymbal: a pitched strike with clear resonance.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.3,
       "length": 8820,
       "loop": false,
@@ -6315,7 +6447,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Fret Noise",
     "description": "Fret Noise: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.3,
       "length": 2205,
       "loop": false,
@@ -6347,7 +6480,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Breath Noise",
     "description": "Breath Noise: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.3,
       "length": 3307,
       "loop": false,
@@ -6379,7 +6513,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Seashore",
     "description": "Seashore: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.3,
       "length": 8820,
       "loop": false,
@@ -6411,7 +6546,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Bird Tweet",
     "description": "Bird Tweet: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "sine",
       "length": 4410,
       "loop": false,
       "env": {
@@ -6442,7 +6578,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Telephone",
     "description": "Telephone: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "square",
       "gain": 0.3,
       "length": 6615,
       "loop": false,
@@ -6479,7 +6616,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Helicopter",
     "description": "Helicopter: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "saw",
       "gain": 0.3,
       "length": 8820,
       "loop": false,
@@ -6511,7 +6649,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Applause",
     "description": "Applause: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "breath",
       "gain": 0.3,
       "length": 8820,
       "loop": false,
@@ -6543,7 +6682,8 @@ var GUS_MELODIC_PRESETS = {
     "shortName": "Gunshot",
     "description": "Gunshot: a recognizable effect with a distinct texture.",
     "preset": {
-      "defaultWaveform": null,
+      "mute": false,
+      "defaultWaveform": "hammer",
       "gain": 0.3,
       "length": 4410,
       "loop": false,

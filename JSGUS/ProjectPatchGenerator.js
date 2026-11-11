@@ -8,6 +8,11 @@ class ProjectPatchGenerator {
   static MODE_LOOP          = 0x04;
   static MODE_SUSTAIN       = 0x20;
   static MODE_ENVELOPE      = 0x40;
+  static WAVEFORM_TYPES = Object.freeze([
+    'sine', 'triangle', 'square', 'saw',
+    'pulse', 'organ', 'flute', 'clarinet', 'reed', 'string', 'bell',
+    'pluck', 'hammer', 'bow', 'breath'
+  ]);
 
   constructor(options = {}) {
     const {sampleRate = 22050, duration = 0.25} = options;
@@ -128,7 +133,7 @@ class ProjectPatchGenerator {
     const masterGain = isDrum
         ? this.library.drumMasterGain
         : this.library.melodicMasterGain;
-    const outputGain = masterGain * instrumentGain;
+    const outputGain = preset && preset.mute === true ? 0 : masterGain * instrumentGain;
 
     const pcm = new Uint8Array(rendered.pcm.length * 2);
     for (let i = 0; i < rendered.pcm.length; i++) {
@@ -246,11 +251,12 @@ class ProjectPatchGenerator {
   }
 
   /**
-   * @param {string} type  'sine' | 'triangle' | 'square' | 'saw'
+   * @param {string} type  A supported named waveform.
    * @param {number} n     jumlah harmonisa yang dihasilkan
    * @returns {number[]|null}
    */
   static waveformHarmonics(type, n) {
+    if (!Number.isInteger(n) || n < 1) return null;
     const out = new Array(n).fill(0);
     switch (type) {
       case 'sine':
@@ -273,6 +279,58 @@ class ProjectPatchGenerator {
         break;
       case 'saw':
         for (let k = 0; k < n; k++) out[k] = 1 / (k + 1); // 1, 1/2, 1/3, ...
+        break;
+      case 'pulse':
+        for (let k = 0; k < n; k++) {
+          const order = k + 1;
+          out[k] = Math.sin(Math.PI * order / 4) / (order * Math.sin(Math.PI / 4));
+        }
+        break;
+      case 'organ': {
+        const drawbars = [1, 0.08, 0.72, 0.02, 0.52, 0.06, 0.38, 0.02, 0.3, 0.04, 0.22, 0.02, 0.16, 0.02, 0.12, 0.08];
+        for (let k = 0; k < n; k++) out[k] = drawbars[k] ?? 0.04 / (k + 1);
+        break;
+      }
+      case 'flute':
+        for (let k = 0; k < n; k++) out[k] = 1 / Math.pow(k + 1, 2.4);
+        break;
+      case 'clarinet':
+        for (let k = 0; k < n; k++) {
+          const order = k + 1;
+          out[k] = order % 2 === 1 ? 1 / order : 0.025 / order;
+        }
+        break;
+      case 'reed':
+        for (let k = 0; k < n; k++) out[k] = 1 / Math.pow(k + 1, 0.8);
+        break;
+      case 'string':
+        for (let k = 0; k < n; k++) out[k] = 1 / Math.pow(k + 1, 1.15);
+        break;
+      case 'bell': {
+        const partials = [1, 0.08, 0.72, 0.06, 0.46, 0.035, 0.28, 0.025, 0.19, 0.015, 0.12, 0.01, 0.08, 0.008, 0.05, 0.005];
+        for (let k = 0; k < n; k++) out[k] = partials[k] ?? 0;
+        break;
+      }
+      case 'pluck':
+        for (let k = 0; k < n; k++) out[k] = 1 / Math.pow(k + 1, 1.35);
+        break;
+      case 'hammer':
+        for (let k = 0; k < n; k++) {
+          const order = k + 1;
+          out[k] = Math.exp(-order / (n * 0.45)) / Math.sqrt(order);
+        }
+        break;
+      case 'bow':
+        for (let k = 0; k < n; k++) {
+          const order = k + 1;
+          out[k] = (order % 2 === 1 ? 1 : 0.72) / Math.pow(order, 1.05);
+        }
+        break;
+      case 'breath':
+        for (let k = 0; k < n; k++) {
+          const order = k + 1;
+          out[k] = order === 1 ? 1 : 0.16 / Math.pow(order, 1.5);
+        }
         break;
       default:
         return null;
@@ -444,11 +502,16 @@ class GUSPatchGenerator {
         const drive = Math.max(0.1, config.drive || 1);
         const bias = config.bias || 0;
         const mix = Math.max(0, Math.min(1, config.mix == null ? 1 : config.mix));
+        const clip = Math.max(0, Math.min(1, config.clip || 0));
         const biasOffset = Math.tanh(bias * drive);
+        const clippedBias = Math.max(-1, Math.min(1, bias * drive));
         for (let i = 0; i < buf.length; i++) {
             const dry = buf[i];
-            const saturated = Math.tanh((dry + bias) * drive) - biasOffset;
-            buf[i] = dry * (1 - mix) + saturated * mix;
+            const driven = (dry + bias) * drive;
+            const saturated = Math.tanh(driven) - biasOffset;
+            const hardClipped = Math.max(-1, Math.min(1, driven)) - clippedBias;
+            const distorted = saturated * (1 - clip) + hardClipped * clip;
+            buf[i] = dry * (1 - mix) + distorted * mix;
         }
 
         const cabinetCutoff = config.cabinetCutoff || 0;

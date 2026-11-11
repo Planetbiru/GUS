@@ -165,7 +165,7 @@ class GusPatchApp {
             || !Number.isFinite(instrumentGain) || instrumentGain < 0) {
             throw new Error('Invalid output gain.');
         }
-        const outputGain = masterGain * instrumentGain;
+        const outputGain = preset.mute === true ? 0 : masterGain * instrumentGain;
         if (outputGain === 1) return rendered;
         return {
             ...rendered,
@@ -909,7 +909,7 @@ class GusPatchApp {
                     ? Math.min(3, Math.max(0.05, duration))
                     : defaults.duration,
                 durationCustomized: Boolean(durationCustomized),
-                wave: ['preset', 'sine', 'square', 'saw', 'triangle'].includes(wave) ? wave : 'preset',
+                wave: ['preset', ...ProjectPatchGenerator.WAVEFORM_TYPES].includes(wave) ? wave : 'preset',
             };
         }
 
@@ -1146,7 +1146,7 @@ class GusPatchApp {
             input.id = 'presetField_' + path.join('_');
             label.htmlFor = input.id;
 
-            for (const waveform of ['null', 'sine', 'square', 'triangle', 'saw']) {
+            for (const waveform of ['null', ...ProjectPatchGenerator.WAVEFORM_TYPES]) {
                 const option = document.createElement('option');
                 option.value = waveform;
                 option.textContent = waveform == 'null' ? '- Not Specified -' : waveform;
@@ -1549,18 +1549,10 @@ class GusPatchApp {
                 ? preset.defaultWaveform
                 : waveform;
             if (selectedWaveform == null) return result;
-            const waves = {
-                sine: [1],
-                square: [1, 0, .33, 0, .2, 0, .14, 0, .11, 0, .09],
-                saw: [1, .5, .33, .25, .2, .16, .14, .12, .1, .09, .08, .07],
-                triangle: [1, 0, -.11, 0, .04, 0, -.02, 0, .012],
-            };
-            const harmonics = usePresetWaveform
-                ? ProjectPatchGenerator.waveformHarmonics(
-                    selectedWaveform,
-                    (preset.harm || [1]).length
-                )
-                : waves[selectedWaveform];
+            const harmonics = ProjectPatchGenerator.waveformHarmonics(
+                selectedWaveform,
+                (preset.harm || [1]).length
+            );
             if (!harmonics) throw new Error(`Unknown waveform: ${selectedWaveform}.`);
             result.harm = harmonics;
             delete result.renderMode;
