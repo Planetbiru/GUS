@@ -106,6 +106,7 @@ class GusPatchApp {
         this.midiChannelPrograms = new Map();
         this.activeMidiNoteOwners = new Map();
         this.activeMidiInstrumentNotes = new Map();
+        this.activeMidiChannelNotes = new Map();
         this.collectingMidiInstruments = false;
         this.generatorState = {selected: null, instruments: {}, presets: {}};
         this.projects = [];
@@ -1925,14 +1926,24 @@ class GusPatchApp {
             const state = this.midiChannelStates.get(channel);
             const item = document.createElement('li');
             item.className = 'midi-channel-row';
+            item.dataset.channel = String(channel);
             const name = document.createElement('span');
             name.className = 'midi-channel-name';
+            const indicator = document.createElement('span');
+            indicator.className = 'midi-note-indicator';
+            indicator.classList.toggle('is-playing', this.activeMidiChannelNotes.has(channel));
+            indicator.setAttribute('aria-label', this.activeMidiChannelNotes.has(channel)
+                ? 'Channel has active notes'
+                : 'No active notes');
+            const label = document.createElement('span');
+            label.className = 'midi-channel-label';
             const instrumentName = channel === 9
                 ? 'Drums'
                 : this.lib.melodic[this.midiChannelPrograms.get(channel) ?? 0]?.name;
-            name.textContent = channel === 9
+            label.textContent = channel === 9
                 ? 'Channel 9 (Drums)'
                 : `Channel ${channel} (${instrumentName || 'Unknown instrument'})`;
+            name.append(indicator, label);
 
             const controls = document.createElement('span');
             controls.className = 'midi-channel-controls';
@@ -1995,6 +2006,13 @@ class GusPatchApp {
             this.activeMidiInstrumentNotes.set(instrumentKey, pitches);
         }
         pitches.set(pitch, (pitches.get(pitch) || 0) + 1);
+        let channelPitches = this.activeMidiChannelNotes.get(channel);
+        if (!channelPitches) {
+            channelPitches = new Map();
+            this.activeMidiChannelNotes.set(channel, channelPitches);
+        }
+        channelPitches.set(pitch, (channelPitches.get(pitch) || 0) + 1);
+        this.updateMidiChannelIndicator(channel);
         this.updateMidiInstrumentIndicator(instrumentKey);
     }
 
@@ -2011,6 +2029,12 @@ class GusPatchApp {
         if (count === 1) pitches.delete(pitch);
         else if (count > 1) pitches.set(pitch, count - 1);
         if (pitches && pitches.size === 0) this.activeMidiInstrumentNotes.delete(instrumentKey);
+        const channelPitches = this.activeMidiChannelNotes.get(channel);
+        const channelCount = channelPitches && channelPitches.get(pitch);
+        if (channelCount === 1) channelPitches.delete(pitch);
+        else if (channelCount > 1) channelPitches.set(pitch, channelCount - 1);
+        if (channelPitches && channelPitches.size === 0) this.activeMidiChannelNotes.delete(channel);
+        this.updateMidiChannelIndicator(channel);
         this.updateMidiInstrumentIndicator(instrumentKey);
     }
 
@@ -2019,11 +2043,33 @@ class GusPatchApp {
             ...this.activeMidiInstrumentNotes.keys(),
             ...this.midiInstrumentList.keys(),
         ]);
+        const channels = new Set([
+            ...this.activeMidiChannelNotes.keys(),
+            ...this.midiChannelsUsed,
+        ]);
         this.activeMidiNoteOwners.clear();
         this.activeMidiInstrumentNotes.clear();
+        this.activeMidiChannelNotes.clear();
+        for (const channel of channels) {
+            this.updateMidiChannelIndicator(channel);
+        }
         for (const instrumentKey of instrumentKeys) {
             this.updateMidiInstrumentIndicator(instrumentKey);
         }
+    }
+
+    updateMidiChannelIndicator(channel) {
+        const list = this.$('midiChannelList');
+        if (!list) return;
+        const indicator = list.querySelector(
+            `.midi-channel-row[data-channel="${channel}"] .midi-note-indicator`
+        );
+        if (!indicator) return;
+        const isActive = this.activeMidiChannelNotes.has(channel);
+        indicator.classList.toggle('is-playing', isActive);
+        indicator.setAttribute('aria-label', isActive
+            ? 'Channel has active notes'
+            : 'No active notes');
     }
 
     updateMidiInstrumentIndicator(instrumentKey) {

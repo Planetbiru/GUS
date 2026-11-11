@@ -690,6 +690,16 @@ label[for="presetJson"] {
 }
 
 .midi-channel-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+    color: var(--fg);
+    overflow: hidden;
+}
+
+.midi-channel-label {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -758,6 +768,11 @@ label[for="presetJson"] {
 }
 
 .midi-instrument-link.is-playing .midi-note-indicator {
+    background: var(--accent2);
+    box-shadow: 0 0 7px var(--accent2);
+}
+
+.midi-note-indicator.is-playing {
     background: var(--accent2);
     box-shadow: 0 0 7px var(--accent2);
 }
