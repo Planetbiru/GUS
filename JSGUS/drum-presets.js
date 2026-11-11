@@ -954,6 +954,7 @@ var GUS_DRUM_PRESETS = {
     "description": "Short Whistle: breathy whistle tone with a clear sustained.",
     "preset": {
       "gain": 0.75,
+      "duration": 0.25,
       "tones": [
         {
           "fStart": 3700,
