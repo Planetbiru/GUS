@@ -129,7 +129,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Ac. Bass Drum",
     "description": "Ac. Bass Drum: deep kick thump with a short beater click.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.30,
       "duration": 0.55,
       "membrane": {
         "freq": 46,
@@ -156,7 +156,7 @@ var GUS_DRUM_PRESETS = {
     "shortName": "Bass Drum 1",
     "description": "Bass Drum 1: punchy kick with a focused low end.",
     "preset": {
-      "gain": 0.35,
+      "gain": 0.30,
       "duration": 0.55,
       "membrane": {
         "freq": 52,
