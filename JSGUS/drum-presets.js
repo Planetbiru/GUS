@@ -921,15 +921,67 @@ var GUS_DRUM_PRESETS = {
       "description": "Crash Cymbal 1: bright cymbal crash with a broad metallic.",
       "preset": {
         "mute": false,
-        "gain": 0.045,
-        "duration": 1.5,
-        "noise": {
-          "amp": 0.9,
-          "decay": 0.65,
-          "type": "white"
+        "gain": 0.32,
+        "duration": 1.7,
+        "impact": {
+          "amp": 1.8,
+          "duration": 0.045,
+          "decay": 0.014,
+          "type": "white",
+          "bandpass": {
+            "center": 3600,
+            "q": 0.42
+          }
         },
-        "highpass": 5500,
-        "lowpass": 10200
+        "noiseLayers": [
+          {
+            "amp": 0.9,
+            "decay": 0.07,
+            "type": "white",
+            "bandpass": {
+              "center": 6800,
+              "q": 0.4
+            }
+          },
+          {
+            "amp": 0.62,
+            "decay": 0.09,
+            "type": "white",
+            "bandpass": {
+              "center": 9200,
+              "q": 0.45
+            }
+          },
+          {
+            "amp": 0.7,
+            "decay": 0.85,
+            "type": "pink",
+            "bandpass": {
+              "center": 4700,
+              "q": 0.35
+            }
+          },
+          {
+            "amp": 0.45,
+            "decay": 0.55,
+            "type": "white",
+            "bandpass": {
+              "center": 8500,
+              "q": 0.35
+            }
+          },
+          {
+            "amp": 0.32,
+            "decay": 1.2,
+            "type": "pink",
+            "bandpass": {
+              "center": 2700,
+              "q": 0.55
+            }
+          }
+        ],
+        "highpass": 900,
+        "lowpass": 11500
       }
     },
     {
@@ -1304,15 +1356,67 @@ var GUS_DRUM_PRESETS = {
       "description": "Crash Cymbal 2: bright cymbal crash with a broad metallic.",
       "preset": {
         "mute": false,
-        "gain": 0.025,
-        "duration": 1.4,
-        "noise": {
-          "amp": 0.9,
-          "decay": 0.65,
-          "type": "white"
+        "gain": 0.32,
+        "duration": 1.5,
+        "impact": {
+          "amp": 1.6,
+          "duration": 0.04,
+          "decay": 0.013,
+          "type": "white",
+          "bandpass": {
+            "center": 3900,
+            "q": 0.42
+          }
         },
-        "highpass": 5500,
-        "lowpass": 10200
+        "noiseLayers": [
+          {
+            "amp": 0.82,
+            "decay": 0.065,
+            "type": "white",
+            "bandpass": {
+              "center": 7200,
+              "q": 0.4
+            }
+          },
+          {
+            "amp": 0.58,
+            "decay": 0.085,
+            "type": "white",
+            "bandpass": {
+              "center": 9800,
+              "q": 0.45
+            }
+          },
+          {
+            "amp": 0.62,
+            "decay": 0.72,
+            "type": "pink",
+            "bandpass": {
+              "center": 5000,
+              "q": 0.38
+            }
+          },
+          {
+            "amp": 0.4,
+            "decay": 0.48,
+            "type": "white",
+            "bandpass": {
+              "center": 9000,
+              "q": 0.38
+            }
+          },
+          {
+            "amp": 0.28,
+            "decay": 1,
+            "type": "pink",
+            "bandpass": {
+              "center": 3000,
+              "q": 0.58
+            }
+          }
+        ],
+        "highpass": 1100,
+        "lowpass": 11500
       }
     },
     {

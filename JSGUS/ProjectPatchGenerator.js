@@ -961,6 +961,7 @@ class DrumRenderer {
         const tones     = (p.tones    || []).map(t => ({ ...t, phase: 0, modPhase: 0 }));
         const membrane  = p.membrane  ? this._setupMembrane(p.membrane, SR) : null;
         const metallic  = p.metallic  ? this._setupMetallic(p.metallic)     : null;
+        const impactBuffer = p.impact ? this._buildNoise(p.impact, length, SR) : null;
         const noiseBuf  = p.noise     ? this._buildNoise(p.noise, length, SR) : null;
         const noiseLayers = (p.noiseLayers || []).map(cfg => ({
             cfg,
@@ -973,6 +974,7 @@ class DrumRenderer {
             sample += this._tones(t, tones);
             if (membrane) sample += this._membrane(t, membrane);
             if (metallic) sample += this._metallic(t, metallic);
+            if (impactBuffer) sample += this._impact(t, impactBuffer, p.impact);
             if (noiseBuf) sample += this._noise(t, noiseBuf, p.noise);
             for (const layer of noiseLayers) {
                 sample += this._noise(t, layer.buffer, layer.cfg);
@@ -1092,6 +1094,12 @@ class DrumRenderer {
         if (!cfg || !cfg.amp) return 0;
         const idx = Math.min(noiseBuf.length - 1, Math.floor(t * this.SR));
         return noiseBuf[idx] * cfg.amp * Math.exp(-t / (cfg.decay || 0.1));
+    }
+
+    _impact(t, noiseBuf, cfg) {
+        if (t >= (cfg.duration || 0.06)) return 0;
+        const idx = Math.min(noiseBuf.length - 1, Math.floor(t * this.SR));
+        return noiseBuf[idx] * (cfg.amp || 1) * Math.exp(-t / (cfg.decay || 0.015));
     }
 
     _click(t) {
