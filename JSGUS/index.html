@@ -337,7 +337,19 @@
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
                             </svg>
-                            <span>Render WAV</span>
+                            <span>Render</span>
+                        </button>
+                        <button id="btnMidiRenderStemsStereo" class="button-with-icon" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                            </svg>
+                            <span>Render Stem Stereo</span>
+                        </button>
+                        <button id="btnMidiRenderStemsMono" class="button-with-icon" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                            </svg>
+                            <span>Render Stem Mono</span>
                         </button>
                     </div>
                     <div class="midi-transport-row">
@@ -436,6 +448,7 @@
     <script src="../timidity-player/timidity-player.js"></script>
     <script src="../timidity-player/libtimidity.min.js"></script>
     <script src="../jszip/jszip.min.js"></script>
+    <script src="../Flac/libflac.min.js"></script>
     <script src="melodic-presets.js"></script>
     <script src="drum-presets.js"></script>
     <script src="ProjectPatchGenerator.js"></script>

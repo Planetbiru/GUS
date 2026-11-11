@@ -50,6 +50,7 @@ In **MIDI Playback**, select the **MIDI file** mode and choose a `.mid` or `.mid
 - Use the seek slider to move through the song.
 - Adjust **Volume** from 0% to 100%; changes take effect during playback.
 - Choose **Render WAV** to render and download the loaded MIDI file as a WAV.
+- Choose **Render Stem Stereo (FLAC)** or **Render Stem Mono (FLAC)** to download a ZIP of individual FLAC files. MIDI Type 1 files are split by track; Type 0 files are split by channel. Mono stems contain one audio channel, with MIDI pan (CC 10) events removed.
 
 After a MIDI file loads, **Instruments used** lists the melodic instruments and drum sounds it uses. The **Channels** list provides two controls for each channel:
 

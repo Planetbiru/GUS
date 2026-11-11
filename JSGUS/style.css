@@ -200,6 +200,12 @@ button.toggle-button[aria-pressed="true"] {
     font-weight: 600;
 }
 
+button.toggle-button[aria-pressed="true"]:hover:not(:disabled):not(.primary):not(.success):not(.danger):not(.active):not(.icon-btn):not(.number-spinner-button):not(.preset-array-remove):not(.preset-array-add) {
+    background: #56d364;
+    border-color: var(--accent2);
+    color: #000;
+}
+
 #btnMidiPlay {
     min-width: 90px;
 }
@@ -712,6 +718,18 @@ label[for="presetJson"] {
 
 .channel-toggle[aria-pressed="true"][data-control="solo"] {
     background: var(--accent2);
+    border-color: var(--accent2);
+    color: #000;
+}
+
+.channel-toggle[aria-pressed="true"][data-control="mute"]:hover:not(:disabled) {
+    background: #ff8585;
+    border-color: var(--danger);
+    color: #000;
+}
+
+.channel-toggle[aria-pressed="true"][data-control="solo"]:hover:not(:disabled) {
+    background: #56d364;
     border-color: var(--accent2);
     color: #000;
 }

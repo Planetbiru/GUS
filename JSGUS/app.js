@@ -98,6 +98,7 @@ class GusPatchApp {
         this.midiPosition = 0;
         this.midiSeeking = false;
         this.midiRenderInProgress = false;
+        this.midiRenderOperation = '';
         this.midiInstrumentList = new Map();
         this.midiInstrumentElements = new Map();
         this.midiChannelsUsed = [];
@@ -481,6 +482,8 @@ class GusPatchApp {
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
         this.$('btnMidiStop').onclick = () => this.stopMidiPlayback();
         this.$('btnMidiRender').onclick = () => this.renderMidiToWav();
+        this.$('btnMidiRenderStemsStereo').onclick = () => this.renderMidiStemsToFlac('stereo');
+        this.$('btnMidiRenderStemsMono').onclick = () => this.renderMidiStemsToFlac('mono');
         this.$('midiVolume').addEventListener('input', () => this.handleMidiVolumeInput());
         this.$('midiChannelList').addEventListener('click', event => {
             const button = event.target.closest('button[data-channel][data-control]');
@@ -510,6 +513,7 @@ class GusPatchApp {
         this.$('midiSeek').addEventListener('input', event => {
             if (!this.midiData || !this.midiDuration) return;
             this.midiSeeking = true;
+            this.clearActiveMidiNotes();
             this.midiPosition = Number(event.target.value) / 1000 * this.midiDuration;
             this.updateMidiPlaybackUI();
         });
@@ -1726,6 +1730,7 @@ class GusPatchApp {
         });
         player.on('onNoteOn', event => this.handleMidiNoteOn(event));
         player.on('onNoteOff', event => this.handleMidiNoteOff(event));
+        player.on('onSeek', () => this.clearActiveMidiNotes());
         player.on('onPlay', () => this.setLiveWaveformSource(player.waveformAnalyser));
         player.on('onResume', () => this.setLiveWaveformSource(player.waveformAnalyser));
         player.on('onPlaying', (_tick, seconds) => {
@@ -1758,7 +1763,8 @@ class GusPatchApp {
         });
         player.on('onRenderProgress', progress => {
             if (this.midiRenderInProgress) {
-                this.$('midiStatus').textContent = `Rendering WAV: ${Math.round(progress)}%`;
+                const operation = this.midiRenderOperation || 'WAV';
+                this.$('midiStatus').textContent = `Rendering ${operation}: ${Math.round(progress)}%`;
             }
         });
         player.on('onError', error => {
@@ -1960,8 +1966,15 @@ class GusPatchApp {
         const state = this.midiChannelStates.get(channel);
         if (!state || !['mute', 'solo'].includes(control)) return;
         state[control] = !state[control];
+        this.clearActiveMidiNotes();
         this.renderMidiChannelList();
         this.applyMidiChannelMix();
+    }
+
+    isMidiChannelAudible(channel) {
+        const hasSolo = [...this.midiChannelStates.values()].some(state => state.solo);
+        const state = this.midiChannelStates.get(channel);
+        return state ? !state.mute && (!hasSolo || state.solo) : !hasSolo;
     }
 
     applyMidiChannelMix() {
@@ -1975,6 +1988,7 @@ class GusPatchApp {
     }
 
     handleMidiNoteOn({channel, pitch}) {
+        if (!this.isMidiChannelAudible(channel)) return;
         const type = channel === 9 ? 'drum' : 'melodic';
         const program = type === 'drum' ? pitch : (this.midiChannelPrograms.get(channel) ?? 0);
         const instrumentKey = `${type}:${program}`;
@@ -2696,6 +2710,7 @@ class GusPatchApp {
     async renderMidiToWav() {
         if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
         this.midiRenderInProgress = true;
+        this.midiRenderOperation = 'WAV';
         this.updateMidiPlaybackUI();
         const status = this.$('midiStatus');
 
@@ -2721,6 +2736,385 @@ class GusPatchApp {
             this.log(`WAV render failed: ${error.message}`, 'err');
         } finally {
             this.midiRenderInProgress = false;
+            this.midiRenderOperation = '';
+            this.updateMidiPlaybackUI();
+        }
+    }
+
+    async waitForFlacEncoder() {
+        const flac = window.Flac;
+        if (!flac) throw new Error('FLAC encoder library is unavailable.');
+        if (flac.isReady()) return flac;
+
+        await new Promise((resolve, reject) => {
+            let timeout;
+            const onReady = () => {
+                clearTimeout(timeout);
+                flac.off('ready', onReady);
+                resolve();
+            };
+            timeout = setTimeout(() => {
+                flac.off('ready', onReady);
+                reject(new Error('FLAC encoder initialization timed out.'));
+            }, 30000);
+            flac.on('ready', onReady);
+            if (flac.isReady()) onReady();
+        });
+        return flac;
+    }
+
+    async encodeWavToFlac(wavBlob) {
+        const flac = await this.waitForFlacEncoder();
+        const buffer = await wavBlob.arrayBuffer();
+        const view = new DataView(buffer);
+        const readTag = offset => String.fromCharCode(
+            view.getUint8(offset), view.getUint8(offset + 1),
+            view.getUint8(offset + 2), view.getUint8(offset + 3)
+        );
+        if (buffer.byteLength < 12 || readTag(0) !== 'RIFF' || readTag(8) !== 'WAVE') {
+            throw new Error('Offline renderer returned an invalid WAV file.');
+        }
+
+        let format = null;
+        let dataOffset = -1;
+        let dataLength = 0;
+        for (let offset = 12; offset + 8 <= buffer.byteLength;) {
+            const tag = readTag(offset);
+            const chunkLength = view.getUint32(offset + 4, true);
+            const chunkStart = offset + 8;
+            if (chunkStart + chunkLength > buffer.byteLength) {
+                throw new Error('Offline renderer returned a truncated WAV file.');
+            }
+            if (tag === 'fmt ') {
+                if (chunkLength < 16) throw new Error('WAV format chunk is invalid.');
+                format = {
+                    encoding: view.getUint16(chunkStart, true),
+                    channels: view.getUint16(chunkStart + 2, true),
+                    sampleRate: view.getUint32(chunkStart + 4, true),
+                    bitsPerSample: view.getUint16(chunkStart + 14, true),
+                };
+            } else if (tag === 'data') {
+                dataOffset = chunkStart;
+                dataLength = chunkLength;
+            }
+            offset = chunkStart + chunkLength + (chunkLength & 1);
+        }
+
+        if (!format || dataOffset < 0 || format.encoding !== 1 || format.bitsPerSample !== 16
+            || format.channels < 1 || format.channels > 8 || format.sampleRate < 1
+            || dataLength === 0 || dataLength % (format.channels * 2) !== 0) {
+            throw new Error('WAV must contain non-empty interleaved 16-bit PCM audio.');
+        }
+
+        const totalFrames = dataLength / (format.channels * 2);
+        const encoder = flac.create_libflac_encoder(
+            format.sampleRate, format.channels, 16, 5, totalFrames, 0
+        );
+        if (!encoder) throw new Error('Could not create the FLAC encoder.');
+
+        const chunks = [];
+        let initialized = false;
+        try {
+            const initStatus = flac.init_encoder_stream(
+                encoder,
+                chunk => chunks.push(chunk.slice()),
+                null,
+                false,
+                0
+            );
+            if (initStatus !== 0) throw new Error(`Could not initialize FLAC encoder (status ${initStatus}).`);
+            initialized = true;
+
+            const framesPerBlock = 32768;
+            for (let frameOffset = 0; frameOffset < totalFrames; frameOffset += framesPerBlock) {
+                const frameCount = Math.min(framesPerBlock, totalFrames - frameOffset);
+                const pcm = new Int32Array(frameCount * format.channels);
+                for (let sample = 0; sample < pcm.length; sample++) {
+                    const byteOffset = dataOffset + (frameOffset * format.channels + sample) * 2;
+                    pcm[sample] = view.getInt16(byteOffset, true);
+                }
+                if (!flac.FLAC__stream_encoder_process_interleaved(encoder, pcm, frameCount)) {
+                    throw new Error('FLAC encoder failed while processing PCM samples.');
+                }
+            }
+
+            if (!flac.FLAC__stream_encoder_finish(encoder)) {
+                throw new Error('FLAC encoder could not finalize the output.');
+            }
+            initialized = false;
+        } finally {
+            if (initialized) flac.FLAC__stream_encoder_finish(encoder);
+            flac.FLAC__stream_encoder_delete(encoder);
+        }
+
+        return new Blob(chunks, {type: 'audio/flac'});
+    }
+
+    parseMidiStemSource(midiData) {
+        const data = midiData instanceof Uint8Array ? midiData : new Uint8Array(midiData);
+        const readTag = offset => String.fromCharCode(
+            data[offset], data[offset + 1], data[offset + 2], data[offset + 3]
+        );
+        const readUint32 = offset => (
+            data[offset] * 0x1000000
+            + (data[offset + 1] << 16)
+            + (data[offset + 2] << 8)
+            + data[offset + 3]
+        );
+        if (data.length < 14 || readTag(0) !== 'MThd') {
+            throw new Error('Cannot render stems from an invalid MIDI file.');
+        }
+
+        const headerLength = readUint32(4);
+        const headerEnd = 8 + headerLength;
+        if (headerLength < 6 || headerEnd > data.length) throw new Error('MIDI header is truncated.');
+        const header = new DataView(data.buffer, data.byteOffset, data.byteLength);
+        const format = header.getUint16(8, false);
+        const expectedTracks = header.getUint16(10, false);
+        if (format !== 0 && format !== 1) {
+            throw new Error('Only MIDI Type 0 and Type 1 files can be rendered as stems.');
+        }
+
+        const encodeVlq = value => {
+            if (!Number.isSafeInteger(value) || value < 0 || value > 0x0fffffff) {
+                throw new Error('MIDI event delta exceeds the supported range.');
+            }
+            let encoded = value & 0x7f;
+            while ((value >>= 7) > 0) encoded = (encoded << 8) | ((value & 0x7f) | 0x80);
+            const bytes = [];
+            while (true) {
+                bytes.push(encoded & 0xff);
+                if (encoded & 0x80) encoded >>>= 8;
+                else break;
+            }
+            return bytes;
+        };
+        const tracks = [];
+        const chunks = [{data: data.subarray(0, headerEnd)}];
+        const channelsWithNotes = new Set();
+        let offset = headerEnd;
+
+        while (offset < data.length) {
+            if (offset + 8 > data.length) throw new Error('MIDI track header is truncated.');
+            const tag = readTag(offset);
+            const trackLength = readUint32(offset + 4);
+            const trackStart = offset + 8;
+            const trackEnd = trackStart + trackLength;
+            if (trackEnd > data.length) throw new Error('MIDI track data is truncated.');
+            if (tag !== 'MTrk') {
+                chunks.push({data: data.subarray(offset, trackEnd)});
+                offset = trackEnd;
+                continue;
+            }
+
+            const track = {tag: data.subarray(offset, offset + 4), events: [], hasNotes: false, name: ''};
+            let cursor = trackStart;
+            let runningStatus = 0;
+            const readVlq = () => {
+                let value = 0;
+                let count = 0;
+                let byte;
+                do {
+                    if (cursor >= trackEnd || count++ === 4) {
+                        throw new Error('MIDI track contains an invalid variable-length value.');
+                    }
+                    byte = data[cursor++];
+                    value = value * 128 + (byte & 0x7f);
+                } while (byte & 0x80);
+                return value;
+            };
+
+            while (cursor < trackEnd) {
+                const delta = readVlq();
+                if (cursor >= trackEnd) throw new Error('MIDI track ends inside an event.');
+                let status = data[cursor];
+                if (status >= 0x80) {
+                    cursor++;
+                    if (status >= 0x80 && status <= 0xef) runningStatus = status;
+                } else {
+                    if (!runningStatus) throw new Error('MIDI track has invalid running status.');
+                    status = runningStatus;
+                }
+
+                if (status === 0xff) {
+                    if (cursor >= trackEnd) throw new Error('MIDI meta event is truncated.');
+                    const type = data[cursor++];
+                    const length = readVlq();
+                    if (cursor + length > trackEnd) throw new Error('MIDI meta event data is truncated.');
+                    const payload = data.subarray(cursor, cursor + length);
+                    if (type === 0x03 && !track.name) track.name = new TextDecoder().decode(payload);
+                    track.events.push({
+                        delta,
+                        channel: null,
+                        bytes: [0xff, type, ...encodeVlq(length), payload],
+                    });
+                    cursor += length;
+                } else if (status === 0xf0 || status === 0xf7) {
+                    runningStatus = 0;
+                    const length = readVlq();
+                    if (cursor + length > trackEnd) throw new Error('MIDI system-exclusive data is truncated.');
+                    track.events.push({
+                        delta,
+                        channel: null,
+                        bytes: [status, ...encodeVlq(length), data.subarray(cursor, cursor + length)],
+                    });
+                    cursor += length;
+                } else if (status >= 0x80 && status <= 0xef) {
+                    const command = status >> 4;
+                    const channel = status & 0x0f;
+                    const dataLength = command === 0xc || command === 0xd ? 1 : 2;
+                    if (cursor + dataLength > trackEnd) throw new Error('MIDI channel event is truncated.');
+                    const payload = data.subarray(cursor, cursor + dataLength);
+                    track.events.push({delta, channel, command, data: payload, bytes: [status, payload]});
+                    if (command === 0x9 && payload[1] > 0) {
+                        channelsWithNotes.add(channel);
+                        track.hasNotes = true;
+                    }
+                    cursor += dataLength;
+                } else {
+                    const dataLength = status === 0xf1 || status === 0xf3
+                        ? 1
+                        : status === 0xf2 ? 2 : 0;
+                    if (status < 0xf8) runningStatus = 0;
+                    if (cursor + dataLength > trackEnd) throw new Error('MIDI system event is truncated.');
+                    track.events.push({
+                        delta,
+                        channel: null,
+                        bytes: [status, data.subarray(cursor, cursor + dataLength)],
+                    });
+                    cursor += dataLength;
+                }
+            }
+            tracks.push(track);
+            chunks.push({track});
+            offset = trackEnd;
+        }
+
+        if (tracks.length !== expectedTracks) throw new Error('MIDI track count does not match its header.');
+        return {format, tracks, chunks, channelsWithNotes: [...channelsWithNotes].sort((a, b) => a - b), encodeVlq};
+    }
+
+    buildMidiStemData(source, {channel = null, removePanEvents = false} = {}) {
+        const chunks = source.chunks.map(chunk => {
+            if (!chunk.track) return chunk.data;
+            const body = [];
+            let pendingDelta = 0;
+            for (const event of chunk.track.events) {
+                pendingDelta += event.delta;
+                const keepChannel = event.channel === null || channel === null || event.channel === channel;
+                const isPan = event.command === 0xb && event.data[0] === 10;
+                if (!keepChannel || (removePanEvents && isPan)) continue;
+                body.push(...source.encodeVlq(pendingDelta));
+                for (const part of event.bytes) {
+                    if (typeof part === 'number') body.push(part);
+                    else for (const byte of part) body.push(byte);
+                }
+                pendingDelta = 0;
+            }
+
+            const trackBytes = new Uint8Array(8 + body.length);
+            trackBytes.set(chunk.track.tag, 0);
+            new DataView(trackBytes.buffer).setUint32(4, body.length, false);
+            trackBytes.set(body, 8);
+            return trackBytes;
+        });
+        const outputLength = chunks.reduce((length, chunk) => length + chunk.length, 0);
+        const output = new Uint8Array(outputLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+            output.set(chunk, offset);
+            offset += chunk.length;
+        }
+        return output;
+    }
+
+    async renderMidiStemsToFlac(stemLayout) {
+        if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
+        if (stemLayout !== 'mono' && stemLayout !== 'stereo') {
+            throw new Error(`Unsupported stem output layout: ${stemLayout}.`);
+        }
+        this.midiRenderInProgress = true;
+        this.midiRenderOperation = 'FLAC stems';
+        this.updateMidiPlaybackUI();
+        const status = this.$('midiStatus');
+        let player = null;
+        let resumePlayback = false;
+
+        try {
+            if (typeof JSZip === 'undefined') throw new Error('JSZip is unavailable.');
+            await this.waitForFlacEncoder();
+            player = await this.ensureTimidityPlayer();
+            if (!player.lastMidiData) {
+                const loaded = await player.load(this.midiData);
+                if (!loaded) throw new Error('Could not reload the MIDI for stem rendering.');
+            }
+
+            const midi = this.parseMidiStemSource(this.midiData);
+            const isMono = stemLayout === 'mono';
+            const stems = midi.format === 1
+                ? midi.tracks
+                    .map((track, index) => track.hasNotes ? {type: 'track', index} : null)
+                    .filter(Boolean)
+                : midi.channelsWithNotes
+                    .map(channel => ({type: 'channel', index: channel}));
+            if (stems.length === 0) throw new Error('No MIDI tracks or channels with notes were found.');
+
+            resumePlayback = player.isPlaying && !player.isPaused;
+            const zip = new JSZip();
+            const baseName = this.midiFileName.replace(/\.(mid|midi)$/i, '') || 'midi-render';
+            const safeBaseName = baseName.replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim() || 'midi-render';
+            const renderOptions = {sampleRate: player.sampleRate, isMono};
+
+            for (let i = 0; i < stems.length; i++) {
+                const stem = stems[i];
+                this.midiRenderOperation = `FLAC stem ${i + 1}/${stems.length}`;
+                const stemName = stem.type === 'track'
+                    ? `Track_${String(stem.index + 1).padStart(2, '0')}_${midi.tracks[stem.index].name || `Track_${stem.index + 1}`}`
+                        .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim()
+                    : `Channel_${String(stem.index + 1).padStart(2, '0')}`;
+                status.textContent = `Rendering FLAC stem ${i + 1}/${stems.length}: ${stemName}...`;
+                const options = stem.type === 'track'
+                    ? {...renderOptions, soloTrack: stem.index}
+                    : renderOptions;
+                const originalMidiData = player.lastMidiData;
+                const originalForceMonoPan = player.c && player.c.forceMonoPan;
+                player.lastMidiData = stem.type === 'channel' || isMono
+                    ? this.buildMidiStemData(midi, {
+                        channel: stem.type === 'channel' ? stem.index : null,
+                        removePanEvents: isMono,
+                    })
+                    : originalMidiData;
+                if (isMono && player.c) player.c.forceMonoPan = () => {};
+                let wav;
+                try {
+                    wav = await player.renderOffline(options);
+                } finally {
+                    player.lastMidiData = originalMidiData;
+                    if (isMono && player.c) player.c.forceMonoPan = originalForceMonoPan;
+                }
+                if (!(wav instanceof Blob)) throw new Error(`Could not render ${stemName}.`);
+                zip.file(`${stemName}.flac`, await this.encodeWavToFlac(wav));
+            }
+
+            status.textContent = 'Packaging FLAC stems...';
+            const archive = await zip.generateAsync({type: 'blob', compression: 'STORE'});
+            const filename = `${safeBaseName}_${stemLayout}_stems.zip`;
+            FileDownloader.download(archive, filename);
+            status.textContent = `FLAC stems downloaded: ${filename}`;
+        } catch (error) {
+            status.textContent = `FLAC stem render failed: ${error.message}`;
+            this.log(`FLAC stem render failed: ${error.message}`, 'err');
+        } finally {
+            if (resumePlayback && player && player.isPaused) {
+                try {
+                    await player.resume();
+                } catch (error) {
+                    status.textContent = `FLAC stems rendered, but MIDI playback could not resume: ${error.message}`;
+                    this.log(`MIDI playback resume failed after FLAC stem render: ${error.message}`, 'err');
+                }
+            }
+            this.midiRenderInProgress = false;
+            this.midiRenderOperation = '';
             this.updateMidiPlaybackUI();
         }
     }
@@ -2735,6 +3129,8 @@ class GusPatchApp {
         this.$('midiPlayLabel').textContent = isPlaying ? 'Pause' : 'Play';
         this.$('btnMidiStop').disabled = this.midiMode !== 'file' || !this.midiData;
         this.$('btnMidiRender').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
+        this.$('btnMidiRenderStemsStereo').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
+        this.$('btnMidiRenderStemsMono').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
         seek.disabled = this.midiMode !== 'file' || !this.midiData || !this.midiDuration;
 
         const position = Math.max(0, Math.min(this.midiDuration, this.midiPosition || 0));

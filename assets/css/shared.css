@@ -61,8 +61,8 @@ button,
     transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
 
-button:hover:not(:disabled):not(.primary):not(.success):not(.danger):not(.active):not(.icon-btn):not(.number-spinner-button):not(.preset-array-remove):not(.preset-array-add),
-.btn:hover:not(:disabled):not(.primary):not(.success):not(.danger):not(.active) {
+button:hover:not(:disabled):not([aria-pressed="true"]):not(.primary):not(.success):not(.danger):not(.active):not(.icon-btn):not(.number-spinner-button):not(.preset-array-remove):not(.preset-array-add),
+.btn:hover:not(:disabled):not([aria-pressed="true"]):not(.primary):not(.success):not(.danger):not(.active) {
     background: #252d3d;
     border-color: var(--accent, #38bdf8);
 }
