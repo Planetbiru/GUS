@@ -191,7 +191,6 @@ class BankController {
   
       if (isCurrent) {
         row.style.background = "rgba(56, 189, 248, 0.08)";
-        row.style.borderLeft = "2px solid var(--accent, #38bdf8)";
       }
   
       const targetChanged = bankId !== (p.originalOrder ?? 0);
