@@ -1610,8 +1610,70 @@ footer {
 }
 
 .midi-used-patches-list {
-    max-height: 400px;
+    max-height: 220px;
     overflow-y: auto;
+}
+
+.midi-patch-load-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+.midi-patch-load-list {
+    display: grid;
+    gap: 4px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.midi-patch-load-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 8px;
+    border: 1px solid var(--line, #1e2d4a);
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.midi-patch-load-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.midi-patch-load-state {
+    flex: none;
+    color: var(--dim, #64748b);
+    text-align: right;
+}
+
+.midi-patch-load-row.status-loading .midi-patch-load-state {
+    color: var(--accent, #38bdf8);
+}
+
+.midi-patch-load-row.status-loaded .midi-patch-load-state {
+    color: var(--success, #34d399);
+}
+
+.midi-patch-load-row.status-failed .midi-patch-load-state,
+.midi-patch-load-error {
+    color: var(--danger, #f87171);
+}
+
+.midi-patch-load-empty {
+    padding: 10px;
+    color: var(--dim, #64748b);
+    font-size: 11px;
+}
+
+.midi-used-patches-subtitle {
+    margin-top: 12px;
 }
 
 #midiTimelineDialog .odal-body{

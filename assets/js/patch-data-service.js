@@ -104,6 +104,8 @@ class PatchDataService {
   }
 
   static writePAT(patch){
+    const limitedPatch = PatchDataService.limitGusPatchSamples(patch);
+    patch = limitedPatch.patch;
     let totalData=0, totalSamples=0;
     for(const inst of patch.instruments){
       let iSize=63;
@@ -154,6 +156,39 @@ class PatchDataService {
       }
     }
     return bytes;
+  }
+
+  static limitGusPatchSamples(patch) {
+    const instruments = Array.isArray(patch.instruments) ? patch.instruments : [];
+    const samples = instruments.flatMap(instrument =>
+      (Array.isArray(instrument.layers) ? instrument.layers : [])
+        .flatMap(layer => Array.isArray(layer.samples) ? layer.samples : [])
+    );
+    if (samples.length <= 255) return {patch, dropped: 0, total: samples.length};
+
+    const keepIndices = new Set(Array.from({length: 255}, (_, index) =>
+      Math.floor((index + 0.5) * samples.length / 255)
+    ));
+    let sampleIndex = 0;
+    const limitedPatch = {
+      ...patch,
+      header: {...patch.header},
+      instruments: instruments.map(instrument => ({
+        ...instrument,
+        layers: (Array.isArray(instrument.layers) ? instrument.layers : []).map(layer => ({
+          ...layer,
+          samples: (Array.isArray(layer.samples) ? layer.samples : [])
+            .map(sample => ({...sample}))
+            .filter(() => keepIndices.has(sampleIndex++))
+        })).filter(layer => layer.samples.length > 0)
+      })).filter(instrument => instrument.layers.length > 0)
+    };
+    const dropped = samples.length - 255;
+    console.warn(
+      `[GUS] Patch "${patch.header?.description || "Untitled"}" has ${samples.length} samples; ` +
+      `the GUS limit is 255, so ${dropped} samples were evenly omitted when creating the patch.`
+    );
+    return {patch: limitedPatch, dropped, total: samples.length};
   }
 
   static fmt(s){return{is16:(s.modes&M16)!==0,unsigned:(s.modes&MUNS)!==0,bps:(s.modes&M16)?2:1};}
@@ -943,8 +978,11 @@ class PatchDataService {
   }
 
   static writeTimidityPatch(patch) {
-    validateAndSanitizePatch(patch);
-    const norm = cleanPatchForStorage(patch);
+    if (!patch) throw new Error("Invalid patch object");
+    const source = patch.header ? patch : {...patch, header: {}};
+    const {patch: limitedPatch} = PatchDataService.limitGusPatchSamples(source);
+    const norm = cleanPatchForStorage(limitedPatch);
+    validateAndSanitizePatch(norm);
     const inst = norm.instruments[0];
     if (!inst) throw new Error(t("empty_patch"));
   
@@ -952,9 +990,6 @@ class PatchDataService {
       instrument.layers.flatMap(layer => layer.samples)
     );
     if (samples.length === 0) throw new Error(t("no_samples"));
-    if (samples.length > 255) {
-      throw new Error(t("too_many_samples", {count: samples.length}));
-    }
   
     // ---------------------------------------------------------------------
     // Legacy normalization: patch lama mungkin menyimpan rootFreq/lowFreq/highFreq
@@ -2302,7 +2337,10 @@ class PatchDataService {
               } else {
                 if (await addPatchEntries(entries)) {
                   const count = entries.length;
-                  showStatus(t("soundfont_added_to_project", { filename: file.name, patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count }) }), "ok");
+                  showStatus(t("soundfont_added_to_project", {
+                    filename: file.name,
+                    patches: t(count === 1 ? "patch_count_one" : "patch_count_many", { count })
+                  }), "ok");
                 }
               }
             } catch (err) {

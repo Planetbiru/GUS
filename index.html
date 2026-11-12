@@ -1105,6 +1105,14 @@
         </div>
         <div class="modal-body">
           <p class="modal-message" id="midiUsedPatchesDesc">{{midi_used_patches_desc}}</p>
+          <div class="midi-patch-load-header">
+            <strong>{{midi_patch_load_title}}</strong>
+            <span class="pill" id="midiPatchLoadCount">0</span>
+          </div>
+          <p class="modal-message" id="midiPatchLoadDesc">{{midi_patch_load_desc}}</p>
+          <div class="midi-patch-load-error" id="midiPatchLoadError" role="alert" aria-live="polite"></div>
+          <div class="midi-patch-load-list" id="midiPatchLoadList"></div>
+          <p class="modal-message midi-used-patches-subtitle">{{midi_used_patches_desc}}</p>
           <div class="list midi-used-patches-list" id="midiUsedPatchesList"></div>
         </div>
         <div class="modal-footer">

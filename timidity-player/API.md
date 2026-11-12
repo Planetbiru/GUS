@@ -15,6 +15,11 @@ Creates a new instance of the TimidityPlayer.
     - `options.instrumentLoader` *(Function)*: Optional patch provider. Called as
       `instrumentLoader(bank, isDrum, program, file)` and must return GUS patch data
       as a `Uint8Array`, `ArrayBuffer`, typed-array view, or `Blob`. It can be async.
+    - `options.memoryLimitMB` *(number)*: Optional maximum memory for C-core
+      allocations, in MiB. `0` means unlimited. The limit must be between 0 and
+      4095.999 MiB and cannot be lower than memory already allocated by the C core.
+      If the loaded libTiMidity build does not provide the memory-limit API, player
+      initialization fails with an error.
     - `options.buffserSize` *(number)*: Buffer size for audio processing. Default value is 4096. 
       **Note**: A larger buffer size increases stability and reduces glitches, but it also introduces more latency, making real-time response (e.g., when playing notes from a MIDI controller) slower.
     - `options.bufferSizeRealtime` *(number)* - Buffer size for realtime event (e.g noteOn). Default value is 1024
@@ -47,11 +52,19 @@ initialization. When `timidityCfgLoader` is set, the player does not fetch
 
 ### Providing GUS patches
 
-By default, required GUS patch files are downloaded from `patchUrlBase`. To get
+By default, required GUS patch files are loaded from `patchUrlBase`. To get
 patches from another class or storage source (for example, an editor or imported
 soundfont), configure `instrumentLoader`. The callback returns binary GUS patch
 data. The player writes those bytes to its WebAssembly virtual filesystem, where
-libTiMidity reads them.
+libTiMidity reads them. Required files are processed sequentially so progress
+events identify the patch currently being loaded and avoid loading all patch
+buffers concurrently.
+
+The player writes the supplied patch bytes as-is; it does not truncate or edit
+patch contents. GUS patch output supports at most 255 samples per patch. If an
+application keeps a larger editable source patch, it should enforce this limit
+when creating the binary patch for export or playback, using a copy so the
+editable source remains unchanged.
 
 The callback receives information about the requested instrument:
 
@@ -152,8 +165,10 @@ Events are listed in `onXxx` form. The equivalent generic name is `'onXxx'` (e.g
 | `onMidiLoading` | `(midi)` | Fired when a MIDI file starts loading. |
 | `onMidiLoaded` | `(midi, duration)` | Fired when a MIDI file has been fully loaded and parsed. |
 | `onMidiUpdated` | `(midi)` | Fired after `updateMidiData()` succeeds. |
-| `onInstrumentLoading` | `(loadedCount, totalCount, filename)` | Fired while downloading required patch files. |
-| `onInstrumentLoaded` | `(totalCount)` | Fired when all required patches have been successfully downloaded. |
+| `onInstrumentList` | `(entries)` | Fired before patch loading with the required files and their resolved identities. Each entry has `{file, bank, isDrum, program, status}`; `status` is `pending`, `loading`, or `loaded`. |
+| `onInstrumentStatus` | `(filename, status, byteLength?)` | Fired when a required patch changes state. `status` is `loading`, `loaded`, or `failed`; when provided by a custom `instrumentLoader`, `byteLength` is the GUS patch file size in bytes. |
+| `onInstrumentLoading` | `(loadedCount, totalCount, filename)` | Fired before loading starts with `(0, totalCount, '')`, then after each file loads successfully. Files are loaded sequentially. |
+| `onInstrumentLoaded` | `(totalCount)` | Fired when all required patches have loaded successfully. |
 | `onPlay` | *(none)* | Fired when playback starts. |
 | `onPause` | *(none)* | Fired when playback is paused. |
 | `onResume` | *(none)* | Fired when playback resumes after a pause. |
@@ -168,6 +183,17 @@ Events are listed in `onXxx` form. The equivalent generic name is `'onXxx'` (e.g
 | `onNoteOff` | `({tick, channel, pitch})` | Fired for Note Off events (and Note On with velocity 0). |
 | `onMidiEvent` | `({tick, timeSecond, status, eventType, channel, a, b, text})` | Fired for **every** MIDI event processed by the engine. |
 | `onError` | `(message)` | Fired when an internal error occurs. |
+
+`onInstrumentList` reports the files required by the current MIDI load. Each
+entry's `status` begins as `pending`, `loading`, or `loaded` if already cached.
+`onInstrumentStatus` reports each file's subsequent state. Files are loaded into
+the virtual filesystem one at a time; if that step fails, the file receives
+`failed`, later uncached files remain `pending`, and `onInstrumentLoaded` is not
+emitted. The C core loads the prepared patches when it loads the MIDI song, so a
+song-level memory error can occur after all file statuses are `loaded`. In that
+case, patch byte sizes can help identify large candidates, but they do not
+represent exact runtime memory usage. `onInstrumentLoaded`'s `totalCount` is the
+number of files required by the completed load.
 
 ---
 
