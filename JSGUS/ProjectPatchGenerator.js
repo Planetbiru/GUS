@@ -97,7 +97,8 @@ class ProjectPatchGenerator {
             if (!harm) {
                 throw new Error(
                     `Unknown waveform: ${selectedWaveform}. ` +
-                    `Use 'sine' | 'triangle' | 'square' | 'saw' | array amplitudo.`
+                    `Use one of: ${ProjectPatchGenerator.WAVEFORM_TYPES.map(({value}) => value).join(', ')}, ` +
+                    `or an array of harmonic amplitudes.`
                 );
             }
             preset = { ...preset, harm };
