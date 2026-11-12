@@ -910,7 +910,8 @@ class GusPatchApp {
                     ? Math.min(3, Math.max(0.05, duration))
                     : defaults.duration,
                 durationCustomized: Boolean(durationCustomized),
-                wave: ['preset', ...ProjectPatchGenerator.WAVEFORM_TYPES].includes(wave) ? wave : 'preset',
+                wave: ['preset', ...ProjectPatchGenerator.WAVEFORM_TYPES.map(({value}) => value)]
+                    .includes(wave) ? wave : 'preset',
             };
         }
 
@@ -1143,19 +1144,39 @@ class GusPatchApp {
 
             const label = document.createElement('label');
             label.textContent = this.labelForKey(key);
+            const control = document.createElement('div');
+            control.className = 'preset-waveform-control';
             const input = document.createElement('select');
             input.id = 'presetField_' + path.join('_');
             label.htmlFor = input.id;
+            const description = document.createElement('div');
+            description.className = 'preset-waveform-description';
+            description.id = `${input.id}_description`;
+            input.setAttribute('aria-describedby', description.id);
 
-            for (const waveform of ['null', ...ProjectPatchGenerator.WAVEFORM_TYPES]) {
+            const waveformOptions = [
+                {
+                    value: 'null',
+                    name: '- Not Specified -',
+                    description: "Use the instrument preset's original harmonic profile."
+                },
+                ...ProjectPatchGenerator.WAVEFORM_TYPES
+            ];
+            for (const waveform of waveformOptions) {
                 const option = document.createElement('option');
-                option.value = waveform;
-                option.textContent = waveform == 'null' ? '- Not Specified -' : waveform;
+                option.value = waveform.value;
+                option.textContent = waveform.name;
                 input.appendChild(option);
             }
             input.value = parentObj[key] == null ? 'null' : parentObj[key];
+            const updateDescription = () => {
+                const selectedWaveform = waveformOptions.find(({value}) => value === input.value);
+                description.textContent = selectedWaveform ? selectedWaveform.description : '';
+            };
+            updateDescription();
             input.addEventListener('change', () => {
                 parentObj[key] = input.value === 'null' ? null : input.value;
+                updateDescription();
                 this.onPresetFormChanged();
                 this.cancelAutoApplyPreset();
                 this.applyPresetJson().catch(error => {
@@ -1164,7 +1185,8 @@ class GusPatchApp {
                 });
             });
 
-            row.append(label, input);
+            control.append(input, description);
+            row.append(label, control);
             container.appendChild(row);
         }
 

@@ -9,9 +9,21 @@ class ProjectPatchGenerator {
   static MODE_SUSTAIN       = 0x20;
   static MODE_ENVELOPE      = 0x40;
   static WAVEFORM_TYPES = Object.freeze([
-    'sine', 'triangle', 'square', 'saw',
-    'pulse', 'organ', 'flute', 'clarinet', 'reed', 'string', 'bell',
-    'pluck', 'hammer', 'bow', 'breath'
+    Object.freeze({value: 'sine', name: 'Sine', description: 'Pure tone with no upper harmonics.'}),
+    Object.freeze({value: 'triangle', name: 'Triangle', description: 'Soft, mellow tone with gently fading odd harmonics.'}),
+    Object.freeze({value: 'square', name: 'Square', description: 'Hollow tone with strong odd harmonics.'}),
+    Object.freeze({value: 'saw', name: 'Saw', description: 'Bright, buzzy tone with a full harmonic series.'}),
+    Object.freeze({value: 'pulse', name: 'Pulse', description: 'Nasal, focused tone with a narrow pulse character.'}),
+    Object.freeze({value: 'organ', name: 'Organ', description: 'Rich, steady tone shaped like organ drawbars.'}),
+    Object.freeze({value: 'flute', name: 'Flute', description: 'Smooth, airy tone with very few high harmonics.'}),
+    Object.freeze({value: 'clarinet', name: 'Clarinet', description: 'Woody tone led by odd harmonics.'}),
+    Object.freeze({value: 'reed', name: 'Reed', description: 'Bright, reedy tone with strong upper harmonics.'}),
+    Object.freeze({value: 'string', name: 'String', description: 'Full, sustained tone with a gradual harmonic roll-off.'}),
+    Object.freeze({value: 'bell', name: 'Bell', description: 'Bright, metallic tone with uneven partial strengths.'}),
+    Object.freeze({value: 'pluck', name: 'Pluck', description: 'Rounded attack with harmonics that taper like a plucked string.'}),
+    Object.freeze({value: 'hammer', name: 'Hammer', description: 'Sharp, percussive tone with a quickly softening spectrum.'}),
+    Object.freeze({value: 'bow', name: 'Bow', description: 'Dense, sustained tone with a strong bowed-string character.'}),
+    Object.freeze({value: 'breath', name: 'Breath', description: 'Fundamental-led tone with a light breathy edge.'})
   ]);
 
   constructor(options = {}) {
