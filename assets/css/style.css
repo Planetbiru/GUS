@@ -1575,6 +1575,10 @@ footer {
 .zoom-level {
     margin-left: 4px;
     line-height: 20px;
+    box-sizing: border-box;
+    width: 52px;
+    flex: 0 0 52px;
+    text-align: center;
 }
 
 .card h3.editor-subsection-heading {
