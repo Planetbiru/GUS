@@ -920,6 +920,7 @@ class ProjectController {
       $("btnImportSoundfont").disabled = true;
       $("btnDeleteProject").disabled = true;
       $("btnExportProject").disabled = true;
+      $("btnExportProjectSfz").disabled = true;
       $("btnExportProjectSf2").disabled = true;
       return;
     }
@@ -976,6 +977,7 @@ class ProjectController {
     $("btnImportSoundfont").disabled = !hasActive;
     $("btnDeleteProject").disabled = !hasActive;
     $("btnExportProject").disabled = !hasActive;
+    $("btnExportProjectSfz").disabled = !hasActive;
     $("btnExportProjectSf2").disabled = !hasActive;
   }
 

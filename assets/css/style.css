@@ -1358,6 +1358,16 @@ footer {
     margin-top: 4px;
 }
 
+.project-export-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.project-export-actions > button {
+    min-width: 0;
+    white-space: nowrap;
+}
+
 .project-secondary-actions,
 .library-actions {
     margin-top: 6px;

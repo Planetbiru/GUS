@@ -30,7 +30,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Full GUS `.PAT` support** — parse, inspect, edit, and export Gravis Ultrasound patches
 - **SoundFont (`.sf2` / `.sf3`) support** — import presets into editable patches, including Ogg Vorbis-compressed SF3 samples, and export projects to standard SF2
 - **Surge VST2 `.fxp` import** — converts embedded Surge wavetable/sample data into an approximate playable GUS patch
-- **SFZ package support** — import `.sfz` instruments and their audio samples directly from `.zip` archives
+- **SFZ package support** — import `.sfz` instruments and their audio samples from `.zip` archives, and export project patches as SFZ ZIP packages
 - **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
 - **Instrument management** — add, rename, reorder, and export individual instruments
 - **Sample bank management** — per-sample rate, root frequency, low/high frequency range, tune, balance, scale factor, envelope rates/offsets, tremolo/vibrato, and 8 sample mode flags
@@ -95,6 +95,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 
 ### Bidirectional PAT ⇄ SF2 Roundtrip
 - **Export any project to SF2** — melodic presets and drum kits are consolidated into a standard SoundFont 2 file
+- **Export any project to SFZ ZIP** — creates one SFZ instrument per patch with WAV samples, key/root mapping, and loop points
 - **Import SF2 back** — each preset becomes a GUS patch; drum kits are split per MIDI note
 - **Lossless roundtrip** — PCM data, root frequency, loop points, key ranges, and sample rates survive any number of `PAT → SF2 → PAT → SF2 → …` conversions
 - **Sub-cent pitch accuracy** — root frequency is encoded as `originalPitch` (MIDI note) + `chPitchCorrection` (signed cents), verified to stay within ±0.5 cent across conversions
@@ -661,6 +662,7 @@ Placeholders use `{name}` syntax and are substituted from the `values` argument 
 - **FXP import** — only Surge VST2 presets with embedded wavetable/sample data are supported; conversion to GUS is approximate and does not preserve the full synthesizer sound.
 - **SF2 roundtrip** — PCM, loop points, sample rate, root frequency, key ranges, and preset metadata are preserved. Envelopes, tremolo, vibrato, and loop fractions are **not** part of the SF2 export format and are lost after a roundtrip; use a `.pat`-only export if you need those settings
 - **SFZ import** — Only basic SFZ opcodes are supported (key ranges, loops, tuning). Advanced opcodes (filters, complex modulation, keyswitches) are ignored. The `.sfz` file must be bundled inside a `.zip` along with its audio samples.
+- **SFZ export** — PCM samples, key/root mapping, and loop points are included. GUS envelopes, tremolo/vibrato, and layer velocity behavior are not represented in the exported SFZ package.
 - **MIDI.js import** — decoding ~88 notes at 22050 Hz takes 20–60 seconds depending on the file and device
 - **Web MIDI** — Firefox and Safari only partially support `navigator.requestMIDIAccess`
 - **Loop points** — GUS loop points reference 16-bit sample positions; fractional loop points (`.fractions`) are only partially honored on export
