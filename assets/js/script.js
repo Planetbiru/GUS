@@ -98,6 +98,8 @@ const state = {
   midiData: null,
   midiFileName: null,
   midiUsedPatches: new Map(),
+  midiPatchLoadEntries: [],
+  midiPatchLoadError: "",
   saveTimer: null,
   db: null
 };
@@ -293,6 +295,7 @@ function renderMidiToWav(...args) { return MidiController.renderMidiToWav.apply(
 function resetMidiUsedPatches(...args) { return MidiController.resetMidiUsedPatches.apply(this, args); }
 function scheduleMidiUsedPatchesRerender(...args) { return MidiController.scheduleMidiUsedPatchesRerender.apply(this, args); }
 function renderMidiUsedPatchesList(...args) { return MidiController.renderMidiUsedPatchesList.apply(this, args); }
+function renderMidiPatchLoadStatus(...args) { return MidiController.renderMidiPatchLoadStatus.apply(this, args); }
 function openMidiUsedPatchesDialog(...args) { return MidiController.openMidiUsedPatchesDialog.apply(this, args); }
 function closeMidiUsedPatchesDialog(...args) { return MidiController.closeMidiUsedPatchesDialog.apply(this, args); }
 function openDrumKitPreviewDialog(...args) { return MidiController.openDrumKitPreviewDialog.apply(this, args); }

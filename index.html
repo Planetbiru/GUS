@@ -698,9 +698,42 @@
           <h2 id="newProjectTitle">{{create_project}}</h2>
         </div>
         <div class="modal-body">
+          <fieldset class="project-creation-options">
+            <legend>{{project_creation_method}}</legend>
+            <label class="project-creation-option">
+              <input type="radio" name="projectCreationMode" value="empty" checked>
+              <span>
+                <strong>{{project_empty_option}}</strong>
+                <span class="project-creation-option-description">{{project_empty_description}}</span>
+              </span>
+            </label>
+            <label class="project-creation-option">
+              <input type="radio" name="projectCreationMode" value="generated">
+              <span>
+                <strong>{{project_generated_option}}</strong>
+                <span class="project-creation-option-description">{{project_generated_description}}</span>
+              </span>
+            </label>
+          </fieldset>
           <div class="field">
             <label for="newProjectName">{{project_name}}</label>
             <input id="newProjectName" name="name" type="text" maxlength="100" autocomplete="off" placeholder="{{project_name_placeholder}}" data-i18n-placeholder="project_name_placeholder">
+          </div>
+          <div class="grid g2 project-date-fields">
+            <div class="field">
+              <label for="newProjectStartDate">{{project_start_date}}</label>
+              <input id="newProjectStartDate" name="start_date" type="date">
+            </div>
+            <div class="field">
+              <label for="newProjectEndDate">{{project_end_date}}</label>
+              <input id="newProjectEndDate" name="end_date" type="date">
+            </div>
+          </div>
+          <div class="field project-description-field">
+            <label for="newProjectDescription">{{project_description}}</label>
+            <textarea id="newProjectDescription" name="description" rows="3" maxlength="500"
+                placeholder="{{project_description_placeholder}}"
+                data-i18n-placeholder="project_description_placeholder"></textarea>
           </div>
           <div id="newProjectError" class="modal-error" role="alert" aria-live="polite"></div>
         </div>
@@ -1072,6 +1105,14 @@
         </div>
         <div class="modal-body">
           <p class="modal-message" id="midiUsedPatchesDesc">{{midi_used_patches_desc}}</p>
+          <div class="midi-patch-load-header">
+            <strong>{{midi_patch_load_title}}</strong>
+            <span class="pill" id="midiPatchLoadCount">0</span>
+          </div>
+          <p class="modal-message" id="midiPatchLoadDesc">{{midi_patch_load_desc}}</p>
+          <div class="midi-patch-load-error" id="midiPatchLoadError" role="alert" aria-live="polite"></div>
+          <div class="midi-patch-load-list" id="midiPatchLoadList"></div>
+          <p class="modal-message midi-used-patches-subtitle">{{midi_used_patches_desc}}</p>
           <div class="list midi-used-patches-list" id="midiUsedPatchesList"></div>
         </div>
         <div class="modal-footer">
@@ -1348,6 +1389,26 @@
         <div class="modal-footer">
           <button class="btn" id="btnCancelAction" type="button">{{cancel}}</button>
           <button class="btn danger" id="btnConfirmAction" type="button">{{delete}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="duplicateImportDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true"
+             aria-labelledby="duplicateImportTitle" aria-describedby="duplicateImportDescription">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="duplicateImportTitle">{{duplicate_import_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="duplicateImportDescription" class="modal-message">{{duplicate_import_description}}</p>
+          <p class="modal-message"><strong id="duplicateImportFileName"></strong></p>
+        </div>
+        <div class="modal-footer duplicate-import-footer">
+          <button class="btn" id="btnCancelDuplicateImport" type="button">{{cancel}}</button>
+          <button class="btn" id="btnKeepDuplicateImport" type="button">{{duplicate_import_keep}}</button>
+          <button class="btn primary" id="btnPreventDuplicateImport" type="button">{{duplicate_import_prevent}}</button>
         </div>
       </div>
     </section>

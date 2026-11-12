@@ -1575,6 +1575,10 @@ footer {
 .zoom-level {
     margin-left: 4px;
     line-height: 20px;
+    box-sizing: border-box;
+    width: 52px;
+    flex: 0 0 52px;
+    text-align: center;
 }
 
 .card h3.editor-subsection-heading {
@@ -1610,8 +1614,88 @@ footer {
 }
 
 .midi-used-patches-list {
-    max-height: 400px;
+    max-height: 220px;
     overflow-y: auto;
+}
+
+.midi-patch-load-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+.midi-patch-load-list {
+    display: grid;
+    gap: 4px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.midi-patch-load-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 8px;
+    border: 1px solid var(--line, #1e2d4a);
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.midi-patch-load-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.midi-patch-load-name[href] {
+    color: var(--accent, #38bdf8);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.midi-patch-load-name[href]:hover {
+    color: var(--text, #e2e8f0);
+}
+
+.midi-patch-load-state {
+    flex: none;
+    color: var(--dim, #64748b);
+    text-align: right;
+}
+
+.midi-patch-load-row.status-loading .midi-patch-load-state {
+    color: var(--accent, #38bdf8);
+}
+
+.midi-patch-load-row.status-loaded .midi-patch-load-state {
+    color: var(--success, #34d399);
+}
+
+.midi-patch-load-row.status-failed .midi-patch-load-state,
+.midi-patch-load-error {
+    color: var(--danger, #f87171);
+}
+
+.midi-patch-load-error {
+    padding-block: 6px;
+}
+
+.duplicate-import-footer {
+    flex-wrap: wrap;
+}
+
+.midi-patch-load-empty {
+    padding: 10px;
+    color: var(--dim, #64748b);
+    font-size: 11px;
+}
+
+.midi-used-patches-subtitle {
+    margin-top: 12px;
 }
 
 #midiTimelineDialog .odal-body{

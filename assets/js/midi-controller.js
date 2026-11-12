@@ -779,16 +779,41 @@ class MidiController {
     // --- 5) Cache & bangun .pat biner ---
     const cacheKey = target.id;
     if (patchBufferCache.has(cacheKey)) {
-      return patchBufferCache.get(cacheKey);
+      const buffer = patchBufferCache.get(cacheKey);
+      const loadEntry = state.midiPatchLoadEntries.find(entry => entry.file === file);
+      if (loadEntry) {
+        loadEntry.byteLength = buffer.byteLength;
+        loadEntry.sampleCount = new DataView(buffer).getUint16(85, true);
+        renderMidiPatchLoadStatus();
+      }
+      return buffer;
     }
   
     try {
       const bytes = writeTimidityPatch(target.patch);
       const buffer = bytes.buffer;
+      const loadEntry = state.midiPatchLoadEntries.find(entry => entry.file === file);
+      if (loadEntry) {
+        loadEntry.byteLength = buffer.byteLength;
+        loadEntry.sampleCount = new DataView(buffer).getUint16(85, true);
+        renderMidiPatchLoadStatus();
+      }
       patchBufferCache.set(cacheKey, buffer);
       return buffer;
     } catch (e) {
       console.error(`[TiMidity] Patch "${target.name}" rusak, menggunakan silent:`, e);
+      const requestedFile = String(file || "").split(/[\\/]/).pop().replace(/\.pat$/i, "").toLowerCase();
+      const targetName = sanitizeFilename(target.name).toLowerCase();
+      const loadEntry = state.midiPatchLoadEntries.find(entry => {
+        const entryFile = String(entry.file).split(/[\\/]/).pop().replace(/\.pat$/i, "").toLowerCase();
+        return entryFile === requestedFile
+          || entryFile.endsWith(`_${targetName}`)
+          || requestedFile.endsWith(`_${targetName}`);
+      });
+      if (loadEntry) {
+        loadEntry.status = "warning";
+        renderMidiPatchLoadStatus();
+      }
       try {
         const silentBytes = createSilentPatch();
         const buffer = silentBytes.buffer;
@@ -818,6 +843,7 @@ class MidiController {
         // Gunakan 'bank' langsung dari engine, bukan currentBank
         return getProjectPatchData(bank, isDrum, program, file);
       },
+      memoryLimitMB: 512,
       bufferSize: 4096,
       sampleRate: 96000
     });
@@ -834,6 +860,24 @@ class MidiController {
       console.error("TiMidity Error:", err);
       setMidiStatus("midi_error", {message: err});
       showStatus(t("timidity_error", {message: err}), "bad");
+      if (state.midiPatchLoadEntries.length > 0) {
+        state.midiPatchLoadError = String(err?.message || err)
+          .replace(/^Failed to load MIDI file:\s*/i, "");
+        renderMidiPatchLoadStatus();
+        openMidiUsedPatchesDialog();
+      }
+    });
+    timidityPlayer.on("onInstrumentList", entries => {
+      state.midiPatchLoadEntries = entries.map(entry => ({...entry}));
+      state.midiPatchLoadError = "";
+      renderMidiPatchLoadStatus();
+    });
+    timidityPlayer.on("onInstrumentStatus", (file, status, byteLength) => {
+      const entry = state.midiPatchLoadEntries.find(item => item.file === file);
+      if (!entry || entry.status === "warning") return;
+      entry.status = status;
+      if (Number.isFinite(byteLength)) entry.byteLength = byteLength;
+      renderMidiPatchLoadStatus();
     });
     timidityPlayer.onInstrumentLoading((loaded, total, filename) => {
       setMidiStatus("loading_patch", {loaded, total});
@@ -987,9 +1031,113 @@ class MidiController {
 
   static resetMidiUsedPatches() {
     state.midiUsedPatches.clear();
+    state.midiPatchLoadEntries = [];
+    state.midiPatchLoadError = "";
+    renderMidiPatchLoadStatus();
     if ($("midiUsedPatchesDialog") && !$("midiUsedPatchesDialog").hidden) {
       renderMidiUsedPatchesList();
     }
+  }
+
+  static renderMidiPatchLoadStatus() {
+    const list = $("midiPatchLoadList");
+    if (!list) return;
+    list.replaceChildren();
+    const entries = state.midiPatchLoadEntries;
+    $("midiPatchLoadCount").textContent = String(entries.length);
+    $("midiPatchLoadError").textContent = state.midiPatchLoadError
+      ? t("midi_patch_load_error", {message: state.midiPatchLoadError})
+      : "";
+    if (entries.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "midi-patch-load-empty";
+      empty.textContent = t("midi_patch_load_empty");
+      list.appendChild(empty);
+      return;
+    }
+
+    const displayEntries = state.midiPatchLoadError
+      ? [...entries].sort((a, b) => (b.byteLength || 0) - (a.byteLength || 0))
+      : entries;
+    for (const entry of displayEntries) {
+      const row = document.createElement("div");
+      row.className = `midi-patch-load-row status-${entry.status}`;
+      const patchEntry = state.midiPatchLoadError
+        ? MidiController.findMidiLoadPatch(entry)
+        : null;
+      const name = document.createElement(patchEntry ? "a" : "span");
+      name.className = "midi-patch-load-name";
+      if (patchEntry) {
+        name.textContent = patchEntry.name;
+        name.href = "#patchList";
+        name.title = `${t("midi_patch_open_in_library", {name: patchEntry.name})} · ${entry.file}`;
+        name.addEventListener("click", event => {
+          event.preventDefault();
+          closeMidiUsedPatchesDialog();
+          state.libraryView = "project";
+          state.libraryBankFilter = "all";
+          state.libraryTypeFilter = "all";
+          state.libraryNameFilter = "";
+          renderLibrary();
+          selectPatch(patchEntry.id);
+          setTimeout(() => {
+            const activeLi = document.querySelector("#patchList .li.active");
+            if (activeLi) activeLi.scrollIntoView({behavior: "smooth", block: "nearest"});
+          }, 100);
+        });
+      } else {
+        name.textContent = String(entry.file).split(/[\\/]/).pop();
+        name.title = entry.file;
+      }
+      const status = document.createElement("span");
+      status.className = "midi-patch-load-state";
+      status.textContent = [
+        t(`midi_patch_status_${entry.status}`),
+        Number.isFinite(entry.sampleCount) ? `${entry.sampleCount} ${t("midi_patch_sample_count")}` : "",
+        Number.isFinite(entry.byteLength) ? fmtBytes(entry.byteLength) : ""
+      ].filter(Boolean).join(" · ");
+      row.append(name, status);
+      list.appendChild(row);
+    }
+  }
+
+  static findMidiLoadPatch(entry) {
+    const project = state.projects.find(item => item.id === state.currentProjectId);
+    if (!project || entry.bank == null || entry.program == null) return null;
+    const patches = (project.patchIds || [])
+      .map(id => state.patches.find(patch => patch.id === id))
+      .filter(Boolean);
+    const isDrum = entry.isDrum === true;
+    const bank = Number(entry.bank);
+    const program = Number(entry.program);
+    if (!Number.isInteger(bank) || !Number.isInteger(program)) return null;
+    let candidates = patches.filter(patch =>
+      ((patch.gmBank ?? 0) === 128) === isDrum &&
+      (patch.gmProgram ?? -1) === program &&
+      (patch.targetBank ?? 0) === bank
+    );
+
+    if (candidates.length === 0) {
+      candidates = patches.filter(patch =>
+        ((patch.gmBank ?? 0) === 128) === isDrum &&
+        (patch.gmProgram ?? -1) === program &&
+        (isDrum
+          ? (patch.originalOrder ?? 0) === bank
+          : (patch.gmBank ?? 0) === bank)
+      );
+    }
+
+    const requestedName = String(entry.file || "")
+      .split(/[\\/]/).pop().replace(/\.pat$/i, "").toLowerCase();
+    const matchesFilename = patch => {
+      const patchName = sanitizeFilename(patch.name).toLowerCase();
+      return patchName === requestedName || requestedName.endsWith(`_${patchName}`);
+    };
+    if (candidates.length > 1) {
+      return candidates.find(matchesFilename) || candidates[0];
+    }
+    if (candidates.length === 1) return candidates[0];
+    return patches.find(matchesFilename) || null;
   }
 
   static scheduleMidiUsedPatchesRerender() {
@@ -1047,6 +1195,7 @@ class MidiController {
   }
 
   static openMidiUsedPatchesDialog() {
+    renderMidiPatchLoadStatus();
     renderMidiUsedPatchesList();
     $("midiUsedPatchesDialog").hidden = false;
   }
@@ -2280,7 +2429,7 @@ class MidiController {
     }
   }
 
-  static async createMidiDemoProject(buttons, projectName){
+  static async createMidiDemoProject(buttons, projectName, metadata = {}){
     
     if(isDemoGenerating) return;
     isDemoGenerating = true;
@@ -2300,7 +2449,10 @@ class MidiController {
         id:uid("demo-project"),
         name:projectName || t("demo_project_name"),
         patchIds:[],
-        demoGenerated:true
+        demoGenerated:true,
+        startDate:metadata.startDate || undefined,
+        endDate:metadata.endDate || undefined,
+        description:metadata.description || undefined
       };
   
       const existingPatches=getProjectPatches(project);

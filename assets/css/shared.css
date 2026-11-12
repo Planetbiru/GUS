@@ -291,6 +291,68 @@ dialog::backdrop {
     border-top: 1px solid var(--line, var(--border, #30363d));
 }
 
+.project-creation-options {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    margin: 0 0 14px;
+    padding: 0;
+    border: 0;
+}
+
+.project-creation-options legend {
+    margin-bottom: 8px;
+    color: var(--dim, #64748b);
+    font-size: 10px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.project-creation-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px;
+    border: 1px solid var(--line, #1e2d4a);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.project-creation-option:has(input:checked) {
+    border-color: var(--accent, #38bdf8);
+    background: color-mix(in srgb, var(--accent, #38bdf8) 8%, transparent);
+}
+
+.project-creation-option input {
+    flex: none;
+    margin: 2px 0 0;
+    accent-color: var(--accent, #38bdf8);
+}
+
+.project-creation-option > span {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.project-creation-option strong {
+    font-size: 12px;
+}
+
+.project-creation-option-description {
+    color: var(--dim, #64748b);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.project-date-fields {
+    gap: 12px;
+}
+
+.project-description-field textarea {
+    min-height: 60px;
+}
+
 .dialog-header,
 .dialog-footer {
     touch-action: none;
