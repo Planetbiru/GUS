@@ -1647,6 +1647,16 @@ footer {
     white-space: nowrap;
 }
 
+.midi-patch-load-name[href] {
+    color: var(--accent, #38bdf8);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.midi-patch-load-name[href]:hover {
+    color: var(--text, #e2e8f0);
+}
+
 .midi-patch-load-state {
     flex: none;
     color: var(--dim, #64748b);
@@ -1664,6 +1674,14 @@ footer {
 .midi-patch-load-row.status-failed .midi-patch-load-state,
 .midi-patch-load-error {
     color: var(--danger, #f87171);
+}
+
+.midi-patch-load-error {
+    padding-block: 6px;
+}
+
+.duplicate-import-footer {
+    flex-wrap: wrap;
 }
 
 .midi-patch-load-empty {

@@ -454,6 +454,23 @@ class ApplicationController {
     });
     $("btnCancelAction").addEventListener("click",closeConfirmationDialog);
     $("btnConfirmAction").addEventListener("click",runConfirmationAction);
+    $("btnCancelDuplicateImport").addEventListener("click", () => {
+      PatchDataService.resolveDuplicateImportChoice(null);
+    });
+    $("btnKeepDuplicateImport").addEventListener("click", () => {
+      PatchDataService.resolveDuplicateImportChoice(false);
+    });
+    $("btnPreventDuplicateImport").addEventListener("click", () => {
+      PatchDataService.resolveDuplicateImportChoice(true);
+    });
+    $("duplicateImportDialog").addEventListener("click", event => {
+      if (event.target === $("duplicateImportDialog")) {
+        PatchDataService.resolveDuplicateImportChoice(null);
+      }
+    });
+    $("duplicateImportDialog").addEventListener("keydown", event => {
+      if (event.key === "Escape") PatchDataService.resolveDuplicateImportChoice(null);
+    });
     $("confirmActionDialog").addEventListener("click",event=>{
       if(event.target===$("confirmActionDialog"))closeConfirmationDialog();
     });

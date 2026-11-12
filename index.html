@@ -1394,6 +1394,26 @@
     </section>
   </div>
 
+  <div id="duplicateImportDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true"
+             aria-labelledby="duplicateImportTitle" aria-describedby="duplicateImportDescription">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="duplicateImportTitle">{{duplicate_import_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="duplicateImportDescription" class="modal-message">{{duplicate_import_description}}</p>
+          <p class="modal-message"><strong id="duplicateImportFileName"></strong></p>
+        </div>
+        <div class="modal-footer duplicate-import-footer">
+          <button class="btn" id="btnCancelDuplicateImport" type="button">{{cancel}}</button>
+          <button class="btn" id="btnKeepDuplicateImport" type="button">{{duplicate_import_keep}}</button>
+          <button class="btn primary" id="btnPreventDuplicateImport" type="button">{{duplicate_import_prevent}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div id="alertDialog" class="modal-overlay" hidden>
     <section class="modal-panel" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage">
       <div class="modal-content">

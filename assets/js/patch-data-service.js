@@ -1,4 +1,89 @@
+let duplicateImportChoiceResolver = null;
+const samplePcmHashes = new WeakMap();
+
 class PatchDataService {
+  static askDuplicateImportChoice(fileName) {
+    if (duplicateImportChoiceResolver) {
+      throw new Error("A duplicate-import choice is already awaiting a response.");
+    }
+    $("duplicateImportFileName").textContent = fileName;
+    $("duplicateImportDialog").hidden = false;
+    $("btnPreventDuplicateImport").focus();
+    return new Promise(resolve => {
+      duplicateImportChoiceResolver = resolve;
+    });
+  }
+
+  static resolveDuplicateImportChoice(preventDuplicates) {
+    if (!duplicateImportChoiceResolver) return;
+    const resolve = duplicateImportChoiceResolver;
+    duplicateImportChoiceResolver = null;
+    $("duplicateImportDialog").hidden = true;
+    resolve(preventDuplicates);
+  }
+
+  static deduplicatePatchSamples(patch) {
+    const seen = new Map();
+    let removed = 0;
+    const samplesEquivalent = (a, b) => {
+      const fields = sample => JSON.stringify([
+        sample.dataSize, sample.sampleRate, sample.lowFreq, sample.highFreq,
+        sample.rootFreq, sample.tune, sample.balance, sample.loopStart, sample.loopEnd,
+        sample.modes, sample.scaleFreq, sample.scaleFactor, sample.envRates,
+        sample.envOffsets, sample.tremoloSweep, sample.tremoloRate, sample.tremoloDepth,
+        sample.vibratoSweep, sample.vibratoRate, sample.vibratoDepth
+      ]);
+      if (fields(a) !== fields(b) || a.pcm.length !== b.pcm.length) return false;
+      for (let i = 0; i < a.pcm.length; i++) {
+        if (a.pcm[i] !== b.pcm[i]) return false;
+      }
+      return true;
+    };
+    const getPcmHash = pcm => {
+      let hash = samplePcmHashes.get(pcm);
+      if (hash !== undefined) return hash;
+      hash = 2166136261;
+      for (const byte of pcm) hash = Math.imul(hash ^ byte, 16777619) >>> 0;
+      samplePcmHashes.set(pcm, hash);
+      return hash;
+    };
+
+    for (const instrument of patch.instruments || []) {
+      for (const layer of instrument.layers || []) {
+        layer.samples = (layer.samples || []).filter(sample => {
+          if (!sample?.pcm || typeof sample.pcm.length !== "number") return true;
+          const signature = `${getPcmHash(sample.pcm)}:${sample.pcm.length}:` +
+            JSON.stringify([
+              sample.dataSize, sample.sampleRate, sample.lowFreq, sample.highFreq,
+              sample.rootFreq, sample.tune, sample.balance, sample.loopStart, sample.loopEnd,
+              sample.modes, sample.scaleFreq, sample.scaleFactor, sample.envRates,
+              sample.envOffsets, sample.tremoloSweep, sample.tremoloRate, sample.tremoloDepth,
+              sample.vibratoSweep, sample.vibratoRate, sample.vibratoDepth
+            ]);
+          const candidates = seen.get(signature) || [];
+          if (candidates.some(existing => samplesEquivalent(existing, sample))) {
+            removed++;
+            return false;
+          }
+          candidates.push(sample);
+          seen.set(signature, candidates);
+          return true;
+        });
+      }
+      instrument.layers = (instrument.layers || []).filter(layer => layer.samples.length > 0);
+    }
+    patch.instruments = (patch.instruments || []).filter(instrument => instrument.layers.length > 0);
+    return removed;
+  }
+
+  static deduplicateEntries(entries) {
+    let removed = 0;
+    for (const entry of entries) {
+      removed += PatchDataService.deduplicatePatchSamples(entry.patch);
+    }
+    return removed;
+  }
+
   static capSampleRateTo65535(sample) {
     if (!sample.sampleRate || sample.sampleRate <= 65535) return sample;
     const is16 = (sample.modes & M16) !== 0;
@@ -439,7 +524,7 @@ class PatchDataService {
     return {shdr,phdr,pbag,pgen,inst,ibag,igen,smplData};
   }
 
-  static async sf2ToGusPatches(sf2, fileName){
+  static async sf2ToGusPatches(sf2, fileName, preventDuplicates = false){
     const {shdr,phdr,pbag,pgen,inst,ibag,igen,smplData}=sf2;
     const s16=v=>v>32767?v-65536:v;
 
@@ -779,20 +864,21 @@ class PatchDataService {
       });
     }
   } else {
-      const patch={
-        header:{
-          magic:MAGIC, gravisId:GRAVIS_ID,
-          description:(preset.name||("Preset "+preset.preset)).substring(0,60),
-          voices:14, channels:0, waveForms:0, masterVolume:127, dataSize:0,
-          reserved:new Uint8Array(36)
-        },
-        instruments:gusInstruments
-      };
-  
       let displayName=preset.name||("Preset "+preset.preset);
       if(preset.bank>0) displayName+=" [bank "+preset.bank+"]";
       if(preset.preset!==undefined) displayName+=" #"+preset.preset;
   
+      const patch = {
+        header: {
+          magic: MAGIC, gravisId: GRAVIS_ID,
+          description: (preset.name || ("Preset " + preset.preset)).substring(0, 60),
+          voices: 14, channels: 0, waveForms: 0, masterVolume: 127, dataSize: 0,
+          reserved: new Uint8Array(36)
+        },
+        instruments: gusInstruments
+      };
+      if (preventDuplicates) PatchDataService.deduplicatePatchSamples(patch);
+
       entries.push({
         id: uid("soundfont"),
         name: displayName.substring(0,48),
@@ -1580,7 +1666,7 @@ class PatchDataService {
     // Volume/pan SFZ diabaikan — envelope + velocity mengatur gain di engine.
   }
 
-  static async sfzToGusEntries(sfz, zip, sfzName, sourceFileName, onProgress) {
+  static async sfzToGusEntries(sfz, zip, sfzName, sourceFileName, onProgress, preventDuplicates = false) {
     const entries = [];
     const missingSamples = [];
     const failedSamples  = [];
@@ -1736,10 +1822,50 @@ class PatchDataService {
       }
     }
   
+    if (preventDuplicates) {
+      for (const entry of entries) PatchDataService.deduplicatePatchSamples(entry.patch);
+      const seenDrumNotes = new Map();
+      const uniqueEntries = entries.filter(entry => {
+        if (entry.gmBank !== 128) return true;
+        const noteKey = `${entry.gmBank}:${entry.gmProgram}`;
+        const prior = seenDrumNotes.get(noteKey) || [];
+        if (prior.some(patch => PatchDataService.patchSamplesEquivalent(patch, entry.patch))) {
+          return false;
+        }
+        prior.push(entry.patch);
+        seenDrumNotes.set(noteKey, prior);
+        return true;
+      });
+      entries.splice(0, entries.length, ...uniqueEntries);
+    }
     return { entries, missingSamples, failedSamples, totalRegions: sfz.regions.length };
   }
 
-  static async handleSfzZip(zip) {
+  static patchSamplesEquivalent(a, b) {
+    const samples = patch => (patch.instruments || [])
+      .flatMap(instrument => instrument.layers || [])
+      .flatMap(layer => layer.samples || []);
+    const aSamples = samples(a);
+    const bSamples = samples(b);
+    if (aSamples.length !== bSamples.length) return false;
+    return aSamples.every((sample, index) => {
+      const other = bSamples[index];
+      if (!other || sample.pcm.length !== other.pcm.length) return false;
+      const fields = item => JSON.stringify([
+        item.dataSize, item.sampleRate, item.lowFreq, item.highFreq, item.rootFreq, item.tune,
+        item.balance, item.loopStart, item.loopEnd, item.modes, item.scaleFreq, item.scaleFactor,
+        item.envRates, item.envOffsets, item.tremoloSweep, item.tremoloRate, item.tremoloDepth,
+        item.vibratoSweep, item.vibratoRate, item.vibratoDepth
+      ]);
+      if (fields(sample) !== fields(other)) return false;
+      for (let i = 0; i < sample.pcm.length; i++) {
+        if (sample.pcm[i] !== other.pcm[i]) return false;
+      }
+      return true;
+    });
+  }
+
+  static async handleSfzZip(zip, preventDuplicates = false) {
     const sfzNames = [];
     for (const name of zip.files.keys()) {
       if (/\.sfz$/i.test(name)) sfzNames.push(name);
@@ -1780,7 +1906,8 @@ class PatchDataService {
               sample_total: totalRegions,
               sample_name:  sampleName,
               zip_file_name: zipBasename(sfzName)
-            }))
+            })),
+          preventDuplicates
         );
   
         if (result.entries.length > 0) {
@@ -1820,19 +1947,24 @@ class PatchDataService {
     return { entries: allEntries, failures, sfzNames };
   }
 
-  static async handleZipOpen(ab) {
+  static async handleZipOpen(ab, fileName = "SFZ ZIP", preventDuplicates = undefined) {
     showStatus(t("reading_zip"));
     const zip = await readZip(ab);
   
       // PRIORITAS 1: Cek apakah ada file .sfz
     const hasSfz = Array.from(zip.files.keys()).some(n => /\.sfz$/i.test(n));
+    const hasPat = Array.from(zip.files.keys()).some(n => /\.pat$/i.test(n));
+    if (preventDuplicates === undefined && (hasSfz || hasPat)) {
+      preventDuplicates = await PatchDataService.askDuplicateImportChoice(fileName);
+    }
+    if (preventDuplicates === null) return;
   
     if (hasSfz) {
       showStatus(t("sfz_processing"));
   
       let sfzResult;
       try {
-        sfzResult = await handleSfzZip(zip);
+        sfzResult = await PatchDataService.handleSfzZip(zip, preventDuplicates);
       } catch (err) {
         console.error("[SFZ] Import threw:", err);
         throw new Error(t("sfz_import_failed", {
@@ -1957,7 +2089,8 @@ class PatchDataService {
     }
   
     if (entries.length === 0) throw new Error(t("zip_no_valid_patches"));
-  
+
+    if (preventDuplicates) PatchDataService.deduplicateEntries(entries);
     await addPatchEntries(entries);
     showStatus(t("zip_import_success", { count: entries.length }), "ok");
   }
@@ -2284,9 +2417,13 @@ class PatchDataService {
         const type = detectFileType(ab);
         
         if (type === "zip") {
-          await handleZipOpen(ab);
+          await PatchDataService.handleZipOpen(ab, file.name);
         } else if (type === "pat") {
+          const preventDuplicates = await PatchDataService.askDuplicateImportChoice(file.name);
+          e.target.value = "";
+          if (preventDuplicates === null) return;
           const patch = parsePAT(ab);
+          if (preventDuplicates) PatchDataService.deduplicatePatchSamples(patch);
           const fallbackName = file.name.replace(/\.pat$/i, "");
           const entryName = getPatchDisplayName(patch, fallbackName);
   
@@ -2381,10 +2518,14 @@ class PatchDataService {
         const type = detectFileType(ab);
   
         if (type === "zip") {
-          await handleZipOpen(ab);
+          await PatchDataService.handleZipOpen(ab, file.name);
           
         } else if (type === "pat") {
+          const preventDuplicates = await PatchDataService.askDuplicateImportChoice(file.name);
+          e.target.value = "";
+          if (preventDuplicates === null) return;
           const patch = parsePAT(ab);
+          if (preventDuplicates) PatchDataService.deduplicatePatchSamples(patch);
           const entry = {
             id: uid("pat"),
             name: (patch.header.description || file.name.replace(/\.pat$/i, "")).substring(0, 64),
@@ -2404,10 +2545,14 @@ class PatchDataService {
           }
           
         } else if (type === "fxp") {
+          const preventDuplicates = await PatchDataService.askDuplicateImportChoice(file.name);
+          e.target.value = "";
+          if (preventDuplicates === null) return;
           showStatus(t("converting_fxp"));
           await new Promise(resolve => setTimeout(resolve, 50));
           try {
             const entry = PatchDataService.surgeFxpToGusEntry(ab, file.name);
+            if (preventDuplicates) PatchDataService.deduplicatePatchSamples(entry.patch);
             if (await addPatchEntries([entry])) {
               showStatus(t("fxp_imported", { filename: file.name }), "ok");
             }
@@ -2419,11 +2564,14 @@ class PatchDataService {
 
         } else if (type === "sf2") {
           // Menangani file SF2 (SoundFont)
+          const preventDuplicates = await PatchDataService.askDuplicateImportChoice(file.name);
+          e.target.value = "";
+          if (preventDuplicates === null) return;
           showStatus(t("converting_soundfont"));
           await new Promise(resolve => setTimeout(resolve, 50));
           try {
             const sf2 = parseSF2(ab);
-            const entries = await sf2ToGusPatches(sf2, file.name);
+            const entries = await PatchDataService.sf2ToGusPatches(sf2, file.name, preventDuplicates);
             if (entries.length === 0) {
               showStatus(t("soundfont_no_preset"), "bad");
               showAlert("sf2_no_samples_alert");
@@ -2445,9 +2593,12 @@ class PatchDataService {
   
         } else if (type === "midijs") {
           // MIDI.js Soundfont (.js dengan base64 OGG/MP3)
+          const preventDuplicates = await PatchDataService.askDuplicateImportChoice(file.name);
+          e.target.value = "";
+          if (preventDuplicates === null) return;
           try {
             const text = new TextDecoder("utf-8").decode(ab);
-            await handleMidiJsImport(text, file.name);
+            await PatchDataService.handleMidiJsImport(text, file.name, preventDuplicates);
           } catch (err) {
             console.error("MIDI.js import error:", err);
             showStatus(t("midijs_failed", { message: err.message }), "bad");
@@ -2664,7 +2815,7 @@ class PatchDataService {
     };
   }
 
-  static async handleMidiJsImport(text, fileName) {
+  static async handleMidiJsImport(text, fileName, preventDuplicates = false) {
     if (!state.projects.some(p => p.id === state.currentProjectId)) {
       requestProjectForImport();
       return;
@@ -2688,7 +2839,8 @@ class PatchDataService {
     }
   
     if (entries.length === 0) throw new Error(t("midijs_no_notes"));
-  
+
+    if (preventDuplicates) PatchDataService.deduplicateEntries(entries);
     const added = await addPatchEntries(entries);
     if (added) {
       const first = entries[0];

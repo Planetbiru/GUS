@@ -1062,10 +1062,33 @@ class MidiController {
     for (const entry of displayEntries) {
       const row = document.createElement("div");
       row.className = `midi-patch-load-row status-${entry.status}`;
-      const name = document.createElement("span");
+      const patchEntry = state.midiPatchLoadError
+        ? MidiController.findMidiLoadPatch(entry)
+        : null;
+      const name = document.createElement(patchEntry ? "a" : "span");
       name.className = "midi-patch-load-name";
-      name.textContent = String(entry.file).split(/[\\/]/).pop();
-      name.title = entry.file;
+      if (patchEntry) {
+        name.textContent = patchEntry.name;
+        name.href = "#patchList";
+        name.title = `${t("midi_patch_open_in_library", {name: patchEntry.name})} · ${entry.file}`;
+        name.addEventListener("click", event => {
+          event.preventDefault();
+          closeMidiUsedPatchesDialog();
+          state.libraryView = "project";
+          state.libraryBankFilter = "all";
+          state.libraryTypeFilter = "all";
+          state.libraryNameFilter = "";
+          renderLibrary();
+          selectPatch(patchEntry.id);
+          setTimeout(() => {
+            const activeLi = document.querySelector("#patchList .li.active");
+            if (activeLi) activeLi.scrollIntoView({behavior: "smooth", block: "nearest"});
+          }, 100);
+        });
+      } else {
+        name.textContent = String(entry.file).split(/[\\/]/).pop();
+        name.title = entry.file;
+      }
       const status = document.createElement("span");
       status.className = "midi-patch-load-state";
       status.textContent = [
@@ -1076,6 +1099,45 @@ class MidiController {
       row.append(name, status);
       list.appendChild(row);
     }
+  }
+
+  static findMidiLoadPatch(entry) {
+    const project = state.projects.find(item => item.id === state.currentProjectId);
+    if (!project || entry.bank == null || entry.program == null) return null;
+    const patches = (project.patchIds || [])
+      .map(id => state.patches.find(patch => patch.id === id))
+      .filter(Boolean);
+    const isDrum = entry.isDrum === true;
+    const bank = Number(entry.bank);
+    const program = Number(entry.program);
+    if (!Number.isInteger(bank) || !Number.isInteger(program)) return null;
+    let candidates = patches.filter(patch =>
+      ((patch.gmBank ?? 0) === 128) === isDrum &&
+      (patch.gmProgram ?? -1) === program &&
+      (patch.targetBank ?? 0) === bank
+    );
+
+    if (candidates.length === 0) {
+      candidates = patches.filter(patch =>
+        ((patch.gmBank ?? 0) === 128) === isDrum &&
+        (patch.gmProgram ?? -1) === program &&
+        (isDrum
+          ? (patch.originalOrder ?? 0) === bank
+          : (patch.gmBank ?? 0) === bank)
+      );
+    }
+
+    const requestedName = String(entry.file || "")
+      .split(/[\\/]/).pop().replace(/\.pat$/i, "").toLowerCase();
+    const matchesFilename = patch => {
+      const patchName = sanitizeFilename(patch.name).toLowerCase();
+      return patchName === requestedName || requestedName.endsWith(`_${patchName}`);
+    };
+    if (candidates.length > 1) {
+      return candidates.find(matchesFilename) || candidates[0];
+    }
+    if (candidates.length === 1) return candidates[0];
+    return patches.find(matchesFilename) || null;
   }
 
   static scheduleMidiUsedPatchesRerender() {
