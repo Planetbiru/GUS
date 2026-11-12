@@ -2280,7 +2280,7 @@ class MidiController {
     }
   }
 
-  static async createMidiDemoProject(buttons, projectName){
+  static async createMidiDemoProject(buttons, projectName, metadata = {}){
     
     if(isDemoGenerating) return;
     isDemoGenerating = true;
@@ -2300,7 +2300,10 @@ class MidiController {
         id:uid("demo-project"),
         name:projectName || t("demo_project_name"),
         patchIds:[],
-        demoGenerated:true
+        demoGenerated:true,
+        startDate:metadata.startDate || undefined,
+        endDate:metadata.endDate || undefined,
+        description:metadata.description || undefined
       };
   
       const existingPatches=getProjectPatches(project);

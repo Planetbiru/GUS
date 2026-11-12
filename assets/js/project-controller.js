@@ -301,11 +301,14 @@ class ProjectController {
     await dbPutMany(STORE_PROJECTS, [project]);
   }
 
-  static async createProject(name) {
+  static async createProject(name, metadata = {}) {
     const project = {
       id: uid("proj"),
       name: name || t("create_project_default", {number: state.projects.length + 1}),
-      patchIds: []
+      patchIds: [],
+      startDate: metadata.startDate || undefined,
+      endDate: metadata.endDate || undefined,
+      description: metadata.description || undefined
     };
     await saveProject(project);
     state.projects.push(project);
@@ -324,17 +327,41 @@ class ProjectController {
     const error = $("newProjectError");
     const confirmButton = $("btnConfirmNewProject");
     const name = nameInput.value.trim();
+    const creationMode = document.querySelector('input[name="projectCreationMode"]:checked')?.value || "empty";
+    const metadata = {
+      startDate: $("newProjectStartDate").value,
+      endDate: $("newProjectEndDate").value,
+      description: $("newProjectDescription").value.trim()
+    };
     if (!name) {
       error.textContent = t("project_name_required");
       nameInput.focus();
+      return;
+    }
+    if (metadata.startDate && metadata.endDate && metadata.endDate < metadata.startDate) {
+      error.textContent = t("project_end_date_before_start");
+      $("newProjectEndDate").focus();
+      return;
+    }
+    if (creationMode === "generated" && $("btnDemo2")?.disabled) {
+      error.textContent = t("demo_generation_busy");
       return;
     }
   
     confirmButton.disabled = true;
     error.textContent = "";
     try {
-      await createProject(name);
-      dialog.hidden = true;
+      if (creationMode === "generated") {
+        dialog.hidden = true;
+        await createMidiDemoProject(
+          [confirmButton, $("btnCancelNewProject"), $("btnDemo2")].filter(Boolean),
+          name,
+          metadata
+        );
+      } else {
+        await createProject(name, metadata);
+        dialog.hidden = true;
+      }
     } catch (err) {
       console.error("Create project error:", err);
       error.textContent = t("project_save_failed");
@@ -695,7 +722,11 @@ class ProjectController {
   static openNewProjectDialog() {
     const newProjectName = $("newProjectName");
     $("newProjectError").textContent = "";
+    document.querySelector('input[name="projectCreationMode"][value="empty"]').checked = true;
     newProjectName.value = t("create_project_default", {number: state.projects.length + 1});
+    $("newProjectStartDate").value = "";
+    $("newProjectEndDate").value = "";
+    $("newProjectDescription").value = "";
     $("newProjectDialog").hidden = false;
     newProjectName.focus();
     newProjectName.select();
