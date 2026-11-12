@@ -927,15 +927,9 @@ footer {
   opacity: 0.4;
 }
 
-/* Reset eksplisit border pada baris non-aktif (jaga-jaga dari sisa inline style) */
-.bank-row:not(.bank-row-current) {
-  border-left-width: 1px;
-  border-left-color: transparent;
-}
-
-/* Baris aktif tetap punya penanda warna kiri */
+/* Penanda baris aktif tanpa mengubah ukuran atau posisi isi grid. */
 .bank-row.bank-row-current {
-  border-left: 2px solid var(--accent, #38bdf8);
+  box-shadow: inset 2px 0 0 var(--accent, #38bdf8);
 }
 
 /* Tombol pilih patch */
