@@ -268,7 +268,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Ac. Bass Drum: deep kick thump with a short beater click.",
       "preset": {
         "mute": false,
-        "gain": 0.29,
+        "gain": 0.31,
         "duration": 0.55,
         "membrane": {
           "freq": 46,
@@ -329,7 +329,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Bass Drum 1: punchy kick with a focused low end.",
       "preset": {
         "mute": false,
-        "gain": 0.29,
+        "gain": 0.31,
         "duration": 0.55,
         "membrane": {
           "freq": 52,
@@ -933,6 +933,20 @@ var GUS_DRUM_PRESETS = {
             "q": 0.42
           }
         },
+        "metallic": {
+          "baseFreq": 3000,
+          "partials": [
+            1,
+            1.37,
+            1.79,
+            2.23,
+            2.71,
+            3.28
+          ],
+          "amp": 0.08,
+          "decay": 0.055,
+          "randomPhase": true
+        },
         "noiseLayers": [
           {
             "amp": 0.9,
@@ -1368,6 +1382,20 @@ var GUS_DRUM_PRESETS = {
             "q": 0.42
           }
         },
+        "metallic": {
+          "baseFreq": 2800,
+          "partials": [
+            1,
+            1.41,
+            1.83,
+            2.29,
+            2.76,
+            3.36
+          ],
+          "amp": 0.08,
+          "decay": 0.05,
+          "randomPhase": true
+        },
         "noiseLayers": [
           {
             "amp": 0.82,
@@ -1719,88 +1747,154 @@ var GUS_DRUM_PRESETS = {
       "note": 65,
       "name": "High Timbale",
       "shortName": "High Timbale",
-      "description": "High Timbale: pitched timbale strike with a bright, firm.",
+      "description": "High Timbale: bright, sharp, resonant metal drum.",
       "preset": {
         "mute": false,
         "gain": 0.55,
-        "duration": 0.35,
+        "duration": 0.28,
         "membrane": {
-          "freq": 280,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "freq": 340,
+          "pitchDecay": 0.015,
+          "decay": 0.18,
           "modes": [
             {
               "ratio": 1,
               "amp": 1,
-              "decay": 1
+              "decay": 0.58,
+              "startRatio": 1.04
             },
             {
-              "ratio": 1.593,
-              "amp": 0.5,
-              "decay": 0.75
+              "ratio": 0.518,
+              "amp": 0.72,
+              "decay": 0.48,
+              "startRatio": 1.04
             },
             {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
+              "ratio": 1.447,
+              "amp": 0.53,
+              "decay": 0.48,
+              "startRatio": 1.04
             },
             {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
+              "ratio": 1.965,
+              "amp": 0.52,
+              "decay": 0.44,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.447,
+              "amp": 0.64,
+              "decay": 0.62,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.829,
+              "amp": 0.4,
+              "decay": 0.42,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 4.068,
+              "amp": 0.54,
+              "decay": 0.38,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 5.067,
+              "amp": 0.32,
+              "decay": 0.32,
+              "startRatio": 1.04
             }
           ]
         },
         "noise": {
-          "amp": 0.15,
-          "decay": 0.015,
-          "type": "pink"
+          "amp": 0.22,
+          "decay": 0.012,
+          "type": "white",
+          "bandpass": {
+            "center": 2500,
+            "q": 0.7
+          }
         },
-        "lowpass": 2240
+        "highpass": 110,
+        "lowpass": 4500
       }
     },
     {
       "note": 66,
       "name": "Low Timbale",
       "shortName": "Low Timbale",
-      "description": "Low Timbale: pitched timbale strike with a bright, firm.",
+      "description": "Low Timbale: bright, resonant metal drum with a full tone.",
       "preset": {
         "mute": false,
         "gain": 0.55,
-        "duration": 0.4,
+        "duration": 0.35,
         "membrane": {
-          "freq": 220,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "freq": 270,
+          "pitchDecay": 0.018,
+          "decay": 0.22,
           "modes": [
             {
               "ratio": 1,
               "amp": 1,
-              "decay": 1
+              "decay": 0.6,
+              "startRatio": 1.04
             },
             {
-              "ratio": 1.593,
+              "ratio": 0.522,
+              "amp": 0.72,
+              "decay": 0.48,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 1.389,
+              "amp": 0.51,
+              "decay": 0.5,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 1.911,
+              "amp": 0.55,
+              "decay": 0.44,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.39,
+              "amp": 0.64,
+              "decay": 0.58,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.91,
+              "amp": 0.32,
+              "decay": 0.38,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 3.95,
               "amp": 0.5,
-              "decay": 0.75
+              "decay": 0.35,
+              "startRatio": 1.04
             },
             {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
-            },
-            {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
+              "ratio": 4.25,
+              "amp": 0.54,
+              "decay": 0.32,
+              "startRatio": 1.04
             }
           ]
         },
         "noise": {
-          "amp": 0.15,
-          "decay": 0.015,
-          "type": "pink"
+          "amp": 0.2,
+          "decay": 0.012,
+          "type": "white",
+          "bandpass": {
+            "center": 2300,
+            "q": 0.72
+          }
         },
-        "lowpass": 1760
+        "highpass": 90,
+        "lowpass": 3800
       }
     },
     {
