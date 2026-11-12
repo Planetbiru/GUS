@@ -10,6 +10,7 @@
         content="GUS, Gravis Ultrasound, patch generator, GM instruments, JavaScript oscillators, preview, download, .pat">
     <meta name="author" content="Kamshory">
     <title>Instrument Generator</title>
+    <link rel="stylesheet" href="../assets/css/shared.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -23,7 +24,6 @@
                 </svg>
                 <span>Instrument Generator</span>
             </h1>
-            <div class="sub">128 GM Instruments</div>
         </div>
     </header>
 
@@ -46,6 +46,46 @@
                 <div class="dialog-actions">
                     <button id="btnCancelNewProject" type="button">Cancel</button>
                     <button id="btnConfirmNewProject" class="primary" type="button">Create</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
+    <dialog id="editProjectDialog" aria-labelledby="editProjectTitle">
+        <div class="dialog-content">
+            <header class="dialog-header">
+                <h2 id="editProjectTitle">Edit Project</h2>
+                <button id="btnCloseEditProject" class="dialog-close" type="button" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div class="project-edit-fields">
+                    <div>
+                        <label for="editProjectName">Project Name</label>
+                        <input id="editProjectName" type="text" maxlength="80" autocomplete="off">
+                    </div>
+                    <div>
+                        <label for="editProjectDescription">Description</label>
+                        <textarea id="editProjectDescription" maxlength="1000" rows="4"></textarea>
+                    </div>
+                    <div>
+                        <label for="editProjectYear">Year Created</label>
+                        <input id="editProjectYear" type="number" min="1" max="9999" step="1" inputmode="numeric">
+                    </div>
+                    <div>
+                        <label for="editProjectCreator">Creator Name</label>
+                        <input id="editProjectCreator" type="text" maxlength="80" autocomplete="name">
+                    </div>
+                </div>
+                <div id="editProjectError" class="dialog-error" role="alert"></div>
+            </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelEditProject" type="button">Cancel</button>
+                    <button id="btnConfirmEditProject" class="primary" type="button">Save Changes</button>
                 </div>
             </footer>
         </div>
@@ -98,14 +138,38 @@
         </div>
     </dialog>
 
+    <dialog id="removePresetArrayItemDialog" aria-labelledby="removePresetArrayItemTitle"
+        aria-describedby="removePresetArrayItemMessage">
+        <div class="dialog-content">
+            <header class="dialog-header">
+                <h2 id="removePresetArrayItemTitle">Remove Preset Element</h2>
+                <button id="btnCloseRemovePresetArrayItem" class="dialog-close" type="button" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <p id="removePresetArrayItemMessage">Remove this element from the preset?</p>
+            </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelRemovePresetArrayItem" type="button">Cancel</button>
+                    <button id="btnConfirmRemovePresetArrayItem" class="danger" type="button">Remove</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
     <div class="layout">
         <aside>
             <div class="project-controls">
                 <label for="projectSelect">Project</label>
                 <select id="projectSelect" aria-label="Active project"></select>
                 <button id="btnNewProject" type="button">New Project</button>
-                <button id="btnDeleteProject" class="danger" type="button">Delete Project</button>
+                <button id="btnEditProject" type="button">Edit Project</button>
                 <button id="btnResetGeneratorState" type="button">Reset Saved State</button>
+                <button id="btnDeleteProject" class="danger" type="button">Delete Project</button>
                 <details class="project-archive-tools">
                     <summary>Preset Archives</summary>
                     <div class="project-archive-actions">
@@ -139,9 +203,20 @@
                         <select id="wave">
                             <option value="preset">— From Preset —</option>
                             <option value="sine">Sine</option>
+                            <option value="triangle">Triangle</option>
                             <option value="square">Square</option>
                             <option value="saw">Saw</option>
-                            <option value="triangle">Triangle</option>
+                            <option value="pulse">Pulse</option>
+                            <option value="organ">Organ</option>
+                            <option value="flute">Flute</option>
+                            <option value="clarinet">Clarinet</option>
+                            <option value="reed">Reed</option>
+                            <option value="string">String</option>
+                            <option value="bell">Bell</option>
+                            <option value="pluck">Pluck</option>
+                            <option value="hammer">Hammer</option>
+                            <option value="bow">Bow</option>
+                            <option value="breath">Breath</option>
                         </select>
                     </div>
                     <div class="field">
@@ -272,7 +347,19 @@
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
                             </svg>
-                            <span>Render WAV</span>
+                            <span>Render</span>
+                        </button>
+                        <button id="btnMidiRenderStemsStereo" class="button-with-icon" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                            </svg>
+                            <span>Render Stem Stereo</span>
+                        </button>
+                        <button id="btnMidiRenderStemsMono" class="button-with-icon" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                            </svg>
+                            <span>Render Stem Mono</span>
                         </button>
                     </div>
                     <div class="midi-transport-row">
@@ -371,10 +458,12 @@
     <script src="../timidity-player/timidity-player.js"></script>
     <script src="../timidity-player/libtimidity.min.js"></script>
     <script src="../jszip/jszip.min.js"></script>
+    <script src="../Flac/libflac.min.js"></script>
     <script src="melodic-presets.js"></script>
     <script src="drum-presets.js"></script>
     <script src="ProjectPatchGenerator.js"></script>
     <script src="soundfont-exporter.js"></script>
+    <script src="../assets/js/shared-controls.js"></script>
     <script src="app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

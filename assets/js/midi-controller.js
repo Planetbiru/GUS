@@ -472,6 +472,157 @@ class MidiController {
     }
   }
 
+  static async exportProjectToSFZZip(project, patches) {
+    try {
+      if (!Array.isArray(patches) || patches.length === 0) {
+        throw new Error(t("empty_project"));
+      }
+      showStatus(t("export_sfz_zip_processing"), "ok");
+
+      const zipFiles = [];
+      const manifest = [];
+      let exportedPatchCount = 0;
+      let exportedSampleCount = 0;
+
+      const midiKeyFromMilliHz = (frequency, fallback) => {
+        const hz = Number(frequency) / 1000;
+        if (!(hz > 0) || !Number.isFinite(hz)) return fallback;
+        return clamp(Math.round(69 + 12 * Math.log2(hz / 440)), 0, 127);
+      };
+
+      const safeSfzDescription = value => String(value || "Instrument")
+        .replace(/[\r\n"]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 120) || "Instrument";
+
+      for (let patchIndex = 0; patchIndex < patches.length; patchIndex++) {
+        const entry = patches[patchIndex];
+        const patch = cleanPatchForStorage(entry.patch);
+        const displayName = getPatchDisplayName(entry.patch, entry.name);
+        const isDrum = (entry.gmBank ?? 0) === 128;
+        const gmProgram = Number.isInteger(entry.gmProgram) ? entry.gmProgram : -1;
+        const targetBank = entry.targetBank ?? 0;
+        const programPrefix = gmProgram >= 0 && gmProgram <= 127
+          ? `${String(gmProgram).padStart(3, "0")}_`
+          : "";
+        const kindPrefix = isDrum ? "drum_" : "";
+        const namePrefix = `${String(patchIndex + 1).padStart(3, "0")}_${kindPrefix}${programPrefix}`;
+        const patchStem = `${namePrefix}${sanitizeFilename(displayName) || "patch"}`;
+        const sfzPath = `${patchStem}.sfz`;
+        const sampleRegions = [];
+        let patchSampleCount = 0;
+        let regionIndex = 0;
+
+        for (const instrument of patch.instruments) {
+          for (const layer of instrument.layers) {
+            for (const sample of layer.samples) {
+              if (!sample.pcm || sample.pcm.length === 0) {
+                throw new Error(`Patch "${displayName}" contains an empty sample.`);
+              }
+
+              const samplePath = `samples/${patchStem}/sample_${String(regionIndex + 1).padStart(3, "0")}.wav`;
+              const lowKey = midiKeyFromMilliHz(sample.lowFreq, 0);
+              const highKey = midiKeyFromMilliHz(sample.highFreq, 127);
+              const sourceRootFreq = sample.rootFreq > 0
+                ? sample.rootFreq
+                : Math.round(midiToFreq(clamp(sample.scaleFreq ?? 60, 0, 127)) * 1000);
+              const {originalPitch, pitchCorrection} = computeSf2Pitch(sourceRootFreq, sample.scaleFreq);
+              const rootKey = clamp(originalPitch, 0, 127);
+              const opcodes = [
+                `sample=${samplePath}`,
+                `lokey=${lowKey}`,
+                `hikey=${Math.max(lowKey, highKey)}`,
+                `pitch_keycenter=${rootKey}`
+              ];
+
+              if (isDrum && gmProgram >= 0 && gmProgram <= 127) {
+                opcodes.push(`key=${gmProgram}`);
+              } else if (pitchCorrection !== 0) {
+                opcodes.push(`tune=${pitchCorrection}`);
+              }
+
+              const loop = loopInfo(sample);
+              if (loop.enabled && loop.end > loop.start) {
+                opcodes.push(
+                  "loop_mode=loop_continuous",
+                  `loop_start=${Math.floor(loop.start)}`,
+                  `loop_end=${Math.floor(loop.end)}`
+                );
+              }
+
+              sampleRegions.push(`<region> ${opcodes.join(" ")}`);
+              const wavBlob = encodeWav(sample);
+              zipFiles.push({
+                name: samplePath,
+                data: new Uint8Array(await wavBlob.arrayBuffer())
+              });
+              regionIndex++;
+              patchSampleCount++;
+              exportedSampleCount++;
+            }
+          }
+        }
+
+        if (sampleRegions.length === 0) {
+          throw new Error(`Patch "${displayName}" contains no samples.`);
+        }
+
+        const sfzText = [
+          `<control>`,
+          `description="${safeSfzDescription(displayName)}"`,
+          "",
+          ...sampleRegions,
+          ""
+        ].join("\n");
+        zipFiles.push({name: sfzPath, data: new TextEncoder().encode(sfzText)});
+        manifest.push({
+          sfz: sfzPath,
+          name: displayName,
+          gmBank: entry.gmBank ?? 0,
+          gmProgram,
+          targetBank,
+          originalOrder: entry.originalOrder ?? 0,
+          sampleCount: patchSampleCount
+        });
+        exportedPatchCount++;
+
+        if (patchIndex % 8 === 0) {
+          showStatus(t("export_sfz_zip_progress", {
+            current: patchIndex + 1,
+            total: patches.length
+          }), "ok");
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+
+      zipFiles.push({
+        name: "manifest.json",
+        data: new TextEncoder().encode(JSON.stringify({
+          project: project.name,
+          patches: manifest
+        }, null, 2))
+      });
+
+      const zipBytes = createZip(zipFiles);
+      const blob = new Blob([zipBytes], {type: "application/zip"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${sanitizeFilename(project.name) || "project"}_sfz.zip`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      showStatus(t("export_sfz_zip_done", {
+        patches: exportedPatchCount,
+        samples: exportedSampleCount
+      }), "ok");
+    } catch (err) {
+      console.error("SFZ ZIP export error:", err);
+      showStatus(t("export_sfz_zip_failed", {message: err.message}), "bad");
+    }
+  }
+
   static async exportProjectWithConfig(project, patches) {
     try {
       const zipFiles = [];

@@ -1086,6 +1086,19 @@ class ApplicationController {
       
       await exportProjectToSF2(project, patches);
     });
+
+    $("btnExportProjectSfz").addEventListener("click", async () => {
+      const project = state.projects.find(p => p.id === state.currentProjectId);
+      if (!project) return;
+
+      const patches = getProjectPatchEntries();
+      if (patches.length === 0) {
+        showStatus(t("empty_project"), "bad");
+        return;
+      }
+
+      await exportProjectToSFZZip(project, patches);
+    });
   
       // === Timeline Footer Controls ===
     $("btnTimelinePlay").addEventListener("click", () => {

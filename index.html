@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Planetbiru Instrument Editor</title>
+  <link rel="stylesheet" href="assets/css/shared.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <style>
     html { background-color: #060b14; }
@@ -236,7 +237,7 @@
           <button class="btn small" id="btnAddToProject" title="{{import_patch_title}}" data-i18n-title="import_patch_title" style="flex:1" disabled><svg class="icon"><use href="#i-plus"></use></svg> {{add_patch}}</button>
           <button class="btn small" id="btnImportSoundfont" style="flex:1" title="{{import_package_title}}" data-i18n-title="import_package_title" disabled><svg class="icon"><use href="#i-upload"></use></svg> {{import_package}}</button>
         </div>
-        <div class="inline-actions project-actions">
+        <div class="inline-actions project-actions project-export-actions">
           <button class="btn small" id="btnExportProject" style="flex:1"><svg class="icon">
               <use href="#i-download"></use>
             </svg> {{export_zip_format}}</button>
@@ -244,7 +245,10 @@
               <svg class="icon"><use href="#i-download"></use>
             </svg> {{export_sf2_format}}
           </button>
-
+          <button class="btn small" id="btnExportProjectSfz" style="flex:1"
+              title="{{export_sfz_zip}}" data-i18n-title="export_sfz_zip">
+              <svg class="icon"><use href="#i-download"></use></svg> {{export_sfz_zip_format}}
+          </button>
         </div>
         <div class="inline-actions project-secondary-actions">
           <button class="btn small" id="btnNewProject" style="flex:1">{{new_project}}</button>
@@ -1370,6 +1374,7 @@
   <script src="JSGUS/melodic-presets.js"></script>
   <script src="JSGUS/drum-presets.js"></script>
   <script src="JSGUS/ProjectPatchGenerator.js"></script>
+  <script src="assets/js/shared-controls.js"></script>
   <script src="assets/js/application-controller.js"></script>
   <script src="assets/js/patch-data-service.js"></script>
   <script src="assets/js/bank-controller.js"></script>

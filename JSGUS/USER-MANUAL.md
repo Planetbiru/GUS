@@ -10,8 +10,9 @@ Projects keep instrument selections, generator settings, and custom preset chang
 
 - Use the **Project** selector to switch projects.
 - Select **New project**, enter a name, and choose **Create** to make a project with default settings.
-- Select **Delete project** to remove the active project and its saved settings. Solve the arithmetic challenge to confirm. The last remaining project cannot be deleted.
+- Select **Edit Project** to update the active project's name, description, year created, and creator name. The name is required; the other details are optional.
 - Select **Reset saved state** to clear generator settings and custom presets in the active project while keeping the project itself. Solve the arithmetic challenge to confirm.
+- Select **Delete project** to remove the active project and its saved settings. Solve the arithmetic challenge to confirm. The last remaining project cannot be deleted.
 
 Do not clear the browser's site data if you want to keep locally stored projects.
 
@@ -21,7 +22,7 @@ Use the **Melodic** and **Drum Kit** tabs in the instrument list. Search by inst
 
 Press **F2** anywhere in the app to focus the instrument search and select its current text. The search query is restored after a page reload.
 
-For melodic instruments, choose a base waveform, sample rate, root frequency, and duration. Waveform selection is unavailable for drums. The waveform canvas shows the generated preview.
+For melodic instruments, choose a base waveform, sample rate, root frequency, and duration. Waveform selection is unavailable for drums. Available harmonic profiles include sine, triangle, square, saw, pulse, organ, flute, clarinet, reed, string, bell, pluck, hammer, bow, and breath. The waveform canvas shows the generated preview.
 
 - **Play C4** previews the selected instrument. For a drum, it plays the selected drum sound.
 - **Scale** plays a short scale for melodic instruments or a sequence of drum sounds for a drum selection.
@@ -49,6 +50,7 @@ In **MIDI Playback**, select the **MIDI file** mode and choose a `.mid` or `.mid
 - Use the seek slider to move through the song.
 - Adjust **Volume** from 0% to 100%; changes take effect during playback.
 - Choose **Render WAV** to render and download the loaded MIDI file as a WAV.
+- Choose **Render Stem Stereo (FLAC)** or **Render Stem Mono (FLAC)** to download a ZIP of individual FLAC files. MIDI Type 1 files are split by track; Type 0 files are split by channel. Mono stems contain one audio channel, with MIDI pan (CC 10) events removed.
 
 After a MIDI file loads, **Instruments used** lists the melodic instruments and drum sounds it uses. The **Channels** list provides two controls for each channel:
 

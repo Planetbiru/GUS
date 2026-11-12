@@ -283,6 +283,7 @@ function createSilentPatch(...args) { return PatchDataService.createSilentPatch.
 function writeTimidityPatch(...args) { return PatchDataService.writeTimidityPatch.apply(this, args); }
 function generateProjectTimidityCfg(...args) { return MidiController.generateProjectTimidityCfg.apply(this, args); }
 function exportProjectToSF2(...args) { return MidiController.exportProjectToSF2.apply(this, args); }
+function exportProjectToSFZZip(...args) { return MidiController.exportProjectToSFZZip.apply(this, args); }
 function exportProjectWithConfig(...args) { return MidiController.exportProjectWithConfig.apply(this, args); }
 function invalidateTimidityPlayer(...args) { return MidiController.invalidateTimidityPlayer.apply(this, args); }
 function getProjectPatchData(...args) { return MidiController.getProjectPatchData.apply(this, args); }
