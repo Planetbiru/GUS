@@ -384,7 +384,11 @@ class GusPatchApp {
                 }
                 if (!item.classList.contains('inst')) continue;
                 const name = item.querySelector('.instrument-name')?.textContent || '';
-                const matches = !query || name.toLocaleLowerCase().includes(query);
+                const midiCode = String(item.dataset.midi).padStart(3, '0');
+                const isNumericQuery = /^\d+$/.test(query);
+                const matches = !query || (isNumericQuery
+                    ? midiCode === query.padStart(3, '0')
+                    : name.toLocaleLowerCase().includes(query));
                 item.hidden = !matches;
                 if (matches) {
                     familyHasMatch = true;
@@ -437,6 +441,9 @@ class GusPatchApp {
     }
 
     bindUI() {
+        this.$('btnAbout').onclick = () => this.showDialogCentered(this.$('aboutDialog'));
+        this.$('btnCloseAbout').onclick = () => this.$('aboutDialog').close();
+        this.$('btnDoneAbout').onclick = () => this.$('aboutDialog').close();
         this.$('btnPlayNote').onclick = () => this.playPreview();
         this.$('btnPlayScale').onclick = () => this.playScale();
         this.$('btnStop').onclick = () => this.audio.stop();

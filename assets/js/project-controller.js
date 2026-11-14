@@ -809,10 +809,20 @@ class ProjectController {
     }
     if (state.libraryNameFilter && state.libraryNameFilter.trim() !== "") {
       const searchStr = state.libraryNameFilter.toLowerCase().trim();
+      const isNumericSearch = /^\d+$/.test(searchStr);
+      const normalizedProgramSearch = isNumericSearch ? searchStr.padStart(3, "0") : "";
       displayPatches = displayPatches.filter(p => {
         const patchName = (p.name || "").toLowerCase();
         const patchDesc = (p.patch?.header?.description || "").toLowerCase();
-        return patchName.includes(searchStr) || patchDesc.includes(searchStr);
+        const program = p.gmProgram;
+        const matchesProgram = isNumericSearch
+          && Number.isInteger(program)
+          && program >= 0
+          && program <= 127
+          && String(program).padStart(3, "0") === normalizedProgramSearch;
+        return isNumericSearch
+          ? matchesProgram
+          : patchName.includes(searchStr) || patchDesc.includes(searchStr);
       });
     }
     // ================================

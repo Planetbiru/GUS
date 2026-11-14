@@ -322,6 +322,22 @@ class ApplicationController {
 
   static bind(){
   
+    const aboutDialog = $("aboutDialog");
+    const closeAboutDialog = () => {
+      aboutDialog.hidden = true;
+      $("btnAbout").focus();
+    };
+    $("btnAbout").addEventListener("click", () => {
+      aboutDialog.hidden = false;
+      $("btnCloseAbout").focus();
+    });
+    $("btnCloseAbout").addEventListener("click", closeAboutDialog);
+    aboutDialog.addEventListener("click", event => {
+      if (event.target === aboutDialog) closeAboutDialog();
+    });
+    aboutDialog.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeAboutDialog();
+    });
   
     /* ── GM Map Dialog ── */
     $("btnShowGmMap").addEventListener("click", openGmMapDialog);
