@@ -6764,29 +6764,38 @@ var GUS_MELODIC_PRESETS = {
       "description": "Fret Noise: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
+        "renderMode": "drum",
         "gain": 0.3,
-        "length": 2205,
-        "loop": false,
-        "env": {
-          "a": 0.001,
-          "d": 0.1,
-          "s": 0,
-          "r": 0.05
-        },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
+        "freq": 441,
+        "duration": 0.22,
+        "tones": [
+          {
+            "fStart": 2600,
+            "fEnd": 1750,
+            "pitchDecay": 0.08,
+            "decay": 0.11,
+            "amp": 0.12
+          },
+          {
+            "fStart": 4200,
+            "fEnd": 2900,
+            "pitchDecay": 0.04,
+            "decay": 0.045,
+            "amp": 0.035
+          }
         ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
+        "noise": {
+          "amp": 0.42,
+          "decay": 0.065,
+          "type": "pink",
+          "bandpass": {
+            "center": 3600,
+            "q": 1.2
+          }
         },
-        "noise": 0.7,
-        "antiAlias": true
+        "highpass": 900,
+        "lowpass": 7500,
+        "fadeOut": 0.045
       }
     },
     {
