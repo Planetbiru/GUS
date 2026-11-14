@@ -4214,7 +4214,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
-        "gain": 0.31,
+        "gain": 0.5,
         "freq": 320,
         "loop": true,
         "cycles": 14,
@@ -4234,7 +4234,13 @@ var GUS_MELODIC_PRESETS = {
           0.16,
           0.09,
           0.05,
-          0.03
+          0.03,
+          0.02,
+          0.012,
+          0.009,
+          0.007,
+          0.005,
+          0.003
         ],
         "phases": [
           0,
@@ -4246,14 +4252,13 @@ var GUS_MELODIC_PRESETS = {
           0.75,
           0.9
         ],
-        "noise": 0.012,
+        "noise": 0.12,
         "vibratoOnset": 0.2,
         "vibrato": {
           "rate": 4,
           "depth": 0.011,
           "sweep": 18
         },
-        "drive": 1.4,
         "formants": [
           {
             "freq": 680,
@@ -4269,6 +4274,16 @@ var GUS_MELODIC_PRESETS = {
             "freq": 2400,
             "q": 2.2,
             "gain": 4
+          },
+          {
+            "freq": 3600,
+            "q": 2.5,
+            "gain": 3
+          },
+          {
+            "freq": 4800,
+            "q": 2.5,
+            "gain": 2.5
           }
         ],
         "antiAlias": true
