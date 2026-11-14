@@ -31,15 +31,20 @@ class ProjectController {
 
   static selectPatch(id){
     const entry=state.patches.find(p=>p.id===id);
-    if(!entry)return;
+    if(!entry) return;
     state.currentPatchId=id;
     state.patch=entry.patch;
     state.selInst=0;
     state.selSample=null;
     state.selStart=state.selEnd=0;
-    state.zoom=1; state.offset=0;
+    state.zoom=1; 
+    state.offset=0;
     updateZoomUI();
     render();
+
+    $("btnDownloadPat").onclick = () => {
+        state.currentPatchId && exportPatchById(state.currentPatchId);
+    };
   }
 
   static deletePatchById(id){
@@ -916,6 +921,7 @@ class ProjectController {
     currentBank = null;               // ← reset filter saat ganti proyek
     state.libraryView = "project";
     invalidateTimidityPlayer();
+
     renderProjects();
     renderLibrary();
     renderBankManager();
@@ -1076,7 +1082,15 @@ class ProjectController {
       d.className="li"+(i===state.selInst?" active":"");
       const count=inst.layers.reduce((a,l)=>a+l.samples.length,0);
       d.innerHTML=`<span class="name">${escapeHtml(inst.name||t("unnamed"))}</span><span class="meta">${t("instrument_info", {number: inst.instrument, count})}</span>`;
-      d.onclick=()=>{state.selInst=i;state.selSample=null;state.selStart=state.selEnd=0;state.zoom=1;state.offset=0;updateZoomUI();render();};
+      d.onclick=()=>{
+        state.selInst=i;
+        state.selSample=null;
+        state.selStart=state.selEnd=0;
+        state.zoom=1;
+        state.offset=0;
+        updateZoomUI();
+        render();
+      };
       il.appendChild(d);
     });
   

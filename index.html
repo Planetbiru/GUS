@@ -438,7 +438,15 @@
 
       <div id="workspace" hidden>
         <section class="card card-patch-properties">
-          <h3>{{patch_properties}}</h3>
+          <div class="subhead">
+          <h2>{{patch_properties}}</h2>
+          <div class="spacer"></div>
+            <button class="btn small sample-action" id="btnDownloadPat"
+                    title="{{pat_download_title}}" data-i18n-title="pat_download_title">
+              <svg class="icon"><use href="#i-download"></use></svg> {{pat_download}}
+            </button>
+          </div>
+
           <div class="grid g6">
             <div class="field"><label>{{magic_label}}</label><input id="pMagic" readonly></div>
             <div class="field"><label>{{gravis_id}}</label><input id="pGravisId" readonly></div>
@@ -1000,6 +1008,10 @@
             <label class="check export-select-all-label">
               <input type="checkbox" id="exportSelectAll">
               <span>{{select_all_banks}}</span>
+            </label>
+            <label class="check export-full-pat-name">
+              <input type="checkbox" id="exportFullPatName" checked>
+              <span>{{export_full_pat_name}}</span>
             </label>
           </div>
 

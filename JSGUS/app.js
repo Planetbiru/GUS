@@ -6,7 +6,7 @@ class AudioPreview {
     constructor() {
         this.ctx = null;
         this.source = null;
-        this.analyser = null;
+        this.analysers = null;
         this.onPlay = null;
         this.onStop = null;
     }
@@ -19,14 +19,25 @@ class AudioPreview {
         return this.ctx;
     }
 
-    getAnalyser() {
-        if (!this.analyser) {
-            this.analyser = this.getCtx().createAnalyser();
-            this.analyser.fftSize = 1024;
-            this.analyser.smoothingTimeConstant = 0.15;
-            this.analyser.connect(this.ctx.destination);
+    getAnalysers() {
+        if (!this.analysers) {
+            const ctx = this.getCtx();
+            const splitter = ctx.createChannelSplitter(2);
+            const merger = ctx.createChannelMerger(2);
+            const left = ctx.createAnalyser();
+            const right = ctx.createAnalyser();
+            for (const analyser of [left, right]) {
+                analyser.fftSize = 1024;
+                analyser.smoothingTimeConstant = 0.15;
+            }
+            splitter.connect(left, 0);
+            splitter.connect(right, 1);
+            left.connect(merger, 0, 0);
+            right.connect(merger, 0, 1);
+            merger.connect(ctx.destination);
+            this.analysers = {left, right, splitter};
         }
-        return this.analyser;
+        return this.analysers;
     }
 
     play(pcm, SR, rate = 1.0) {
@@ -34,13 +45,15 @@ class AudioPreview {
         if (ctx.state === 'suspended') ctx.resume();
         this.stop();
 
-        const buf = ctx.createBuffer(1, pcm.length, SR);
+        const buf = ctx.createBuffer(2, pcm.length, SR);
         buf.getChannelData(0).set(pcm);
+        buf.getChannelData(1).set(pcm);
 
         const src = ctx.createBufferSource();
         src.buffer = buf;
         src.playbackRate.value = rate;
-        src.connect(this.getAnalyser());
+        const analysers = this.getAnalysers();
+        src.connect(analysers.splitter);
         src.onended = () => {
             if (this.source === src) {
                 this.source = null;
@@ -49,7 +62,7 @@ class AudioPreview {
         };
         src.start();
         this.source = src;
-        if (this.onPlay) this.onPlay(this.analyser);
+        if (this.onPlay) this.onPlay(analysers);
     }
 
     stop() {
@@ -130,9 +143,10 @@ class GusPatchApp {
         this.sequencerGeneration = 0;
         this.sequencerLoadPromise = Promise.resolve();
         this.sequencerUpdateTimer = null;
-        this.liveWaveformAnalyser = null;
+        this.liveWaveformAnalysers = null;
         this.liveWaveformData = null;
         this.liveWaveformFrame = null;
+        this.liveWaveformPaused = false;
         this.liveWaveformMode = 'amplitude';
         this.currentType = null;
         this.currentMidi = null;
@@ -1746,8 +1760,8 @@ class GusPatchApp {
         player.on('onNoteOn', event => this.handleMidiNoteOn(event));
         player.on('onNoteOff', event => this.handleMidiNoteOff(event));
         player.on('onSeek', () => this.clearActiveMidiNotes());
-        player.on('onPlay', () => this.setLiveWaveformSource(player.waveformAnalyser));
-        player.on('onResume', () => this.setLiveWaveformSource(player.waveformAnalyser));
+        player.on('onPlay', () => this.setLiveWaveformSource(player.waveformAnalysers));
+        player.on('onResume', () => this.setLiveWaveformSource(player.waveformAnalysers));
         player.on('onPlaying', (_tick, seconds) => {
             if (this.midiMode === 'sequencer' || this.midiSeeking) return;
             this.midiPosition = seconds;
@@ -1756,11 +1770,10 @@ class GusPatchApp {
         player.on('onPause', () => {
             this.midiPosition = player.getTime() / 1000;
             this.updateMidiPlaybackUI();
-            if (this.midiMode === 'sequencer' && this.sequencerPaused) {
-                if (this.liveWaveformFrame) cancelAnimationFrame(this.liveWaveformFrame);
-                this.liveWaveformFrame = null;
-            } else {
+            if (this.audio.source) {
                 this.restoreLiveWaveformSource();
+            } else {
+                this.freezeLiveWaveform();
             }
         });
         player.on('onEnded', () => {
@@ -1800,26 +1813,52 @@ class GusPatchApp {
     }
 
     setupMidiWaveformMonitor(player) {
-        if (player.waveformAnalyser) return player.waveformAnalyser;
-        const analyser = player.audioContext.createAnalyser();
-        analyser.fftSize = 1024;
-        analyser.smoothingTimeConstant = 0.15;
+        if (player.waveformAnalysers) return player.waveformAnalysers;
+        const splitter = player.audioContext.createChannelSplitter(2);
+        const merger = player.audioContext.createChannelMerger(2);
+        const left = player.audioContext.createAnalyser();
+        const right = player.audioContext.createAnalyser();
+        for (const analyser of [left, right]) {
+            analyser.fftSize = 1024;
+            analyser.smoothingTimeConstant = 0.15;
+        }
+        splitter.connect(left, 0);
+        splitter.connect(right, 1);
+        left.connect(merger, 0, 0);
+        right.connect(merger, 0, 1);
         player.gainNode.disconnect();
-        player.gainNode.connect(analyser);
-        analyser.connect(player.audioContext.destination);
-        player.waveformAnalyser = analyser;
-        return analyser;
+        player.gainNode.connect(splitter);
+        merger.connect(player.audioContext.destination);
+        player.waveformAnalysers = {left, right};
+        return player.waveformAnalysers;
     }
 
-    setLiveWaveformSource(analyser) {
-        this.liveWaveformAnalyser = analyser || null;
-        this.liveWaveformData = analyser
-            ? new Uint8Array(this.liveWaveformMode === 'frequency'
-                ? analyser.frequencyBinCount
-                : analyser.fftSize)
-            : null;
+    setLiveWaveformSource(analysers) {
+        this.liveWaveformAnalysers = analysers || null;
+        if (analysers) {
+            this.liveWaveformData = {
+                amplitude: {
+                    left: new Uint8Array(analysers.left.fftSize),
+                    right: new Uint8Array(analysers.right.fftSize),
+                },
+                frequency: {
+                    left: new Uint8Array(analysers.left.frequencyBinCount),
+                    right: new Uint8Array(analysers.right.frequencyBinCount),
+                },
+            };
+        } else {
+            this.liveWaveformData = null;
+        }
+        this.liveWaveformPaused = false;
         if (this.liveWaveformFrame) cancelAnimationFrame(this.liveWaveformFrame);
         this.liveWaveformFrame = null;
+        this.drawLiveWaveform();
+    }
+
+    freezeLiveWaveform() {
+        if (this.liveWaveformFrame) cancelAnimationFrame(this.liveWaveformFrame);
+        this.liveWaveformFrame = null;
+        this.liveWaveformPaused = true;
         this.drawLiveWaveform();
     }
 
@@ -1828,24 +1867,18 @@ class GusPatchApp {
         const label = this.liveWaveformMode === 'amplitude' ? 'Amplitude' : 'Frequency';
         const nextMode = this.liveWaveformMode === 'amplitude' ? 'frequency spectrum' : 'amplitude waveform';
         this.$('liveWaveModeLabel').textContent = label;
-        this.$('liveWaveCanvas').setAttribute('aria-label', `Live output ${label.toLowerCase()} view. Activate to view ${nextMode}.`);
-        if (this.liveWaveformAnalyser) {
-            const length = this.liveWaveformMode === 'frequency'
-                ? this.liveWaveformAnalyser.frequencyBinCount
-                : this.liveWaveformAnalyser.fftSize;
-            this.liveWaveformData = new Uint8Array(length);
-        }
+        this.$('liveWaveCanvas').setAttribute('aria-label', `Live output left and right ${label.toLowerCase()} views. Activate to view left and right ${nextMode}.`);
         this.drawLiveWaveform();
     }
 
     restoreLiveWaveformSource() {
-        if (this.audio.source && this.audio.analyser) {
-            this.setLiveWaveformSource(this.audio.analyser);
+        if (this.audio.source && this.audio.analysers) {
+            this.setLiveWaveformSource(this.audio.analysers);
             return;
         }
         const player = this.timidityPlayer;
-        if (player?.isPlaying && !player.isPaused && player.waveformAnalyser) {
-            this.setLiveWaveformSource(player.waveformAnalyser);
+        if (player?.isPlaying && !player.isPaused && player.waveformAnalysers) {
+            this.setLiveWaveformSource(player.waveformAnalysers);
             return;
         }
         this.setLiveWaveformSource(null);
@@ -1865,47 +1898,74 @@ class GusPatchApp {
         }
 
         const context = canvas.getContext('2d');
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        if (this.liveWaveformMode === 'amplitude') {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+        const analysers = this.liveWaveformAnalysers;
+        const data = this.liveWaveformData
+            ? this.liveWaveformData[this.liveWaveformMode]
+            : null;
+        if (analysers && data) {
+            if (!this.liveWaveformPaused) {
+                analysers.left.getByteTimeDomainData(this.liveWaveformData.amplitude.left);
+                analysers.right.getByteTimeDomainData(this.liveWaveformData.amplitude.right);
+                analysers.left.getByteFrequencyData(this.liveWaveformData.frequency.left);
+                analysers.right.getByteFrequencyData(this.liveWaveformData.frequency.right);
+            }
+            const laneHeight = rect.height / 2;
+            const channels = [
+                {label: 'L', data: data.left, color: '#58a6ff'},
+                {label: 'R', data: data.right, color: '#3fb950'},
+            ];
             context.strokeStyle = '#30363d';
             context.lineWidth = 1;
             context.beginPath();
-            context.moveTo(0, rect.height / 2);
-            context.lineTo(rect.width, rect.height / 2);
+            context.moveTo(0, laneHeight);
+            context.lineTo(rect.width, laneHeight);
             context.stroke();
-        }
 
-        const analyser = this.liveWaveformAnalyser;
-        if (analyser && this.liveWaveformData) {
-            if (this.liveWaveformMode === 'amplitude') {
-                analyser.getByteTimeDomainData(this.liveWaveformData);
-                context.strokeStyle = '#58a6ff';
-                context.lineWidth = 1.5;
-                context.beginPath();
-                for (let index = 0; index < this.liveWaveformData.length; index++) {
-                    const x = index / (this.liveWaveformData.length - 1) * rect.width;
-                    const y = this.liveWaveformData[index] / 255 * rect.height;
-                    if (index === 0) context.moveTo(x, y);
-                    else context.lineTo(x, y);
-                }
-                context.stroke();
-            } else {
-                analyser.getByteFrequencyData(this.liveWaveformData);
-                context.fillStyle = '#58a6ff';
-                const barWidth = rect.width / this.liveWaveformData.length;
-                for (let index = 0; index < this.liveWaveformData.length; index++) {
-                    const barHeight = this.liveWaveformData[index] / 255 * (rect.height - 2);
-                    context.fillRect(
-                        index * barWidth,
-                        rect.height - barHeight,
-                        Math.max(1, barWidth - 1),
-                        barHeight
-                    );
+            for (let channelIndex = 0; channelIndex < channels.length; channelIndex++) {
+                const channel = channels[channelIndex];
+                const top = channelIndex * laneHeight;
+                context.fillStyle = channel.color;
+                context.font = '10px sans-serif';
+                context.fillText(channel.label, 5, top + 11);
+
+                if (this.liveWaveformMode === 'amplitude') {
+                    const center = top + laneHeight / 2;
+                    const amplitude = laneHeight * 0.38;
+                    context.strokeStyle = channel.color;
+                    context.lineWidth = 1.5;
+                    context.beginPath();
+                    for (let index = 0; index < channel.data.length; index++) {
+                        const x = index / (channel.data.length - 1) * rect.width;
+                        const sample = (channel.data[index] - 128) / 128;
+                        const y = center - sample * amplitude;
+                        if (index === 0) context.moveTo(x, y);
+                        else context.lineTo(x, y);
+                    }
+                    context.stroke();
+                } else {
+                    context.fillStyle = channel.color;
+                    const barWidth = rect.width / channel.data.length;
+                    const maxHeight = laneHeight - 4;
+                    for (let index = 0; index < channel.data.length; index++) {
+                        const barHeight = channel.data[index] / 255 * maxHeight;
+                        context.fillRect(
+                            index * barWidth,
+                            top + laneHeight - barHeight,
+                            Math.max(1, barWidth - 1),
+                            barHeight
+                        );
+                    }
                 }
             }
-            this.liveWaveformFrame = requestAnimationFrame(() => this.drawLiveWaveform());
+            if (this.liveWaveformPaused) {
+                this.liveWaveformFrame = null;
+            } else {
+                this.liveWaveformFrame = requestAnimationFrame(() => this.drawLiveWaveform());
+            }
         } else {
             this.liveWaveformFrame = null;
         }
@@ -2432,7 +2492,7 @@ class GusPatchApp {
         this.midiControllerInput = input;
         this.$('btnMidiControllerConnect').textContent = 'Disconnect';
         this.$('midiStatus').textContent = `MIDI controller connected: ${input.name || 'Input'}.`;
-        this.setLiveWaveformSource(player.waveformAnalyser);
+        this.setLiveWaveformSource(player.waveformAnalysers);
     }
 
     disconnectMidiControllerInput() {
