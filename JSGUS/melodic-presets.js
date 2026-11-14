@@ -6767,21 +6767,25 @@ var GUS_MELODIC_PRESETS = {
         "renderMode": "drum",
         "gain": 0.3,
         "freq": 441,
-        "duration": 0.22,
+        "duration": 0.23,
         "tones": [
           {
-            "fStart": 2600,
-            "fEnd": 1750,
-            "pitchDecay": 0.08,
-            "decay": 0.11,
-            "amp": 0.12
+            "fStart": 1100,
+            "fPeak": 4600,
+            "fEnd": 700,
+            "riseTime": 0.16,
+            "fallTime": 0.07,
+            "decay": 0.22,
+            "amp": 0.2
           },
           {
-            "fStart": 4200,
-            "fEnd": 2900,
-            "pitchDecay": 0.04,
-            "decay": 0.045,
-            "amp": 0.035
+            "fStart": 1800,
+            "fPeak": 7200,
+            "fEnd": 1000,
+            "riseTime": 0.16,
+            "fallTime": 0.07,
+            "decay": 0.14,
+            "amp": 0.06
           }
         ],
         "noise": {
@@ -6795,7 +6799,7 @@ var GUS_MELODIC_PRESETS = {
         },
         "highpass": 900,
         "lowpass": 7500,
-        "fadeOut": 0.045
+        "fadeOut": 0.02
       }
     },
     {

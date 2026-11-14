@@ -695,6 +695,9 @@ class MelodicRenderer {
                     ...tone,
                     fStart: tone.fStart * frequencyScale,
                     fEnd: tone.fEnd * frequencyScale,
+                    ...(Number.isFinite(tone.fPeak)
+                        ? { fPeak: tone.fPeak * frequencyScale }
+                        : {}),
                 })),
             };
             if (p.noise && p.noise.bandpass) {
@@ -1011,7 +1014,21 @@ class DrumRenderer {
     _tones(t, tones) {
         let s = 0;
         for (const tn of tones) {
-            const f = tn.fEnd + (tn.fStart - tn.fEnd) * Math.exp(-t / (tn.pitchDecay || 0.02));
+            let f;
+            if (Number.isFinite(tn.fPeak)) {
+                const riseTime = Math.max(0.001, tn.riseTime || 0.1);
+                const fallTime = Math.max(0.001, tn.fallTime || 0.03);
+                if (t < riseTime) {
+                    const progress = t / riseTime;
+                    const eased = progress * progress * (3 - 2 * progress);
+                    f = tn.fStart + (tn.fPeak - tn.fStart) * eased;
+                } else {
+                    const progress = Math.min(1, (t - riseTime) / fallTime);
+                    f = tn.fPeak + (tn.fEnd - tn.fPeak) * progress * progress;
+                }
+            } else {
+                f = tn.fEnd + (tn.fStart - tn.fEnd) * Math.exp(-t / (tn.pitchDecay || 0.02));
+            }
             tn.phase += f / this.SR;
             if (tn.phase >= 1) tn.phase -= Math.floor(tn.phase);
             let val;
