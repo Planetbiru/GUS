@@ -432,6 +432,7 @@
   "patch_deleted": "Patch deleted successfully.",
   "bank_zero_size_warning": "This bank contains broken patches (0 bytes). Please click the folder icon to delete them.",
   "select_all_banks": "Select All Banks / Drum Sets",
+  "export_full_pat_name": "Export Full Name",
   "col_select": "Select",
   "col_type": "Type",
   "col_original_bank": "Original Bank",

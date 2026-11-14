@@ -432,6 +432,7 @@
   "patch_deleted": "Patch berhasil dihapus.",
   "bank_zero_size_warning": "Bank ini memiliki patch rusak (0 byte). Silakan klik ikon folder untuk menghapus patch yang rusak.",
   "select_all_banks": "Pilih Semua Bank / Drum Set",
+  "export_full_pat_name": "Ekspor Nama Penuh",
   "col_select": "Pilih",
   "col_type": "Tipe",
   "col_original_bank": "Bank Asli",

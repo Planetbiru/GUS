@@ -628,6 +628,8 @@ class MidiController {
       const zipFiles = [];
       const usedPaths = new Set();
       const patchPaths = new Map();
+
+      const withFullName = $("exportFullPatName").checked;
   
       for (const entry of patches) {
         const clean = cleanPatchForStorage(entry.patch);
@@ -643,7 +645,7 @@ class MidiController {
         const programNum = (entry.gmProgram >= 0 && entry.gmProgram <= 127) ? entry.gmProgram : 0;
         const programPrefix = String(programNum).padStart(3, "0");
         
-        let filename = `${programPrefix}_${sanitizeFilename(exportName)}.pat`;
+        let filename = withFullName ? `${programPrefix}_${sanitizeFilename(exportName)}.pat` : `${programPrefix}.pat`;
   
         let suffix = 1;
         const original = filename;
