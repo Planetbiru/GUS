@@ -668,11 +668,13 @@ class MidiController {
       const manifestData = zipFiles.map(zf => ({
         filename: zf.name,
         patchName: getPatchDisplayName(zf.entry.patch, zf.entry.name),
+        isDrum: (zf.entry.gmBank ?? 0) === 128,
         gmProgram: zf.entry.gmProgram ?? -1,
         originalOrder: zf.entry.originalOrder ?? 0,
         userOrder: zf.entry.userOrder ?? 0,
         targetBank: zf.entry.targetBank ?? 0,
-        description: zf.entry.patch.header.description || ""
+        description: zf.entry.patch.header.description || "",
+        author: "", // Sediakan property agar memudahkan saat edit
       }));
       zipFiles.push({
         name: "manifest.json",
