@@ -463,7 +463,7 @@ main {
 
 .live-waveform canvas {
     width: 100%;
-    height: 80px;
+    height: 160px;
     display: block;
     background: #0a0e14;
     border: 1px solid var(--border);
