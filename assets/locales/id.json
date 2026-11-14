@@ -245,6 +245,8 @@
   "sf2_conversion_failed": "Gagal konversi SF2: {message}",
   "file_parse_failed": "Gagal parsing: {message}",
   "file_read_failed": "Gagal membaca file.",
+  "pat_download": "Unduh PAT",
+  "pat_download_title": "Unduh .PAT file",
   "pat_downloaded": "File .PAT diunduh.",
   "save_failed": "Gagal menyimpan: {message}",
   "save_failed_short": "Gagal menyimpan.",

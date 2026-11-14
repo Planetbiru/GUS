@@ -245,6 +245,8 @@
   "sf2_conversion_failed": "SF2 conversion failed: {message}",
   "file_parse_failed": "Failed to parse file: {message}",
   "file_read_failed": "Failed to read file.",
+  "pat_download": "Download PAT",
+  "pat_download_title": "Download .PAT file",
   "pat_downloaded": ".PAT file downloaded.",
   "save_failed": "Failed to save: {message}",
   "save_failed_short": "Failed to save.",
