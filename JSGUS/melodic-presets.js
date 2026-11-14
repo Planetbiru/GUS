@@ -1861,7 +1861,7 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.3
         ],
-        "noise": 0.018,
+        "noise": 0.035,
         "attackNoise": {
           "amp": 0.12,
           "duration": 0.012
@@ -1872,15 +1872,15 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 10
         },
         "guitarAmp": {
-          "drive": 2.8,
+          "drive": 3.6,
           "bias": 0.02,
-          "mix": 0.85,
-          "clip": 0,
+          "mix": 0.95,
+          "clip": 0.1,
           "preampCutoff": 100,
           "cabinetCutoff": 6000
         },
         "brightness": {
-          "start": 7000,
+          "start": 9000,
           "end": 3200,
           "loopCutoff": 6200
         },
