@@ -6767,30 +6767,30 @@ var GUS_MELODIC_PRESETS = {
         "renderMode": "drum",
         "gain": 0.3,
         "freq": 441,
-        "duration": 0.23,
+        "duration": 0.1,
         "tones": [
           {
             "fStart": 1100,
             "fPeak": 4600,
             "fEnd": 700,
-            "riseTime": 0.16,
-            "fallTime": 0.07,
-            "decay": 0.22,
+            "riseTime": 0.055,
+            "fallTime": 0.035,
+            "decay": 0.095,
             "amp": 0.2
           },
           {
             "fStart": 1800,
             "fPeak": 7200,
             "fEnd": 1000,
-            "riseTime": 0.16,
-            "fallTime": 0.07,
-            "decay": 0.14,
+            "riseTime": 0.055,
+            "fallTime": 0.035,
+            "decay": 0.06,
             "amp": 0.06
           }
         ],
         "noise": {
           "amp": 0.42,
-          "decay": 0.065,
+          "decay": 0.055,
           "type": "pink",
           "bandpass": {
             "center": 3600,
@@ -6799,7 +6799,7 @@ var GUS_MELODIC_PRESETS = {
         },
         "highpass": 900,
         "lowpass": 7500,
-        "fadeOut": 0.02
+        "fadeOut": 0.012
       }
     },
     {
