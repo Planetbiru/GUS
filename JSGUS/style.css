@@ -737,6 +737,167 @@ label[for="presetJson"] {
     gap: 4px;
 }
 
+#midiMixerDialog {
+    width: min(920px, calc(100vw - 32px));
+}
+
+.midi-mixer-channel-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.midi-mixer-channel {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) repeat(3, minmax(0, 2fr));
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 2px 0 4px;
+    border-bottom: 1px solid var(--border);
+}
+
+.midi-mixer-channel:last-child {
+    border-bottom: 0;
+}
+
+.midi-mixer-channel label {
+    min-width: 0;
+    color: var(--dim);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.midi-mixer-channel-name {
+    min-width: 0;
+    color: var(--fg);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.midi-mixer-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px;
+    align-items: center;
+    gap: 2px 4px;
+    min-width: 0;
+}
+
+.midi-mixer-control label {
+    grid-column: 1 / -1;
+    font-size: 11px;
+}
+
+.midi-mixer-control input[type="range"] {
+    width: 100%;
+    min-width: 0;
+    height: 14px;
+    margin: 0;
+}
+
+.midi-mixer-control output {
+    color: var(--dim);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.midi-mixer-footer {
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.midi-mixer-transport {
+    display: grid;
+    grid-template-columns: auto minmax(140px, 1fr);
+    align-items: center;
+    gap: 14px;
+    min-width: min(100%, 330px);
+    flex: 1;
+}
+
+.midi-mixer-transport-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+#btnMidiMixerPlay {
+    width: 100px;
+    flex: 0 0 100px;
+}
+
+.midi-mixer-seek-control {
+    display: grid;
+    grid-template-columns: 7ch minmax(0, 1fr) 7ch;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.midi-mixer-seek-time {
+    width: 7ch;
+    color: var(--dim);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+#midiMixerTimeCurrent {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#midiMixerTimeTotal {
+    grid-column: 3;
+    grid-row: 1;
+    text-align: right;
+}
+
+.midi-mixer-seek-control input {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+@media (max-width: 520px) {
+    .midi-mixer-channel {
+        grid-template-columns: minmax(62px, .8fr) repeat(3, minmax(0, 1fr));
+        gap: 3px;
+        padding: 1px 0 3px;
+    }
+
+    .midi-mixer-control {
+        grid-template-columns: minmax(0, 1fr) 24px;
+        gap: 3px;
+    }
+
+    .midi-mixer-control label,
+    .midi-mixer-control output {
+        font-size: 10px;
+    }
+
+    .midi-mixer-transport {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+.midi-mixer-control{
+    padding-bottom: 4px;
+}
+.dialog-content label.midi-mixer-control-label{
+    margin-top: 2px;
+}
+
 .channel-toggle {
     width: 28px;
     height: 26px;

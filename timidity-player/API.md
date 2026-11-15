@@ -384,16 +384,17 @@ Gets the parsed tempo map of the currently loaded MIDI song. In addition to the 
       totalSeconds: number,
 
       // NEW: per-channel event lists, sorted by ascending tick
-      programMap: Array<Array<{ tick, channel, program }>>,  // index = channel 0..15
-      volumeMap: Array<Array<{ tick, channel, value }>>,     // CC 7
-      bankMsbMap: Array<Array<{ tick, channel, value }>>,    // CC 0  (Bank Select MSB)
-      bankLsbMap: Array<Array<{ tick, channel, value }>>     // CC 32 (Bank Select LSB)
+      programMap: Array<Array<{ tick, channel, program }>>,     // index = channel 0..15
+      volumeMap: Array<Array<{ tick, channel, value }>>,        // CC 7
+      expressionMap: Array<Array<{ tick, channel, value }>>,    // CC 11
+      bankMsbMap: Array<Array<{ tick, channel, value }>>,       // CC 0  (Bank Select MSB)
+      bankLsbMap: Array<Array<{ tick, channel, value }>>        // CC 32 (Bank Select LSB)
   }
   ```
 - **Notes:**
   - `channelsUsed` is a sorted, duplicate-free array of MIDI channel numbers (0–15). It includes a channel if the MIDI file contains any channel voice event (status 0x8–0xE) on that channel, not only note events. For example, `[0, 9]` means the file uses channels 1 and 10; MIDI channel 10 is index `9`.
   - The map is available after MIDI parsing. For example, read `player.getTempoMap()?.channelsUsed` in an `onMidiLoaded` listener to determine which mixer strips correspond to channels present in the file.
-  - `programMap`, `volumeMap`, `bankMsbMap`, and `bankLsbMap` are arrays of 16 inner arrays (one per MIDI channel), each sorted by `tick` ascending. They are consumed internally by `getProgram()`, `getVolume()`, and `getBank()`.
+  - `programMap`, `volumeMap`, `expressionMap`, `bankMsbMap`, and `bankLsbMap` are arrays of 16 inner arrays (one per MIDI channel), each sorted by `tick` ascending. They are consumed internally by `getProgram()`, `getVolume()`, `getExpression()`, and `getBank()`.
   - If the MIDI file does not contain any program/bank events on a channel, the corresponding inner array is empty.
 
 ### `tickToBeat(tick)`
@@ -444,6 +445,13 @@ Gets the channel volume (CC 7) at the given tick.
   - `channel` *(number)*: MIDI channel (0-15).
   - `tick` *(number)*: Absolute tick position.
 - **Returns:** `number` - Volume (0-127), or `-1` if no song is loaded or the channel is invalid. If no volume event has occurred at or before `tick`, returns `100`.
+
+### `getExpression(channel, tick)`
+Gets the channel expression (CC 11) at the given tick.
+- **Parameters:**
+  - `channel` *(number)*: MIDI channel (0-15).
+  - `tick` *(number)*: Absolute tick position.
+- **Returns:** `number` - Expression (0-127), or `-1` if no song is loaded or the channel is invalid. If no expression event has occurred at or before `tick`, returns `127`.
 
 ### `getPan(channel, tick)`
 Gets the channel pan (CC 10) at the given tick.

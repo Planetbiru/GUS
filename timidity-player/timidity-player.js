@@ -453,7 +453,8 @@ class TimidityPlayer {
      *   maxTick: number,
      *   totalSeconds: number,
      *   programMap: Array<Array<{tick: number, channel: number, program: number}>>,
-     *     volumeMap: Array<Array<{tick: number, channel: number, value: number}>>,
+     *   volumeMap: Array<Array<{tick: number, channel: number, value: number}>>,
+     *   expressionMap: Array<Array<{tick: number, channel: number, value: number}>>,
      *   bankMsbMap: Array<Array<{tick: number, channel: number, value: number}>>,
      *   bankLsbMap: Array<Array<{tick: number, channel: number, value: number}>>
      * }} Parsed timing, meter, track, and instrumentation metadata for the song.
@@ -496,6 +497,7 @@ class TimidityPlayer {
         const channelsUsed = new Set();
         const programEvents = [];
         const volumeEvents = [];
+        const expressionEvents = [];
         const bankMsbEvents = [];
         const bankLsbEvents = [];
         let maxTick = 0;
@@ -560,6 +562,8 @@ class TimidityPlayer {
                         if (cmd === 0xB) { // Control Change
                             if (d1 === 7) {
                                 volumeEvents.push({ tick: absTick, channel: ch, value: d2 });
+                            } else if (d1 === 11) {
+                                expressionEvents.push({ tick: absTick, channel: ch, value: d2 });
                             } else if (d1 === 0) {
                                 bankMsbEvents.push({ tick: absTick, channel: ch, value: d2 });
                             } else if (d1 === 32) {
@@ -588,6 +592,7 @@ class TimidityPlayer {
 
         const programMap = buildChannelMap(programEvents);
         const volumeMap = buildChannelMap(volumeEvents);
+        const expressionMap = buildChannelMap(expressionEvents);
         const bankMsbMap = buildChannelMap(bankMsbEvents);
         const bankLsbMap = buildChannelMap(bankLsbEvents);
 
@@ -650,7 +655,7 @@ class TimidityPlayer {
         }
 
         return { division, timeMap, measureMap, tracksCount, trackNames, trackHasNotes, channelsUsed: Array.from(channelsUsed).sort((a, b) => a - b), maxTick, totalSeconds,
-            programMap, volumeMap, bankMsbMap, bankLsbMap
+            programMap, volumeMap, expressionMap, bankMsbMap, bankLsbMap
         };
     }
 
@@ -910,6 +915,25 @@ class TimidityPlayer {
         if (!events) return this.getControllerValueAtTick(channel, 7, tick);
 
         let value = 100;
+        for (const event of events) {
+            if (event.tick > tick) break;
+            value = event.value;
+        }
+        return value;
+    }
+
+    /**
+     * Gets the channel expression at a given tick.
+     * @param {number} channel - The MIDI channel (0-15).
+     * @param {number} tick - The absolute tick position.
+     * @returns {number} The expression value (0-127), or -1 if no song is loaded or the channel is invalid.
+     */
+    getExpression(channel, tick) {
+        if (this.songPtr === 0 || channel < 0 || channel > 15) return -1;
+        const events = this.tempoMap?.expressionMap?.[channel];
+        if (!events) return this.getControllerValueAtTick(channel, 11, tick);
+
+        let value = 127;
         for (const event of events) {
             if (event.tick > tick) break;
             value = event.value;

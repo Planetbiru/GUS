@@ -109,6 +109,7 @@ class GusPatchApp {
         this.midiFileName = '';
         this.midiDuration = 0;
         this.midiPosition = 0;
+        this.midiTick = 0;
         this.midiSeeking = false;
         this.midiRenderInProgress = false;
         this.midiRenderOperation = '';
@@ -503,6 +504,21 @@ class GusPatchApp {
         this.$('midiFile').addEventListener('change', event => this.loadMidiFile(event));
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
         this.$('btnMidiStop').onclick = () => this.stopMidiPlayback();
+        this.$('btnMidiMixer').onclick = () => this.openMidiMixer();
+        this.$('btnMidiMixerPlay').onclick = () => this.toggleMidiPlayback();
+        this.$('btnMidiMixerStop').onclick = () => this.stopMidiPlayback();
+        this.$('btnCloseMidiMixer').onclick = () => this.$('midiMixerDialog').close();
+        this.$('btnDoneMidiMixer').onclick = () => this.$('midiMixerDialog').close();
+        this.$('midiMixerDialog').addEventListener('click', event => {
+            if (event.target === this.$('midiMixerDialog')) this.$('midiMixerDialog').close();
+        });
+        this.$('midiMixerChannelList').addEventListener('input', event => {
+            this.handleMidiMixerControllerInput(event);
+        });
+        this.$('midiMixerSeek').addEventListener('input', event => {
+            this.handleMidiSeekInput(event, this.$('midiSeek'));
+        });
+        this.$('midiMixerSeek').addEventListener('change', () => this.commitMidiSeek());
         this.$('btnMidiRender').onclick = () => this.renderMidiToWav();
         this.$('btnMidiRenderStemsStereo').onclick = () => this.renderMidiStemsToFlac('stereo');
         this.$('btnMidiRenderStemsMono').onclick = () => this.renderMidiStemsToFlac('mono');
@@ -533,19 +549,9 @@ class GusPatchApp {
             if (this.sequencerPlaying) this.scheduleSequencerPatternUpdate();
         });
         this.$('midiSeek').addEventListener('input', event => {
-            if (!this.midiData || !this.midiDuration) return;
-            this.midiSeeking = true;
-            this.clearActiveMidiNotes();
-            this.midiPosition = Number(event.target.value) / 1000 * this.midiDuration;
-            this.updateMidiPlaybackUI();
+            this.handleMidiSeekInput(event, this.$('midiMixerSeek'));
         });
-        this.$('midiSeek').addEventListener('change', () => {
-            this.midiSeeking = false;
-            if (this.timidityPlayer && this.timidityPlayer.songPtr) {
-                this.timidityPlayer.seek(this.midiPosition);
-            }
-            this.updateMidiPlaybackUI();
-        });
+        this.$('midiSeek').addEventListener('change', () => this.commitMidiSeek());
 
         ['sr', 'root', 'dur', 'wave'].forEach(id => {
             this.$(id).addEventListener('input', event => this.handleGeneratorInput(event));
@@ -1754,6 +1760,8 @@ class GusPatchApp {
         player.on('onMidiLoaded', (_midi, duration) => {
             if (this.midiMode === 'sequencer') return;
             this.midiDuration = duration || player.totalDuration || 0;
+            this.midiPosition = 0;
+            this.midiTick = 0;
             this.setMidiChannels(player.getTempoMap()?.channelsUsed || []);
             this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
@@ -1763,19 +1771,38 @@ class GusPatchApp {
                 this.midiChannelPrograms.set(event.channel, event.a & 0x7f);
                 this.renderMidiChannelList();
             }
+            const controller = event.eventType === player.ME_MAINVOLUME
+                ? 7
+                : event.eventType === player.ME_PAN
+                    ? 10
+                    : event.eventType === player.ME_EXPRESSION
+                        ? 11
+                        : null;
+            if (controller !== null) {
+                this.midiTick = event.tick;
+                if (this.$('midiMixerDialog').open && !this.midiSeeking) {
+                    this.setMidiMixerControllerValue(event.channel, controller, event.a);
+                }
+            }
         });
         player.on('onNoteOn', event => this.handleMidiNoteOn(event));
         player.on('onNoteOff', event => this.handleMidiNoteOff(event));
-        player.on('onSeek', () => this.clearActiveMidiNotes());
+        player.on('onSeek', (tick, seconds) => {
+            this.midiTick = tick;
+            this.midiPosition = seconds;
+            this.clearActiveMidiNotes();
+        });
         player.on('onPlay', () => this.setLiveWaveformSource(player.waveformAnalysers));
         player.on('onResume', () => this.setLiveWaveformSource(player.waveformAnalysers));
-        player.on('onPlaying', (_tick, seconds) => {
+        player.on('onPlaying', (tick, seconds) => {
             if (this.midiMode === 'sequencer' || this.midiSeeking) return;
+            this.midiTick = tick;
             this.midiPosition = seconds;
             this.updateMidiPlaybackUI();
         });
         player.on('onPause', () => {
             this.midiPosition = player.getTime() / 1000;
+            this.midiTick = player.timeToTick(this.midiPosition);
             this.updateMidiPlaybackUI();
             if (this.audio.source) {
                 this.restoreLiveWaveformSource();
@@ -1793,8 +1820,12 @@ class GusPatchApp {
             this.$('midiStatus').textContent = `Ready: ${this.midiFileName}`;
         });
         player.on('onStop', () => {
+            this.midiTick = 0;
+            const mixerButton = this.$('btnMidiMixer');
+            if (mixerButton) mixerButton.disabled = true;
             this.clearActiveMidiNotes();
             this.restoreLiveWaveformSource();
+            this.updateMidiPlaybackUI();
         });
         player.on('onRenderProgress', progress => {
             if (this.midiRenderInProgress) {
@@ -2010,6 +2041,8 @@ class GusPatchApp {
         const list = this.$('midiChannelList');
         list.replaceChildren();
         mixer.hidden = this.midiChannelStates.size === 0;
+        const mixerButton = this.$('btnMidiMixer');
+        mixerButton.disabled = this.midiChannelsUsed.length === 0 || !this.timidityPlayer?.songPtr;
 
         for (const channel of this.midiChannelsUsed) {
             const state = this.midiChannelStates.get(channel);
@@ -2052,6 +2085,185 @@ class GusPatchApp {
             item.append(name, controls);
             list.appendChild(item);
         }
+    }
+
+    getMidiMixerTick() {
+        const player = this.timidityPlayer;
+        if (!player?.songPtr) return 0;
+        if (player.isPlaying && Number.isFinite(this.midiTick)) return this.midiTick;
+
+        const seekValue = Number(this.$('midiSeek').value);
+        const progress = Number.isFinite(seekValue)
+            ? Math.max(0, Math.min(1000, seekValue)) / 1000
+            : 0;
+        const seconds = progress * this.midiDuration;
+        return player.timeToTick(seconds);
+    }
+
+    openMidiMixer() {
+        const player = this.timidityPlayer;
+        if (!player?.songPtr || this.midiChannelsUsed.length === 0) return;
+
+        const tick = this.getMidiMixerTick();
+        const channelValues = this.getMidiMixerChannelValues(tick);
+        if (!channelValues) return;
+        const list = this.$('midiMixerChannelList');
+        list.replaceChildren();
+
+        for (const {channel, volume, expression, pan} of channelValues) {
+            const item = document.createElement('li');
+            item.className = 'midi-mixer-channel';
+
+            const channelLabel = document.createElement('span');
+            channelLabel.className = 'midi-mixer-channel-name';
+            channelLabel.textContent = channel === 9 ? 'Channel 10 · Drums' : `Channel ${channel + 1}`;
+            item.appendChild(channelLabel);
+
+            for (const {controller, name, value} of [
+                {controller: 7, name: 'Volume', value: volume},
+                {controller: 11, name: 'Expression', value: expression},
+                {controller: 10, name: 'Pan', value: pan},
+            ]) {
+                const control = document.createElement('div');
+                control.className = 'midi-mixer-control';
+
+                const label = document.createElement('label');
+                label.classList.add('midi-mixer-control-label');
+                label.htmlFor = `midiMixerControl_${controller}_${channel}`;
+                label.textContent = name;
+
+                const slider = document.createElement('input');
+                slider.id = label.htmlFor;
+                slider.type = 'range';
+                slider.min = '0';
+                slider.max = '127';
+                slider.step = '1';
+                slider.value = String(value);
+                slider.dataset.channel = String(channel);
+                slider.dataset.controller = String(controller);
+                slider.setAttribute('aria-label', `${channelLabel.textContent} ${name.toLowerCase()}`);
+
+                const output = document.createElement('output');
+                output.id = `midiMixerValue_${controller}_${channel}`;
+                output.htmlFor = slider.id;
+                output.value = String(value);
+                output.textContent = String(value);
+
+                control.append(label, slider, output);
+                item.appendChild(control);
+            }
+            list.appendChild(item);
+        }
+
+        this.showDialogCentered(this.$('midiMixerDialog'));
+    }
+
+    getMidiMixerChannelValues(tick) {
+        const player = this.timidityPlayer;
+        if (!player?.songPtr) return null;
+
+        const channelValues = this.midiChannelsUsed.map(channel => ({
+            channel,
+            volume: player.getVolume(channel, tick),
+            expression: player.getExpression(channel, tick),
+            pan: player.getPan(channel, tick),
+        }));
+        for (const {channel, volume, expression, pan} of channelValues) {
+            for (const [name, value] of [['volume', volume], ['expression', expression], ['pan', pan]]) {
+                if (!Number.isInteger(value) || value < 0 || value > 127) {
+                    const message = `Could not read ${name} for MIDI channel ${channel + 1} at tick ${tick}.`;
+                    this.$('midiStatus').textContent = message;
+                    this.log(message, 'err');
+                    return null;
+                }
+            }
+        }
+        return channelValues;
+    }
+
+    setMidiMixerControllerValue(channel, controller, value) {
+        const numericValue = Number(value);
+        if (!Number.isInteger(channel) || channel < 0 || channel > 15
+            || ![7, 10, 11].includes(controller)
+            || !Number.isFinite(numericValue)) return;
+
+        const clampedValue = Math.max(0, Math.min(127, Math.round(numericValue)));
+        const slider = this.$(`midiMixerControl_${controller}_${channel}`);
+        const output = this.$(`midiMixerValue_${controller}_${channel}`);
+        if (!slider || !output) return;
+
+        slider.value = String(clampedValue);
+        output.value = String(clampedValue);
+        output.textContent = String(clampedValue);
+    }
+
+    handleMidiMixerControllerInput(event) {
+        const slider = event.target.closest('input[type="range"][data-channel][data-controller]');
+        if (!slider) return;
+
+        const channel = Number(slider.dataset.channel);
+        const controller = Number(slider.dataset.controller);
+        const value = Number(slider.value);
+        this.setMidiMixerControllerValue(channel, controller, value);
+        if (this.timidityPlayer?.songPtr) {
+            const eventType = controller === 7
+                ? this.timidityPlayer.ME_MAINVOLUME
+                : controller === 10
+                    ? this.timidityPlayer.ME_PAN
+                    : this.timidityPlayer.ME_EXPRESSION;
+            this.timidityPlayer.sendEvent(eventType, channel, value);
+        }
+    }
+
+    syncMidiMixerControllersAtTick(tick) {
+        const player = this.timidityPlayer;
+        if (!player?.songPtr) return;
+
+        const channelValues = this.getMidiMixerChannelValues(tick);
+        if (!channelValues) return;
+
+        for (const {channel, volume, expression, pan} of channelValues) {
+            this.setMidiMixerControllerValue(channel, 7, volume);
+            this.setMidiMixerControllerValue(channel, 11, expression);
+            this.setMidiMixerControllerValue(channel, 10, pan);
+            player.sendEvent(player.ME_MAINVOLUME, channel, volume);
+            player.sendEvent(player.ME_EXPRESSION, channel, expression);
+            player.sendEvent(player.ME_PAN, channel, pan);
+        }
+    }
+
+    handleMidiSeekInput(event, otherSeek) {
+        if (!this.midiData || !this.midiDuration) return;
+        this.midiSeeking = true;
+        this.clearActiveMidiNotes();
+        this.midiPosition = Number(event.target.value) / 1000 * this.midiDuration;
+        this.midiTick = this.timidityPlayer?.songPtr
+            ? this.timidityPlayer.timeToTick(this.midiPosition)
+            : 0;
+        this.updateMidiMixerValuesAtTick(this.midiTick);
+        otherSeek.value = event.target.value;
+        this.updateMidiPlaybackUI();
+    }
+
+    updateMidiMixerValuesAtTick(tick) {
+        const channelValues = this.getMidiMixerChannelValues(tick);
+        if (!channelValues) return;
+
+        for (const {channel, volume, expression, pan} of channelValues) {
+            this.setMidiMixerControllerValue(channel, 7, volume);
+            this.setMidiMixerControllerValue(channel, 11, expression);
+            this.setMidiMixerControllerValue(channel, 10, pan);
+        }
+    }
+
+    commitMidiSeek() {
+        this.midiSeeking = false;
+        if (this.timidityPlayer?.songPtr) {
+            this.timidityPlayer.seek(this.midiPosition);
+            this.midiTick = this.timidityPlayer.timeToTick(this.midiPosition);
+            this.syncMidiMixerControllersAtTick(this.midiTick);
+        }
+        this.updateMidiPlaybackUI();
     }
 
     toggleMidiChannelControl(channel, control) {
@@ -2339,6 +2551,7 @@ class GusPatchApp {
         this.midiData = null;
         this.midiDuration = 0;
         this.midiPosition = 0;
+        this.midiTick = 0;
         this.updateMidiPlaybackUI();
 
         try {
@@ -2830,6 +3043,7 @@ class GusPatchApp {
             this.timidityPlayer.stop();
         }
         this.midiPosition = 0;
+        this.midiTick = 0;
         this.midiSeeking = false;
         this.updateMidiPlaybackUI();
     }
@@ -3249,25 +3463,37 @@ class GusPatchApp {
     updateMidiPlaybackUI() {
         const playButton = this.$('btnMidiPlay');
         const seek = this.$('midiSeek');
+        const mixerPlayButton = this.$('btnMidiMixerPlay');
+        const mixerSeek = this.$('midiMixerSeek');
         const isPlaying = Boolean(this.timidityPlayer?.isPlaying && !this.timidityPlayer.isPaused);
         playButton.disabled = this.midiMode !== 'file' || !this.midiData;
         this.$('midiPlayIcon').hidden = isPlaying;
         this.$('midiPauseIcon').hidden = !isPlaying;
         this.$('midiPlayLabel').textContent = isPlaying ? 'Pause' : 'Play';
+        mixerPlayButton.disabled = playButton.disabled;
+        this.$('midiMixerPlayIcon').hidden = this.$('midiPlayIcon').hidden;
+        this.$('midiMixerPauseIcon').hidden = this.$('midiPauseIcon').hidden;
+        this.$('midiMixerPlayLabel').textContent = this.$('midiPlayLabel').textContent;
         this.$('btnMidiStop').disabled = this.midiMode !== 'file' || !this.midiData;
+        this.$('btnMidiMixerStop').disabled = this.$('btnMidiStop').disabled;
         this.$('btnMidiRender').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
         this.$('btnMidiRenderStemsStereo').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
         this.$('btnMidiRenderStemsMono').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
         seek.disabled = this.midiMode !== 'file' || !this.midiData || !this.midiDuration;
+        mixerSeek.disabled = seek.disabled;
 
         const position = Math.max(0, Math.min(this.midiDuration, this.midiPosition || 0));
         if (!this.midiSeeking) {
-            seek.value = this.midiDuration
+            const seekValue = this.midiDuration
                 ? String(Math.round(position / this.midiDuration * 1000))
                 : '0';
+            seek.value = seekValue;
+            mixerSeek.value = seekValue;
         }
         this.$('midiTimeCurrent').textContent = this.formatMidiTime(position);
         this.$('midiTimeTotal').textContent = this.formatMidiTime(this.midiDuration);
+        this.$('midiMixerTimeCurrent').textContent = this.formatMidiTime(position);
+        this.$('midiMixerTimeTotal').textContent = this.formatMidiTime(this.midiDuration);
     }
 
     formatMidiTime(seconds) {
