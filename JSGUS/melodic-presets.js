@@ -1368,11 +1368,11 @@ var GUS_MELODIC_PRESETS = {
           0.7,
           0.55,
           0.4,
-          0.3,
-          0.2,
-          0.15,
-          0.1,
-          0.05
+          0.34,
+          0.24,
+          0.18,
+          0.12,
+          0.065
         ],
         "partialDecay": [
           2.8,
@@ -1394,9 +1394,9 @@ var GUS_MELODIC_PRESETS = {
         },
         "pluckPosition": 0.105,
         "pluckTransient": {
-          "freq": 4500,
+          "freq": 5000,
           "q": 1.1,
-          "amp": 0.08,
+          "amp": 0.095,
           "duration": 0.016,
           "decay": 0.006
         },
@@ -1406,7 +1406,7 @@ var GUS_MELODIC_PRESETS = {
         },
         "brightness": {
           "start": 14000,
-          "end": 3000
+          "end": 4000
         },
         "formants": [
           {
