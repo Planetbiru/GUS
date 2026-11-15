@@ -1798,6 +1798,7 @@ class GusPatchApp {
             if (event.eventType === player.ME_PROGRAM) {
                 this.midiChannelPrograms.set(event.channel, event.a & 0x7f);
                 this.renderMidiChannelList();
+                this.updateMidiMixerInstrumentIcon(event.channel);
             }
             const controller = event.eventType === player.ME_MAINVOLUME
                 ? 7
@@ -2141,6 +2142,64 @@ class GusPatchApp {
         return player.timeToTick(seconds);
     }
 
+    getMidiMixerInstrumentSelection(channel) {
+        if (channel === 9) {
+            const drum = [...this.midiInstrumentList.values()]
+                .filter(instrument => instrument.type === 'drum')
+                .sort((a, b) => a.program - b.program)[0]
+                || this.lib.drums[0];
+            if (!drum) return null;
+            const program = Number.isInteger(drum.program) ? drum.program : drum.note;
+            return Number.isInteger(program)
+                ? {type: 'drum', program, name: drum.name}
+                : null;
+        }
+
+        const program = this.midiChannelPrograms.get(channel) ?? 0;
+        const instrument = this.lib.melodic[program];
+        return instrument ? {type: 'melodic', program, name: instrument.name} : null;
+    }
+
+    updateMidiMixerInstrumentIcon(channel, button) {
+        const iconButton = button || this.$('midiMixerChannelList')?.querySelector(
+            `.midi-mixer-channel[data-channel="${channel}"] .midi-mixer-instrument-button`
+        );
+        if (!iconButton) return;
+
+        const instrument = this.getMidiMixerInstrumentSelection(channel);
+        if (!instrument) {
+            iconButton.disabled = true;
+            iconButton.title = 'No instrument is available for this channel';
+            iconButton.setAttribute('aria-label', iconButton.title);
+            return;
+        }
+
+        const code = String(instrument.program).padStart(3, '0');
+        const label = instrument.type === 'drum'
+            ? `Drum note ${code} — ${instrument.name}`
+            : `Program ${code} — ${instrument.name}`;
+        iconButton.disabled = false;
+        iconButton.dataset.type = instrument.type;
+        iconButton.dataset.program = String(instrument.program);
+        iconButton.title = label;
+        iconButton.setAttribute('aria-label', `Select ${label} in the instrument editor`);
+        iconButton.innerHTML = getMidiIcon(instrument.program, channel);
+    }
+
+    selectMidiMixerInstrument(channel) {
+        const instrument = this.getMidiMixerInstrumentSelection(channel);
+        if (!instrument) {
+            const message = `No instrument is available for MIDI channel ${channel + 1}.`;
+            this.$('midiStatus').textContent = message;
+            this.log(message, 'err');
+            return;
+        }
+
+        this.selectInstrument(instrument.type, instrument.program);
+        const selector = `.inst[data-type="${instrument.type}"][data-midi="${instrument.program}"]`;
+        document.querySelector(selector)?.scrollIntoView({block: 'nearest'});
+    }
+
     openMidiMixer() {
         const player = this.timidityPlayer;
         if (!player?.songPtr || this.midiChannelsUsed.length === 0) return;
@@ -2164,10 +2223,17 @@ class GusPatchApp {
             indicator.setAttribute('aria-label', this.activeMidiChannelNotes.has(channel)
                 ? 'Channel has active notes'
                 : 'No active notes');
+            const instrumentButton = document.createElement('button');
+            instrumentButton.type = 'button';
+            instrumentButton.className = 'icon-btn midi-mixer-instrument-button';
+            instrumentButton.dataset.channel = String(channel);
+            this.updateMidiMixerInstrumentIcon(channel, instrumentButton);
+            instrumentButton.addEventListener('click', () => this.selectMidiMixerInstrument(channel));
             const channelLabel = document.createElement('span');
             channelLabel.className = 'midi-mixer-channel-name';
             channelLabel.textContent = channel === 9 ? 'Channel 9 · Drums' : `Channel ${channel}`;
-            channelInfo.append(indicator, channelLabel);
+            channelLabel.title = channelLabel.textContent;
+            channelInfo.append(indicator, instrumentButton, channelLabel);
 
             const channelToggles = document.createElement('span');
             channelToggles.className = 'midi-mixer-channel-toggles';

@@ -772,6 +772,28 @@ label[for="presetJson"] {
     min-width: 0;
 }
 
+.midi-mixer-instrument-button {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    padding: 2px;
+    color: var(--dim);
+    background: transparent;
+    border-color: transparent;
+}
+
+.midi-mixer-instrument-button svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+}
+
+.midi-mixer-instrument-button:hover:not(:disabled) {
+    color: var(--accent);
+    background: transparent;
+    border-color: transparent;
+}
+
 .midi-mixer-channel label {
     min-width: 0;
     color: var(--dim);
