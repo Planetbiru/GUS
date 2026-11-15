@@ -2084,45 +2084,39 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Fretless Bass",
       "shortName": "Fretless Bass",
-      "description": "Fretless Bass: a focused low end and firm fundamental.",
+      "description": "Fretless Bass: a smooth, singing tone with a rounded attack.",
       "preset": {
         "mute": false,
-        "renderMode": "drum",
-        "gain": 0.3,
-        "freq": 441,
-        "duration": 0.15,
-        "tones": [
-          {
-            "fStart": 1100,
-            "fPeak": 4600,
-            "fEnd": 700,
-            "riseTime": 0.055,
-            "fallTime": 0.032,
-            "decay": 0.095,
-            "amp": 0.22
-          },
-          {
-            "fStart": 1800,
-            "fPeak": 7200,
-            "fEnd": 1000,
-            "riseTime": 0.055,
-            "fallTime": 0.032,
-            "decay": 0.06,
-            "amp": 0.07
-          }
-        ],
-        "noise": {
-          "amp": 0.3,
-          "decay": 0.055,
-          "type": "pink",
-          "bandpass": {
-            "center": 6000,
-            "q": 1
-          }
+        "gain": 0.32,
+        "freq": 220,
+        "length": 33075,
+        "loop": true,
+        "cycles": 16,
+        "loopSkip": 3,
+        "loopAttack": 0.012,
+        "loopAttackNoise": {
+          "amp": 0.025,
+          "duration": 0.008
         },
-        "highpass": 2000,
-        "lowpass": 7500,
-        "fadeOut": 4
+        "env": {
+          "a": 0.008,
+          "d": 0.55,
+          "s": 0.28,
+          "r": 0.25
+        },
+        "harm": [
+          1,
+          0.42,
+          0.22,
+          0.11,
+          0.055,
+          0.028,
+          0.014
+        ],
+        "brightness": {
+          "loopCutoff": 3500
+        },
+        "antiAlias": true
       }
     },
     {
