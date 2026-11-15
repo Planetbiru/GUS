@@ -81,7 +81,7 @@ var GUS_MELODIC_PRESETS = {
         },
         "brightness": {
           "start": 9000,
-          "end": 5200
+          "end": 6700
         },
         "antiAlias": true
       }
@@ -1305,7 +1305,7 @@ var GUS_MELODIC_PRESETS = {
         },
         "brightness": {
           "start": 10500,
-          "end": 2500
+          "end": 4500
         },
         "formants": [
           {
@@ -1406,7 +1406,7 @@ var GUS_MELODIC_PRESETS = {
         },
         "brightness": {
           "start": 14000,
-          "end": 4000
+          "end": 5500
         },
         "formants": [
           {
@@ -1564,11 +1564,11 @@ var GUS_MELODIC_PRESETS = {
           "bias": 0,
           "mix": 0.25,
           "preampCutoff": 75,
-          "cabinetCutoff": 6500
+          "cabinetCutoff": 9500
         },
         "brightness": {
-          "start": 7000,
-          "end": 2600,
+          "start": 10500,
+          "end": 5600,
           "loopCutoff": 5200
         },
         "antiAlias": true
