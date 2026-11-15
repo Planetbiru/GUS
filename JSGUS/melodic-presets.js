@@ -6767,7 +6767,7 @@ var GUS_MELODIC_PRESETS = {
         "renderMode": "drum",
         "gain": 0.3,
         "freq": 441,
-        "duration": 0.1,
+        "duration": 0.15,
         "tones": [
           {
             "fStart": 1100,
