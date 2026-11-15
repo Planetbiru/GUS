@@ -4079,9 +4079,9 @@ var GUS_MELODIC_PRESETS = {
         "gain": 0.31,
         "freq": 620,
         "loop": true,
-        "cycles": 14,
-        "loopSkip": 8,
-        "loopAttack": 0.008,
+        "cycles": 18,
+        "loopSkip": 12,
+        "loopAttack": 0.02,
         "env": {
           "a": 0.05,
           "d": 0.1,
@@ -4118,22 +4118,21 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.006,
           "sweep": 12
         },
-        "drive": 1.3,
         "formants": [
           {
             "freq": 1400,
             "q": 1.5,
-            "gain": 5
+            "gain": 4
           },
           {
             "freq": 2600,
             "q": 2,
-            "gain": 5
+            "gain": 4
           },
           {
             "freq": 4300,
             "q": 2.5,
-            "gain": 6
+            "gain": 5
           }
         ],
         "antiAlias": true
