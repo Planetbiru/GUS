@@ -4218,9 +4218,9 @@ var GUS_MELODIC_PRESETS = {
         "gain": 0.5,
         "freq": 320,
         "loop": true,
-        "cycles": 14,
-        "loopSkip": 8,
-        "loopAttack": 0.012,
+        "cycles": 18,
+        "loopSkip": 12,
+        "loopAttack": 0.035,
         "env": {
           "a": 0.05,
           "d": 0.1,
