@@ -57,6 +57,14 @@ After a MIDI file loads, **Instruments used** lists the melodic instruments and 
 - **M** mutes that channel.
 - **S** solos that channel. Multiple channels can be soloed; while any Solo is active, non-solo channels are muted. Mute remains in effect on a channel even if it is also soloed.
 
+## Use the MIDI Mixer
+
+The MIDI mixer is a supplementary tool for auditioning channel levels. **Its primary purpose is to determine the appropriate gain for each instrument in a song—not to remix the song.** Start with a MIDI file whose arrangement and mix are already the ones you want, and use that as the reference. Use the mixer's **Volume** and **Expression** controls to audition each instrument/channel and find a suitable gain. **Pan** is also available as a playback control, but the mixer is not intended to rebuild or replace the song's arrangement or mix.
+
+Open **Mixer** after loading a MIDI file. The mixer shows the channels used by that file. Its controls follow the MIDI's Volume, Expression, and Pan automation during playback and when seeking. Manual slider changes are sent to the player for auditioning; they do not modify the source MIDI file.
+
+Use the **M** and **S** buttons beside a channel to mute or solo it. These buttons share their state with the corresponding controls in the **Channels** list, so changes in either location are reflected in the other.
+
 ## Use the Sequencer
 
 Select **Sequencer** in MIDI Playback. The sequencer uses the instrument currently selected in the instrument list.

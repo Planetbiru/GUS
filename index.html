@@ -224,6 +224,8 @@
         <button class="btn small" id="btnMidi">{{enable}}</button>
         <span class="dot" id="midiDot"></span>
       </div>
+      <button class="btn small" id="btnAbout" type="button" aria-haspopup="dialog"
+        aria-controls="aboutDialog">{{about_button}}</button>
     </div>
   </header>
 
@@ -1437,6 +1439,26 @@
         </div>
         <div class="modal-footer">
           <button class="btn primary" id="btnCloseAlert" type="button">{{ok_button}}</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="aboutDialog" class="modal-overlay" hidden>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="aboutTitle"
+      aria-describedby="aboutDescription">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="aboutTitle">{{about_title}}</h2>
+        </div>
+        <div class="modal-body">
+          <p id="aboutDescription" class="modal-message">{{about_description}}</p>
+          <p>{{about_features}}</p>
+          <p><a class="about-website-link" href="https://planetbiru.com" target="_blank"
+              rel="noopener noreferrer">{{about_company}}</a></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btnCloseAbout" type="button">{{close}}</button>
         </div>
       </div>
     </section>

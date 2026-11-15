@@ -1087,7 +1087,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5.5,
           "depth": 0.006
         },
-        "drive": 1.3,
+        "drive": 1.0,
         "formants": [
           {
             "freq": 900,
@@ -2087,41 +2087,42 @@ var GUS_MELODIC_PRESETS = {
       "description": "Fretless Bass: a focused low end and firm fundamental.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "triangle",
-        "gain": 0.35,
-        "freq": 220,
-        "length": 33075,
-        "loop": true,
-        "cycles": 14,
-        "loopSkip": 2,
-        "env": {
-          "a": 0.005,
-          "d": 0.5,
-          "s": 0.2,
-          "r": 0.3
-        },
-        "harm": [
-          1,
-          0.7,
-          0.5,
-          0.3,
-          0.2,
-          0.1,
-          0.05
+        "renderMode": "drum",
+        "gain": 0.3,
+        "freq": 441,
+        "duration": 0.15,
+        "tones": [
+          {
+            "fStart": 1100,
+            "fPeak": 4600,
+            "fEnd": 700,
+            "riseTime": 0.055,
+            "fallTime": 0.032,
+            "decay": 0.095,
+            "amp": 0.22
+          },
+          {
+            "fStart": 1800,
+            "fPeak": 7200,
+            "fEnd": 1000,
+            "riseTime": 0.055,
+            "fallTime": 0.032,
+            "decay": 0.06,
+            "amp": 0.07
+          }
         ],
-        "attackNoise": {
-          "amp": 0.07,
-          "duration": 0.008
+        "noise": {
+          "amp": 0.3,
+          "decay": 0.055,
+          "type": "pink",
+          "bandpass": {
+            "center": 6000,
+            "q": 1
+          }
         },
-        "vibrato": {
-          "rate": 5,
-          "depth": 0.01
-        },
-        "brightness": {
-          "start": 5000,
-          "end": 900
-        },
-        "antiAlias": true
+        "highpass": 2000,
+        "lowpass": 7500,
+        "fadeOut": 4
       }
     },
     {
@@ -4217,9 +4218,9 @@ var GUS_MELODIC_PRESETS = {
         "gain": 0.5,
         "freq": 320,
         "loop": true,
-        "cycles": 14,
-        "loopSkip": 8,
-        "loopAttack": 0.012,
+        "cycles": 18,
+        "loopSkip": 12,
+        "loopAttack": 0.035,
         "env": {
           "a": 0.05,
           "d": 0.1,
@@ -4370,7 +4371,9 @@ var GUS_MELODIC_PRESETS = {
         "defaultWaveform": "reed",
         "gain": 0.31,
         "loop": true,
-        "cycles": 14,
+        "cycles": 18,
+        "loopSkip": 12,
+        "loopAttack": 0.025,
         "env": {
           "a": 0.05,
           "d": 0.1,
@@ -4393,7 +4396,6 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.007,
           "sweep": 15
         },
-        "drive": 1.4,
         "brightness": {
           "start": 9000,
           "end": 4800
@@ -6764,29 +6766,42 @@ var GUS_MELODIC_PRESETS = {
       "description": "Fret Noise: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
+        "renderMode": "drum",
         "gain": 0.3,
-        "length": 2205,
-        "loop": false,
-        "env": {
-          "a": 0.001,
-          "d": 0.1,
-          "s": 0,
-          "r": 0.05
-        },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
+        "freq": 441,
+        "duration": 0.15,
+        "tones": [
+          {
+            "fStart": 1100,
+            "fPeak": 4600,
+            "fEnd": 700,
+            "riseTime": 0.055,
+            "fallTime": 0.035,
+            "decay": 0.095,
+            "amp": 0.2
+          },
+          {
+            "fStart": 1800,
+            "fPeak": 7200,
+            "fEnd": 1000,
+            "riseTime": 0.055,
+            "fallTime": 0.035,
+            "decay": 0.06,
+            "amp": 0.06
+          }
         ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
+        "noise": {
+          "amp": 0.5,
+          "decay": 0.055,
+          "type": "pink",
+          "bandpass": {
+            "center": 6000,
+            "q": 3
+          }
         },
-        "noise": 0.7,
-        "antiAlias": true
+        "highpass": 4000,
+        "lowpass": 7500,
+        "fadeOut": 1
       }
     },
     {

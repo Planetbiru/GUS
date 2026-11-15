@@ -46,6 +46,17 @@ body {
   margin: -1px 0 0 0;
 }
 
+.about-website-link,
+.about-website-link:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.about-website-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 header {
     height: 56px;
     gap: 10px;
@@ -108,17 +119,21 @@ header {
     color: var(--text);
     cursor: pointer;
     outline: none;
-    transition: .15s;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 
 #languageSelect:hover {
-    background: #16233d;
+    background-color: #16233d;
     border-color: #2b446b;
 }
 
 #languageSelect:focus-visible {
     border-color: var(--accent);
     box-shadow: 0 0 0 2px rgb(56 189 248 / 20%);
+}
+
+#btnAbout {
+    min-height: 32px;
 }
 
 .btn.primary {
