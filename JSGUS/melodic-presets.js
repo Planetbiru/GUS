@@ -4371,7 +4371,9 @@ var GUS_MELODIC_PRESETS = {
         "defaultWaveform": "reed",
         "gain": 0.31,
         "loop": true,
-        "cycles": 14,
+        "cycles": 18,
+        "loopSkip": 12,
+        "loopAttack": 0.025,
         "env": {
           "a": 0.05,
           "d": 0.1,
@@ -4394,7 +4396,6 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.007,
           "sweep": 15
         },
-        "drive": 1.4,
         "brightness": {
           "start": 9000,
           "end": 4800
