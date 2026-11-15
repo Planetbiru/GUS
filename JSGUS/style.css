@@ -918,10 +918,14 @@ label[for="presetJson"] {
 
 @media (max-width: 520px) {
     .midi-mixer-channel {
-        grid-template-columns: minmax(100px, .9fr) repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         column-gap: 8px;
         row-gap: 3px;
         padding: 1px 0 3px;
+    }
+
+    .midi-mixer-channel-info {
+        grid-column: 1 / -1;
     }
 
     .midi-mixer-control {

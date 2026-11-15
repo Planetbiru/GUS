@@ -878,7 +878,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "organ",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 12,
         "env": {
@@ -910,7 +910,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pulse",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 12,
         "env": {
@@ -944,7 +944,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 12,
         "env": {
@@ -978,7 +978,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "organ",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 12,
         "env": {
@@ -1010,7 +1010,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -1064,7 +1064,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -1117,7 +1117,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -1170,7 +1170,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
-        "gain": 0.4,
+        "gain": 0.38,
         "loop": true,
         "cycles": 14,
         "env": {

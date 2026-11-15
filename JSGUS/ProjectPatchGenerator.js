@@ -80,7 +80,12 @@ class ProjectPatchGenerator {
         shortName = drumShortName;
         description = drumDescription;
         preset = drumPreset;
-        rendered = new DrumRenderer(preset, this.sampleRate).render();
+        if (preset.sampleRate != null
+            && (!Number.isInteger(preset.sampleRate) || preset.sampleRate <= 0)) {
+            throw new Error(`Invalid sample rate for drum instrument: ${name}.`);
+        }
+        renderSampleRate = Math.max(this.sampleRate, preset.sampleRate || this.sampleRate);
+        rendered = new DrumRenderer(preset, renderSampleRate).render();
         rootFreq = this.library.drumToFreq(note);
     } else {
         const instrument = this.library.melodic[id];
@@ -1107,7 +1112,15 @@ class DrumRenderer {
         const tones     = (p.tones    || []).map(t => ({ ...t, phase: 0, modPhase: 0 }));
         const membrane  = p.membrane  ? this._setupMembrane(p.membrane, SR) : null;
         const metallic  = p.metallic  ? this._setupMetallic(p.metallic)     : null;
-        const impactBuffer = p.impact ? this._buildNoise(p.impact, length, SR) : null;
+        const impacts = Array.isArray(p.impacts)
+            ? p.impacts
+            : p.impact
+                ? [p.impact]
+                : [];
+        const impactBuffers = impacts.map(cfg => ({
+            cfg,
+            buffer: this._buildNoise(cfg, length, SR),
+        }));
         const noiseBuf  = p.noise     ? this._buildNoise(p.noise, length, SR) : null;
         const noiseLayers = (p.noiseLayers || []).map(cfg => ({
             cfg,
@@ -1120,7 +1133,9 @@ class DrumRenderer {
             sample += this._tones(t, tones);
             if (membrane) sample += this._membrane(t, membrane);
             if (metallic) sample += this._metallic(t, metallic);
-            if (impactBuffer) sample += this._impact(t, impactBuffer, p.impact);
+            for (const impact of impactBuffers) {
+                sample += this._impact(t, impact.buffer, impact.cfg);
+            }
             if (noiseBuf) sample += this._noise(t, noiseBuf, p.noise);
             for (const layer of noiseLayers) {
                 sample += this._noise(t, layer.buffer, layer.cfg);
@@ -1257,9 +1272,10 @@ class DrumRenderer {
     }
 
     _impact(t, noiseBuf, cfg) {
-        if (t >= (cfg.duration || 0.06)) return 0;
-        const idx = Math.min(noiseBuf.length - 1, Math.floor(t * this.SR));
-        return noiseBuf[idx] * (cfg.amp || 1) * Math.exp(-t / (cfg.decay || 0.015));
+        const elapsed = t - (cfg.delay || 0);
+        if (elapsed < 0 || elapsed >= (cfg.duration || 0.06)) return 0;
+        const idx = Math.min(noiseBuf.length - 1, Math.floor(elapsed * this.SR));
+        return noiseBuf[idx] * (cfg.amp || 1) * Math.exp(-elapsed / (cfg.decay || 0.015));
     }
 
     _click(t) {
