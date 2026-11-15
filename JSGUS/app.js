@@ -515,6 +515,11 @@ class GusPatchApp {
         this.$('midiMixerChannelList').addEventListener('input', event => {
             this.handleMidiMixerControllerInput(event);
         });
+        this.$('midiMixerChannelList').addEventListener('click', event => {
+            const button = event.target.closest('button[data-channel][data-control]');
+            if (!button) return;
+            this.toggleMidiChannelControl(Number(button.dataset.channel), button.dataset.control);
+        });
         this.$('midiMixerSeek').addEventListener('input', event => {
             this.handleMidiSeekInput(event, this.$('midiSeek'));
         });
@@ -2085,6 +2090,19 @@ class GusPatchApp {
             item.append(name, controls);
             list.appendChild(item);
         }
+        this.syncMidiMixerChannelToggles();
+    }
+
+    syncMidiMixerChannelToggles() {
+        const list = this.$('midiMixerChannelList');
+        if (!list) return;
+
+        for (const button of list.querySelectorAll('button[data-channel][data-control]')) {
+            const state = this.midiChannelStates.get(Number(button.dataset.channel));
+            const control = button.dataset.control;
+            if (!state || !['mute', 'solo'].includes(control)) continue;
+            button.setAttribute('aria-pressed', String(state[control]));
+        }
     }
 
     getMidiMixerTick() {
@@ -2114,10 +2132,31 @@ class GusPatchApp {
             const item = document.createElement('li');
             item.className = 'midi-mixer-channel';
 
+            const channelInfo = document.createElement('div');
+            channelInfo.className = 'midi-mixer-channel-info';
             const channelLabel = document.createElement('span');
             channelLabel.className = 'midi-mixer-channel-name';
             channelLabel.textContent = channel === 9 ? 'Channel 10 · Drums' : `Channel ${channel + 1}`;
-            item.appendChild(channelLabel);
+            channelInfo.appendChild(channelLabel);
+
+            const channelToggles = document.createElement('span');
+            channelToggles.className = 'midi-mixer-channel-toggles';
+            const channelState = this.midiChannelStates.get(channel);
+            for (const [control, label] of [['mute', 'M'], ['solo', 'S']]) {
+                const button = document.createElement('button');
+                const pressed = channelState[control];
+                button.type = 'button';
+                button.className = 'channel-toggle midi-mixer-channel-toggle';
+                button.dataset.channel = String(channel);
+                button.dataset.control = control;
+                button.setAttribute('aria-pressed', String(pressed));
+                button.setAttribute('aria-label', `${control === 'mute' ? 'Mute' : 'Solo'} ${channelLabel.textContent}`);
+                button.title = `${control === 'mute' ? 'Mute' : 'Solo'} ${channelLabel.textContent}`;
+                button.textContent = label;
+                channelToggles.appendChild(button);
+            }
+            channelInfo.appendChild(channelToggles);
+            item.appendChild(channelInfo);
 
             for (const {controller, name, value} of [
                 {controller: 7, name: 'Volume', value: volume},

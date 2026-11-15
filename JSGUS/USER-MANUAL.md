@@ -63,6 +63,8 @@ The MIDI mixer is a supplementary tool for auditioning channel levels. **Its pri
 
 Open **Mixer** after loading a MIDI file. The mixer shows the channels used by that file. Its controls follow the MIDI's Volume, Expression, and Pan automation during playback and when seeking. Manual slider changes are sent to the player for auditioning; they do not modify the source MIDI file.
 
+Use the **M** and **S** buttons beside a channel to mute or solo it. These buttons share their state with the corresponding controls in the **Channels** list, so changes in either location are reflected in the other.
+
 ## Use the Sequencer
 
 Select **Sequencer** in MIDI Playback. The sequencer uses the instrument currently selected in the instrument list.

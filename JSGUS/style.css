@@ -752,9 +752,10 @@ label[for="presetJson"] {
 
 .midi-mixer-channel {
     display: grid;
-    grid-template-columns: minmax(120px, 1fr) repeat(3, minmax(0, 2fr));
+    grid-template-columns: minmax(160px, 1.4fr) repeat(3, minmax(0, 2fr));
     align-items: center;
-    gap: 6px;
+    column-gap: 14px;
+    row-gap: 6px;
     min-width: 0;
     padding: 2px 0 4px;
     border-bottom: 1px solid var(--border);
@@ -762,6 +763,13 @@ label[for="presetJson"] {
 
 .midi-mixer-channel:last-child {
     border-bottom: 0;
+}
+
+.midi-mixer-channel-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
 }
 
 .midi-mixer-channel label {
@@ -775,11 +783,25 @@ label[for="presetJson"] {
 
 .midi-mixer-channel-name {
     min-width: 0;
+    flex: 1;
     color: var(--fg);
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.midi-mixer-channel-toggles {
+    display: flex;
+    gap: 2px;
+    flex: 0 0 auto;
+}
+
+.midi-mixer-channel-toggle {
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    font-size: 10px;
 }
 
 .midi-mixer-control {
@@ -871,8 +893,9 @@ label[for="presetJson"] {
 
 @media (max-width: 520px) {
     .midi-mixer-channel {
-        grid-template-columns: minmax(62px, .8fr) repeat(3, minmax(0, 1fr));
-        gap: 3px;
+        grid-template-columns: minmax(100px, .9fr) repeat(3, minmax(0, 1fr));
+        column-gap: 8px;
+        row-gap: 3px;
         padding: 1px 0 3px;
     }
 
