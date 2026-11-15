@@ -385,6 +385,7 @@ Gets the parsed tempo map of the currently loaded MIDI song. In addition to the 
 
       // NEW: per-channel event lists, sorted by ascending tick
       programMap: Array<Array<{ tick, channel, program }>>,  // index = channel 0..15
+      volumeMap: Array<Array<{ tick, channel, value }>>,     // CC 7
       bankMsbMap: Array<Array<{ tick, channel, value }>>,    // CC 0  (Bank Select MSB)
       bankLsbMap: Array<Array<{ tick, channel, value }>>     // CC 32 (Bank Select LSB)
   }
@@ -392,7 +393,7 @@ Gets the parsed tempo map of the currently loaded MIDI song. In addition to the 
 - **Notes:**
   - `channelsUsed` is a sorted, duplicate-free array of MIDI channel numbers (0–15). It includes a channel if the MIDI file contains any channel voice event (status 0x8–0xE) on that channel, not only note events. For example, `[0, 9]` means the file uses channels 1 and 10; MIDI channel 10 is index `9`.
   - The map is available after MIDI parsing. For example, read `player.getTempoMap()?.channelsUsed` in an `onMidiLoaded` listener to determine which mixer strips correspond to channels present in the file.
-  - `programMap`, `bankMsbMap`, and `bankLsbMap` are arrays of 16 inner arrays (one per MIDI channel), each sorted by `tick` ascending. They are consumed internally by `getProgram()` and `getBank()`.
+  - `programMap`, `volumeMap`, `bankMsbMap`, and `bankLsbMap` are arrays of 16 inner arrays (one per MIDI channel), each sorted by `tick` ascending. They are consumed internally by `getProgram()`, `getVolume()`, and `getBank()`.
   - If the MIDI file does not contain any program/bank events on a channel, the corresponding inner array is empty.
 
 ### `tickToBeat(tick)`
@@ -436,6 +437,20 @@ Checks if a specific MIDI tick aligns exactly with a metronome click.
 
 ### `getControllerValueAtTick(channel, cc, tick)`
 - **Returns:** `number` - The controller value (0-127) at the exact tick position.
+
+### `getVolume(channel, tick)`
+Gets the channel volume (CC 7) at the given tick.
+- **Parameters:**
+  - `channel` *(number)*: MIDI channel (0-15).
+  - `tick` *(number)*: Absolute tick position.
+- **Returns:** `number` - Volume (0-127), or `-1` if no song is loaded or the channel is invalid. If no volume event has occurred at or before `tick`, returns `100`.
+
+### `getPan(channel, tick)`
+Gets the channel pan (CC 10) at the given tick.
+- **Parameters:**
+  - `channel` *(number)*: MIDI channel (0-15).
+  - `tick` *(number)*: Absolute tick position.
+- **Returns:** `number` - Pan (0-127), or `-1` if no song is loaded or the channel is invalid. If no pan event has occurred, returns center (`64`).
 
 ### `getProgram(channel, tick)`
 Returns the MIDI program (instrument) number that is **active on the given channel at the given tick**, taking into account only events that have already occurred (`event.tick <= tick`). This is derived from the parsed MIDI event stream (all `Program Change` / `0xCn` messages), so it always reflects the correct program for any point in the timeline, regardless of whether playback has reached that tick yet.
