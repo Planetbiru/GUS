@@ -1087,7 +1087,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5.5,
           "depth": 0.006
         },
-        "drive": 1.3,
+        "drive": 1.0,
         "formants": [
           {
             "freq": 900,
