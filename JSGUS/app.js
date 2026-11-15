@@ -2166,7 +2166,7 @@ class GusPatchApp {
                 : 'No active notes');
             const channelLabel = document.createElement('span');
             channelLabel.className = 'midi-mixer-channel-name';
-            channelLabel.textContent = channel === 9 ? 'Channel 10 · Drums' : `Channel ${channel + 1}`;
+            channelLabel.textContent = channel === 9 ? 'Channel 9 · Drums' : `Channel ${channel}`;
             channelInfo.append(indicator, channelLabel);
 
             const channelToggles = document.createElement('span');
