@@ -1798,7 +1798,7 @@ class GusPatchApp {
             if (event.eventType === player.ME_PROGRAM) {
                 this.midiChannelPrograms.set(event.channel, event.a & 0x7f);
                 this.renderMidiChannelList();
-                this.updateMidiMixerInstrumentIcon(event.channel);
+                this.updateMidiMixerInstrument(event.channel);
             }
             const controller = event.eventType === player.ME_MAINVOLUME
                 ? 7
@@ -1820,6 +1820,7 @@ class GusPatchApp {
             this.midiTick = tick;
             this.midiPosition = seconds;
             this.clearActiveMidiNotes();
+            this.updateMidiMixerProgramsAtTick(tick);
         });
         player.on('onPlay', () => this.setLiveWaveformSource(player.waveformAnalysers));
         player.on('onResume', () => this.setLiveWaveformSource(player.waveformAnalysers));
@@ -2160,10 +2161,14 @@ class GusPatchApp {
         return instrument ? {type: 'melodic', program, name: instrument.name} : null;
     }
 
-    updateMidiMixerInstrumentIcon(channel, button) {
+    updateMidiMixerInstrument(channel, button, channelLabel) {
+        const channelItem = this.$('midiMixerChannelList')?.querySelector(
+            `.midi-mixer-channel[data-channel="${channel}"]`
+        );
         const iconButton = button || this.$('midiMixerChannelList')?.querySelector(
             `.midi-mixer-channel[data-channel="${channel}"] .midi-mixer-instrument-button`
         );
+        const label = channelLabel || channelItem?.querySelector('.midi-mixer-channel-name');
         if (!iconButton) return;
 
         const instrument = this.getMidiMixerInstrumentSelection(channel);
@@ -2171,19 +2176,36 @@ class GusPatchApp {
             iconButton.disabled = true;
             iconButton.title = 'No instrument is available for this channel';
             iconButton.setAttribute('aria-label', iconButton.title);
-            return;
+            delete iconButton.dataset.type;
+            delete iconButton.dataset.program;
+            if (label) {
+                label.textContent = `Channel ${channel} · Unknown instrument`;
+                label.title = label.textContent;
+            }
+        } else {
+            const code = String(instrument.program).padStart(3, '0');
+            const description = instrument.type === 'drum'
+                ? `Drum note ${code} — ${instrument.name}`
+                : `Program ${code} — ${instrument.name}`;
+            iconButton.disabled = false;
+            iconButton.dataset.type = instrument.type;
+            iconButton.dataset.program = String(instrument.program);
+            iconButton.title = description;
+            iconButton.setAttribute('aria-label', `Select ${description} in the instrument editor`);
+            iconButton.innerHTML = getMidiIcon(instrument.program, channel);
+            if (label) {
+                label.textContent = `Channel ${channel} · ${instrument.name}`;
+                label.title = label.textContent;
+            }
         }
 
-        const code = String(instrument.program).padStart(3, '0');
-        const label = instrument.type === 'drum'
-            ? `Drum note ${code} — ${instrument.name}`
-            : `Program ${code} — ${instrument.name}`;
-        iconButton.disabled = false;
-        iconButton.dataset.type = instrument.type;
-        iconButton.dataset.program = String(instrument.program);
-        iconButton.title = label;
-        iconButton.setAttribute('aria-label', `Select ${label} in the instrument editor`);
-        iconButton.innerHTML = getMidiIcon(instrument.program, channel);
+        if (label) {
+            for (const toggle of channelItem?.querySelectorAll('button[data-control]') || []) {
+                const action = toggle.dataset.control === 'mute' ? 'Mute' : 'Solo';
+                toggle.setAttribute('aria-label', `${action} ${label.textContent}`);
+                toggle.title = `${action} ${label.textContent}`;
+            }
+        }
     }
 
     selectMidiMixerInstrument(channel) {
@@ -2227,13 +2249,12 @@ class GusPatchApp {
             instrumentButton.type = 'button';
             instrumentButton.className = 'icon-btn midi-mixer-instrument-button';
             instrumentButton.dataset.channel = String(channel);
-            this.updateMidiMixerInstrumentIcon(channel, instrumentButton);
             instrumentButton.addEventListener('click', () => this.selectMidiMixerInstrument(channel));
             const channelLabel = document.createElement('span');
             channelLabel.className = 'midi-mixer-channel-name';
             channelLabel.textContent = channel === 9 ? 'Channel 9 · Drums' : `Channel ${channel}`;
-            channelLabel.title = channelLabel.textContent;
             channelInfo.append(indicator, instrumentButton, channelLabel);
+            this.updateMidiMixerInstrument(channel, instrumentButton, channelLabel);
 
             const channelToggles = document.createElement('span');
             channelToggles.className = 'midi-mixer-channel-toggles';
@@ -2316,6 +2337,39 @@ class GusPatchApp {
         return channelValues;
     }
 
+    updateMidiMixerProgramsAtTick(tick) {
+        const player = this.timidityPlayer;
+        if (!player?.songPtr) return;
+
+        const channelPrograms = this.midiChannelsUsed.map(channel => ({
+            channel,
+            program: player.getProgram(channel, tick),
+        }));
+        const invalid = channelPrograms.find(({program}) =>
+            !Number.isInteger(program) || program < 0 || program > 127
+        );
+        if (invalid) {
+            const message = `Could not read instrument program for MIDI channel ${invalid.channel + 1} at tick ${tick}.`;
+            this.$('midiStatus').textContent = message;
+            this.log(message, 'err');
+            return;
+        }
+
+        const changedChannels = [];
+        for (const {channel, program} of channelPrograms) {
+            if (this.midiChannelPrograms.get(channel) !== program) {
+                changedChannels.push(channel);
+            }
+            this.midiChannelPrograms.set(channel, program);
+        }
+        if (changedChannels.length === 0) return;
+
+        this.renderMidiChannelList();
+        for (const channel of changedChannels) {
+            this.updateMidiMixerInstrument(channel);
+        }
+    }
+
     setMidiMixerControllerValue(channel, controller, value) {
         const numericValue = Number(value);
         if (!Number.isInteger(channel) || channel < 0 || channel > 15
@@ -2381,6 +2435,7 @@ class GusPatchApp {
     }
 
     updateMidiMixerValuesAtTick(tick) {
+        this.updateMidiMixerProgramsAtTick(tick);
         const channelValues = this.getMidiMixerChannelValues(tick);
         if (!channelValues) return;
 

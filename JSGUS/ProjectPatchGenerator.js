@@ -1,7 +1,6 @@
-// =================================================================
-// Aplikasi ProjectPatchGenerator
-// =================================================================
-
+/**
+ * Generates instrument sample data and patch files from presets.
+ */
 class ProjectPatchGenerator {
   static MODE_16BIT         = 0x01;
   static MODE_UNSIGNED_PCM  = 0x02;
@@ -9,23 +8,28 @@ class ProjectPatchGenerator {
   static MODE_SUSTAIN       = 0x20;
   static MODE_ENVELOPE      = 0x40;
   static WAVEFORM_TYPES = Object.freeze([
-    Object.freeze({value: 'sine', name: 'Sine', description: 'Pure tone with no upper harmonics.'}),
+    Object.freeze({value: 'sine',     name: 'Sine',     description: 'Pure tone with no upper harmonics.'}),
     Object.freeze({value: 'triangle', name: 'Triangle', description: 'Soft, mellow tone with gently fading odd harmonics.'}),
-    Object.freeze({value: 'square', name: 'Square', description: 'Hollow tone with strong odd harmonics.'}),
-    Object.freeze({value: 'saw', name: 'Saw', description: 'Bright, buzzy tone with a full harmonic series.'}),
-    Object.freeze({value: 'pulse', name: 'Pulse', description: 'Nasal, focused tone with a narrow pulse character.'}),
-    Object.freeze({value: 'organ', name: 'Organ', description: 'Rich, steady tone shaped like organ drawbars.'}),
-    Object.freeze({value: 'flute', name: 'Flute', description: 'Smooth, airy tone with very few high harmonics.'}),
+    Object.freeze({value: 'square',   name: 'Square',   description: 'Hollow tone with strong odd harmonics.'}),
+    Object.freeze({value: 'saw',      name: 'Saw',      description: 'Bright, buzzy tone with a full harmonic series.'}),
+    Object.freeze({value: 'pulse',    name: 'Pulse',    description: 'Nasal, focused tone with a narrow pulse character.'}),
+    Object.freeze({value: 'organ',    name: 'Organ',    description: 'Rich, steady tone shaped like organ drawbars.'}),
+    Object.freeze({value: 'flute',    name: 'Flute',    description: 'Smooth, airy tone with very few high harmonics.'}),
     Object.freeze({value: 'clarinet', name: 'Clarinet', description: 'Woody tone led by odd harmonics.'}),
-    Object.freeze({value: 'reed', name: 'Reed', description: 'Bright, reedy tone with strong upper harmonics.'}),
-    Object.freeze({value: 'string', name: 'String', description: 'Full, sustained tone with a gradual harmonic roll-off.'}),
-    Object.freeze({value: 'bell', name: 'Bell', description: 'Bright, metallic tone with uneven partial strengths.'}),
-    Object.freeze({value: 'pluck', name: 'Pluck', description: 'Rounded attack with harmonics that taper like a plucked string.'}),
-    Object.freeze({value: 'hammer', name: 'Hammer', description: 'Sharp, percussive tone with a quickly softening spectrum.'}),
-    Object.freeze({value: 'bow', name: 'Bow', description: 'Dense, sustained tone with a strong bowed-string character.'}),
-    Object.freeze({value: 'breath', name: 'Breath', description: 'Fundamental-led tone with a light breathy edge.'})
+    Object.freeze({value: 'reed',     name: 'Reed',     description: 'Bright, reedy tone with strong upper harmonics.'}),
+    Object.freeze({value: 'string',   name: 'String',   description: 'Full, sustained tone with a gradual harmonic roll-off.'}),
+    Object.freeze({value: 'bell',     name: 'Bell',     description: 'Bright, metallic tone with uneven partial strengths.'}),
+    Object.freeze({value: 'pluck',    name: 'Pluck',    description: 'Rounded attack with harmonics that taper like a plucked string.'}),
+    Object.freeze({value: 'hammer',   name: 'Hammer',   description: 'Sharp, percussive tone with a quickly softening spectrum.'}),
+    Object.freeze({value: 'bow',      name: 'Bow',      description: 'Dense, sustained tone with a strong bowed-string character.'}),
+    Object.freeze({value: 'breath',   name: 'Breath',   description: 'Fundamental-led tone with a light breathy edge.'})
   ]);
 
+  /**
+   * Creates a patch generator.
+   * @param {Object} [options] Sample rate and default sample duration.
+   * @returns {ProjectPatchGenerator} The initialized generator.
+   */
   constructor(options = {}) {
     const {sampleRate = 22050, duration = 0.25} = options;
     this.sampleRate = sampleRate;
@@ -34,6 +38,11 @@ class ProjectPatchGenerator {
     this.library = new InstrumentLibrary();
   }
 
+  /**
+   * Lists available melodic programs or drum instruments.
+   * @param {boolean} isDrum Whether to list drums instead of melodic instruments.
+   * @returns {Array<{id: number, name: string}>} The available instruments.
+   */
   getPrograms(isDrum) {
     if (isDrum) {
       return this.library.drums.map(({note, name}) => ({id: note, name}));
@@ -41,6 +50,11 @@ class ProjectPatchGenerator {
     return this.library.melodic.map(({name}, id) => ({id, name}));
   }
 
+  /**
+   * Renders an instrument and builds its patch data.
+   * @param {Object} options Instrument, waveform, and pitch-range settings.
+   * @returns {Object} The generated patch and instrument metadata.
+   */
   generate({isDrum, program, waveform, pitchFrom = 0, pitchTo = 127}) {
     const id = Number(program);
     if (!Number.isInteger(id)) {
@@ -238,14 +252,30 @@ class ProjectPatchGenerator {
     return { patch, name, program: id, isDrum, waveform: appliedWaveform, pitchFrom, pitchTo };
   }
 
+  /**
+   * Replaces non-alphanumeric characters with underscores.
+   * @param {*} value Value to convert.
+   * @returns {string} The normalized string.
+   */
   slugify(value) {
     return String(value).replace(/[^A-Za-z0-9]/g, "_");
   }
 
+  /**
+   * Converts a MIDI pitch to frequency.
+   * @param {number} pitch MIDI note number.
+   * @returns {number} Frequency in hertz.
+   */
   static midiPitchToFrequency(pitch) {
     return 440 * Math.pow(2, (pitch - 69) / 12);
   }
 
+  /**
+   * Validates and normalizes a MIDI pitch range.
+   * @param {number} [pitchFrom=0] Lowest MIDI note.
+   * @param {number} [pitchTo=127] Highest MIDI note.
+   * @returns {{pitchFrom: number, pitchTo: number}} The normalized range.
+   */
   static normalizePitchRange(pitchFrom = 0, pitchTo = 127) {
     const from = Number(pitchFrom);
     const to = Number(pitchTo);
@@ -257,6 +287,11 @@ class ProjectPatchGenerator {
     return { pitchFrom: from, pitchTo: to };
   }
 
+  /**
+   * Converts a frequency in millihertz to the nearest MIDI pitch.
+   * @param {number} milliHz Frequency in millihertz.
+   * @returns {number|null} MIDI note number, or null for an invalid frequency.
+   */
   static frequencyToMidiPitch(milliHz) {
     const frequency = Number(milliHz) / 1000;
     if (!(frequency > 0) || !Number.isFinite(frequency)) return null;
@@ -264,9 +299,10 @@ class ProjectPatchGenerator {
   }
 
   /**
-   * @param {string} type  A supported named waveform.
-   * @param {number} n     jumlah harmonisa yang dihasilkan
-   * @returns {number[]|null}
+   * Builds harmonic amplitudes for a named waveform.
+   * @param {string} type Supported waveform name.
+   * @param {number} n Number of harmonics.
+   * @returns {number[]|null} Harmonic amplitudes, or null for unsupported input.
    */
   static waveformHarmonics(type, n) {
     if (!Number.isInteger(n) || n < 1) return null;
@@ -352,29 +388,38 @@ class ProjectPatchGenerator {
   }
 }
 
-// =================================================
 
-
-
-// =================================================================
-//                          BAGIAN 1
-//                      KELAS-KELAS (DEFINISI)
-// =================================================================
-
-// ----------------------------------------------------------------
-// 1.1  GUSPatchGenerator — utilitas matematika waveform & DSP
-// ----------------------------------------------------------------
+/**
+ * Provides audio synthesis and processing helpers for patch generation.
+ */
 class GUSPatchGenerator {
     static TAU = Math.PI * 2;
 
+    /**
+     * Evaluates a sine wave at a phase expressed in cycles.
+     * @param {number} p Phase in cycles.
+     * @returns {number} Sine amplitude.
+     */
     static sin(p) { return Math.sin(Math.PI * 2 * p); }
 
+    /**
+     * Sums sine partials at the specified phase.
+     * @param {number} phase Phase in cycles.
+     * @param {number[]} amps Amplitude of each harmonic.
+     * @returns {number} Combined sample amplitude.
+     */
     static partials(phase, amps) {
         let s = 0;
         for (let k = 0; k < amps.length; k++) s += amps[k] * Math.sin(Math.PI * 2 * phase * (k + 1));
         return s;
     }
 
+    /**
+     * Scales a buffer so its peak reaches the target amplitude.
+     * @param {Float32Array} buffer Audio samples to normalize; modified in place.
+     * @param {number} [target=0.9] Desired peak amplitude.
+     * @returns {void}
+     */
     static normalize(buffer, target = 0.9) {
         let peak = 0;
         for (let i = 0; i < buffer.length; i++) {
@@ -387,18 +432,37 @@ class GUSPatchGenerator {
         }
     }
 
+    /**
+     * Applies a fade-in to the beginning of a buffer.
+     * @param {Float32Array} buffer Audio samples to process; modified in place.
+     * @param {number} fadeLen Fade length in samples.
+     * @returns {void}
+     */
     static fadeIn(buffer, fadeLen) {
         const L = buffer.length;
         fadeLen = Math.min(fadeLen, L);
         for (let i = 0; i < fadeLen; i++) buffer[i] *= i / fadeLen;
     }
 
+    /**
+     * Applies a fade-out to the end of a buffer.
+     * @param {Float32Array} buffer Audio samples to process; modified in place.
+     * @param {number} fadeLen Fade length in samples.
+     * @returns {void}
+     */
     static fadeOut(buffer, fadeLen) {
         const L = buffer.length;
         fadeLen = Math.min(fadeLen, L);
         for (let i = 0; i < fadeLen; i++) buffer[L - 1 - i] *= i / fadeLen;
     }
 
+    /**
+     * Applies a high-pass filter to a buffer.
+     * @param {Float32Array} buffer Audio samples to filter; modified in place.
+     * @param {number} cutoff Cutoff frequency in hertz.
+     * @param {number} SR Sample rate in hertz.
+     * @returns {void}
+     */
     static highpass(buffer, cutoff, SR) {
         const rc = 1 / (2 * Math.PI * cutoff);
         const dt = 1 / SR;
@@ -412,6 +476,13 @@ class GUSPatchGenerator {
         }
     }
 
+    /**
+     * Applies a low-pass filter to a buffer.
+     * @param {Float32Array} buffer Audio samples to filter; modified in place.
+     * @param {number} cutoff Cutoff frequency in hertz.
+     * @param {number} SR Sample rate in hertz.
+     * @returns {void}
+     */
     static lowpass(buffer, cutoff, SR) {
         const rc = 1 / (2 * Math.PI * cutoff);
         const dt = 1 / SR;
@@ -425,7 +496,11 @@ class GUSPatchGenerator {
 
     /* ─────────────── NEW: realism helpers ─────────────── */
 
-    /** Pink noise (−3 dB/oct) — lebih "hangat" dari white, dasar snare wire/breath/wind */
+    /**
+     * Generates pink noise.
+     * @param {number} len Number of samples to generate.
+     * @returns {Float32Array} The generated noise samples.
+     */
     static pinkNoise(len) {
         const out = new Float32Array(len);
         let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
@@ -443,7 +518,11 @@ class GUSPatchGenerator {
         return out;
     }
 
-    /** Brown noise (−6 dB/oct) — untuk body kick, low wind rumble */
+    /**
+     * Generates brown noise.
+     * @param {number} len Number of samples to generate.
+     * @returns {Float32Array} The generated noise samples.
+     */
     static brownNoise(len) {
         const out = new Float32Array(len);
         let last = 0;
@@ -455,7 +534,15 @@ class GUSPatchGenerator {
         return out;
     }
 
-    /** RBJ peaking filter — basis formant */
+    /**
+     * Applies an RBJ peaking filter to a buffer.
+     * @param {Float32Array} buf Audio samples to filter; modified in place.
+     * @param {number} freq Center frequency in hertz.
+     * @param {number} q Filter quality factor.
+     * @param {number} gainDb Filter gain in decibels.
+     * @param {number} SR Sample rate in hertz.
+     * @returns {void}
+     */
     static peakFilter(buf, freq, q, gainDb, SR) {
         if (!freq || freq >= SR * 0.49) return;
         const w0 = 2 * Math.PI * freq / SR;
@@ -477,13 +564,26 @@ class GUSPatchGenerator {
         }
     }
 
-    /** Susun formant — mis. `[{freq:900,q:2,gain:4}, {freq:2200,q:3,gain:3}]` */
+    /**
+     * Applies a series of peaking filters to shape formants.
+     * @param {Float32Array} buf Audio samples to filter; modified in place.
+     * @param {Array<{freq: number, q: number, gain: number}>} formants Filter settings.
+     * @param {number} SR Sample rate in hertz.
+     * @returns {void}
+     */
     static applyFormants(buf, formants, SR) {
         if (!formants) return;
         for (const f of formants) this.peakFilter(buf, f.freq, f.q, f.gain, SR);
     }
 
-    /** Time-varying lowpass — startHz → endHz secara eksponensial sepanjang buffer */
+    /**
+     * Applies an exponential low-pass sweep across a buffer.
+     * @param {Float32Array} buf Audio samples to filter; modified in place.
+     * @param {number} startHz Initial cutoff frequency in hertz.
+     * @param {number} endHz Final cutoff frequency in hertz.
+     * @param {number} SR Sample rate in hertz.
+     * @returns {void}
+     */
     static brightnessSweep(buf, startHz, endHz, SR) {
         const N = buf.length;
         if (!N || !startHz || !endHz) return;
@@ -500,7 +600,12 @@ class GUSPatchGenerator {
         }
     }
 
-    /** Soft saturation — richness brass/tube/overdrive */
+    /**
+     * Applies soft saturation to a buffer.
+     * @param {Float32Array} buf Audio samples to process; modified in place.
+     * @param {number} [drive=2] Saturation drive amount.
+     * @returns {void}
+     */
     static softClip(buf, drive = 2) {
         if (!drive || drive <= 0) return;
         const k = Math.tanh(drive);
@@ -508,6 +613,13 @@ class GUSPatchGenerator {
         for (let i = 0; i < buf.length; i++) buf[i] = Math.tanh(buf[i] * drive) / k;
     }
 
+    /**
+     * Applies preamp, distortion, and cabinet filtering to a buffer.
+     * @param {Float32Array} buf Audio samples to process; modified in place.
+     * @param {Object} config Amplifier effect settings.
+     * @param {number} SR Sample rate in hertz.
+     * @returns {void}
+     */
     static guitarAmp(buf, config, SR) {
         const preampCutoff = config.preampCutoff || 0;
         if (preampCutoff > 0) this.highpass(buf, preampCutoff, SR);
@@ -531,7 +643,15 @@ class GUSPatchGenerator {
         if (cabinetCutoff > 0) this.lowpass(buf, cabinetCutoff, SR);
     }
 
-    /** Bandpass noise (white/pink/brown) — untuk snare wire, cymbal wash */
+    /**
+     * Generates noise filtered around a center frequency.
+     * @param {number} len Number of samples to generate.
+     * @param {number} centerFreq Band-pass center frequency in hertz.
+     * @param {number} q Filter quality factor.
+     * @param {number} SR Sample rate in hertz.
+     * @param {string} [type='white'] Noise color: white, pink, or brown.
+     * @returns {Float32Array} The generated filtered noise samples.
+     */
     static bandpassNoise(len, centerFreq, q, SR, type = 'white') {
         let buf;
         if (type === 'pink') buf = this.pinkNoise(len);
@@ -559,10 +679,15 @@ class GUSPatchGenerator {
     }
 }
 
-// ----------------------------------------------------------------
-// 1.2  GusPatchEncoder — membungkus PCM ke file .pat GUS
-// ----------------------------------------------------------------
+/**
+ * Encodes PCM sample data into a Gravis Ultrasound patch file.
+ */
 class GusPatchEncoder {
+    /**
+     * Encodes PCM sample data and patch metadata into a GUS patch file.
+     * @param {Object} options Patch name, PCM data, sample rate, loop, and envelope settings.
+     * @returns {ArrayBuffer} The encoded patch file data.
+     */
     static encode({
         name, pcm, loopStart, loopEnd, isLoop, rootFreq, sampleRate,
         sustainLoop = isLoop, envRates, envOffsets,
@@ -662,10 +787,16 @@ class GusPatchEncoder {
     }
 }
 
-// ----------------------------------------------------------------
-// 1.3  MelodicRenderer — render preset melodis → PCM
-// ----------------------------------------------------------------
+/**
+ * Renders a melodic instrument preset into PCM samples.
+ */
 class MelodicRenderer {
+    /**
+     * Creates a renderer for a melodic preset.
+     * @param {Object} preset Instrument synthesis settings.
+     * @param {Object} [override] Optional rendering overrides.
+     * @returns {MelodicRenderer} The initialized renderer.
+     */
     constructor(preset, override = {}) {
         this.p = preset;
         this.o = override;
@@ -673,6 +804,10 @@ class MelodicRenderer {
         this.isLoop = preset.loop && !override.forceNoLoop;
     }
 
+    /**
+     * Renders the preset into PCM samples.
+     * @returns {{pcm: Float32Array, length: number, loopStart: number, loopEnd: number, loop: boolean, SR: number, naturalFreq?: number}} Rendered audio and loop metadata.
+     */
     render() {
         const { p, o, SR, isLoop } = this;
 
@@ -739,19 +874,6 @@ class MelodicRenderer {
             naturalFreq = baseFreq;
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // LOOP PERIODICITY RULES
-        // Untuk loop mulus, sinyal di [loopStart, loopEnd) HARUS periodik
-        // dengan periode `cs`, sehingga out[loopEnd] == out[loopStart]
-        // (fasa + amplitudo identik). Konsekuensinya semua modulasi waktu
-        // (vibrato, detune, FM, inharmonicity, pitchScoop, attack burst,
-        // partialDecay) DIMATIKAN untuk loop. Kalau tidak, fasa drift →
-        // klik/pop atau modulasi amplitudo ("patah-patah").
-        // `loopAttackNoise` hanya ditambahkan sebelum loopStart.
-        // Vibrato/tremolo tetap bisa diberikan lewat header GUS
-        // (vibratoRate/vibratoDepth/tremolo*) supaya pemutar yang
-        // men-modulasi, bukan sample-nya.
-        // ─────────────────────────────────────────────────────────────
         const vib       = isLoop ? null : (p.vibrato || null);
         const detunes   = isLoop ? [0]  : (p.detune || [0]);
         const noiseAmt  = p.noise || 0;
@@ -771,9 +893,6 @@ class MelodicRenderer {
 
         const nP = harm.length;
         const voices = detunes.map(c => {
-            // Fase awal per harmonik.
-            // Default 0 (pulse simetris). Untuk voice, `p.phases` berisi
-            // profil kuadratik yang membentuk gelombang glottal asimetris.
             const phases = new Float32Array(nP);
             if (Array.isArray(p.phases)) {
                 for (let k = 0; k < nP; k++) {
@@ -852,7 +971,7 @@ class MelodicRenderer {
             );
         }
 
-        // Transient loop hanya berada di bagian awal, di luar area loop periodik.
+        // The loop transient is limited to the initial segment, outside the periodic loop.
         if (atk) {
             const dur = Math.max(1, Math.round(SR * (atk.duration || 0.015)));
             const L   = Math.min(length, dur, isLoop ? loopStart : length);
@@ -882,14 +1001,15 @@ class MelodicRenderer {
             }
         }
 
-        // (Crossfade lama DIHAPUS.)
-        // Dengan periodisitas sempurna, wrap loopEnd→loopStart sudah kontinu
-        // secara alami (out[loopEnd-1] ≈ out[loopStart-1] karena loopLength
-        // kelipatan bulat `cs`). Crossfade justru mencampur dua sinyal yang
-        // fase/amplitude-nya beda bila ada modulasi sisa → AM "patah-patah".
+        // The previous crossfade was removed.
+        // With perfect periodicity, wrapping loopEnd to loopStart is naturally
+        // continuous (out[loopEnd-1] ≈ out[loopStart-1] because loopLength is an
+        // integer multiple of `cs`). Crossfading instead mixes signals with
+        // different phases or amplitudes when residual modulation remains,
+        // causing uneven amplitude modulation.
 
-        // Fade-out ekor (dipertahankan; ekor mulai dari fasa 0 == fasa loopStart,
-        // jadi transisi loopEnd → ekor juga mulus saat note release)
+        // Fade the tail; it starts at the same phase as loopStart, so the
+        // loopEnd-to-tail transition remains smooth when the note is released.
         if (isLoop && length > loopEnd) {
             const tailLength = length - loopEnd;
             for (let i = 0; i < tailLength; i++) {
@@ -933,7 +1053,7 @@ class MelodicRenderer {
             return i < fadeSamples ? (i / fadeSamples) : 1.0;
         }
 
-        // Exponential attack/decay — jauh lebih natural dari linear
+        // Exponential attack and decay sound more natural than linear curves.
         let e;
         if (t < env.a) {
             const tau = Math.max(env.a / 3, 0.001);
@@ -961,16 +1081,26 @@ class MelodicRenderer {
     }
 }
 
-// ----------------------------------------------------------------
-// 1.4  DrumRenderer — render preset drum → PCM
-// ----------------------------------------------------------------
+/**
+ * Renders a drum preset into PCM samples.
+ */
 class DrumRenderer {
+    /**
+     * Creates a renderer for a drum preset.
+     * @param {Object} preset Drum synthesis settings.
+     * @param {number} [sampleRate=22050] Sample rate in hertz.
+     * @returns {DrumRenderer} The initialized renderer.
+     */
     constructor(preset, sampleRate = 22050) {
         this.p = preset;
         this.SR = sampleRate;
         this.length = Math.round(sampleRate * (preset.duration || 0.5));
     }
 
+    /**
+     * Renders the drum preset into PCM samples.
+     * @returns {{pcm: Float32Array, length: number, loop: boolean, loopStart: number, loopEnd: number, SR: number}} Rendered audio and sample metadata.
+     */
     render() {
         const { p, SR, length } = this;
         const out = new Float32Array(length);
@@ -1148,19 +1278,38 @@ class DrumRenderer {
     }
 }
 
-// ----------------------------------------------------------------
-// 1.6  InstrumentLibrary — basis data GM + Drum
-// ----------------------------------------------------------------
+/**
+ * Provides lookup access to melodic instrument and drum presets.
+ */
 class InstrumentLibrary {
+    /**
+     * Loads the melodic and drum preset collections.
+     * @returns {InstrumentLibrary} The initialized library.
+     */
     constructor() {
         this.melodic = this._buildMelodic();
         this.drums = this._buildDrums();
     }
 
-
+    /**
+     * Finds a melodic instrument by MIDI program number.
+     * @param {number} midi MIDI program number.
+     * @returns {Object|undefined} The matching instrument, if present.
+     */
     findMelodic(midi) { return this.melodic[midi]; }
+
+    /**
+     * Finds a drum instrument by MIDI note number.
+     * @param {number} note MIDI note number.
+     * @returns {Object|undefined} The matching drum, if present.
+     */
     findDrum(note) { return this.drums.find(d => d.note === note); }
 
+    /**
+     * Converts a MIDI note number to frequency.
+     * @param {number} note MIDI note number.
+     * @returns {number} Frequency in hertz.
+     */
     drumToFreq(note) {
         return Math.round(440 * Math.pow(2, (note - 69) / 12));
     }

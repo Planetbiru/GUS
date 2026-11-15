@@ -1368,11 +1368,11 @@ var GUS_MELODIC_PRESETS = {
           0.7,
           0.55,
           0.4,
-          0.3,
-          0.2,
-          0.15,
-          0.1,
-          0.05
+          0.34,
+          0.24,
+          0.18,
+          0.12,
+          0.065
         ],
         "partialDecay": [
           2.8,
@@ -1394,9 +1394,9 @@ var GUS_MELODIC_PRESETS = {
         },
         "pluckPosition": 0.105,
         "pluckTransient": {
-          "freq": 4500,
+          "freq": 5000,
           "q": 1.1,
-          "amp": 0.08,
+          "amp": 0.095,
           "duration": 0.016,
           "decay": 0.006
         },
@@ -1406,7 +1406,7 @@ var GUS_MELODIC_PRESETS = {
         },
         "brightness": {
           "start": 14000,
-          "end": 3000
+          "end": 4000
         },
         "formants": [
           {
@@ -2084,45 +2084,39 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Fretless Bass",
       "shortName": "Fretless Bass",
-      "description": "Fretless Bass: a focused low end and firm fundamental.",
+      "description": "Fretless Bass: a smooth, singing tone with a rounded attack.",
       "preset": {
         "mute": false,
-        "renderMode": "drum",
-        "gain": 0.3,
-        "freq": 441,
-        "duration": 0.15,
-        "tones": [
-          {
-            "fStart": 1100,
-            "fPeak": 4600,
-            "fEnd": 700,
-            "riseTime": 0.055,
-            "fallTime": 0.032,
-            "decay": 0.095,
-            "amp": 0.22
-          },
-          {
-            "fStart": 1800,
-            "fPeak": 7200,
-            "fEnd": 1000,
-            "riseTime": 0.055,
-            "fallTime": 0.032,
-            "decay": 0.06,
-            "amp": 0.07
-          }
-        ],
-        "noise": {
-          "amp": 0.3,
-          "decay": 0.055,
-          "type": "pink",
-          "bandpass": {
-            "center": 6000,
-            "q": 1
-          }
+        "gain": 0.32,
+        "freq": 220,
+        "length": 33075,
+        "loop": true,
+        "cycles": 16,
+        "loopSkip": 3,
+        "loopAttack": 0.012,
+        "loopAttackNoise": {
+          "amp": 0.025,
+          "duration": 0.008
         },
-        "highpass": 2000,
-        "lowpass": 7500,
-        "fadeOut": 4
+        "env": {
+          "a": 0.008,
+          "d": 0.55,
+          "s": 0.28,
+          "r": 0.25
+        },
+        "harm": [
+          1,
+          0.42,
+          0.22,
+          0.11,
+          0.055,
+          0.028,
+          0.014
+        ],
+        "brightness": {
+          "loopCutoff": 3500
+        },
+        "antiAlias": true
       }
     },
     {
@@ -4085,9 +4079,9 @@ var GUS_MELODIC_PRESETS = {
         "gain": 0.31,
         "freq": 620,
         "loop": true,
-        "cycles": 14,
-        "loopSkip": 8,
-        "loopAttack": 0.008,
+        "cycles": 18,
+        "loopSkip": 12,
+        "loopAttack": 0.02,
         "env": {
           "a": 0.05,
           "d": 0.1,
@@ -4124,22 +4118,21 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.006,
           "sweep": 12
         },
-        "drive": 1.3,
         "formants": [
           {
             "freq": 1400,
             "q": 1.5,
-            "gain": 5
+            "gain": 4
           },
           {
             "freq": 2600,
             "q": 2,
-            "gain": 5
+            "gain": 4
           },
           {
             "freq": 4300,
             "q": 2.5,
-            "gain": 6
+            "gain": 5
           }
         ],
         "antiAlias": true
