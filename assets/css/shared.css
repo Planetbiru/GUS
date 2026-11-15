@@ -61,7 +61,7 @@ button,
     transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
 
-button:hover:not(:disabled):not([aria-pressed="true"]):not(.primary):not(.success):not(.danger):not(.active):not(.icon-btn):not(.number-spinner-button):not(.preset-array-remove):not(.preset-array-add),
+button:hover:not(:disabled):not([aria-pressed="true"]):not(.primary):not(.success):not(.danger):not(.active):not(.icon-btn):not(.number-spinner-button):not(.preset-array-remove):not(.preset-array-add):not(.dialog-close),
 .btn:hover:not(:disabled):not([aria-pressed="true"]):not(.primary):not(.success):not(.danger):not(.active) {
     background: #252d3d;
     border-color: var(--accent, #38bdf8);
@@ -356,17 +356,17 @@ dialog::backdrop {
 .dialog-header,
 .dialog-footer {
     touch-action: none;
-    cursor: grab;
-}
-
-.dialog-header:active,
-.dialog-footer:active {
-    cursor: grabbing;
+    cursor: default;
 }
 
 .dialog-header > *,
 .dialog-footer > * {
-    cursor: auto;
+    cursor: inherit;
+}
+
+.dialog-header button,
+.dialog-footer button {
+    cursor: default;
 }
 
 .dialog-close {
@@ -386,6 +386,7 @@ dialog::backdrop {
 .dialog-close:hover {
     color: var(--fg, var(--text, #e2e8f0));
     background: transparent;
+    cursor: pointer;
 }
 
 .dialog-close svg {

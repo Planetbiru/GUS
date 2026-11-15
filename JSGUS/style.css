@@ -757,7 +757,7 @@ label[for="presetJson"] {
     column-gap: 14px;
     row-gap: 6px;
     min-width: 0;
-    padding: 2px 0 4px;
+    padding: 2px 0 2px;
     border-bottom: 1px solid var(--border);
 }
 
@@ -782,8 +782,11 @@ label[for="presetJson"] {
 }
 
 .midi-mixer-channel-name {
+    position: relative;
+    top: -1px;
     min-width: 0;
     flex: 1;
+    margin-left: 3px;
     color: var(--fg);
     font-size: 12px;
     overflow: hidden;

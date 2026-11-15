@@ -2087,41 +2087,42 @@ var GUS_MELODIC_PRESETS = {
       "description": "Fretless Bass: a focused low end and firm fundamental.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "triangle",
-        "gain": 0.35,
-        "freq": 220,
-        "length": 33075,
-        "loop": true,
-        "cycles": 14,
-        "loopSkip": 2,
-        "env": {
-          "a": 0.005,
-          "d": 0.5,
-          "s": 0.2,
-          "r": 0.3
-        },
-        "harm": [
-          1,
-          0.7,
-          0.5,
-          0.3,
-          0.2,
-          0.1,
-          0.05
+        "renderMode": "drum",
+        "gain": 0.3,
+        "freq": 441,
+        "duration": 0.15,
+        "tones": [
+          {
+            "fStart": 1100,
+            "fPeak": 4600,
+            "fEnd": 700,
+            "riseTime": 0.055,
+            "fallTime": 0.032,
+            "decay": 0.095,
+            "amp": 0.22
+          },
+          {
+            "fStart": 1800,
+            "fPeak": 7200,
+            "fEnd": 1000,
+            "riseTime": 0.055,
+            "fallTime": 0.032,
+            "decay": 0.06,
+            "amp": 0.07
+          }
         ],
-        "attackNoise": {
-          "amp": 0.07,
-          "duration": 0.008
+        "noise": {
+          "amp": 0.3,
+          "decay": 0.055,
+          "type": "pink",
+          "bandpass": {
+            "center": 6000,
+            "q": 1
+          }
         },
-        "vibrato": {
-          "rate": 5,
-          "depth": 0.01
-        },
-        "brightness": {
-          "start": 5000,
-          "end": 900
-        },
-        "antiAlias": true
+        "highpass": 2000,
+        "lowpass": 7500,
+        "fadeOut": 4
       }
     },
     {
@@ -6789,17 +6790,17 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "noise": {
-          "amp": 0.42,
+          "amp": 0.5,
           "decay": 0.055,
           "type": "pink",
           "bandpass": {
-            "center": 3600,
-            "q": 1.2
+            "center": 6000,
+            "q": 3
           }
         },
-        "highpass": 900,
+        "highpass": 4000,
         "lowpass": 7500,
-        "fadeOut": 0.012
+        "fadeOut": 1
       }
     },
     {

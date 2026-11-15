@@ -243,46 +243,69 @@ class GusPatchApp {
     }
 
     bindDraggableDialogs() {
-        document.querySelectorAll('dialog').forEach(dialog => {
-            dialog.querySelectorAll('.dialog-header, .dialog-footer').forEach(handle => {
-                handle.addEventListener('pointerdown', event => {
-                    if (event.button !== 0 || event.target !== handle) return;
+        let dragState = null;
 
-                    const rect = dialog.getBoundingClientRect();
-                    const offsetX = event.clientX - rect.left;
-                    const offsetY = event.clientY - rect.top;
-                    handle.setPointerCapture(event.pointerId);
-                    dialog.style.left = `${rect.left}px`;
-                    dialog.style.top = `${rect.top}px`;
-                    dialog.style.transform = 'none';
-                    dialog.style.margin = '0';
+        document.addEventListener('pointerdown', event => {
+            if (event.button !== 0 || event.isPrimary === false) return;
+            const target = event.target instanceof Element ? event.target : null;
+            const handle = target?.closest('dialog .dialog-header, dialog .dialog-footer');
+            const dialog = handle?.closest('dialog');
+            if (!dialog?.open) return;
 
-                    const moveDialog = moveEvent => {
-                        if (moveEvent.pointerId !== event.pointerId) return;
-                        const left = Math.max(0, Math.min(
-                            window.innerWidth - rect.width,
-                            moveEvent.clientX - offsetX
-                        ));
-                        const top = Math.max(0, Math.min(
-                            window.innerHeight - rect.height,
-                            moveEvent.clientY - offsetY
-                        ));
-                        dialog.style.left = `${left}px`;
-                        dialog.style.top = `${top}px`;
-                    };
-                    const stopDragging = stopEvent => {
-                        if (stopEvent.pointerId !== event.pointerId) return;
-                        handle.removeEventListener('pointermove', moveDialog);
-                        handle.removeEventListener('pointerup', stopDragging);
-                        handle.removeEventListener('pointercancel', stopDragging);
-                    };
-
-                    handle.addEventListener('pointermove', moveDialog);
-                    handle.addEventListener('pointerup', stopDragging);
-                    handle.addEventListener('pointercancel', stopDragging);
-                });
-            });
+            const rect = dialog.getBoundingClientRect();
+            dragState = {
+                dialog,
+                pointerId: event.pointerId,
+                startX: event.clientX,
+                startY: event.clientY,
+                offsetX: event.clientX - rect.left,
+                offsetY: event.clientY - rect.top,
+                rect,
+                dragged: false,
+            };
         });
+
+        document.addEventListener('pointermove', event => {
+            if (!dragState || event.pointerId !== dragState.pointerId) return;
+            const deltaX = event.clientX - dragState.startX;
+            const deltaY = event.clientY - dragState.startY;
+            if (!dragState.dragged && Math.hypot(deltaX, deltaY) < 3) return;
+
+            dragState.dragged = true;
+            event.preventDefault();
+            const left = Math.max(0, Math.min(
+                window.innerWidth - dragState.rect.width,
+                event.clientX - dragState.offsetX
+            ));
+            const top = Math.max(0, Math.min(
+                window.innerHeight - dragState.rect.height,
+                event.clientY - dragState.offsetY
+            ));
+            dragState.dialog.style.left = `${left}px`;
+            dragState.dialog.style.top = `${top}px`;
+            dragState.dialog.style.transform = 'none';
+            dragState.dialog.style.margin = '0';
+        });
+
+        const stopDragging = event => {
+            if (!dragState || event.pointerId !== dragState.pointerId) return;
+            const dragged = dragState.dragged;
+            dragState = null;
+            if (!dragged || event.type === 'pointercancel') return;
+
+            const suppressClick = clickEvent => {
+                if (clickEvent.detail === 0) return;
+                clickEvent.preventDefault();
+                clickEvent.stopImmediatePropagation();
+                document.removeEventListener('click', suppressClick, true);
+            };
+            document.addEventListener('click', suppressClick, true);
+            window.setTimeout(() => {
+                document.removeEventListener('click', suppressClick, true);
+            }, 0);
+        };
+        document.addEventListener('pointerup', stopDragging);
+        document.addEventListener('pointercancel', stopDragging);
     }
 
     showDialogCentered(dialog) {
@@ -2131,13 +2154,20 @@ class GusPatchApp {
         for (const {channel, volume, expression, pan} of channelValues) {
             const item = document.createElement('li');
             item.className = 'midi-mixer-channel';
+            item.dataset.channel = String(channel);
 
             const channelInfo = document.createElement('div');
             channelInfo.className = 'midi-mixer-channel-info';
+            const indicator = document.createElement('span');
+            indicator.className = 'midi-note-indicator';
+            indicator.classList.toggle('is-playing', this.activeMidiChannelNotes.has(channel));
+            indicator.setAttribute('aria-label', this.activeMidiChannelNotes.has(channel)
+                ? 'Channel has active notes'
+                : 'No active notes');
             const channelLabel = document.createElement('span');
             channelLabel.className = 'midi-mixer-channel-name';
             channelLabel.textContent = channel === 9 ? 'Channel 10 · Drums' : `Channel ${channel + 1}`;
-            channelInfo.appendChild(channelLabel);
+            channelInfo.append(indicator, channelLabel);
 
             const channelToggles = document.createElement('span');
             channelToggles.className = 'midi-mixer-channel-toggles';
@@ -2399,17 +2429,17 @@ class GusPatchApp {
     }
 
     updateMidiChannelIndicator(channel) {
-        const list = this.$('midiChannelList');
-        if (!list) return;
-        const indicator = list.querySelector(
-            `.midi-channel-row[data-channel="${channel}"] .midi-note-indicator`
-        );
-        if (!indicator) return;
         const isActive = this.activeMidiChannelNotes.has(channel);
-        indicator.classList.toggle('is-playing', isActive);
-        indicator.setAttribute('aria-label', isActive
-            ? 'Channel has active notes'
-            : 'No active notes');
+        for (const listId of ['midiChannelList', 'midiMixerChannelList']) {
+            const indicator = this.$(listId)?.querySelector(
+                `[data-channel="${channel}"] .midi-note-indicator`
+            );
+            if (!indicator) continue;
+            indicator.classList.toggle('is-playing', isActive);
+            indicator.setAttribute('aria-label', isActive
+                ? 'Channel has active notes'
+                : 'No active notes');
+        }
     }
 
     updateMidiInstrumentIndicator(instrumentKey) {
