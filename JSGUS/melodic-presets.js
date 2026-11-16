@@ -6044,7 +6044,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 0.5,
           "index": 4
         },
-        "noise": 0.2,
+        "noise": 0.04,
         "antiAlias": true
       }
     },
