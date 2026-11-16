@@ -674,6 +674,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
+        "gain": 0.44,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -700,7 +701,7 @@ var GUS_MELODIC_PRESETS = {
         ],
         "inharmonicity": 0.008,
         "vibrato": {
-          "rate": 5,
+          "rate": 0.42,
           "depth": 0.02
         },
         "antiAlias": true
@@ -5358,7 +5359,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "triangle",
-        "gain": 0.65,
+        "gain": 0.26,
         "loop": true,
         "cycles": 16,
         "env": {
