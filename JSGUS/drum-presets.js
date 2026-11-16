@@ -792,7 +792,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Open Hi-Hat: bright metallic shimmer with a sustained decay.",
       "preset": {
         "mute": false,
-        "gain": 0.098,
+        "gain": 0.045,
         "duration": 0.9,
         "fadeOut": 0.18,
         "noiseLayers": [
@@ -1060,7 +1060,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Ride Cymbal 1: bright ride strike with a clear, ringing.",
       "preset": {
         "mute": false,
-        "gain": 0.08,
+        "gain": 0.06,
         "duration": 1.5,
         "fadeOut": 0.3,
         "metallic": {
@@ -2007,7 +2007,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Maracas: crisp shaker rattle with a short, bright tail.",
       "preset": {
         "mute": false,
-        "gain": 0.35,
+        "gain": 0.12,
         "duration": 0.13,
         "noise": {
           "amp": 1,
