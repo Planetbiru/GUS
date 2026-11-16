@@ -2137,18 +2137,76 @@ var GUS_DRUM_PRESETS = {
       "description": "Long Guiro: raspy guiro scrape with a textured, rattling.",
       "preset": {
         "mute": false,
-        "gain": 0.42,
-        "duration": 0.5,
-        "noise": {
-          "amp": 1,
-          "decay": 0.5,
-          "type": "pink",
-          "bandpass": {
-            "center": 3500,
-            "q": 1.5
+        "gain": 0.35,
+        "duration": 0.3,
+        "fadeOut": 0.05,
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.035,
+            "type": "white",
+            "bandpass": { "center": 3000, "q": 0.8 }
+          },
+          {
+            "delay": 0.025,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.05,
+            "type": "white",
+            "bandpass": { "center": 3500, "q": 0.8 }
+          },
+          {
+            "delay": 0.05,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.075,
+            "type": "white",
+            "bandpass": { "center": 4000, "q": 0.8 }
+          },
+          {
+            "delay": 0.075,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.09,
+            "type": "white",
+            "bandpass": { "center": 4700, "q": 0.8 }
+          },
+          {
+            "delay": 0.1,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.11,
+            "type": "white",
+            "bandpass": { "center": 5300, "q": 0.8 }
+          },
+          {
+            "delay": 0.125,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.13,
+            "type": "white",
+            "bandpass": { "center": 6000, "q": 0.8 }
+          },
+          {
+            "delay": 0.15,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.15,
+            "type": "white",
+            "bandpass": { "center": 7000, "q": 0.8 }
+          },
+          {
+            "delay": 0.18,
+            "duration": 0.12,
+            "decay": 0.018,
+            "amp": 0.2,
+            "type": "white",
+            "bandpass": { "center": 8000, "q": 0.8 }
           }
-        },
-        "highpass": 2500
+        ],
+        "highpass": 1600
       }
     },
     {
