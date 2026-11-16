@@ -2779,6 +2779,14 @@ class GusPatchApp {
     }
 
     buildMidiPatch(isDrum, program, presetOverride = this.getInstrumentPreset(isDrum ? 'drum' : 'melodic', program)) {
+        const {name, zones} = this.buildMidiPatchData(isDrum, program, presetOverride);
+        return GusPatchEncoder.encode({
+            name,
+            samples: zones.map(({sample}) => sample),
+        });
+    }
+
+    buildMidiPatchData(isDrum, program, presetOverride = this.getInstrumentPreset(isDrum ? 'drum' : 'melodic', program)) {
         const state = this.getInstrumentGeneratorState(isDrum ? 'drum' : 'melodic', program);
         const sampleRate = state.sampleRate;
 
@@ -2800,29 +2808,32 @@ class GusPatchApp {
                 preset,
                 this.lib.drumMasterGain
             );
-            return GusPatchEncoder.encode({
+            return {
                 name: this.slugify(name).slice(0, 15) || `drum${note}`,
-                samples: [{
-                    pcm: rendered.pcm,
-                    loopStart: 0,
-                    loopEnd: 0,
-                    isLoop: false,
-                    rootFreq: Math.round(state.root * 1000),
-                    sampleRate,
-                    lowFreq,
-                    highFreq,
-                    sampleRateHzInHeader: true,
+                zones: [{
+                    keyRange: [note, note],
+                    rootKey: note,
+                    sample: {
+                        pcm: rendered.pcm,
+                        loopStart: 0,
+                        loopEnd: 0,
+                        isLoop: false,
+                        rootFreq: Math.round(state.root * 1000),
+                        sampleRate,
+                        lowFreq,
+                        highFreq,
+                        sampleRateHzInHeader: true,
+                    },
                 }],
-            });
+            };
         }
 
         const instrument = this.lib.melodic[program];
         if (!instrument) throw new Error(`Unknown melodic program ${program}.`);
         const {name} = instrument;
-        const basePreset = presetOverride;
-        const preset = this.presetWithWaveform(basePreset, state.wave);
+        const preset = this.presetWithWaveform(presetOverride, state.wave);
         const sampleName = this.slugify(name).slice(0, 5);
-        const samples = ProjectPatchGenerator.getPitchRanges(false, program).map((range, index) => {
+        const zones = ProjectPatchGenerator.getPitchRanges(false, program).map((range, index) => {
             const rootNote = Math.round((range.pitchFrom + range.pitchTo) / 2);
             const rootFrequency = state.root * Math.pow(2, (rootNote - 60) / 12);
             const rendered = this.applyOutputGain(
@@ -2834,26 +2845,32 @@ class GusPatchApp {
                 preset,
                 this.lib.melodicMasterGain
             );
+            const naturalFrequency = rendered.naturalFreq || rootFrequency;
             return {
-                name: `${sampleName}${String(index + 1).padStart(2, '0')}`,
-                pcm: rendered.pcm,
-                loopStart: rendered.loopStart,
-                loopEnd: rendered.loopEnd,
-                isLoop: rendered.loop,
-                rootFreq: Math.round(rendered.naturalFreq * 1000),
-                sampleRate,
-                sustainLoop: preset.sustainLoop !== false,
-                envRates: preset.patchEnvelope && preset.patchEnvelope.rates,
-                envOffsets: preset.patchEnvelope && preset.patchEnvelope.offsets,
-                lowFreq: Math.floor(ProjectPatchGenerator.midiPitchToFrequency(range.pitchFrom) * 1000),
-                highFreq: Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(range.pitchTo) * 1000),
-                sampleRateHzInHeader: true,
+                keyRange: [range.pitchFrom, range.pitchTo],
+                rootKey: Math.max(0, Math.min(127,
+                    Math.round(69 + 12 * Math.log2(naturalFrequency / 440)))),
+                sample: {
+                    name: `${sampleName}${String(index + 1).padStart(2, '0')}`,
+                    pcm: rendered.pcm,
+                    loopStart: rendered.loopStart,
+                    loopEnd: rendered.loopEnd,
+                    isLoop: rendered.loop,
+                    rootFreq: Math.round(naturalFrequency * 1000),
+                    sampleRate,
+                    sustainLoop: preset.sustainLoop !== false,
+                    envRates: preset.patchEnvelope && preset.patchEnvelope.rates,
+                    envOffsets: preset.patchEnvelope && preset.patchEnvelope.offsets,
+                    lowFreq: Math.floor(ProjectPatchGenerator.midiPitchToFrequency(range.pitchFrom) * 1000),
+                    highFreq: Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(range.pitchTo) * 1000),
+                    sampleRateHzInHeader: true,
+                },
             };
         });
-        return GusPatchEncoder.encode({
+        return {
             name: this.slugify(name).slice(0, 15) || `gm${program}`,
-            samples,
-        });
+            zones,
+        };
     }
 
     async loadMidiFile(event) {
@@ -4062,59 +4079,58 @@ class GusPatchApp {
             this.log('Rendering melodic SoundFont samples...', 'info');
             for (let program = 0; program < this.lib.melodic.length; program++) {
                 const instrument = this.lib.melodic[program];
-                const settings = this.getInstrumentGeneratorState('melodic', program);
-                const basePreset = this.getInstrumentPreset('melodic', program);
-                const preset = this.presetWithWaveform(basePreset, settings.wave);
-                const rendered = new MelodicRenderer(preset, {
-                    sampleRate: settings.sampleRate,
-                    freq: settings.root,
-                    duration: settings.duration,
-                }).render();
-                const gained = this.applyOutputGain(rendered, preset, this.lib.melodicMasterGain);
-                const frequency = rendered.naturalFreq || settings.root;
-                const rootKey = Math.max(0, Math.min(127,
-                    Math.round(69 + 12 * Math.log2(frequency / 440))));
-                const sampleIndex = samples.length;
-                samples.push({
-                    name: instrument.name,
-                    pcm: SoundFontExporter.toInt16(gained.pcm),
-                    sampleRate: settings.sampleRate,
-                    rootKey,
-                    loop: rendered.loop,
-                    loopStart: rendered.loopStart,
-                    loopEnd: rendered.loopEnd,
-                });
-                instruments.push({name: instrument.name, sampleIndex, rootKey, loop: rendered.loop});
+                const {zones: sampleZones} = this.buildMidiPatchData(false, program);
+                const presetZones = [];
+                for (let zoneIndex = 0; zoneIndex < sampleZones.length; zoneIndex++) {
+                    const zone = sampleZones[zoneIndex];
+                    const {sample, keyRange, rootKey} = zone;
+                    const sampleIndex = samples.length;
+                    samples.push({
+                        name: sample.name,
+                        pcm: SoundFontExporter.toInt16(sample.pcm),
+                        sampleRate: sample.sampleRate,
+                        rootKey,
+                        loop: sample.isLoop,
+                        loopStart: sample.loopStart,
+                        loopEnd: sample.loopEnd,
+                    });
+                    const instrumentIndex = instruments.length;
+                    instruments.push({
+                        name: `${instrument.name} ${zoneIndex + 1}`,
+                        sampleIndex,
+                        rootKey,
+                        loop: sample.isLoop,
+                    });
+                    presetZones.push({instrumentIndex, keyRange});
+                }
                 presets.push({
                     name: instrument.name,
                     program,
                     bank: 0,
-                    zones: [{instrumentIndex: instruments.length - 1}],
+                    zones: presetZones,
                 });
                 progressBar.style.width = `${Math.round((program + 1) / total * 100)}%`;
-                if (program % 8 === 7) await new Promise(resolve => setTimeout(resolve, 0));
+                await new Promise(resolve => setTimeout(resolve, 0));
             }
 
             this.log(`Rendering ${this.lib.drums.length} drum SoundFont samples...`, 'info');
             for (let index = 0; index < this.lib.drums.length; index++) {
                 const drum = this.lib.drums[index];
-                const settings = this.getInstrumentGeneratorState('drum', drum.note);
-                const preset = {...this.getInstrumentPreset('drum', drum.note), duration: settings.duration};
-                const rendered = new DrumRenderer(preset, settings.sampleRate).render();
-                const gained = this.applyOutputGain(rendered, preset, this.lib.drumMasterGain);
+                const {zones: sampleZones} = this.buildMidiPatchData(true, drum.note);
+                const [{sample, keyRange, rootKey}] = sampleZones;
                 const sampleIndex = samples.length;
                 samples.push({
                     name: drum.name,
-                    pcm: SoundFontExporter.toInt16(gained.pcm),
-                    sampleRate: settings.sampleRate,
-                    rootKey: drum.note,
-                    loop: false,
-                    loopStart: 0,
-                    loopEnd: 0,
+                    pcm: SoundFontExporter.toInt16(sample.pcm),
+                    sampleRate: sample.sampleRate,
+                    rootKey,
+                    loop: sample.isLoop,
+                    loopStart: sample.loopStart,
+                    loopEnd: sample.loopEnd,
                 });
                 const instrumentIndex = instruments.length;
-                instruments.push({name: drum.name, sampleIndex, rootKey: drum.note, loop: false});
-                drumZones.push({instrumentIndex, keyRange: [drum.note, drum.note]});
+                instruments.push({name: drum.name, sampleIndex, rootKey, loop: sample.isLoop});
+                drumZones.push({instrumentIndex, keyRange});
                 progressBar.style.width = `${Math.round((128 + index + 1) / total * 100)}%`;
                 if (index % 8 === 7) await new Promise(resolve => setTimeout(resolve, 0));
             }
