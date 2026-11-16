@@ -2464,32 +2464,25 @@ class MidiController {
         ...melodic.map(instrument=>({instrument, isDrum:false, bank:melodicBank})),
         ...drums.map(instrument=>({instrument, isDrum:true, bank:128}))
       ];
-      const melodicPitchRanges=[
-        {pitchFrom:0,pitchTo:47},
-        {pitchFrom:48,pitchTo:59},
-        {pitchFrom:60,pitchTo:71},
-        {pitchFrom:72,pitchTo:83},
-        {pitchFrom:84,pitchTo:95},
-        {pitchFrom:96,pitchTo:127}
-      ];
-      const hasCompleteMelodicPitchCoverage=entry=>{
+      const getPitchRanges=task=>
+        ProjectPatchGenerator.getPitchRanges(task.isDrum,task.instrument.id);
+
+      const hasExpectedPitchCoverage=(entry, expectedRanges)=>{
         const samples=entry.patch.instruments.flatMap(inst=>
           inst.layers.flatMap(layer=>layer.samples)
         );
-        if(samples.length!==melodicPitchRanges.length)return false;
+        if(samples.length!==expectedRanges.length)return false;
         const ranges=samples.map(sample=>({
           from:sample._generatorInfo?.pitchFrom
             ?? ProjectPatchGenerator.frequencyToMidiPitch(sample.lowFreq),
           to:sample._generatorInfo?.pitchTo
             ?? ProjectPatchGenerator.frequencyToMidiPitch(sample.highFreq)
         })).sort((a,b)=>a.from-b.from);
-        let nextPitch=0;
-        for(const range of ranges){
-          if(!Number.isInteger(range.from)||!Number.isInteger(range.to)
-            ||range.from!==nextPitch||range.to<range.from||range.to>127)return false;
-          nextPitch=range.to+1;
-        }
-        return nextPitch===128;
+        return ranges.every((range,index)=>
+          Number.isInteger(range.from)&&Number.isInteger(range.to)
+          &&range.from===expectedRanges[index].pitchFrom
+          &&range.to===expectedRanges[index].pitchTo
+        );
       };
       const missingTasks=tasks.flatMap(task=>{
         const existingPatch=existingPatches.find(entry=>
@@ -2497,9 +2490,8 @@ class MidiController {
           && entry.gmProgram===task.instrument.id
         );
         if(!existingPatch)return [{...task,existingPatch:null}];
-        if(!task.isDrum
-          && existingPatch.source==="demo-generated"
-          && !hasCompleteMelodicPitchCoverage(existingPatch)){
+        if(existingPatch.source==="demo-generated"
+          && !hasExpectedPitchCoverage(existingPatch,getPitchRanges(task))){
           return [{...task,existingPatch}];
         }
         return [];
@@ -2515,9 +2507,7 @@ class MidiController {
       showStatus(t("demo_generation_progress",{completed,total:tasks.length}));
       for(let index=0;index<missingTasks.length;index++){
         const {instrument,isDrum,bank}=missingTasks[index];
-        const pitchRanges=isDrum
-          ? [{pitchFrom:0,pitchTo:127}]
-          : melodicPitchRanges;
+        const pitchRanges=getPitchRanges(missingTasks[index]);
         const generatedSamples=[];
         let generated;
 

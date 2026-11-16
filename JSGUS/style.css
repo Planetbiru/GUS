@@ -426,7 +426,9 @@ main {
 .midi-volume-control label,
 .midi-seek-times {
     display: flex;
+    align-items: center;
     justify-content: space-between;
+    height: 20px;
     margin-bottom: 4px;
     color: var(--dim);
     font-size: 12px;
@@ -649,11 +651,39 @@ label[for="presetJson"] {
 }
 
 .midi-file-picker .meta {
+    flex: 1 1 auto;
     min-width: 0;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.midi-file-picker .midi-instrument-progress {
+    flex: 0 0 88px;
+    width: 88px;
+    height: 8px;
+    margin-left: auto;
+    border: 0;
+    border-radius: 4px;
+    background: var(--border);
+    color: var(--accent2);
+    appearance: none;
+}
+
+.midi-instrument-progress::-webkit-progress-bar {
+    border-radius: 4px;
+    background: var(--border);
+}
+
+.midi-instrument-progress::-webkit-progress-value {
+    border-radius: 4px;
+    background: var(--accent2);
+}
+
+.midi-instrument-progress::-moz-progress-bar {
+    border-radius: 4px;
+    background: var(--accent2);
 }
 
 .midi-file-picker button {
@@ -752,7 +782,7 @@ label[for="presetJson"] {
 
 .midi-mixer-channel {
     display: grid;
-    grid-template-columns: minmax(160px, 1.4fr) repeat(3, minmax(0, 2fr));
+    grid-template-columns: minmax(0, 2.4fr) repeat(3, minmax(0, 1.5fr));
     align-items: center;
     column-gap: 14px;
     row-gap: 6px;
@@ -918,10 +948,14 @@ label[for="presetJson"] {
 
 @media (max-width: 520px) {
     .midi-mixer-channel {
-        grid-template-columns: minmax(100px, .9fr) repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         column-gap: 8px;
         row-gap: 3px;
         padding: 1px 0 3px;
+    }
+
+    .midi-mixer-channel-info {
+        grid-column: 1 / -1;
     }
 
     .midi-mixer-control {
@@ -990,6 +1024,11 @@ label[for="presetJson"] {
     justify-content: flex-start;
     gap: 8px;
     text-align: left;
+    transition: opacity .16s ease, background-color .16s ease;
+}
+
+.midi-instrument-item.is-loading .midi-instrument-link {
+    opacity: 0.58;
 }
 
 .midi-note-indicator {
