@@ -1084,7 +1084,6 @@ class MelodicRenderer {
             }
         }
 
-        // The previous crossfade was removed.
         // With perfect periodicity, wrapping loopEnd to loopStart is naturally
         // continuous (out[loopEnd-1] ≈ out[loopStart-1] because loopLength is an
         // integer multiple of `cs`). Crossfading instead mixes signals with
