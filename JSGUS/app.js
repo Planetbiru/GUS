@@ -127,6 +127,7 @@ class GusPatchApp {
         this.currentProjectId = null;
         this.projectDb = null;
         this.midiPatchReloadTimer = null;
+        this.midiInstrumentProgressHideTimer = null;
         this.autoApplyPreset = false;
         this.autoApplyPresetTimer = null;
         this.autoApplyPresetGeneration = 0;
@@ -1763,6 +1764,58 @@ class GusPatchApp {
             this.log('Saved generator state reset to defaults.', 'ok');
         }
 
+    updateMidiInstrumentProgress(loaded, total) {
+        const progress = this.$('midiInstrumentProgress');
+        if (!Number.isFinite(loaded) || !Number.isFinite(total) || total <= 0) {
+            this.hideMidiInstrumentProgress();
+            return;
+        }
+
+        if (this.midiInstrumentProgressHideTimer) {
+            clearTimeout(this.midiInstrumentProgressHideTimer);
+            this.midiInstrumentProgressHideTimer = null;
+        }
+
+        const completed = Math.max(0, Math.min(total, loaded));
+        progress.max = total;
+        progress.value = completed;
+        progress.setAttribute('aria-valuetext', `${completed} of ${total} instruments loaded`);
+        progress.hidden = false;
+
+        if (completed === total && !this.collectingMidiInstruments) {
+            this.scheduleMidiInstrumentProgressHide();
+        }
+    }
+
+    hideMidiInstrumentProgress() {
+        if (this.midiInstrumentProgressHideTimer) {
+            clearTimeout(this.midiInstrumentProgressHideTimer);
+            this.midiInstrumentProgressHideTimer = null;
+        }
+        const progress = this.$('midiInstrumentProgress');
+        progress.hidden = true;
+        progress.value = 0;
+        progress.removeAttribute('aria-valuetext');
+    }
+
+    scheduleMidiInstrumentProgressHide() {
+        if (this.midiInstrumentProgressHideTimer) {
+            clearTimeout(this.midiInstrumentProgressHideTimer);
+        }
+        this.midiInstrumentProgressHideTimer = setTimeout(() => {
+            this.midiInstrumentProgressHideTimer = null;
+            this.hideMidiInstrumentProgress();
+        }, 500);
+    }
+
+    showMidiFileLoadProgress() {
+        const progress = this.$('midiInstrumentProgress');
+        progress.max = 1;
+        progress.value = 0;
+        progress.setAttribute('aria-valuetext', 'Loading MIDI file');
+        progress.hidden = false;
+    }
+
     async ensureTimidityPlayer() {
         if (this.timidityPlayerReady) return this.timidityPlayerReady;
         if (typeof TimidityPlayer !== 'function') {
@@ -1774,16 +1827,56 @@ class GusPatchApp {
             bufferSize: 4096,
             bufferSizeRealtime: 1024,
             timidityCfgLoader: () => this.buildMidiTimidityConfig(),
-            instrumentLoader: (bank, isDrum, program) => {
+            instrumentLoader: async (bank, isDrum, program) => {
                 if (this.collectingMidiInstruments) {
                     this.trackMidiInstrument(isDrum, program, bank);
                 }
+                await new Promise(resolve => setTimeout(resolve, 0));
                 return this.buildMidiPatch(isDrum, program);
             },
         });
         this.timidityPlayer = player;
-        player.on('onInstrumentLoading', (loaded, total) => {
-            this.$('midiStatus').textContent = `Loading GM instruments ${loaded}/${total}...`;
+        player.on('onInstrumentList', entries => {
+            if (!this.collectingMidiInstruments) return;
+            for (const {isDrum, program, bank} of entries) {
+                this.trackMidiInstrument(isDrum, program, bank, false);
+            }
+            this.renderMidiInstrumentList();
+        });
+        player.onInstrumentLoading((loaded, total) => {
+            this.updateMidiInstrumentProgress(loaded, total);
+            if (!this.midiRenderInProgress) {
+                this.$('midiStatus').textContent = `Loading GM instruments ${loaded}/${total}...`;
+            }
+        });
+        player.on('onInstrumentStatus', (_file, status) => {
+            if (status === 'failed') this.hideMidiInstrumentProgress();
+        });
+        player.on('onInstrumentLoaded', () => {
+            if (this.collectingMidiInstruments || this.midiRenderInProgress) return;
+            if (this.midiMode === 'file') {
+                if (!this.midiData) {
+                    this.$('midiStatus').textContent = 'Select a MIDI file to play with the generated GM bank.';
+                    return;
+                }
+                const playbackStatus = player.isPlaying && !player.isPaused
+                    ? 'Playing'
+                    : player.isPaused ? 'Paused' : 'Ready';
+                this.$('midiStatus').textContent = `${playbackStatus}: ${this.midiFileName}`;
+            } else if (this.midiMode === 'sequencer') {
+                const sequencerStatus = this.sequencerPlaying
+                    ? this.sequencerPaused
+                        ? 'Sequencer paused'
+                        : 'Sequencer playing'
+                    : 'Select an instrument, then start the sequencer.';
+                this.$('midiStatus').textContent = this.sequencerPlaying
+                    ? `${sequencerStatus}: ${this.currentType} ${this.currentMidi}.`
+                    : sequencerStatus;
+            } else {
+                this.$('midiStatus').textContent = this.midiControllerInput
+                    ? `MIDI controller connected: ${this.midiControllerInput.name || 'Input'}`
+                    : 'Connect a MIDI controller to play instruments in real time.';
+            }
         });
         player.on('onMidiLoaded', (_midi, duration) => {
             if (this.midiMode === 'sequencer') return;
@@ -2579,7 +2672,7 @@ class GusPatchApp {
             : 'No active notes');
     }
 
-    trackMidiInstrument(isDrum, program, bank) {
+    trackMidiInstrument(isDrum, program, bank, render = true) {
         const type = isDrum ? 'drum' : 'melodic';
         const instrument = isDrum
             ? this.lib.findDrum(program)
@@ -2592,7 +2685,7 @@ class GusPatchApp {
             bank,
             name: instrument.name,
         });
-        this.renderMidiInstrumentList();
+        if (render) this.renderMidiInstrumentList();
     }
 
     renderMidiInstrumentList() {
@@ -2750,6 +2843,8 @@ class GusPatchApp {
         this.$('midiFileName').textContent = file.name;
         const status = this.$('midiStatus');
         status.textContent = 'Initializing TimidityPlayer...';
+        this.hideMidiInstrumentProgress();
+        this.showMidiFileLoadProgress();
         this.midiData = null;
         this.midiDuration = 0;
         this.midiPosition = 0;
@@ -2776,7 +2871,9 @@ class GusPatchApp {
             player.setVolume(this.getMidiVolume());
             this.updateMidiPlaybackUI();
             status.textContent = `Ready: ${file.name}`;
+            this.scheduleMidiInstrumentProgressHide();
         } catch (error) {
+            this.hideMidiInstrumentProgress();
             this.clearMidiInstrumentList();
             this.midiChannelsUsed = [];
             this.midiChannelStates.clear();

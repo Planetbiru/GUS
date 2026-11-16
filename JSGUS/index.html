@@ -404,6 +404,8 @@
                     <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
                     <button id="btnChooseMidi" type="button">Choose MIDI File</button>
                     <span id="midiFileName" class="meta">No file selected</span>
+                    <progress id="midiInstrumentProgress" class="midi-instrument-progress"
+                        max="1" value="0" hidden aria-label="MIDI instrument loading progress"></progress>
                     </div>
                     <div class="actions">
                         <button id="btnMidiPlay" class="primary button-with-icon" disabled>
