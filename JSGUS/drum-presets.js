@@ -921,7 +921,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Crash Cymbal 1: bright cymbal crash with a broad metallic.",
       "preset": {
         "mute": false,
-        "gain": 0.32,
+        "gain": 0.31,
         "duration": 5,
         "fadeOut": 1,
         "impact": {
@@ -1399,7 +1399,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Crash Cymbal 2: bright cymbal crash with a broad metallic.",
       "preset": {
         "mute": false,
-        "gain": 0.32,
+        "gain": 0.31,
         "duration": 4.8,
         "fadeOut": 0.95,
         "impact": {
