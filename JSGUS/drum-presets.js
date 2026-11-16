@@ -922,29 +922,31 @@ var GUS_DRUM_PRESETS = {
       "preset": {
         "mute": false,
         "gain": 0.32,
-        "duration": 1.7,
+        "duration": 3.3,
         "impact": {
           "amp": 1.1,
           "duration": 0.04,
           "decay": 0.013,
           "type": "white",
           "bandpass": {
-            "center": 5600,
+            "center": 3200,
             "q": 0.8
           }
         },
         "metallic": {
-          "baseFreq": 3200,
+          "baseFreq": 1800,
           "partials": [
             1,
-            1.37,
-            1.79,
-            2.23,
-            2.71,
-            3.28
+            1.15,
+            1.26,
+            1.52,
+            1.61,
+            1.68,
+            2.03,
+            2.54
           ],
-          "amp": 0.1,
-          "decay": 0.07,
+          "amp": 0.12,
+          "decay": 0.65,
           "randomPhase": true
         },
         "noiseLayers": [
@@ -959,43 +961,43 @@ var GUS_DRUM_PRESETS = {
           },
           {
             "amp": 0.6,
-            "decay": 0.1,
+            "decay": 0.12,
             "type": "white",
             "bandpass": {
-              "center": 9800,
+              "center": 7600,
               "q": 0.85
             }
           },
           {
             "amp": 0.7,
-            "decay": 0.75,
+            "decay": 1.2,
             "type": "white",
             "bandpass": {
-              "center": 6200,
+              "center": 5400,
               "q": 0.7
             }
           },
           {
             "amp": 0.45,
-            "decay": 0.55,
+            "decay": 0.9,
             "type": "white",
             "bandpass": {
-              "center": 8800,
+              "center": 7000,
               "q": 0.75
             }
           },
           {
             "amp": 0.3,
-            "decay": 1.1,
+            "decay": 1.7,
             "type": "white",
             "bandpass": {
-              "center": 4600,
+              "center": 4000,
               "q": 0.85
             }
           }
         ],
-        "highpass": 2000,
-        "lowpass": 12000
+        "highpass": 900,
+        "lowpass": 10000
       }
     },
     {
@@ -1058,11 +1060,26 @@ var GUS_DRUM_PRESETS = {
       "preset": {
         "mute": false,
         "gain": 0.08,
-        "duration": 1.1,
+        "duration": 1.15,
+        "metallic": {
+          "baseFreq": 305,
+          "partials": [
+            1,
+            8.34,
+            10.24,
+            10.86,
+            12.3,
+            15.06,
+            16.71
+          ],
+          "amp": 0.07,
+          "decay": 0.32,
+          "randomPhase": true
+        },
         "noiseLayers": [
           {
             "amp": 0.85,
-            "decay": 0.035,
+            "decay": 0.025,
             "type": "white",
             "bandpass": {
               "center": 9000,
@@ -1070,25 +1087,35 @@ var GUS_DRUM_PRESETS = {
             }
           },
           {
-            "amp": 0.7,
-            "decay": 0.5,
+            "amp": 0.52,
+            "decay": 0.16,
             "type": "white",
             "bandpass": {
-              "center": 6500,
-              "q": 0.48
+              "center": 6000,
+              "q": 0.55
             }
           },
           {
-            "amp": 0.4,
-            "decay": 0.325,
+            "amp": 0.45,
+            "decay": 0.2,
             "type": "pink",
             "bandpass": {
-              "center": 4200,
-              "q": 0.6
+              "center": 3800,
+              "q": 0.65
+            }
+          },
+          {
+            "amp": 0.3,
+            "decay": 0.22,
+            "type": "white",
+            "bandpass": {
+              "center": 2800,
+              "q": 0.8
             }
           }
         ],
-        "highpass": 2500
+        "highpass": 120,
+        "lowpass": 10000
       }
     },
     {
@@ -1371,22 +1398,22 @@ var GUS_DRUM_PRESETS = {
       "preset": {
         "mute": false,
         "gain": 0.32,
-        "duration": 1.5,
+        "duration": 3,
         "impact": {
           "amp": 1.0,
           "duration": 0.035,
           "decay": 0.012,
           "type": "white",
           "bandpass": {
-            "center": 5800,
+            "center": 3400,
             "q": 0.8
           }
         },
         "metallic": {
-          "baseFreq": 3000,
-          "partials": [1, 1.41, 1.83, 2.29, 2.76, 3.36],
-          "amp": 0.1,
-          "decay": 0.065,
+          "baseFreq": 1750,
+          "partials": [1, 1.18, 1.31, 1.55, 1.67, 1.78, 2.1, 2.62],
+          "amp": 0.11,
+          "decay": 0.6,
           "randomPhase": true
         },
         "noiseLayers": [
@@ -1398,31 +1425,31 @@ var GUS_DRUM_PRESETS = {
           },
           {
             "amp": 0.58,
-            "decay": 0.09,
+            "decay": 0.12,
             "type": "white",
-            "bandpass": { "center": 10000, "q": 0.85 }
+            "bandpass": { "center": 7800, "q": 0.85 }
           },
           {
             "amp": 0.62,
-            "decay": 0.7,
+            "decay": 1.1,
             "type": "white",
-            "bandpass": { "center": 6500, "q": 0.7 }
+            "bandpass": { "center": 5600, "q": 0.7 }
           },
           {
             "amp": 0.4,
-            "decay": 0.5,
+            "decay": 0.85,
             "type": "white",
-            "bandpass": { "center": 9200, "q": 0.75 }
+            "bandpass": { "center": 7200, "q": 0.75 }
           },
           {
             "amp": 0.28,
-            "decay": 0.95,
+            "decay": 1.55,
             "type": "white",
-            "bandpass": { "center": 4800, "q": 0.85 }
+            "bandpass": { "center": 4100, "q": 0.85 }
           }
         ],
-        "highpass": 2200,
-        "lowpass": 12000
+        "highpass": 900,
+        "lowpass": 10000
       }
     },
     {
@@ -1463,11 +1490,18 @@ var GUS_DRUM_PRESETS = {
       "preset": {
         "mute": false,
         "gain": 0.08,
-        "duration": 0.9,
+        "duration": 1.05,
+        "metallic": {
+          "baseFreq": 330,
+          "partials": [1, 7.71, 9.46, 10.03, 13.92, 15.44],
+          "amp": 0.065,
+          "decay": 0.3,
+          "randomPhase": true
+        },
         "noiseLayers": [
           {
             "amp": 0.85,
-            "decay": 0.035,
+            "decay": 0.025,
             "type": "white",
             "bandpass": {
               "center": 9000,
@@ -1475,25 +1509,35 @@ var GUS_DRUM_PRESETS = {
             }
           },
           {
-            "amp": 0.7,
-            "decay": 0.5,
+            "amp": 0.5,
+            "decay": 0.15,
             "type": "white",
             "bandpass": {
-              "center": 6500,
-              "q": 0.48
+              "center": 6100,
+              "q": 0.55
             }
           },
           {
-            "amp": 0.4,
-            "decay": 0.325,
+            "amp": 0.42,
+            "decay": 0.18,
             "type": "pink",
             "bandpass": {
-              "center": 4200,
-              "q": 0.6
+              "center": 3900,
+              "q": 0.65
+            }
+          },
+          {
+            "amp": 0.28,
+            "decay": 0.2,
+            "type": "white",
+            "bandpass": {
+              "center": 2900,
+              "q": 0.8
             }
           }
         ],
-        "highpass": 2500
+        "highpass": 120,
+        "lowpass": 10000
       }
     },
     {
