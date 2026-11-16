@@ -1,5 +1,5 @@
 var GUS_DRUM_PRESETS = {
-  "gain": 0.8,
+  "gain": 0.75,
   "instruments": [
     {
       "note": 25,
