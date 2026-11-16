@@ -1267,12 +1267,19 @@ canvas {
     width: 100%;
     height: 26px;
     padding: 4px 8px;
-    background: var(--panel);
     color: var(--fg);
     border: 1px solid var(--border);
     border-radius: 4px;
     font: inherit;
     font-size: 12px;
+}
+.preset-field > input:not([type="checkbox"]),
+.preset-field > .number-input-wrap {
+    background: var(--panel);
+}
+.preset-field > select,
+.preset-field > .preset-waveform-control > select{
+    background-position: right 4px center;
 }
 
 .preset-field > select,
