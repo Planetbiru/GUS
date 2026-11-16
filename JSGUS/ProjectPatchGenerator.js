@@ -7,6 +7,48 @@ class ProjectPatchGenerator {
   static MODE_LOOP          = 0x04;
   static MODE_SUSTAIN       = 0x20;
   static MODE_ENVELOPE      = 0x40;
+  static MELODIC_PITCH_RANGES = Object.freeze([
+    {pitchFrom:0, pitchTo:15},
+    {pitchFrom:16, pitchTo:21},
+    {pitchFrom:22, pitchTo:27},
+    {pitchFrom:28, pitchTo:33},
+    {pitchFrom:34, pitchTo:39},
+    {pitchFrom:40, pitchTo:45},
+    {pitchFrom:46, pitchTo:50},
+    {pitchFrom:51, pitchTo:55},
+    {pitchFrom:56, pitchTo:60},
+    {pitchFrom:61, pitchTo:65},
+    {pitchFrom:66, pitchTo:70},
+    {pitchFrom:71, pitchTo:75},
+    {pitchFrom:76, pitchTo:80},
+    {pitchFrom:81, pitchTo:85},
+    {pitchFrom:86, pitchTo:91},
+    {pitchFrom:92, pitchTo:97},
+    {pitchFrom:98, pitchTo:103},
+    {pitchFrom:104, pitchTo:111},
+    {pitchFrom:112, pitchTo:127}
+  ].map(range => Object.freeze(range)));
+  static BASS_PITCH_RANGES = Object.freeze([
+    {pitchFrom:0, pitchTo:5},
+    {pitchFrom:6, pitchTo:10},
+    {pitchFrom:11, pitchTo:15},
+    {pitchFrom:16, pitchTo:20},
+    {pitchFrom:21, pitchTo:25},
+    {pitchFrom:26, pitchTo:30},
+    {pitchFrom:31, pitchTo:35},
+    {pitchFrom:36, pitchTo:40},
+    {pitchFrom:41, pitchTo:45},
+    {pitchFrom:46, pitchTo:50},
+    {pitchFrom:51, pitchTo:55},
+    {pitchFrom:56, pitchTo:60},
+    {pitchFrom:61, pitchTo:66},
+    {pitchFrom:67, pitchTo:72},
+    {pitchFrom:73, pitchTo:95},
+    {pitchFrom:96, pitchTo:127}
+  ].map(range => Object.freeze(range)));
+  static DRUM_PITCH_RANGES = Object.freeze([
+    Object.freeze({pitchFrom:1, pitchTo:127})
+  ]);
   static WAVEFORM_TYPES = Object.freeze([
     Object.freeze({value: 'sine',     name: 'Sine',     description: 'Pure tone with no upper harmonics.'}),
     Object.freeze({value: 'triangle', name: 'Triangle', description: 'Soft, mellow tone with gently fading odd harmonics.'}),
@@ -48,6 +90,13 @@ class ProjectPatchGenerator {
       return this.library.drums.map(({note, name}) => ({id: note, name}));
     }
     return this.library.melodic.map(({name}, id) => ({id, name}));
+  }
+
+  static getPitchRanges(isDrum, program) {
+    if (isDrum) return this.DRUM_PITCH_RANGES;
+    return program >= 32 && program <= 39
+      ? this.BASS_PITCH_RANGES
+      : this.MELODIC_PITCH_RANGES;
   }
 
   /**
@@ -693,22 +742,50 @@ class GusPatchEncoder {
      * @param {Object} options Patch name, PCM data, sample rate, loop, and envelope settings.
      * @returns {ArrayBuffer} The encoded patch file data.
      */
-    static encode({
-        name, pcm, loopStart, loopEnd, isLoop, rootFreq, sampleRate,
-        sustainLoop = isLoop, envRates, envOffsets,
-        lowFreq = rootFreq, highFreq = rootFreq,
-        sampleRateHzInHeader = false
-    }) {
-        const SR = sampleRate || 22050;
-        const periodNs = Math.round(1e9 / SR);
+    static encode(options) {
+        const {
+            name, pcm, loopStart, loopEnd, isLoop, rootFreq, sampleRate,
+            sustainLoop = isLoop, envRates, envOffsets,
+            lowFreq = rootFreq, highFreq = rootFreq,
+            sampleRateHzInHeader = false
+        } = options;
+        const sourceSamples = options.samples || [{
+            name,
+            pcm,
+            loopStart,
+            loopEnd,
+            isLoop,
+            rootFreq,
+            sampleRate,
+            sustainLoop,
+            envRates,
+            envOffsets,
+            lowFreq,
+            highFreq,
+            sampleRateHzInHeader,
+        }];
+        if (sourceSamples.length === 0 || sourceSamples.length > 255) {
+            throw new Error('A GUS patch must contain between 1 and 255 samples per layer.');
+        }
+        const samples = sourceSamples.map(sample => ({
+            ...sample,
+            sampleRate: sample.sampleRate || sampleRate || 22050,
+        }));
+        if (samples.some(sample =>
+            !sample.pcm || !Number.isFinite(sample.rootFreq)
+            || !Number.isFinite(sample.lowFreq) || !Number.isFinite(sample.highFreq)
+        )) {
+            throw new Error('Each GUS patch sample must include PCM and valid frequency values.');
+        }
 
-        const bps = 2;                      // 16-bit = 2 bytes/sample
-        const pcmBytes = pcm.length * bps;
-        const sampleHeaderSize = 96;
-        const layerSize   = 47 + sampleHeaderSize + pcmBytes;
-        const instSize    = 63 + layerSize;          // instrument block = inst header + layers
-        const dataSize    = instSize;                // main header data_size
-        const buf = new ArrayBuffer(129 + dataSize); // main header 129 byte
+        const bps = 2;
+        const layerSize = 47 + samples.reduce(
+            (size, sample) => size + 96 + sample.pcm.length * bps,
+            0
+        );
+        const instSize = 63 + layerSize;
+        const dataSize = instSize;
+        const buf = new ArrayBuffer(129 + dataSize);
         const view = new DataView(buf);
         const bytes = new Uint8Array(buf);
         let off = 0;
@@ -726,7 +803,7 @@ class GusPatchEncoder {
         u8(1);            // instruments
         u8(1);            // voices
         u8(1);            // channels
-        u16(1);           // waveforms
+        u16(samples.length);
         u16(100);         // master volume (16-bit!)
         u32(dataSize);
         zeros(36);
@@ -741,51 +818,52 @@ class GusPatchEncoder {
         // ---------- Layer Header (47 byte) ----------
         u8(0); u8(0);
         u32(layerSize);
-        u8(1);
+        u8(samples.length);
         zeros(40);
 
-        // ---------- Sample Header (96 byte) ----------
-        str(name.slice(0, 7), 7);
-        u8(0);                                  // fractions
-        u32(pcmBytes);                          // data size in BYTES
-        u32(isLoop ? loopStart * bps : 0);      // loop start (BYTE offset)
-        u32(isLoop ? loopEnd   * bps : 0);      // loop end   (BYTE offset)
-        u16(sampleRateHzInHeader ? SR : periodNs);
-        u32(lowFreq);                           // lowFreq
-        u32(highFreq);                          // highFreq
-        u32(rootFreq);                          // rootFreq
-        u16(0);                                 // tune
-        u8(7);                                  // balance
+        for (const sample of samples) {
+            const SR = sample.sampleRate;
+            const periodNs = Math.round(1e9 / SR);
+            const pcmBytes = sample.pcm.length * bps;
+            const sampleName = sample.name || name;
+            str(sampleName.slice(0, 7), 7);
+            u8(0);
+            u32(pcmBytes);
+            u32(sample.isLoop ? sample.loopStart * bps : 0);
+            u32(sample.isLoop ? sample.loopEnd * bps : 0);
+            u16((sample.sampleRateHzInHeader ?? sampleRateHzInHeader) ? SR : periodNs);
+            u32(sample.lowFreq);
+            u32(sample.highFreq);
+            u32(sample.rootFreq);
+            u16(0);
+            u8(7);
 
-        // envRates[6] + envOffsets[6]
-        if (isLoop) {
-            const rates = envRates || [9, 0, 0, 69, 0, 0];
-            const offsets = envOffsets || [255, 255, 255, 0, 0, 0];
-            for (let i = 0; i < 6; i++) u8(rates[i] || 0);
-            for (let i = 0; i < 6; i++) u8(offsets[i] || 0);
-        } else {
-            u8(0); u8(0); u8(0); u8(0); u8(0); u8(0);
-            u8(255); u8(255); u8(255); u8(0); u8(0); u8(0);
-        }
-        // tremolo (3) + vibrato (3)
-        u8(0); u8(0); u8(0);
-        u8(0); u8(0); u8(0);
+            if (sample.isLoop) {
+                const rates = sample.envRates || [9, 0, 0, 69, 0, 0];
+                const offsets = sample.envOffsets || [255, 255, 255, 0, 0, 0];
+                for (let i = 0; i < 6; i++) u8(rates[i] || 0);
+                for (let i = 0; i < 6; i++) u8(offsets[i] || 0);
+            } else {
+                u8(0); u8(0); u8(0); u8(0); u8(0); u8(0);
+                u8(255); u8(255); u8(255); u8(0); u8(0); u8(0);
+            }
+            u8(0); u8(0); u8(0);
+            u8(0); u8(0); u8(0);
+            u8(0x01 | (sample.isLoop
+                ? 0x04 | 0x40 | ((sample.sustainLoop ?? sample.isLoop) ? 0x20 : 0x00)
+                : 0x00));
+            u16(60);
+            u16(1024);
+            zeros(36);
 
-        // Sustain loop exits into the sample tail when the note is released.
-        u8(0x01 | (isLoop ? 0x04 | 0x40 | (sustainLoop ? 0x20 : 0x00) : 0x00));
-
-        u16(60);                                // scale frequency (MIDI note C4)
-        u16(1024);                              // scale factor
-        zeros(36);                              // reserved
-
-        // ---------- Sample Data: signed 16-bit LE ----------
-        for (let i = 0; i < pcm.length; i++) {
-            let v = Math.round(Math.max(-1, Math.min(1, pcm[i])) * 32768);
-            if (v >  32767) v =  32767;
-            if (v < -32768) v = -32768;
-            if (v < 0) v += 65536;
-            bytes[off++] =  v        & 0xff;
-            bytes[off++] = (v >> 8)  & 0xff;
+            for (let i = 0; i < sample.pcm.length; i++) {
+                let v = Math.round(Math.max(-1, Math.min(1, sample.pcm[i])) * 32768);
+                if (v > 32767) v = 32767;
+                if (v < -32768) v = -32768;
+                if (v < 0) v += 65536;
+                bytes[off++] = v & 0xff;
+                bytes[off++] = (v >> 8) & 0xff;
+            }
         }
 
         return buf;

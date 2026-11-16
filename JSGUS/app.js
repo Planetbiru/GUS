@@ -2663,13 +2663,14 @@ class GusPatchApp {
     buildMidiPatch(isDrum, program, presetOverride = this.getInstrumentPreset(isDrum ? 'drum' : 'melodic', program)) {
         const state = this.getInstrumentGeneratorState(isDrum ? 'drum' : 'melodic', program);
         const sampleRate = state.sampleRate;
-        const lowFreq = Math.round(8.1757989156 * 1000);
-        const highFreq = Math.round(12543.853951 * 1000);
 
         if (isDrum) {
             const drum = this.lib.findDrum(program);
             if (!drum) throw new Error(`Unknown drum note ${program}.`);
             const {note, name} = drum;
+            const [{pitchFrom, pitchTo}] = ProjectPatchGenerator.getPitchRanges(true, note);
+            const lowFreq = Math.floor(ProjectPatchGenerator.midiPitchToFrequency(pitchFrom) * 1000);
+            const highFreq = Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(pitchTo) * 1000);
             const basePreset = presetOverride;
             const presetDuration = Number(basePreset && basePreset.duration);
             const duration = state.durationCustomized || !Number.isFinite(presetDuration) || presetDuration <= 0
@@ -2683,15 +2684,17 @@ class GusPatchApp {
             );
             return GusPatchEncoder.encode({
                 name: this.slugify(name).slice(0, 15) || `drum${note}`,
-                pcm: rendered.pcm,
-                loopStart: 0,
-                loopEnd: 0,
-                isLoop: false,
-                rootFreq: Math.round(state.root * 1000),
-                sampleRate,
-                lowFreq,
-                highFreq,
-                sampleRateHzInHeader: true,
+                samples: [{
+                    pcm: rendered.pcm,
+                    loopStart: 0,
+                    loopEnd: 0,
+                    isLoop: false,
+                    rootFreq: Math.round(state.root * 1000),
+                    sampleRate,
+                    lowFreq,
+                    highFreq,
+                    sampleRateHzInHeader: true,
+                }],
             });
         }
 
@@ -2700,29 +2703,38 @@ class GusPatchApp {
         const {name} = instrument;
         const basePreset = presetOverride;
         const preset = this.presetWithWaveform(basePreset, state.wave);
-        const rendered = this.applyOutputGain(
-            new MelodicRenderer(preset, {
+        const sampleName = this.slugify(name).slice(0, 5);
+        const samples = ProjectPatchGenerator.getPitchRanges(false, program).map((range, index) => {
+            const rootNote = Math.round((range.pitchFrom + range.pitchTo) / 2);
+            const rootFrequency = state.root * Math.pow(2, (rootNote - 60) / 12);
+            const rendered = this.applyOutputGain(
+                new MelodicRenderer(preset, {
+                    sampleRate,
+                    freq: rootFrequency,
+                    duration: state.duration,
+                }).render(),
+                preset,
+                this.lib.melodicMasterGain
+            );
+            return {
+                name: `${sampleName}${String(index + 1).padStart(2, '0')}`,
+                pcm: rendered.pcm,
+                loopStart: rendered.loopStart,
+                loopEnd: rendered.loopEnd,
+                isLoop: rendered.loop,
+                rootFreq: Math.round(rendered.naturalFreq * 1000),
                 sampleRate,
-                freq: state.root,
-                duration: state.duration,
-            }).render(),
-            preset,
-            this.lib.melodicMasterGain
-        );
+                sustainLoop: preset.sustainLoop !== false,
+                envRates: preset.patchEnvelope && preset.patchEnvelope.rates,
+                envOffsets: preset.patchEnvelope && preset.patchEnvelope.offsets,
+                lowFreq: Math.floor(ProjectPatchGenerator.midiPitchToFrequency(range.pitchFrom) * 1000),
+                highFreq: Math.ceil(ProjectPatchGenerator.midiPitchToFrequency(range.pitchTo) * 1000),
+                sampleRateHzInHeader: true,
+            };
+        });
         return GusPatchEncoder.encode({
             name: this.slugify(name).slice(0, 15) || `gm${program}`,
-            pcm: rendered.pcm,
-            loopStart: rendered.loopStart,
-            loopEnd: rendered.loopEnd,
-            isLoop: rendered.loop,
-            rootFreq: Math.round(rendered.naturalFreq * 1000),
-            sampleRate,
-            sustainLoop: preset.sustainLoop !== false,
-            envRates: preset.patchEnvelope && preset.patchEnvelope.rates,
-            envOffsets: preset.patchEnvelope && preset.patchEnvelope.offsets,
-            lowFreq,
-            highFreq,
-            sampleRateHzInHeader: true,
+            samples,
         });
     }
 
@@ -3794,8 +3806,24 @@ class GusPatchApp {
 
         const basePreset = this.getInstrumentPreset('melodic', this.currentMidi);
         const p2 = this.presetWithWaveform(basePreset, settings.wave);
+        const ranges = ProjectPatchGenerator.getPitchRanges(false, this.currentMidi);
+        const previewRange = ranges.find(range => range.pitchFrom <= 60 && range.pitchTo >= 60)
+            || ranges.reduce((closest, range) => {
+                const distance = range.pitchFrom > 60
+                    ? range.pitchFrom - 60
+                    : 60 - range.pitchTo;
+                const closestDistance = closest.pitchFrom > 60
+                    ? closest.pitchFrom - 60
+                    : 60 - closest.pitchTo;
+                return distance < closestDistance ? range : closest;
+            }, ranges[0]);
+        const rootNote = Math.round((previewRange.pitchFrom + previewRange.pitchTo) / 2);
         return this.applyOutputGain(
-            new MelodicRenderer(p2, { sampleRate: SR, freq, duration: dur }).render(),
+            new MelodicRenderer(p2, {
+                sampleRate: SR,
+                freq: freq * Math.pow(2, (rootNote - 60) / 12),
+                duration: dur,
+            }).render(),
             p2,
             this.lib.melodicMasterGain
         );

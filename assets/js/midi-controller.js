@@ -2464,61 +2464,8 @@ class MidiController {
         ...melodic.map(instrument=>({instrument, isDrum:false, bank:melodicBank})),
         ...drums.map(instrument=>({instrument, isDrum:true, bank:128}))
       ];
-      const melodicPitchRanges = [
-        {pitchFrom:0,  pitchTo:15},
-
-        {pitchFrom:16, pitchTo:21},
-        {pitchFrom:22, pitchTo:27},
-        {pitchFrom:28, pitchTo:33},
-        {pitchFrom:34, pitchTo:39},
-        {pitchFrom:40, pitchTo:45},
-
-        // area paling sering dimainkan
-        {pitchFrom:46, pitchTo:50},
-        {pitchFrom:51, pitchTo:55},
-        {pitchFrom:56, pitchTo:60},
-        {pitchFrom:61, pitchTo:65},
-        {pitchFrom:66, pitchTo:70},
-        {pitchFrom:71, pitchTo:75},
-        {pitchFrom:76, pitchTo:80},
-        {pitchFrom:81, pitchTo:85},
-
-        {pitchFrom:86, pitchTo:91},
-        {pitchFrom:92, pitchTo:97},
-        {pitchFrom:98, pitchTo:103},
-        {pitchFrom:104, pitchTo:111},
-
-        {pitchFrom:112, pitchTo:127}
-      ];
-      
-      const bassPitchRanges = [
-        {pitchFrom:0,  pitchTo:5},
-        {pitchFrom:6,  pitchTo:10},
-        {pitchFrom:11, pitchTo:15},
-
-        {pitchFrom:16, pitchTo:20},
-        {pitchFrom:21, pitchTo:25},
-        {pitchFrom:26, pitchTo:30},
-        {pitchFrom:31, pitchTo:35},
-        {pitchFrom:36, pitchTo:40},
-        {pitchFrom:41, pitchTo:45},
-        {pitchFrom:46, pitchTo:50},
-        {pitchFrom:51, pitchTo:55},
-        {pitchFrom:56, pitchTo:60},
-
-        {pitchFrom:61, pitchTo:66},
-        {pitchFrom:67, pitchTo:72},
-
-        {pitchFrom:73, pitchTo:95},
-        {pitchFrom:96, pitchTo:127}
-      ];
-      const drumPitchRanges=[{pitchFrom:1,pitchTo:127}];
-      const getPitchRanges=task=>{
-        if(task.isDrum)return drumPitchRanges;
-        return task.instrument.id>=32 && task.instrument.id<=39
-          ? bassPitchRanges
-          : melodicPitchRanges;
-      };
+      const getPitchRanges=task=>
+        ProjectPatchGenerator.getPitchRanges(task.isDrum,task.instrument.id);
 
       const hasExpectedPitchCoverage=(entry, expectedRanges)=>{
         const samples=entry.patch.instruments.flatMap(inst=>
