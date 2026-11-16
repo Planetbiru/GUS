@@ -2896,6 +2896,7 @@ class GusPatchApp {
         try {
             const player = await this.ensureTimidityPlayer();
             const midiData = new Uint8Array(await file.arrayBuffer());
+            this.setMidiChannels(this.parseMidiStemSource(midiData, {allowFormatTwo: true}).channelsUsed);
             status.textContent = `Loading ${file.name}...`;
             player.loadedPatches.clear();
             this.collectingMidiInstruments = true;
@@ -3532,7 +3533,7 @@ class GusPatchApp {
         return new Blob(chunks, {type: 'audio/flac'});
     }
 
-    parseMidiStemSource(midiData) {
+    parseMidiStemSource(midiData, {allowFormatTwo = false} = {}) {
         const data = midiData instanceof Uint8Array ? midiData : new Uint8Array(midiData);
         const readTag = offset => String.fromCharCode(
             data[offset], data[offset + 1], data[offset + 2], data[offset + 3]
@@ -3553,7 +3554,7 @@ class GusPatchApp {
         const header = new DataView(data.buffer, data.byteOffset, data.byteLength);
         const format = header.getUint16(8, false);
         const expectedTracks = header.getUint16(10, false);
-        if (format !== 0 && format !== 1) {
+        if (format !== 0 && format !== 1 && !allowFormatTwo) {
             throw new Error('Only MIDI Type 0 and Type 1 files can be rendered as stems.');
         }
 
@@ -3573,6 +3574,7 @@ class GusPatchApp {
         };
         const tracks = [];
         const chunks = [{data: data.subarray(0, headerEnd)}];
+        const channelsUsed = new Set();
         const channelsWithNotes = new Set();
         let offset = headerEnd;
 
@@ -3644,6 +3646,7 @@ class GusPatchApp {
                 } else if (status >= 0x80 && status <= 0xef) {
                     const command = status >> 4;
                     const channel = status & 0x0f;
+                    channelsUsed.add(channel);
                     const dataLength = command === 0xc || command === 0xd ? 1 : 2;
                     if (cursor + dataLength > trackEnd) throw new Error('MIDI channel event is truncated.');
                     const payload = data.subarray(cursor, cursor + dataLength);
@@ -3673,7 +3676,14 @@ class GusPatchApp {
         }
 
         if (tracks.length !== expectedTracks) throw new Error('MIDI track count does not match its header.');
-        return {format, tracks, chunks, channelsWithNotes: [...channelsWithNotes].sort((a, b) => a - b), encodeVlq};
+        return {
+            format,
+            tracks,
+            chunks,
+            channelsUsed: [...channelsUsed].sort((a, b) => a - b),
+            channelsWithNotes: [...channelsWithNotes].sort((a, b) => a - b),
+            encodeVlq,
+        };
     }
 
     buildMidiStemData(source, {channel = null, removePanEvents = false} = {}) {
