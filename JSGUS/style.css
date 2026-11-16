@@ -752,7 +752,7 @@ label[for="presetJson"] {
 
 .midi-mixer-channel {
     display: grid;
-    grid-template-columns: minmax(160px, 1.4fr) repeat(3, minmax(0, 2fr));
+    grid-template-columns: minmax(0, 2.4fr) repeat(3, minmax(0, 1.5fr));
     align-items: center;
     column-gap: 14px;
     row-gap: 6px;

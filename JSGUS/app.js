@@ -248,7 +248,7 @@ class GusPatchApp {
         document.addEventListener('pointerdown', event => {
             if (event.button !== 0 || event.isPrimary === false) return;
             const target = event.target instanceof Element ? event.target : null;
-            const handle = target?.closest('dialog .dialog-header, dialog .dialog-footer');
+            const handle = target?.matches('dialog .dialog-header, dialog .dialog-footer') ? target : null;
             const dialog = handle?.closest('dialog');
             if (!dialog?.open) return;
 
