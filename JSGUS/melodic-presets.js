@@ -1657,7 +1657,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.36,
+        "gain": 0.4,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -1714,9 +1714,9 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 12
         },
         "guitarAmp": {
-          "drive": 2.6,
+          "drive": 1.9,
           "bias": 0.005,
-          "mix": 0.84,
+          "mix": 0.65,
           "preampCutoff": 90,
           "cabinetCutoff": 6200
         },
