@@ -115,6 +115,7 @@ class GusPatchApp {
         this.midiRenderOperation = '';
         this.midiInstrumentList = new Map();
         this.midiInstrumentElements = new Map();
+        this.midiInstrumentFiles = new Map();
         this.midiChannelsUsed = [];
         this.midiChannelStates = new Map();
         this.midiChannelPrograms = new Map();
@@ -1838,8 +1839,12 @@ class GusPatchApp {
         this.timidityPlayer = player;
         player.on('onInstrumentList', entries => {
             if (!this.collectingMidiInstruments) return;
-            for (const {isDrum, program, bank} of entries) {
+            this.midiInstrumentFiles.clear();
+            for (const {file, isDrum, program, bank} of entries) {
                 this.trackMidiInstrument(isDrum, program, bank, false);
+                if (typeof file === 'string' && Number.isInteger(program)) {
+                    this.midiInstrumentFiles.set(file, `${isDrum ? 'drum' : 'melodic'}:${program}`);
+                }
             }
             this.renderMidiInstrumentList();
         });
@@ -1849,7 +1854,8 @@ class GusPatchApp {
                 this.$('midiStatus').textContent = `Loading GM instruments ${loaded}/${total}...`;
             }
         });
-        player.on('onInstrumentStatus', (_file, status) => {
+        player.on('onInstrumentStatus', (file, status) => {
+            if (status === 'loaded') this.markMidiInstrumentLoaded(file);
             if (status === 'failed') this.hideMidiInstrumentProgress();
         });
         player.on('onInstrumentLoaded', () => {
@@ -2134,6 +2140,7 @@ class GusPatchApp {
 
     clearMidiInstrumentList() {
         this.midiInstrumentList.clear();
+        this.midiInstrumentFiles.clear();
         this.midiChannelPrograms.clear();
         this.clearActiveMidiNotes();
         this.renderMidiInstrumentList();
@@ -2684,8 +2691,23 @@ class GusPatchApp {
             program,
             bank,
             name: instrument.name,
+            loaded: this.midiInstrumentList.get(key)?.loaded ?? false,
         });
         if (render) this.renderMidiInstrumentList();
+    }
+
+    markMidiInstrumentLoaded(file) {
+        const key = this.midiInstrumentFiles.get(file);
+        const instrument = key && this.midiInstrumentList.get(key);
+        if (!instrument || instrument.loaded) return;
+
+        instrument.loaded = true;
+        const item = this.midiInstrumentElements.get(key);
+        if (!item) return;
+
+        item.classList.remove('is-loading');
+        item.classList.add('is-loaded');
+        item.setAttribute('aria-busy', 'false');
     }
 
     renderMidiInstrumentList() {
@@ -2713,6 +2735,9 @@ class GusPatchApp {
             for (const instrument of instruments) {
                 const item = document.createElement('li');
                 item.className = 'midi-instrument-item';
+                item.classList.toggle('is-loading', !instrument.loaded);
+                item.classList.toggle('is-loaded', Boolean(instrument.loaded));
+                item.setAttribute('aria-busy', String(!instrument.loaded));
                 item.dataset.instrumentKey = `${type}:${instrument.program}`;
                 this.midiInstrumentElements.set(`${type}:${instrument.program}`, item);
                 const button = document.createElement('button');

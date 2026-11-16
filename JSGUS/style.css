@@ -1024,6 +1024,11 @@ label[for="presetJson"] {
     justify-content: flex-start;
     gap: 8px;
     text-align: left;
+    transition: opacity .16s ease, background-color .16s ease;
+}
+
+.midi-instrument-item.is-loading .midi-instrument-link {
+    opacity: 0.58;
 }
 
 .midi-note-indicator {
