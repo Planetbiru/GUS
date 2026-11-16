@@ -5695,7 +5695,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
-        "gain": 0.65,
+        "gain": 0.35,
         "loop": true,
         "cycles": 16,
         "env": {
