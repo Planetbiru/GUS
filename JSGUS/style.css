@@ -424,7 +424,7 @@ main {
 }
 
 .midi-volume-control label,
-.midi-seek-times {
+.midi-volume-label, .midi-seek-times {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -438,13 +438,6 @@ main {
     width: 20px;
     height: 20px;
     flex-basis: 20px;
-}
-
-.midi-volume-slider-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 36px;
-    align-items: center;
-    gap: 8px;
 }
 
 .midi-volume-control output {

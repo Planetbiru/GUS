@@ -446,15 +446,18 @@
                     </div>
                     <div class="midi-transport-row">
                         <div class="midi-volume-control">
-                            <label for="midiVolume" aria-label="Volume">
-                                <svg class="button-icon midi-volume-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                    <path d="M3 9v6h4l5 4V5L7 9H3zm13 0a5 5 0 0 1 0 6m3-10a10 10 0 0 1 0 14" />
-                                </svg>
-                            </label>
+                            <div class="midi-volume-label">
+                                <label for="midiVolume" aria-label="Volume">
+                                    <svg class="button-icon midi-volume-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 9v6h4l5 4V5L7 9H3zm13 0a5 5 0 0 1 0 6m3-10a10 10 0 0 1 0 14" />
+                                    </svg>
+                                </label>
+                                <output id="midiVolumeValue" for="midiVolume">100%</output>
+                            </div>
                             <div class="midi-volume-slider-row">
                                 <input id="midiVolume" type="range" min="0" max="100" step="1" value="100"
                                     aria-label="Volume">
-                                <output id="midiVolumeValue" for="midiVolume">100%</output>
+                                
                             </div>
                         </div>
                         <div class="midi-seek-control">
