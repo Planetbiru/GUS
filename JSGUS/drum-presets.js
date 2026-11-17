@@ -922,7 +922,7 @@ var GUS_DRUM_PRESETS = {
       "preset": {
         "mute": false,
         "gain": 0.31,
-        "duration": 5,
+        "duration": 2.0,
         "fadeOut": 1,
         "impact": {
           "amp": 0.45,
@@ -1384,7 +1384,7 @@ var GUS_DRUM_PRESETS = {
       "preset": {
         "mute": false,
         "gain": 0.31,
-        "duration": 4.8,
+        "duration": 2.0,
         "fadeOut": 0.95,
         "impact": {
           "amp": 0.42,
