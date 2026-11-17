@@ -1776,7 +1776,7 @@ var GUS_DRUM_PRESETS = {
       "description": "High Timbale: bright, sharp, resonant metal drum.",
       "preset": {
         "mute": false,
-        "gain": 0.55,
+        "gain": 0.50,
         "duration": 0.28,
         "membrane": {
           "freq": 340,
@@ -1853,7 +1853,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Low Timbale: bright, resonant metal drum with a full tone.",
       "preset": {
         "mute": false,
-        "gain": 0.55,
+        "gain": 0.50,
         "duration": 0.35,
         "membrane": {
           "freq": 270,
