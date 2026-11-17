@@ -382,6 +382,28 @@ main {
     grid-area: instrument;
 }
 
+#instrument-name{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem;
+    align-items: center;
+}
+
+#instrument-name > *{
+    min-width: 0;
+}
+
+#instrument-name h2,
+#instrument-name .meta{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#familyLabel{
+    text-align: right;
+}
+
 .midi-card {
     grid-area: midi;
 }
