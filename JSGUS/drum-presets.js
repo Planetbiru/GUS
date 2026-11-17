@@ -1,5 +1,5 @@
 var GUS_DRUM_PRESETS = {
-  "gain": 0.75,
+  "gain": 0.74,
   "instruments": [
     {
       "note": 25,
@@ -244,7 +244,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Metronome Bell: bright single timing bell.",
       "preset": {
         "mute": false,
-        "gain": 0.32,
+        "gain": 0.296,
         "duration": 0.45,
         "metallic": {
           "baseFreq": 1750,

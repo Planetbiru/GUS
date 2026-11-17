@@ -1279,7 +1279,7 @@ canvas {
 }
 .preset-field > select,
 .preset-field > .preset-waveform-control > select{
-    background-position: right 4px center;
+    background-position: right 5px center;
 }
 
 .preset-field > select,

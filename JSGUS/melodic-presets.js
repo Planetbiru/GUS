@@ -1,5 +1,5 @@
 var GUS_MELODIC_PRESETS = {
-  "gain": 0.34,
+  "gain": 0.30,
   "instruments": [
     {
       "program": 0,
@@ -1225,7 +1225,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.31,
+        "gain": 0.29,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -1352,7 +1352,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.31,
+        "gain": 0.29,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -1453,7 +1453,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.35,
+        "gain": 0.31,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -1525,7 +1525,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.39,
+        "gain": 0.35,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -1584,7 +1584,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.35,
+        "gain": 0.32,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -5071,34 +5071,93 @@ var GUS_MELODIC_PRESETS = {
       "description": "Lead (calliope): a focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "pulse",
+        "defaultWaveform": null,
         "gain": 0.38,
         "loop": true,
-        "cycles": 12,
+        "cycles": 20,
+        "loopSkip": 10,
+        "loopAttack": 0.01,
+        "loopAttackNoise": {
+          "amp": 0.3,
+          "duration": 0.032
+        },
         "env": {
-          "a": 0.01,
-          "d": 0.2,
-          "s": 0.85,
+          "a": 0.006,
+          "d": 0.15,
+          "s": 0.92,
           "r": 0.15
         },
         "harm": [
           1,
-          0.5,
-          0.33,
-          0.25,
-          0.2,
-          0.16,
-          0.14,
-          0.12,
-          0.1,
-          0.09,
-          0.08
+          0.02,
+          0.55,
+          0.015,
+          0.32,
+          0.012,
+          0.19,
+          0.01,
+          0.115,
+          0.008,
+          0.072,
+          0.006,
+          0.046,
+          0.005,
+          0.03,
+          0.004,
+          0.019,
+          0.003,
+          0.012,
+          0.002
         ],
-        "drive": 1.4,
+        "phases": [
+          0,
+          0.05,
+          0.13,
+          0.22,
+          0.32,
+          0.44,
+          0.57,
+          0.71,
+          0.86,
+          0.03,
+          0.21,
+          0.4,
+          0.6,
+          0.81,
+          0.05,
+          0.28,
+          0.52,
+          0.77,
+          0.15,
+          0.48
+        ],
+        "noise": 0.15,
         "brightness": {
-          "start": 8000,
-          "end": 2500
+          "loopCutoff": 11000
         },
+        "formants": [
+          {
+            "freq": 520,
+            "q": 2.5,
+            "gain": 8
+          },
+          {
+            "freq": 1400,
+            "q": 3,
+            "gain": 5
+          },
+          {
+            "freq": 3200,
+            "q": 2.5,
+            "gain": 3.5
+          },
+          {
+            "freq": 6500,
+            "q": 1.8,
+            "gain": 2.5
+          }
+        ],
+        "drive": 1.1,
         "antiAlias": true
       }
     },
@@ -5293,7 +5352,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
-        "gain": 0.65,
+        "gain": 0.55,
         "loop": true,
         "cycles": 16,
         "env": {
