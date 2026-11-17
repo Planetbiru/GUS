@@ -5078,7 +5078,7 @@ var GUS_MELODIC_PRESETS = {
         "loopSkip": 10,
         "loopAttack": 0.01,
         "loopAttackNoise": {
-          "amp": 0.3,
+          "amp": 0.4,
           "duration": 0.032
         },
         "env": {
@@ -5131,7 +5131,7 @@ var GUS_MELODIC_PRESETS = {
           0.15,
           0.48
         ],
-        "noise": 0.15,
+        "noise": 0.22,
         "brightness": {
           "loopCutoff": 11000
         },
@@ -5139,7 +5139,7 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 520,
             "q": 2.5,
-            "gain": 8
+            "gain": 10
           },
           {
             "freq": 1400,
@@ -5157,7 +5157,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2.5
           }
         ],
-        "drive": 1.1,
+        "drive": 0.8,
         "antiAlias": true
       }
     },
