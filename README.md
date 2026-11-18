@@ -498,42 +498,62 @@ Supported melodic `preset` properties:
 
 | Property | Meaning |
 | --- | --- |
-| `sampleRate` | Optional sample rate in hertz; generation settings can override it. |
-| `freq` | Default/root frequency in hertz. |
-| `harm` | Relative amplitude of each partial, starting with the fundamental. |
-| `phases` | Optional starting phase for each partial, expressed in cycles. |
-| `env` | One-shot envelope: attack `a`, decay `d`, and release `r` in seconds; sustain `s` is a level from 0 to 1. |
+| `mute` | Set to `true` to set the patch output gain to zero. |
+| `gain` | Non-negative per-instrument level multiplier, multiplied by the data-set master `gain`; high levels can saturate during 16-bit patch encoding. |
+| `defaultWaveform` | Default harmonic profile: `sine`, `triangle`, `square`, `saw`, `pulse`, `organ`, `flute`, `clarinet`, `reed`, `string`, `bell`, `pluck`, `hammer`, `bow`, or `breath`. A harmonic-amplitude array can also be supplied. A selected non-preset waveform replaces `harm`. |
+| `freq` | Default/root frequency in hertz. Pitch-zone generation may choose a different root. |
 | `length` | One-shot sample length in samples at the 22,050 Hz reference rate; scaled for other sample rates. Ignored for loops. |
+| `duration` | Duration in seconds for `renderMode: "drum"` one-shots. Ordinary melodic one-shots use `length` or the generator duration. |
+| `harm` | Relative amplitude of each partial, starting with the fundamental at index 0. |
+| `phases` | Optional starting phase for each partial, expressed in cycles; missing entries start at zero. |
+| `phaseScale` | Present in some preset data, but currently not read by the renderer and has no effect. Use `phases` to set partial phases. |
+| `antiAlias` | When `true`, skips harmonic partials at or above 49% of the render sample rate. |
+| `env` | One-shot envelope: attack `a`, decay `d`, and release `r` in seconds; sustain `s` is a level from 0 to 1. Loops use the GUS patch envelope instead. |
 | `loop` | Enable periodic sample rendering when truthy. |
-| `cycleSamples` | Explicit samples per loop cycle. Otherwise derived from `freq` and sample rate. |
-| `cycles`, `loopSkip`, `tailCycles` | Cycle count to loop end (default 12), initial cycles skipped before the loop (default 3), and release-tail cycles (default 4). |
-| `loopAttack` | Loop fade-in time in seconds, limited to the pre-loop region. |
+| `cycleSamples` | Explicit samples per loop cycle. Otherwise derived from root frequency and sample rate. |
+| `cycles`, `loopSkip`, `tailCycles` | Number of cycles through the loop end (default 12), cycles before the loop starts (default 3), and release-tail cycles. The default tail length is derived from frequency and `env.r`. |
+| `loopAttack` | Fade-in time in seconds, applied before the loop region. |
+| `loopAttackNoise` | `{ amp, duration }` noise transient placed before the loop start; use instead of `attackNoise` for looped presets. |
 | `sustainLoop` | Set to `false` to omit the GUS sustain-loop flag while retaining the loop. |
 | `patchEnvelope` | Optional GUS envelope with six raw `rates` and six `offsets`, written to the patch header. |
-| `gain` | Non-negative sample multiplier applied after waveform normalization; values above 1 may clip final 16-bit PCM. |
-| `noise` | Noise blend amount in the oscillator signal. For loops, noise is generated as a repeating cycle. |
+| `noise` | For ordinary melodic presets, a blend amount for oscillator noise (white noise for one-shots; a repeating pink-noise cycle for loops). For `renderMode: "drum"`, an object with the same shape as the drum `noise` component. |
 | `fm` | Frequency modulation: `ratio` is modulator/carrier ratio and `index` is modulation depth. Looped FM is used only for integer ratios. |
-| `detune` | Voice detuning values in cents; ignored for loops. |
+| `detune` | Array of voice detuning values in cents; ignored for loops. |
 | `vibrato` | `{ rate, depth, sweep }`: rate in hertz and depth as a pitch fraction. For loops it is encoded in the GUS header. |
 | `vibratoOnset` | Time in seconds for one-shot vibrato to reach full depth. |
 | `inharmonicity` | Inharmonic partial-stretch coefficient; ignored for loops. |
 | `attackNoise` | One-shot pink-noise attack transient with `amp` and `duration` in seconds. |
-| `pluckTransient` | One-shot filtered transient with `freq`, `q`, `amp`, `duration`, `decay`, and optional noise `type`. |
+| `pluckTransient` | One-shot band-pass-noise transient with center `freq`, `q`, `amp`, `duration`, `decay`, and optional noise `type`. |
 | `pluckPosition` | String pluck position as a fraction from 0.01 to 0.49; changes the relative partial amplitudes. |
-| `loopAttackNoise` | Noise transient placed before the loop start; use instead of `attackNoise` for looped presets. |
-| `pitchScoop` | One-shot pitch onset bend with `time` in seconds and fractional `depth`. |
+| `pitchScoop` | One-shot pitch-onset bend with `time` in seconds and fractional `depth`. |
 | `partialDecay` | Per-partial decay times in seconds; ignored for loops. |
-| `brightness` | One-shot low-pass sweep using `start` and `end` cutoff frequencies in hertz. For loops, `loopCutoff` applies a static low-pass cutoff. |
-| `formants` | Peaking filters `{ freq, q, gain }`; frequency in hertz, `gain` in decibels. |
-| `drive` | Optional soft-saturation amount. |
-| `guitarAmp` | Optional guitar stage: `preampCutoff` and `cabinetCutoff` in hertz, plus `drive`, `bias`, and `mix`. |
+| `brightness` | For one-shots, a low-pass sweep from `start` to `end` cutoff frequencies in hertz. For loops, `loopCutoff` applies a static low-pass filter. |
+| `formants` | Array of peaking filters `{ freq, q, gain }`; frequency in hertz, `gain` in decibels. |
+| `drive` | Optional soft-saturation amount, applied after formants. |
+| `guitarAmp` | Optional guitar stage: `preampCutoff` and `cabinetCutoff` in hertz, `drive`, `bias`, `mix`, and `clip` (blend toward hard clipping). |
+| `renderMode` | Set to `"drum"` to render a melodic program as a pitch-scaled one-shot using drum components. |
+| `tones` | Used by `renderMode: "drum"`; see the drum `tones` row for supported tone fields. |
+| `highpass` | High-pass cutoff in hertz, applied to the rendered sample. |
+| `lowpass` | Low-pass cutoff in hertz for `renderMode: "drum"`; ordinary melodic rendering uses `brightness.loopCutoff` for loop low-pass filtering. |
+| `fadeOut` | Fade-out time in seconds for `renderMode: "drum"` one-shots. |
 
 When `loop` is enabled, sample length comes from the loop period, `cycles`,
 and `tailCycles`; `length` is ignored. The looped waveform disables
 time-varying one-shot features such as pitch scoop, detune, inharmonicity, and
-per-partial decay to keep the cycle stable. `env` is not used to render a loop;
-release behavior comes from the GUS patch envelope. `loopAttackNoise` is added
-before the loop region, and loop vibrato is stored in the GUS header.
+per-partial decay to keep the cycle stable. The `env` attack, decay, and sustain
+are not applied to loop samples; `env.r` can determine the default tail length,
+while release behavior comes from the GUS patch envelope. `loopAttackNoise` is
+added before the loop region, and loop vibrato is stored in the GUS header.
+
+For `renderMode: "drum"`, `freq` is the reference pitch and the generated MIDI
+pitch scales the tone frequencies and filter cutoffs. `tones` entries support
+`fStart` and `fEnd` in hertz; optional `fPeak`, `riseTime`, and `fallTime`
+define a shaped pitch rise/fall. Without `fPeak`, `pitchDecay` controls the
+exponential pitch slide. `decay` controls the amplitude tail, `amp` the level,
+and optional `fm: { ratio, index }` adds frequency modulation.
+
+Melodic render sample rate is controlled by the `ProjectPatchGenerator`
+`sampleRate` option; a `sampleRate` field on a melodic preset is not read.
 
 ### Editing drum presets
 
@@ -570,22 +590,29 @@ Drum `preset` properties are combined by `DrumRenderer`:
 
 | Property | Meaning |
 | --- | --- |
+| `mute` | Set to `true` to set the patch output gain to zero. |
+| `gain` | Non-negative output multiplier, multiplied by the drum master `gain`; high levels can saturate during 16-bit patch encoding. |
 | `duration` | Render length in seconds. |
-| `gain` | Non-negative output multiplier applied after drum rendering is normalized. Values below 1 reduce the hit level and leave headroom when percussion is layered; values above 1 can clip the final 16-bit PCM. |
-| `tones` | Array of decaying sine tones. Each tone supports `fStart`/`fEnd` in hertz, `pitchDecay`/`decay` in seconds, `amp`, and optional `fm: { ratio, index }`. |
-| `membrane` | Tuned membrane sound with base `freq` in hertz, `pitchDecay` and `decay` in seconds, and optional `modes`. Each mode has a frequency `ratio`, relative `amp`, optional `startRatio`, and a `decay` multiplier. |
-| `metallic` | Inharmonic ringing sound with `baseFreq` in hertz, partial frequency multipliers in `partials`, `amp`, and `decay` in seconds. Set `randomPhase: true` to vary partial starting phases. |
-| `noise` | One noise layer with `amp`, `decay` in seconds, `type` (`white`, `pink`, or `brown`), and optional `bandpass: { center, q }`. |
+| `sampleRate` | Optional positive integer minimum render sample rate in hertz; the effective rate is at least the generator's requested rate. |
+| `tones` | Array of sine tones. Each supports `fStart`/`fEnd` in hertz, optional `fPeak`/`riseTime`/`fallTime` for a shaped pitch bend, `pitchDecay` for an exponential pitch slide, `decay` in seconds, `amp`, and optional `fm: { ratio, index }`. |
+| `membrane` | Tuned membrane sound with base `freq` in hertz, `pitchDecay` and base `decay` in seconds, and optional `modes`. Each mode has a frequency `ratio`, relative `amp`, optional `startRatio` (default 1.2), and a `decay` multiplier. |
+| `metallic` | Inharmonic ringing sound with `baseFreq` in hertz, partial frequency multipliers in `partials`, `amp`, and `decay` in seconds. Set `randomPhase: true` for randomized partial starting phases. |
+| `noise` | One noise layer with `amp`, `decay` in seconds, `type` (`white`, `pink`, or `brown`), and optional `bandpass: { center, q }`. Without `bandpass`, the noise is unfiltered. |
 | `noiseLayers` | Array of noise layers; each supports the same fields as `noise`. |
-| `click` | Short attack click with `duration` in seconds and `amp`. |
-| `bursts` | Array of noise-burst start times in seconds. |
-| `highpass`, `lowpass` | Optional filter cutoff frequencies in hertz. |
+| `impact` | One noise impact with `amp`, `duration`, `decay`, optional `delay`, `type`, and optional `bandpass`. |
+| `impacts` | Array of impact layers with the same fields as `impact`; use this to combine multiple hits. |
+| `click` | Short random-noise attack click with `duration` in seconds and `amp`. |
+| `bursts` | Array of noise-burst start times in seconds; each burst lasts about 12 ms. |
+| `highpass`, `lowpass` | Optional high-pass and low-pass cutoff frequencies in hertz. |
+| `fadeOut` | Fade-out length in seconds. If omitted, the renderer uses a short edge fade. |
 
 Tone, membrane, metallic, and noise components can be combined in one drum
-preset. The renderer applies the configured filters, fades the sample edges,
-and normalizes the result before patch encoding. Panning is not currently a
-drum preset property; the generated GUS sample balance is fixed at center
-(`7`).
+preset, along with impacts, clicks, and bursts. The renderer sums the
+components, applies the configured filters and edge fades, then normalizes the
+result before patch encoding. If `fadeOut` is omitted, the fade is at most 96
+samples or 5% of the sample length, whichever is shorter. Panning is not
+currently a drum preset property; the generated GUS sample balance is fixed at
+center (`7`).
 
 ### Data Flow
 
