@@ -1122,6 +1122,7 @@ class MelodicRenderer {
         }
 
         GUSPatchGenerator.normalize(out, 0.9);
+        if (p.highpass) GUSPatchGenerator.highpass(out, p.highpass, SR);
         return { pcm: out, length, loopStart, loopEnd, loop: isLoop, SR, naturalFreq };
     }
 

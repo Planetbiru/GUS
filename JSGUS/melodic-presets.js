@@ -10,7 +10,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
-        "gain": 0.30,
+        "gain": 0.86,
         "freq": 441,
         "length": 37485,
         "loop": false,
@@ -119,6 +119,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 15000,
           "end": 9500
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -131,7 +132,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -205,6 +206,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -217,7 +219,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -264,6 +266,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 3,
           "index": 1.8
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -276,7 +279,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -353,6 +356,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -365,7 +369,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -412,6 +416,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 3,
           "index": 1.8
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -424,7 +429,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -471,6 +476,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 2,
           "index": 2.5
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -483,7 +489,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -528,6 +534,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -540,7 +547,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -583,6 +590,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
+        "highpass": 55,
         "antiAlias": true
       }
     },
@@ -595,7 +603,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.42,
+        "gain": 0.86,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -1261,7 +1269,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": null,
-        "gain": 0.29,
+        "gain": 0.32,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -1397,6 +1405,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.4
           }
         ],
+        "highpass": 75,
         "antiAlias": true
       }
     },
@@ -1409,7 +1418,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": null,
-        "gain": 0.29,
+        "gain": 0.30,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -1550,6 +1559,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
+        "highpass": 75,
         "antiAlias": true
       }
     },
