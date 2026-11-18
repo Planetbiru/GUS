@@ -137,6 +137,10 @@ class GusPatchApp {
         this.autoApplyPresetTimer = null;
         this.autoApplyPresetGeneration = 0;
         this.autoApplyPresetQueue = Promise.resolve();
+        this.presetApplyGeneration = 0;
+        this.prebuiltMidiPatchBuffers = new Map();
+        this.pendingPatchCacheWrites = new Map();
+        this.patchCacheWriteTimer = null;
         this.midiMode = 'file';
         this.midiControllerAccess = null;
         this.midiControllerInput = null;
@@ -225,6 +229,12 @@ class GusPatchApp {
 
     togglePatchCache() {
         this.patchCacheEnabled = !this.patchCacheEnabled;
+        if (!this.patchCacheEnabled) {
+            for (const {generatedKey} of this.pendingPatchCacheWrites.values()) {
+                this.prebuiltMidiPatchBuffers.delete(generatedKey);
+            }
+            this.pendingPatchCacheWrites.clear();
+        }
         this.updatePatchCacheToggle();
         try {
             localStorage.setItem(PATCH_CACHE_ENABLED_STORAGE_KEY, String(this.patchCacheEnabled));
@@ -261,6 +271,9 @@ class GusPatchApp {
     getCachedOrBuildMidiPatch(isDrum, program) {
         const type = isDrum ? 'drum' : 'melodic';
         const cacheKey = this.getPatchCacheKey(this.currentProjectId, type, program);
+        const generatedKey = cacheKey || `${type}:${program}`;
+        const generatedPatch = this.prebuiltMidiPatchBuffers.get(generatedKey);
+        if (generatedPatch) return generatedPatch;
         if (!this.patchCacheEnabled || !cacheKey) return this.buildMidiPatch(isDrum, program);
 
         try {
@@ -280,8 +293,47 @@ class GusPatchApp {
         return patchData;
     }
 
+    queuePatchCacheWrite(cacheKey, generatedKey, patchData) {
+        if (!this.patchCacheEnabled || !cacheKey) {
+            this.prebuiltMidiPatchBuffers.delete(generatedKey);
+            return;
+        }
+        this.pendingPatchCacheWrites.set(cacheKey, {generatedKey, patchData});
+        if (this.patchCacheWriteTimer !== null) return;
+
+        const flush = () => {
+            this.patchCacheWriteTimer = null;
+            const midiIsPlaying = this.timidityPlayer?.isPlaying && !this.timidityPlayer.isPaused;
+            const controllerHasNotes = this.midiMode === 'controller'
+                && this.midiControllerActiveNotes.size > 0;
+            if (midiIsPlaying || controllerHasNotes) {
+                this.patchCacheWriteTimer = setTimeout(flush, 250);
+                return;
+            }
+            if (this.patchCacheEnabled) {
+                for (const [key, pending] of this.pendingPatchCacheWrites) {
+                    try {
+                        localStorage.setItem(key, this.encodePatchCacheValue(pending.patchData));
+                    } catch (error) {
+                        this.reportPatchCacheError('write', error);
+                    }
+                    this.prebuiltMidiPatchBuffers.delete(pending.generatedKey);
+                }
+            } else {
+                for (const {generatedKey} of this.pendingPatchCacheWrites.values()) {
+                    this.prebuiltMidiPatchBuffers.delete(generatedKey);
+                }
+            }
+            this.pendingPatchCacheWrites.clear();
+        };
+        this.patchCacheWriteTimer = setTimeout(flush, 0);
+    }
+
     removePatchCacheEntry(projectId, type, program) {
         const cacheKey = this.getPatchCacheKey(projectId, type, program);
+        const generatedKey = cacheKey || `${type}:${program}`;
+        this.prebuiltMidiPatchBuffers.delete(generatedKey);
+        if (cacheKey) this.pendingPatchCacheWrites.delete(cacheKey);
         if (!cacheKey) return;
         try {
             localStorage.removeItem(cacheKey);
@@ -293,6 +345,12 @@ class GusPatchApp {
     clearPatchCacheForProject(projectId) {
         if (typeof projectId !== 'string' || !projectId) return;
         const projectPrefix = `${PATCH_CACHE_PREFIX}${encodeURIComponent(projectId)}:`;
+        for (const key of this.prebuiltMidiPatchBuffers.keys()) {
+            if (key.startsWith(projectPrefix)) this.prebuiltMidiPatchBuffers.delete(key);
+        }
+        for (const key of this.pendingPatchCacheWrites.keys()) {
+            if (key.startsWith(projectPrefix)) this.pendingPatchCacheWrites.delete(key);
+        }
         try {
             const cacheKeys = [];
             for (let index = 0; index < localStorage.length; index++) {
@@ -306,6 +364,8 @@ class GusPatchApp {
     }
 
     clearAllPatchCache() {
+        this.prebuiltMidiPatchBuffers.clear();
+        this.pendingPatchCacheWrites.clear();
         try {
             const cacheKeys = [];
             for (let index = 0; index < localStorage.length; index++) {
@@ -1093,8 +1153,10 @@ class GusPatchApp {
             }
         }
 
-        getDefaultGeneratorState(type, midi) {
-            const preset = this.getInstrumentPreset(type, midi);
+        getDefaultGeneratorState(type, midi, presetOverride) {
+            const preset = presetOverride === undefined
+                ? this.getInstrumentPreset(type, midi)
+                : presetOverride;
             const root = type === 'drum'
                 ? this.lib.drumToFreq(midi)
                 : (preset && preset.freq) || 441;
@@ -1105,8 +1167,8 @@ class GusPatchApp {
             return {sampleRate: 22050, root, duration, wave: 'preset'};
         }
 
-        normalizeGeneratorState(type, midi, value) {
-            const defaults = this.getDefaultGeneratorState(type, midi);
+        normalizeGeneratorState(type, midi, value, presetOverride) {
+            const defaults = this.getDefaultGeneratorState(type, midi, presetOverride);
             const sampleRate = Number(value && value.sampleRate);
             const root = Number(value && value.root);
             const duration = Number(value && value.duration);
@@ -1181,6 +1243,7 @@ class GusPatchApp {
         }
 
         handlePresetJsonInput() {
+            this.presetApplyGeneration++;
             const preset = this.validatePresetJson();
             if (!this.autoApplyPreset) return;
             if (!preset) {
@@ -1264,28 +1327,67 @@ class GusPatchApp {
         async applyPresetJson() {
             const type = this.currentType;
             const midi = this.currentMidi;
+            const generation = ++this.presetApplyGeneration;
             const parsedPreset = this.validatePresetJson();
             if (!parsedPreset) return;
             const key = this.getCurrentPresetKey();
+            const projectId = this.currentProjectId;
+            const presetText = this.$('presetJson').value;
+            const isCurrentApply = () => generation === this.presetApplyGeneration
+                && this.currentProjectId === projectId
+                && this.currentType === type
+                && Number(this.currentMidi) === Number(midi)
+                && this.$('presetJson').value === presetText;
+            let generatorState;
+            let patchData;
+            let patchBytes;
             try {
-                this.buildMidiPatch(type === 'drum', midi, parsedPreset);
+                generatorState = this.normalizeGeneratorState(
+                    type,
+                    midi,
+                    this.generatorState.instruments[key],
+                    parsedPreset
+                );
+                this.setPresetEditorStatus('Generating patch without interrupting playback...');
+                patchData = await this.buildMidiPatchDataInChunks(
+                    type === 'drum',
+                    midi,
+                    parsedPreset,
+                    generatorState,
+                    () => !isCurrentApply()
+                );
+                if (!isCurrentApply()) return;
+                if (!patchData.preview) throw new Error('The preview sample could not be generated.');
+                patchBytes = GusPatchEncoder.encode({
+                    name: patchData.name,
+                    samples: patchData.zones.map(({sample}) => sample),
+                });
             } catch (error) {
+                if (!isCurrentApply()) return;
                 this.setPresetEditorStatus(`Preset cannot generate a patch: ${error.message}`, true);
                 this.log(`Preset apply failed: ${error.message}`, 'err');
                 return;
             }
 
-            this.removePatchCacheEntry(this.currentProjectId, type, midi);
+            this.removePatchCacheEntry(projectId, type, midi);
             this.generatorState.presets[key] = parsedPreset;
+            this.generatorState.instruments[key] = generatorState;
             this.refreshGeneratorDuration(type, midi);
             this.persistGeneratorState();
             this.updatePresetEditor();
-            this.drawPreview();
-            await this.reloadMidiInstrumentIfUsed(type, midi);
-            await this.reloadRealtimeInstrumentIfUsed(type, midi);
-            if (this.sequencerPlaying && this.midiMode === 'sequencer') {
-                await this.restartMidiSequencer();
+            this.drawPreview(patchData.preview);
+            const cacheKey = this.getPatchCacheKey(projectId, type, midi);
+            const generatedKey = cacheKey || `${type}:${midi}`;
+            this.prebuiltMidiPatchBuffers.set(generatedKey, patchBytes);
+            try {
+                await this.reloadMidiInstrumentIfUsed(type, midi);
+                await this.reloadRealtimeInstrumentIfUsed(type, midi);
+            } finally {
+                if (!this.patchCacheEnabled || !cacheKey) {
+                    this.prebuiltMidiPatchBuffers.delete(generatedKey);
+                }
             }
+            this.queuePatchCacheWrite(cacheKey, generatedKey, patchBytes);
             this.setPresetEditorStatus('Preset applied and patch regenerated.');
             this.log(`Preset applied: ${type} ${midi}.`, 'ok');
         }
@@ -1664,6 +1766,7 @@ class GusPatchApp {
 
         async resetCurrentPreset() {
             this.cancelAutoApplyPreset();
+            this.presetApplyGeneration++;
             const type = this.currentType;
             const midi = this.currentMidi;
             const key = this.getCurrentPresetKey();
@@ -1720,6 +1823,7 @@ class GusPatchApp {
         async importPresetSet(type, event) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
+            this.presetApplyGeneration++;
             const isDrum = type === 'drum';
             const instrumentIdKey = isDrum ? 'note' : 'program';
             const button = this.$(isDrum ? 'btnImportDrumPresets' : 'btnImportMelodicPresets');
@@ -1816,6 +1920,7 @@ class GusPatchApp {
         }
 
         handleGeneratorInput(event) {
+            this.presetApplyGeneration++;
             if (event && event.target.id === 'dur' && this.currentType != null && this.currentMidi != null) {
                 const key = `${this.currentType}:${this.currentMidi}`;
                 const state = this.generatorState.instruments[key] || {};
@@ -2973,8 +3078,15 @@ class GusPatchApp {
         });
     }
 
-    buildMidiPatchData(isDrum, program, presetOverride = this.getInstrumentPreset(isDrum ? 'drum' : 'melodic', program)) {
-        const state = this.getInstrumentGeneratorState(isDrum ? 'drum' : 'melodic', program);
+    buildMidiPatchData(
+        isDrum,
+        program,
+        presetOverride = this.getInstrumentPreset(isDrum ? 'drum' : 'melodic', program),
+        zoneIndex = null,
+        stateOverride = null
+    ) {
+        const state = stateOverride
+            || this.getInstrumentGeneratorState(isDrum ? 'drum' : 'melodic', program);
         const sampleRate = state.sampleRate;
 
         if (isDrum) {
@@ -3012,6 +3124,7 @@ class GusPatchApp {
                         sampleRateHzInHeader: true,
                     },
                 }],
+                preview: rendered,
             };
         }
 
@@ -3020,7 +3133,16 @@ class GusPatchApp {
         const {name} = instrument;
         const preset = this.presetWithWaveform(presetOverride, state.wave);
         const sampleName = this.slugify(name).slice(0, 5);
-        const zones = ProjectPatchGenerator.getPitchRanges(false, program).map((range, index) => {
+        const ranges = ProjectPatchGenerator.getPitchRanges(false, program);
+        const indices = zoneIndex === null
+            ? ranges.map((_range, index) => index)
+            : [zoneIndex];
+        const previewIndex = ranges.findIndex(
+            range => range.pitchFrom <= 60 && range.pitchTo >= 60
+        );
+        let preview = null;
+        const zones = indices.map(index => {
+            const range = ranges[index];
             const rootNote = Math.round((range.pitchFrom + range.pitchTo) / 2);
             const rootFrequency = state.root * Math.pow(2, (rootNote - 60) / 12);
             const rendered = this.applyOutputGain(
@@ -3032,6 +3154,7 @@ class GusPatchApp {
                 preset,
                 this.lib.melodicMasterGain
             );
+            if (index === previewIndex) preview = rendered;
             const naturalFrequency = rendered.naturalFreq || rootFrequency;
             return {
                 keyRange: [range.pitchFrom, range.pitchTo],
@@ -3057,7 +3180,31 @@ class GusPatchApp {
         return {
             name: this.slugify(name).slice(0, 15) || `gm${program}`,
             zones,
+            preview,
         };
+    }
+
+    async buildMidiPatchDataInChunks(isDrum, program, preset, state, shouldCancel) {
+        const ranges = isDrum
+            ? [null]
+            : ProjectPatchGenerator.getPitchRanges(false, program);
+        const result = {name: null, zones: [], preview: null};
+        for (let index = 0; index < ranges.length; index++) {
+            if (shouldCancel()) throw new Error('Preset rendering was cancelled.');
+            const zoneData = this.buildMidiPatchData(
+                isDrum,
+                program,
+                preset,
+                isDrum ? null : index,
+                state
+            );
+            result.name = zoneData.name;
+            result.zones.push(...zoneData.zones);
+            if (zoneData.preview) result.preview = zoneData.preview;
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
+        if (shouldCancel()) throw new Error('Preset rendering was cancelled.');
+        return result;
     }
 
     async loadMidiFile(event) {
@@ -4087,6 +4234,7 @@ class GusPatchApp {
     // ---- Seleksi instrumen ----
     selectInstrument(type, midi) {
         const selectionChanged = type !== this.currentType || Number(midi) !== Number(this.currentMidi);
+        if (selectionChanged) this.presetApplyGeneration++;
         this.saveCurrentGeneratorState();
         this.setActiveInstrumentList(type);
         this.currentType = type;
@@ -4166,8 +4314,8 @@ class GusPatchApp {
     }
 
     // ---- Gambar waveform ----
-    drawPreview() {
-        const r = this.getCurrentPCM();
+    drawPreview(rendered = this.getCurrentPCM()) {
+        const r = rendered;
         if (!r) return;
         const c = this.$('waveCanvas');
         const rect = c.getBoundingClientRect();
