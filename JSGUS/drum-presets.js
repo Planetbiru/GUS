@@ -1,5 +1,5 @@
 var GUS_DRUM_PRESETS = {
-  "gain": 0.74,
+  "gain": 0.7,
   "instruments": [
     {
       "note": 25,
@@ -599,6 +599,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
+        "highpass": 40,
         "lowpass": 3200
       }
     },
@@ -693,6 +694,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
+        "highpass": 55,
         "lowpass": 3600
       }
     },
@@ -782,6 +784,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
+        "highpass": 70,
         "lowpass": 3900
       }
     },
@@ -859,6 +862,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
+        "highpass": 90,
         "lowpass": 4250
       }
     },
@@ -911,6 +915,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
+        "highpass": 115,
         "lowpass": 4500
       }
     },
@@ -1034,6 +1039,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
+        "highpass": 145,
         "lowpass": 4900
       }
     },
@@ -1543,7 +1549,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Hi Bongo: skin-drum strike with a crisp, woody tone.",
       "preset": {
         "mute": false,
-        "gain": 0.55,
+        "gain": 0.45,
         "duration": 0.27,
         "membrane": {
           "freq": 400,
@@ -1585,7 +1591,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Low Bongo: skin-drum strike with a crisp, woody tone.",
       "preset": {
         "mute": false,
-        "gain": 0.55,
+        "gain": 0.45,
         "duration": 0.27,
         "membrane": {
           "freq": 280,
@@ -1768,7 +1774,7 @@ var GUS_DRUM_PRESETS = {
       "description": "High Timbale: bright, sharp, resonant metal drum.",
       "preset": {
         "mute": false,
-        "gain": 0.50,
+        "gain": 0.45,
         "duration": 0.28,
         "membrane": {
           "freq": 340,
@@ -1845,7 +1851,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Low Timbale: bright, resonant metal drum with a full tone.",
       "preset": {
         "mute": false,
-        "gain": 0.50,
+        "gain": 0.45,
         "duration": 0.35,
         "membrane": {
           "freq": 270,
