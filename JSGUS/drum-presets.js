@@ -599,7 +599,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
-        "highpass": 50,
+        "highpass": 40,
         "lowpass": 3200
       }
     },
@@ -694,7 +694,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
-        "highpass": 70,
+        "highpass": 55,
         "lowpass": 3600
       }
     },
@@ -784,7 +784,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
-        "highpass": 90,
+        "highpass": 70,
         "lowpass": 3900
       }
     },
@@ -862,7 +862,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
-        "highpass": 120,
+        "highpass": 90,
         "lowpass": 4250
       }
     },
@@ -915,7 +915,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
-        "highpass": 150,
+        "highpass": 115,
         "lowpass": 4500
       }
     },
@@ -1039,7 +1039,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.75
           }
         },
-        "highpass": 190,
+        "highpass": 145,
         "lowpass": 4900
       }
     },
