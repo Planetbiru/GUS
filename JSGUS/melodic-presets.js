@@ -1900,7 +1900,7 @@ var GUS_MELODIC_PRESETS = {
         "cycles": 20,
         "loopSkip": 10,
         "loopAttackNoise": {
-          "amp": 0.185,
+          "amp": 0.12,
           "duration": 0.018
         },
         "env": {
@@ -2018,7 +2018,7 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.3
         ],
-        "noise": 0.05,
+        "noise": 0.02,
         "attackNoise": {
           "amp": 0.14,
           "duration": 0.012
