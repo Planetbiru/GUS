@@ -1900,7 +1900,7 @@ var GUS_MELODIC_PRESETS = {
         "cycles": 20,
         "loopSkip": 10,
         "loopAttackNoise": {
-          "amp": 0.18,
+          "amp": 0.185,
           "duration": 0.018
         },
         "env": {
@@ -2018,9 +2018,9 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.3
         ],
-        "noise": 0.1,
+        "noise": 0.05,
         "attackNoise": {
-          "amp": 0.12,
+          "amp": 0.14,
           "duration": 0.012
         },
         "vibrato": {
@@ -2029,10 +2029,10 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 10
         },
         "guitarAmp": {
-          "drive": 3.6,
+          "drive": 3.5,
           "bias": 0.02,
           "mix": 0.95,
-          "clip": 0.1,
+          "clip": 0.2,
           "preampCutoff": 100,
           "cabinetCutoff": 18000
         },
