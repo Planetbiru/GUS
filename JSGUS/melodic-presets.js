@@ -1221,10 +1221,10 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Nylon Guitar",
       "shortName": "Nylon Guitar",
-      "description": "Nylon Guitar: warm finger-plucked tone with a soft decay.",
+      "description": "Nylon Guitar: warm, rounded pluck with a soft decay.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "pluck",
+        "defaultWaveform": null,
         "gain": 0.29,
         "freq": 441,
         "length": 66150,
@@ -1237,76 +1237,92 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.25,
-          0.1111,
-          0.0625,
-          0.04,
-          0.0278,
-          0.0204,
-          0.0156,
-          0.0123,
-          0.01,
-          0.0083,
-          0.0069,
-          0.0059,
-          0.0051,
-          0.0044,
-          0.0039,
+          0.3,
+          0.18,
+          0.14,
+          0.12,
+          0.1,
+          0.085,
+          0.09,
+          0.078,
+          0.07,
+          0.063,
+          0.056,
+          0.05,
+          0.046,
+          0.041,
+          0.037,
+          0.034,
+          0.03,
+          0.026,
+          0.024,
+          0.021,
+          0.019,
+          0.017,
+          0.014,
+          0.012,
+          0.0105,
+          0.009,
+          0.0075,
+          0.006,
+          0.0045,
           0.0035,
-          0.0031,
-          0.0028,
-          0.0025,
-          0.0023,
-          0.0021,
-          0.0019,
-          0.0017
+          0.0025
         ],
         "partialDecay": [
           2.4,
           1.6,
           1.1,
-          0.78,
-          0.58,
-          0.44,
-          0.34,
+          0.9,
+          0.8,
+          0.75,
+          0.7,
+          0.65,
+          0.6,
+          0.55,
+          0.5,
+          0.46,
+          0.42,
+          0.39,
+          0.36,
+          0.33,
+          0.31,
+          0.29,
           0.27,
-          0.22,
-          0.18,
+          0.25,
+          0.23,
+          0.21,
+          0.19,
+          0.17,
+          0.16,
           0.15,
+          0.14,
           0.13,
+          0.12,
           0.11,
-          0.095,
-          0.082,
-          0.072,
-          0.063,
-          0.056,
-          0.05,
-          0.045,
-          0.041,
-          0.037,
-          0.034,
-          0.031
+          0.1,
+          0.09
         ],
         "inharmonicity": 0.00004,
         "attackNoise": {
-          "amp": 0.012,
+          "amp": 0.02,
           "duration": 0.009
         },
         "pluckPosition": 0.12,
         "pluckTransient": {
-          "freq": 2600,
-          "q": 0.9,
-          "amp": 0.025,
-          "duration": 0.016,
+          "freq": 3000,
+          "q": 1,
+          "amp": 0.045,
+          "duration": 0.014,
           "decay": 0.007
         },
         "pitchScoop": {
-          "depth": 0.0012,
-          "time": 0.014
+          "depth": 0.0005,
+          "time": 0.012
         },
         "brightness": {
-          "start": 10500,
-          "end": 4500
+          "start": 18000,
+          "end": 12000
         },
         "formants": [
           {
@@ -1332,12 +1348,17 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 3000,
             "q": 1,
-            "gain": 1
+            "gain": 1.5
           },
           {
             "freq": 4600,
             "q": 1,
-            "gain": 0.5
+            "gain": 2
+          },
+          {
+            "freq": 7000,
+            "q": 1,
+            "gain": 1.4
           }
         ],
         "antiAlias": true
@@ -1348,10 +1369,10 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Steel Guitar",
       "shortName": "Steel Guitar",
-      "description": "Steel Guitar: a plucked-string attack with natural decay.",
+      "description": "Steel Guitar: bright pluck with a smooth, controlled attack.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "pluck",
+        "defaultWaveform": null,
         "gain": 0.29,
         "freq": 441,
         "length": 66150,
@@ -1364,50 +1385,92 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.9,
-          0.8,
-          0.7,
+          0.75,
           0.55,
-          0.4,
-          0.34,
+          0.42,
+          0.38,
+          0.32,
+          0.28,
+          0.29,
           0.24,
-          0.18,
+          0.2,
+          0.17,
+          0.15,
+          0.13,
           0.12,
-          0.065
+          0.11,
+          0.1,
+          0.09,
+          0.08,
+          0.07,
+          0.06,
+          0.054,
+          0.048,
+          0.042,
+          0.036,
+          0.031,
+          0.026,
+          0.022,
+          0.019,
+          0.016,
+          0.013,
+          0.01,
+          0.007
         ],
         "partialDecay": [
           2.8,
           1.9,
           1.35,
           1,
-          0.74,
+          0.9,
+          0.85,
+          0.8,
+          0.75,
+          0.7,
+          0.65,
+          0.6,
           0.55,
-          0.4,
-          0.3,
-          0.23,
-          0.17,
-          0.12
+          0.5,
+          0.46,
+          0.42,
+          0.38,
+          0.35,
+          0.32,
+          0.29,
+          0.26,
+          0.24,
+          0.22,
+          0.2,
+          0.18,
+          0.16,
+          0.14,
+          0.12,
+          0.1,
+          0.09,
+          0.08,
+          0.07,
+          0.06
         ],
         "inharmonicity": 0.00012,
         "attackNoise": {
-          "amp": 0.09,
+          "amp": 0.08,
           "duration": 0.009
         },
         "pluckPosition": 0.105,
         "pluckTransient": {
-          "freq": 5000,
-          "q": 1.1,
-          "amp": 0.095,
-          "duration": 0.016,
-          "decay": 0.006
+          "freq": 4800,
+          "q": 1,
+          "amp": 0.12,
+          "duration": 0.014,
+          "decay": 0.007
         },
         "pitchScoop": {
-          "depth": 0.0022,
-          "time": 0.009
+          "depth": 0.001,
+          "time": 0.01
         },
         "brightness": {
-          "start": 14000,
-          "end": 5500
+          "start": 19000,
+          "end": 13000
         },
         "formants": [
           {
@@ -1428,7 +1491,7 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 1150,
             "q": 1.7,
-            "gain": 3
+            "gain": 0.8
           },
           {
             "freq": 2900,
@@ -1438,7 +1501,17 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 4800,
             "q": 1,
-            "gain": 1.5
+            "gain": 2
+          },
+          {
+            "freq": 7000,
+            "q": 1,
+            "gain": 1.7
+          },
+          {
+            "freq": 9500,
+            "q": 0.9,
+            "gain": 1
           }
         ],
         "antiAlias": true
