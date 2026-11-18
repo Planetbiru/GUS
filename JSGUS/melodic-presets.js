@@ -6984,6 +6984,7 @@ var GUS_MELODIC_PRESETS = {
           0.1
         ],
         "noise": 0.3,
+        "highpass": 250,
         "antiAlias": true
       }
     },
