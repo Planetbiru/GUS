@@ -242,6 +242,33 @@ class GusPatchApp {
             midi = 0;
         }
         this.selectInstrument(type, midi);
+
+        const btn = document.getElementById('btnFullscreen');
+
+        btn.addEventListener('click', async () => {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                } else {
+                    await document.exitFullscreen();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
+            this.updateButton();
+        });
+
+        document.addEventListener('fullscreenchange', () => this.updateButton());
+
+        this.updateButton();
+    }
+
+    updateButton() {
+        const btn = document.getElementById('btnFullscreen');
+        btn.textContent = document.fullscreenElement
+            ? btn.getAttribute('aria-label-2')
+            : btn.getAttribute('aria-label-1');
     }
 
     bindDraggableDialogs() {
@@ -324,6 +351,8 @@ class GusPatchApp {
         const listEl = this.$('instrumentList');
         const searchWrap = this.$('instrumentSearch').closest('.instrument-search-wrap');
         const selectedType = this.generatorState.selected?.type === 'drum' ? 'drum' : 'melodic';
+        const toolbar = document.createElement('div');
+        toolbar.className = 'instrument-toolbar';
         const tabs = document.createElement('div');
         tabs.className = 'instrument-tabs';
         tabs.setAttribute('role', 'tablist');
@@ -349,7 +378,8 @@ class GusPatchApp {
         drumList.id = 'drumInstrumentList';
         drumList.className = 'instrument-list-panel';
         drumList.setAttribute('role', 'tabpanel');
-        listEl.replaceChildren(tabs, searchWrap, melodicList, drumList);
+        toolbar.append(tabs, searchWrap);
+        listEl.replaceChildren(toolbar, melodicList, drumList);
 
         let lastFamily = '';
 
