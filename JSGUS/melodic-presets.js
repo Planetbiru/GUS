@@ -1800,7 +1800,21 @@ var GUS_MELODIC_PRESETS = {
           0.03,
           0.022,
           0.016,
-          0.012
+          0.012,
+          0.01,
+          0.008,
+          0.0065,
+          0.0055,
+          0.0048,
+          0.0042,
+          0.0037,
+          0.0033,
+          0.003,
+          0.0027,
+          0.0025,
+          0.0023,
+          0.0021,
+          0.0019
         ],
         "partialDecay": [
           3,
@@ -1824,11 +1838,11 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 12
         },
         "guitarAmp": {
-          "drive": 1.9,
-          "bias": 0.005,
-          "mix": 0.65,
+          "drive": 1.35,
+          "bias": 0,
+          "mix": 0.5,
           "preampCutoff": 90,
-          "cabinetCutoff": 6200
+          "cabinetCutoff": 9500
         },
         "brightness": {
           "start": 7000,
@@ -1987,12 +2001,12 @@ var GUS_MELODIC_PRESETS = {
           "mix": 0.95,
           "clip": 0.1,
           "preampCutoff": 100,
-          "cabinetCutoff": 6000
+          "cabinetCutoff": 9500
         },
         "brightness": {
           "start": 9000,
           "end": 3200,
-          "loopCutoff": 6200
+          "loopCutoff": 9500
         },
         "antiAlias": true
       }
