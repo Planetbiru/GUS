@@ -2516,7 +2516,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.008,
           "sweep": 22
         },
-        "drive": 0.15,
+        "drive": 0.05,
         "formants": [
           {
             "freq": 300,
@@ -2606,7 +2606,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.007,
           "sweep": 24
         },
-        "drive": 0.15,
+        "drive": 0.05,
         "formants": [
           {
             "freq": 250,
@@ -3290,7 +3290,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.003,
           "sweep": 24
         },
-        "drive": 1.08,
+        "drive": 0.2,
         "formants": [
           {
             "freq": 420,
@@ -3370,7 +3370,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.004,
           "sweep": 30
         },
-        "drive": 1.04,
+        "drive": 0.2,
         "formants": [
           {
             "freq": 300,
