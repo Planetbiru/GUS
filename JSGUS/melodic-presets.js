@@ -1766,7 +1766,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "Overdriven Gtr: driven guitar with a sustained loop.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "reed",
+        "defaultWaveform": "saw",
         "gain": 0.4,
         "freq": 441,
         "length": 44100,
@@ -1774,7 +1774,7 @@ var GUS_MELODIC_PRESETS = {
         "cycles": 18,
         "loopSkip": 10,
         "loopAttackNoise": {
-          "amp": 0.2,
+          "amp": 0.08,
           "duration": 0.024
         },
         "env": {
@@ -1860,7 +1860,7 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.3
         ],
-        "noise": 0.025,
+        "noise": 0.008,
         "attackNoise": {
           "amp": 0.12,
           "duration": 0.012
@@ -1871,9 +1871,9 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 12
         },
         "guitarAmp": {
-          "drive": 1.35,
+          "drive": 1,
           "bias": 0,
-          "mix": 0.5,
+          "mix": 0,
           "preampCutoff": 90,
           "cabinetCutoff": 18000
         },
@@ -3024,7 +3024,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
-        "gain": 0.33,
+        "gain": 0.31,
         "loop": true,
         "cycles": 22,
         "loopSkip": 8,
@@ -3043,7 +3043,30 @@ var GUS_MELODIC_PRESETS = {
           0.12,
           0.075,
           0.045,
-          0.025
+          0.025,
+          0.07079,
+          0.06345,
+          0.0574,
+          0.05236,
+          0.04808,
+          0.04441,
+          0.04123,
+          0.03846,
+          0.03601,
+          0.03384,
+          0.0319,
+          0.03016,
+          0.02859,
+          0.02717,
+          0.02587,
+          0.02468,
+          0.02359,
+          0.02259,
+          0.02167,
+          0.02081,
+          0.02001,
+          0.01927,
+          0.01858
         ],
         "phases": [
           0,
@@ -3101,7 +3124,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
-        "gain": 0.33,
+        "gain": 0.31,
         "loop": true,
         "cycles": 22,
         "loopSkip": 8,
@@ -3119,7 +3142,31 @@ var GUS_MELODIC_PRESETS = {
           0.12,
           0.07,
           0.04,
-          0.02
+          0.02,
+          0.09955,
+          0.06417,
+          0.08064,
+          0.05299,
+          0.06766,
+          0.04507,
+          0.05822,
+          0.03917,
+          0.05105,
+          0.03462,
+          0.04543,
+          0.03099,
+          0.04089,
+          0.02804,
+          0.03717,
+          0.02559,
+          0.03405,
+          0.02353,
+          0.03141,
+          0.02177,
+          0.02914,
+          0.02025,
+          0.02717,
+          0.01892
         ],
         "phases": [
           0,
