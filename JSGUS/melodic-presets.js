@@ -1766,7 +1766,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "Overdriven Gtr: driven guitar with a sustained loop.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "saw",
+        "defaultWaveform": "reed",
         "gain": 0.4,
         "freq": 441,
         "length": 44100,
@@ -1814,7 +1814,40 @@ var GUS_MELODIC_PRESETS = {
           0.0025,
           0.0023,
           0.0021,
-          0.0019
+          0.0019,
+          0.0018,
+          0.0017,
+          0.0016,
+          0.0015,
+          0.0014,
+          0.0013,
+          0.0012,
+          0.0011,
+          0.001,
+          0.00095,
+          0.0009,
+          0.00085,
+          0.0008,
+          0.00075,
+          0.0007,
+          0.00065,
+          0.0006,
+          0.00055,
+          0.0005,
+          0.00045,
+          0.0004,
+          0.00035,
+          0.0003,
+          0.00025,
+          0.0002,
+          0.00015,
+          0.0001,
+          0.00009,
+          0.00008,
+          0.00007,
+          0.00006,
+          0.00005,
+          0.00004
         ],
         "partialDecay": [
           3,
@@ -1842,7 +1875,7 @@ var GUS_MELODIC_PRESETS = {
           "bias": 0,
           "mix": 0.5,
           "preampCutoff": 90,
-          "cabinetCutoff": 9500
+          "cabinetCutoff": 18000
         },
         "brightness": {
           "start": 7000,
@@ -1985,7 +2018,7 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.3
         ],
-        "noise": 0.035,
+        "noise": 0.1,
         "attackNoise": {
           "amp": 0.12,
           "duration": 0.012
@@ -2001,12 +2034,12 @@ var GUS_MELODIC_PRESETS = {
           "mix": 0.95,
           "clip": 0.1,
           "preampCutoff": 100,
-          "cabinetCutoff": 9500
+          "cabinetCutoff": 18000
         },
         "brightness": {
           "start": 9000,
           "end": 3200,
-          "loopCutoff": 9500
+          "loopCutoff": 18000
         },
         "antiAlias": true
       }
