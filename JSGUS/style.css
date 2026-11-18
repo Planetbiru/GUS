@@ -718,7 +718,7 @@ label[for="presetJson"] {
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: 180px;
+    max-height: 160px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -1478,4 +1478,8 @@ canvas {
         gap: 6px;
     }
     .preset-form { padding: 6px 8px 10px; }
+}
+
+#btnTogglePatchCache{
+    width: 120px;
 }
