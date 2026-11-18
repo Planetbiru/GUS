@@ -99,6 +99,9 @@ class FileDownloader {
 // ----------------------------------------------------------------
 // 1.9  GusPatchApp — controller utama UI
 // ----------------------------------------------------------------
+const PATCH_CACHE_PREFIX = 'pig:';
+const PATCH_CACHE_ENABLED_STORAGE_KEY = 'gus-patch-generator-patch-cache-enabled-v1';
+
 class GusPatchApp {
     constructor(library) {
         this.lib = library;
@@ -118,6 +121,7 @@ class GusPatchApp {
         this.midiInstrumentFiles = new Map();
         this.midiChannelsUsed = [];
         this.midiChannelStates = new Map();
+        this.midiMixerControllerValues = new Map();
         this.midiChannelPrograms = new Map();
         this.activeMidiNoteOwners = new Map();
         this.activeMidiInstrumentNotes = new Map();
@@ -151,6 +155,7 @@ class GusPatchApp {
         this.liveWaveformFrame = null;
         this.liveWaveformPaused = false;
         this.liveWaveformMode = 'amplitude';
+        this.patchCacheEnabled = true;
         this.currentType = null;
         this.currentMidi = null;
         this.logEl = null;
@@ -198,9 +203,126 @@ class GusPatchApp {
         this.logEl.scrollTop = this.logEl.scrollHeight;
     }
 
+    reportPatchCacheError(action, error) {
+        this.log(`Patch cache ${action} failed: ${error.message}`, 'err');
+    }
+
+    loadPatchCachePreference() {
+        try {
+            const stored = localStorage.getItem(PATCH_CACHE_ENABLED_STORAGE_KEY);
+            return stored === null || stored === 'true';
+        } catch (error) {
+            this.reportPatchCacheError('preference read', error);
+            return true;
+        }
+    }
+
+    updatePatchCacheToggle() {
+        const button = this.$('btnTogglePatchCache');
+        button.textContent = `Patch Cache: ${this.patchCacheEnabled ? 'On' : 'Off'}`;
+        button.setAttribute('aria-pressed', String(this.patchCacheEnabled));
+    }
+
+    togglePatchCache() {
+        this.patchCacheEnabled = !this.patchCacheEnabled;
+        this.updatePatchCacheToggle();
+        try {
+            localStorage.setItem(PATCH_CACHE_ENABLED_STORAGE_KEY, String(this.patchCacheEnabled));
+        } catch (error) {
+            this.reportPatchCacheError('preference save', error);
+        }
+        this.log(`Patch cache ${this.patchCacheEnabled ? 'enabled' : 'disabled'}.`, 'info');
+    }
+
+    getPatchCacheKey(projectId, type, program) {
+        if (typeof projectId !== 'string' || !projectId || !['drum', 'melodic'].includes(type)
+            || !Number.isInteger(program) || program < 0 || program > 127) return null;
+        return `${PATCH_CACHE_PREFIX}${encodeURIComponent(projectId)}:${type}:${program}`;
+    }
+
+    encodePatchCacheValue(patchData) {
+        const bytes = new Uint8Array(patchData);
+        const chunkSize = 8192;
+        let binary = '';
+        for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+            binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+        }
+        return binary;
+    }
+
+    decodePatchCacheValue(binary) {
+        const bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index++) {
+            bytes[index] = binary.charCodeAt(index);
+        }
+        return bytes;
+    }
+
+    getCachedOrBuildMidiPatch(isDrum, program) {
+        const type = isDrum ? 'drum' : 'melodic';
+        const cacheKey = this.getPatchCacheKey(this.currentProjectId, type, program);
+        if (!this.patchCacheEnabled || !cacheKey) return this.buildMidiPatch(isDrum, program);
+
+        try {
+            const cachedPatch = localStorage.getItem(cacheKey);
+            if (cachedPatch !== null) return this.decodePatchCacheValue(cachedPatch);
+        } catch (error) {
+            this.reportPatchCacheError('read', error);
+            return this.buildMidiPatch(isDrum, program);
+        }
+
+        const patchData = this.buildMidiPatch(isDrum, program);
+        try {
+            localStorage.setItem(cacheKey, this.encodePatchCacheValue(patchData));
+        } catch (error) {
+            this.reportPatchCacheError('write', error);
+        }
+        return patchData;
+    }
+
+    removePatchCacheEntry(projectId, type, program) {
+        const cacheKey = this.getPatchCacheKey(projectId, type, program);
+        if (!cacheKey) return;
+        try {
+            localStorage.removeItem(cacheKey);
+        } catch (error) {
+            this.reportPatchCacheError('entry removal', error);
+        }
+    }
+
+    clearPatchCacheForProject(projectId) {
+        if (typeof projectId !== 'string' || !projectId) return;
+        const projectPrefix = `${PATCH_CACHE_PREFIX}${encodeURIComponent(projectId)}:`;
+        try {
+            const cacheKeys = [];
+            for (let index = 0; index < localStorage.length; index++) {
+                const key = localStorage.key(index);
+                if (key && key.startsWith(projectPrefix)) cacheKeys.push(key);
+            }
+            for (const key of cacheKeys) localStorage.removeItem(key);
+        } catch (error) {
+            this.reportPatchCacheError('project clear', error);
+        }
+    }
+
+    clearAllPatchCache() {
+        try {
+            const cacheKeys = [];
+            for (let index = 0; index < localStorage.length; index++) {
+                const key = localStorage.key(index);
+                if (key && key.startsWith(PATCH_CACHE_PREFIX)) cacheKeys.push(key);
+            }
+            for (const key of cacheKeys) localStorage.removeItem(key);
+            this.log(`Cleared ${cacheKeys.length} cached patch${cacheKeys.length === 1 ? '' : 'es'} across all projects.`, 'ok');
+        } catch (error) {
+            this.reportPatchCacheError('clear', error);
+        }
+    }
+
     // ---- Inisialisasi ----
     async init() {
         this.logEl = this.$('log');
+        this.patchCacheEnabled = this.loadPatchCachePreference();
         await this.initializeProjects();
         this.buildSidebar();
         this.restoreInstrumentSearch();
@@ -242,6 +364,33 @@ class GusPatchApp {
             midi = 0;
         }
         this.selectInstrument(type, midi);
+
+        const btn = document.getElementById('btnFullscreen');
+
+        btn.addEventListener('click', async () => {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                } else {
+                    await document.exitFullscreen();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
+            this.updateButton();
+        });
+
+        document.addEventListener('fullscreenchange', () => this.updateButton());
+
+        this.updateButton();
+    }
+
+    updateButton() {
+        const btn = document.getElementById('btnFullscreen');
+        btn.textContent = document.fullscreenElement
+            ? btn.getAttribute('aria-label-2')
+            : btn.getAttribute('aria-label-1');
     }
 
     bindDraggableDialogs() {
@@ -324,6 +473,8 @@ class GusPatchApp {
         const listEl = this.$('instrumentList');
         const searchWrap = this.$('instrumentSearch').closest('.instrument-search-wrap');
         const selectedType = this.generatorState.selected?.type === 'drum' ? 'drum' : 'melodic';
+        const toolbar = document.createElement('div');
+        toolbar.className = 'instrument-toolbar';
         const tabs = document.createElement('div');
         tabs.className = 'instrument-tabs';
         tabs.setAttribute('role', 'tablist');
@@ -349,7 +500,8 @@ class GusPatchApp {
         drumList.id = 'drumInstrumentList';
         drumList.className = 'instrument-list-panel';
         drumList.setAttribute('role', 'tabpanel');
-        listEl.replaceChildren(tabs, searchWrap, melodicList, drumList);
+        toolbar.append(tabs, searchWrap);
+        listEl.replaceChildren(toolbar, melodicList, drumList);
 
         let lastFamily = '';
 
@@ -530,6 +682,8 @@ class GusPatchApp {
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
         this.$('btnMidiStop').onclick = () => this.stopMidiPlayback();
         this.$('btnMidiMixer').onclick = () => this.openMidiMixer();
+        this.$('btnTogglePatchCache').onclick = () => this.togglePatchCache();
+        this.$('btnClearPatchCache').onclick = () => this.clearAllPatchCache();
         this.$('btnMidiMixerPlay').onclick = () => this.toggleMidiPlayback();
         this.$('btnMidiMixerStop').onclick = () => this.stopMidiPlayback();
         this.$('btnCloseMidiMixer').onclick = () => this.$('midiMixerDialog').close();
@@ -589,6 +743,7 @@ class GusPatchApp {
 
         this.$('btnPresetFormMode').onclick = () => this.setPresetEditorMode('form');
         this.$('btnPresetJsonMode').onclick = () => this.setPresetEditorMode('json');
+        this.updatePatchCacheToggle();
     }
 
     loadGeneratorState() {
@@ -1120,6 +1275,7 @@ class GusPatchApp {
                 return;
             }
 
+            this.removePatchCacheEntry(this.currentProjectId, type, midi);
             this.generatorState.presets[key] = parsedPreset;
             this.refreshGeneratorDuration(type, midi);
             this.persistGeneratorState();
@@ -1522,6 +1678,7 @@ class GusPatchApp {
                 return;
             }
 
+            this.removePatchCacheEntry(this.currentProjectId, type, midi);
             delete this.generatorState.presets[key];
             this.refreshGeneratorDuration(type, midi);
             this.persistGeneratorState();
@@ -1598,6 +1755,9 @@ class GusPatchApp {
                 const activePreset = imported.get(currentKey);
                 if (activePreset) this.buildMidiPatch(isDrum, Number(this.currentMidi), activePreset);
 
+                for (const key of imported.keys()) {
+                    this.removePatchCacheEntry(this.currentProjectId, type, Number(key.slice(key.indexOf(':') + 1)));
+                }
                 this.generatorState.presets = {
                     ...this.generatorState.presets,
                     ...Object.fromEntries(imported),
@@ -1663,6 +1823,7 @@ class GusPatchApp {
                 this.generatorState.instruments[key] = state;
             }
             this.saveCurrentGeneratorState();
+            this.removePatchCacheEntry(this.currentProjectId, this.currentType, this.currentMidi);
             this.drawPreview();
             this.scheduleMidiInstrumentReload();
         }
@@ -1754,6 +1915,7 @@ class GusPatchApp {
         resetGeneratorState() {
             if (this.midiPatchReloadTimer) clearTimeout(this.midiPatchReloadTimer);
             this.midiPatchReloadTimer = null;
+            this.clearPatchCacheForProject(this.currentProjectId);
             const type = this.currentType || 'melodic';
             const midi = this.currentMidi == null ? 0 : this.currentMidi;
             this.generatorState = {selected: null, instruments: {}, presets: {}};
@@ -1833,7 +1995,7 @@ class GusPatchApp {
                     this.trackMidiInstrument(isDrum, program, bank);
                 }
                 await new Promise(resolve => setTimeout(resolve, 0));
-                return this.buildMidiPatch(isDrum, program);
+                return this.getCachedOrBuildMidiPatch(isDrum, program);
             },
         });
         this.timidityPlayer = player;
@@ -1890,6 +2052,15 @@ class GusPatchApp {
             this.midiPosition = 0;
             this.midiTick = 0;
             this.setMidiChannels(player.getTempoMap()?.channelsUsed || []);
+            this.midiMixerControllerValues.clear();
+            const initialMixerValues = this.getMidiMixerChannelValues(0);
+            if (initialMixerValues) {
+                for (const {channel, volume, expression, pan} of initialMixerValues) {
+                    this.setMidiMixerControllerValue(channel, 7, volume);
+                    this.setMidiMixerControllerValue(channel, 11, expression);
+                    this.setMidiMixerControllerValue(channel, 10, pan);
+                }
+            }
             this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
         });
@@ -1908,7 +2079,7 @@ class GusPatchApp {
                         : null;
             if (controller !== null) {
                 this.midiTick = event.tick;
-                if (this.$('midiMixerDialog').open && !this.midiSeeking) {
+                if (!this.midiSeeking) {
                     this.setMidiMixerControllerValue(event.channel, controller, event.a);
                 }
             }
@@ -2327,7 +2498,7 @@ class GusPatchApp {
         if (!player?.songPtr || this.midiChannelsUsed.length === 0) return;
 
         const tick = this.getMidiMixerTick();
-        const channelValues = this.getMidiMixerChannelValues(tick);
+        const channelValues = this.getMidiMixerChannelValues(tick, true);
         if (!channelValues) return;
         const list = this.$('midiMixerChannelList');
         list.replaceChildren();
@@ -2414,7 +2585,7 @@ class GusPatchApp {
         this.showDialogCentered(this.$('midiMixerDialog'));
     }
 
-    getMidiMixerChannelValues(tick) {
+    getMidiMixerChannelValues(tick, useSavedValues = false) {
         const player = this.timidityPlayer;
         if (!player?.songPtr) return null;
 
@@ -2432,6 +2603,15 @@ class GusPatchApp {
                     this.log(message, 'err');
                     return null;
                 }
+            }
+        }
+        if (useSavedValues) {
+            for (const values of channelValues) {
+                const savedValues = this.midiMixerControllerValues.get(values.channel);
+                if (!savedValues) continue;
+                values.volume = savedValues.get(7) ?? values.volume;
+                values.expression = savedValues.get(11) ?? values.expression;
+                values.pan = savedValues.get(10) ?? values.pan;
             }
         }
         return channelValues;
@@ -2477,6 +2657,13 @@ class GusPatchApp {
             || !Number.isFinite(numericValue)) return;
 
         const clampedValue = Math.max(0, Math.min(127, Math.round(numericValue)));
+        let channelValues = this.midiMixerControllerValues.get(channel);
+        if (!channelValues) {
+            channelValues = new Map();
+            this.midiMixerControllerValues.set(channel, channelValues);
+        }
+        channelValues.set(controller, clampedValue);
+
         const slider = this.$(`midiMixerControl_${controller}_${channel}`);
         const output = this.$(`midiMixerValue_${controller}_${channel}`);
         if (!slider || !output) return;
