@@ -1,5 +1,5 @@
 var GUS_DRUM_PRESETS = {
-  "gain": 0.7,
+  "gain": 0.85,
   "instruments": [
     {
       "note": 25,
@@ -41,7 +41,7 @@ var GUS_DRUM_PRESETS = {
           0.385,
           0.44
         ],
-        "highpass": 450,
+        "highpass": 600,
         "lowpass": 9000
       }
     },
@@ -473,7 +473,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.65
           }
         },
-        "highpass": 240
+        "highpass": 600
       }
     },
     {
@@ -547,7 +547,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.7
           }
         },
-        "highpass": 350
+        "highpass": 600
       }
     },
     {
