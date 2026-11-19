@@ -1355,15 +1355,15 @@ var GUS_MELODIC_PRESETS = {
         ],
         "inharmonicity": 0.00002,
         "attackNoise": {
-          "amp": 0.007,
-          "duration": 0.007
+          "amp": 0.003,
+          "duration": 0.005
         },
         "pluckPosition": 0.22,
         "pluckTransient": {
           "freq": 3000,
           "q": 1,
-          "amp": 0.015,
-          "duration": 0.01,
+          "amp": 0.006,
+          "duration": 0.007,
           "decay": 0.007
         },
         "pitchScoop": {
@@ -1388,12 +1388,12 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 410,
             "q": 0.85,
-            "gain": 0.5
+            "gain": 0.25
           },
           {
             "freq": 780,
             "q": 0.95,
-            "gain": 1
+            "gain": 0.6
           },
           {
             "freq": 3000,
@@ -1411,7 +1411,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.4
           }
         ],
-        "highpass": 220,
+        "highpass": 300,
         "antiAlias": true
       }
     },
@@ -1502,17 +1502,17 @@ var GUS_MELODIC_PRESETS = {
           0.07,
           0.06
         ],
-        "inharmonicity": 0.00012,
+        "inharmonicity": 0.00006,
         "attackNoise": {
-          "amp": 0.08,
-          "duration": 0.009
+          "amp": 0.02,
+          "duration": 0.006
         },
-        "pluckPosition": 0.105,
+        "pluckPosition": 0.18,
         "pluckTransient": {
           "freq": 4800,
           "q": 1,
-          "amp": 0.12,
-          "duration": 0.014,
+          "amp": 0.03,
+          "duration": 0.009,
           "decay": 0.007
         },
         "pitchScoop": {
@@ -1527,22 +1527,22 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 115,
             "q": 1.2,
-            "gain": 1
+            "gain": 0
           },
           {
             "freq": 230,
             "q": 1.8,
-            "gain": 2
+            "gain": 0.5
           },
           {
             "freq": 520,
             "q": 2.2,
-            "gain": 2
+            "gain": 1
           },
           {
             "freq": 1150,
             "q": 1.7,
-            "gain": 0.8
+            "gain": 0.4
           },
           {
             "freq": 2900,
@@ -1565,7 +1565,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "highpass": 220,
+        "highpass": 300,
         "antiAlias": true
       }
     },
