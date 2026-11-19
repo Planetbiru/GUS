@@ -34,6 +34,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Patch properties** — description, voice count, channel count, master volume, data size, GM program/bank mapping
 - **Instrument management** — add, rename, reorder, and export individual instruments
 - **Sample bank management** — per-sample rate, root frequency, low/high frequency range, tune, balance, scale factor, envelope rates/offsets, tremolo/vibrato, and 8 sample mode flags
+- **Optional GUS tremolo generation** — preset settings are written to the PAT sample header; built-in melodic and drum presets leave tremolo disabled
 
 ### Sample Editor
 - **Waveform canvas** with zoom (up to 1000×), pan, and per-sample rendering
@@ -519,7 +520,8 @@ Supported melodic `preset` properties:
 | `noise` | For ordinary melodic presets, a blend amount for oscillator noise (white noise for one-shots; a repeating pink-noise cycle for loops). For `renderMode: "drum"`, an object with the same shape as the drum `noise` component. |
 | `fm` | Frequency modulation: `ratio` is modulator/carrier ratio and `index` is modulation depth. Looped FM is used only for integer ratios. |
 | `detune` | Array of voice detuning values in cents; ignored for loops. |
-| `vibrato` | `{ rate, depth, sweep }`: rate in hertz and depth as a pitch fraction. For loops it is encoded in the GUS header. |
+| `tremolo` | Optional `{ rate, sweep, depth }`: `rate` is in hertz (`0–25`, mapped to a GUS byte `0–255`), `sweep` is a raw GUS byte (`0–255`), and `depth` is normalized (`0–1`, mapped to a byte `0–255`). It is encoded in the PAT sample header, not applied to PCM; omitted settings produce zero values. No built-in melodic preset enables it. |
+| `vibrato` | `{ rate, sweep, depth }`: `rate` is in hertz, `sweep` is a GUS byte (`0–255`) for onset, and `depth` is a pitch fraction (clamped to `0–0.02` when mapped to GUS). Vibrato can be rendered into one-shot PCM; loop values are not currently written by the PAT encoder. |
 | `vibratoOnset` | Time in seconds for one-shot vibrato to reach full depth. |
 | `inharmonicity` | Inharmonic partial-stretch coefficient; ignored for loops. |
 | `attackNoise` | One-shot pink-noise attack transient with `amp` and `duration` in seconds. |
@@ -543,7 +545,9 @@ time-varying one-shot features such as pitch scoop, detune, inharmonicity, and
 per-partial decay to keep the cycle stable. The `env` attack, decay, and sustain
 are not applied to loop samples; `env.r` can determine the default tail length,
 while release behavior comes from the GUS patch envelope. `loopAttackNoise` is
-added before the loop region, and loop vibrato is stored in the GUS header.
+added before the loop region. If `tremolo` is configured, its settings are
+stored in the GUS sample header for compatible PAT players; the renderer does
+not modulate the generated PCM. No built-in preset currently configures it.
 
 For `renderMode: "drum"`, `freq` is the reference pitch and the generated MIDI
 pitch scales the tone frequencies and filter cutoffs. `tones` entries support
@@ -605,6 +609,7 @@ Drum `preset` properties are combined by `DrumRenderer`:
 | `bursts` | Array of noise-burst start times in seconds; each burst lasts about 12 ms. |
 | `highpass`, `lowpass` | Optional high-pass and low-pass cutoff frequencies in hertz. |
 | `fadeOut` | Fade-out length in seconds. If omitted, the renderer uses a short edge fade. |
+| `tremolo` | Optional `{ rate, sweep, depth }` with `rate` in hertz (`0–25`, mapped to a GUS byte `0–255`), `sweep` as a GUS byte (`0–255`), and normalized `depth` (`0–1`, mapped to a byte `0–255`). Encoded in the PAT sample header; omitted in built-in drum presets. |
 
 Tone, membrane, metallic, and noise components can be combined in one drum
 preset, along with impacts, clicks, and bursts. The renderer sums the

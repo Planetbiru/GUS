@@ -193,6 +193,24 @@ class ProjectPatchGenerator {
         }).render();
     }
 
+    const tremDef = preset && preset.tremolo;
+    let gusTremoloSweep = 0;
+    let gusTremoloRate  = 0;
+    let gusTremoloDepth = 0;
+    if (tremDef != null) {
+        if (typeof tremDef !== 'object' || Array.isArray(tremDef)
+            || [tremDef.sweep, tremDef.rate, tremDef.depth]
+                .some(value => value != null && !Number.isFinite(value))) {
+            throw new Error(`Invalid tremolo settings for instrument: ${name}.`);
+        }
+        // Preset rate is in hertz, depth is normalized, and sweep is a GUS byte.
+        const rateHz = Math.max(0, Math.min(25, tremDef.rate || 0));
+        const depthRatio = Math.max(0, Math.min(1, tremDef.depth || 0));
+        gusTremoloSweep = Math.round(Math.max(0, Math.min(255, tremDef.sweep || 0)));
+        gusTremoloRate = Math.round(rateHz * 255 / 25);
+        gusTremoloDepth = Math.round(depthRatio * 255);
+    }
+
     const vibDef = preset && preset.vibrato;
     let gusVibratoSweep = 0;
     let gusVibratoRate  = 0;
@@ -266,7 +284,9 @@ class ProjectPatchGenerator {
         envOffsets: useEnvelope
             ? (patchEnvelope ? patchEnvelope.offsets.slice() : [255, 255, 255, 0, 0, 0])
             : [255, 255, 255, 0, 0, 0],
-        tremoloSweep: 0, tremoloRate: 0, tremoloDepth: 0,
+        tremoloSweep: gusTremoloSweep,
+        tremoloRate: gusTremoloRate,
+        tremoloDepth: gusTremoloDepth,
         vibratoSweep: gusVibratoSweep, vibratoRate: gusVibratoRate, vibratoDepth: gusVibratoDepth,
         modes,
         scaleFreq: 60,
@@ -747,7 +767,8 @@ class GusPatchEncoder {
             name, pcm, loopStart, loopEnd, isLoop, rootFreq, sampleRate,
             sustainLoop = isLoop, envRates, envOffsets,
             lowFreq = rootFreq, highFreq = rootFreq,
-            sampleRateHzInHeader = false
+            sampleRateHzInHeader = false,
+            tremoloSweep = 0, tremoloRate = 0, tremoloDepth = 0
         } = options;
         const sourceSamples = options.samples || [{
             name,
@@ -763,6 +784,9 @@ class GusPatchEncoder {
             lowFreq,
             highFreq,
             sampleRateHzInHeader,
+            tremoloSweep,
+            tremoloRate,
+            tremoloDepth,
         }];
         if (sourceSamples.length === 0 || sourceSamples.length > 255) {
             throw new Error('A GUS patch must contain between 1 and 255 samples per layer.');
@@ -770,12 +794,21 @@ class GusPatchEncoder {
         const samples = sourceSamples.map(sample => ({
             ...sample,
             sampleRate: sample.sampleRate || sampleRate || 22050,
+            tremoloSweep: sample.tremoloSweep ?? 0,
+            tremoloRate: sample.tremoloRate ?? 0,
+            tremoloDepth: sample.tremoloDepth ?? 0,
         }));
         if (samples.some(sample =>
             !sample.pcm || !Number.isFinite(sample.rootFreq)
             || !Number.isFinite(sample.lowFreq) || !Number.isFinite(sample.highFreq)
         )) {
             throw new Error('Each GUS patch sample must include PCM and valid frequency values.');
+        }
+        if (samples.some(sample =>
+            [sample.tremoloSweep, sample.tremoloRate, sample.tremoloDepth]
+                .some(value => !Number.isInteger(value) || value < 0 || value > 255)
+        )) {
+            throw new Error('Tremolo sample parameters must be integer values from 0 to 255.');
         }
 
         const bps = 2;
@@ -847,7 +880,9 @@ class GusPatchEncoder {
                 u8(0); u8(0); u8(0); u8(0); u8(0); u8(0);
                 u8(255); u8(255); u8(255); u8(0); u8(0); u8(0);
             }
-            u8(0); u8(0); u8(0);
+            u8(sample.tremoloSweep);
+            u8(sample.tremoloRate);
+            u8(sample.tremoloDepth);
             u8(0); u8(0); u8(0);
             u8(0x01 | (sample.isLoop
                 ? 0x04 | 0x40 | ((sample.sustainLoop ?? sample.isLoop) ? 0x20 : 0x00)
