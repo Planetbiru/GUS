@@ -2919,7 +2919,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
-        "gain": 0.5425,
+        "gain": 0.31,
         "loop": true,
         "cycles": 22,
         "loopSkip": 8,
@@ -3007,7 +3007,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": -2
           }
         ],
-        "highpass": 300,
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -3020,7 +3020,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
-        "gain": 0.5425,
+        "gain": 0.31,
         "loop": true,
         "cycles": 22,
         "loopSkip": 8,
@@ -3108,7 +3108,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": -2
           }
         ],
-        "highpass": 300,
+        "highpass": 120,
         "antiAlias": true
       }
     },
