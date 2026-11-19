@@ -7236,32 +7236,86 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Gunshot",
       "shortName": "Gunshot",
-      "description": "Gunshot: a recognizable effect with a distinct texture.",
+      "description": "Gunshot: a sharp crack with a low boom and short tail.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "hammer",
+        "renderMode": "drum",
+        "pitchInvariant": true,
         "gain": 0.3,
-        "length": 4410,
-        "loop": false,
-        "env": {
-          "a": 0.001,
-          "d": 0.3,
-          "s": 0,
-          "r": 0.1
+        "freq": 441,
+        "duration": 0.75,
+        "membrane": {
+          "freq": 75,
+          "pitchDecay": 0.025,
+          "decay": 0.24,
+          "modes": [
+            {
+              "ratio": 1,
+              "startRatio": 3.8,
+              "amp": 0.9,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "startRatio": 2.4,
+              "amp": 0.4,
+              "decay": 0.65
+            },
+            {
+              "ratio": 2.136,
+              "startRatio": 1.8,
+              "amp": 0.18,
+              "decay": 0.4
+            }
+          ]
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
+        "impacts": [
+          {
+            "type": "white",
+            "amp": 0.9,
+            "duration": 0.035,
+            "decay": 0.008,
+            "bandpass": {
+              "center": 3200,
+              "q": 0.7
+            }
+          },
+          {
+            "type": "brown",
+            "amp": 0.65,
+            "delay": 0.004,
+            "duration": 0.16,
+            "decay": 0.055,
+            "bandpass": {
+              "center": 650,
+              "q": 0.7
+            }
+          },
+          {
+            "type": "brown",
+            "amp": 0.35,
+            "delay": 0.015,
+            "duration": 0.4,
+            "decay": 0.14,
+            "bandpass": {
+              "center": 180,
+              "q": 0.65
+            }
+          }
         ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.9,
-        "antiAlias": true
+        "noiseLayers": [
+          {
+            "type": "white",
+            "amp": 0.08,
+            "decay": 0.08,
+            "bandpass": {
+              "center": 1800,
+              "q": 0.75
+            }
+          }
+        ],
+        "lowpass": 9000,
+        "fadeOut": 0.2
       }
     }
   ]
