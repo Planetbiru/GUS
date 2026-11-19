@@ -3241,7 +3241,14 @@ class GusPatchApp {
         };
     }
 
-    async buildMidiPatchDataInChunks(isDrum, program, preset, state, shouldCancel) {
+    async buildMidiPatchDataInChunks(
+        isDrum,
+        program,
+        preset,
+        state,
+        shouldCancel = () => false,
+        onZoneRendered = null
+    ) {
         const ranges = isDrum
             ? [null]
             : ProjectPatchGenerator.getPitchRanges(false, program);
@@ -3258,6 +3265,7 @@ class GusPatchApp {
             result.name = zoneData.name;
             result.zones.push(...zoneData.zones);
             if (zoneData.preview) result.preview = zoneData.preview;
+            if (onZoneRendered) onZoneRendered(zoneData, index, ranges.length);
             await new Promise(resolve => setTimeout(resolve, 0));
         }
         if (shouldCancel()) throw new Error('Preset rendering was cancelled.');
@@ -4463,91 +4471,158 @@ class GusPatchApp {
         this.log(`✓ ${fname} — ${buf.byteLength.toLocaleString()} bytes`, 'ok');
     }
 
+    exportZoneCount() {
+        return this.lib.melodic.reduce(
+            (total, _instrument, program) =>
+                total + ProjectPatchGenerator.getPitchRanges(false, program).length,
+            this.lib.drums.length
+        );
+    }
+
+    updateExportProgress(percent, label) {
+        const value = Math.max(0, Math.min(100, Math.round(percent)));
+        const progressBar = this.$('progressBar');
+        const progressTrack = this.$('progressTrack');
+        progressBar.style.width = `${value}%`;
+        progressTrack.setAttribute('aria-valuenow', String(value));
+        progressTrack.setAttribute('aria-valuetext', `${value}% — ${label}`);
+        this.$('exportProgressLabel').textContent = label;
+    }
+
+    async yieldForExportPaint() {
+        await new Promise(resolve => setTimeout(resolve, 32));
+    }
+
+    finishExportProgress() {
+        this.$('progressWrap').classList.remove('show');
+        this.$('progressBar').style.width = '0%';
+        this.$('progressTrack').setAttribute('aria-valuenow', '0');
+        this.$('progressTrack').removeAttribute('aria-valuetext');
+        this.$('exportProgressLabel').textContent = '';
+    }
+
     async downloadSoundFont() {
         this.saveCurrentGeneratorState();
         const button = this.$('btnSoundFont');
         const progress = this.$('progressWrap');
-        const progressBar = this.$('progressBar');
         const samples = [];
         const instruments = [];
         const presets = [];
         const drumZones = [];
-        const total = 128 + this.lib.drums.length;
+        const totalZones = this.exportZoneCount();
+        let completedZones = 0;
         button.disabled = true;
         progress.classList.add('show');
-        progressBar.style.width = '0%';
+        this.updateExportProgress(0, 'Preparing SoundFont export...');
 
         try {
+            await this.yieldForExportPaint();
             this.log('Rendering melodic SoundFont samples...', 'info');
             for (let program = 0; program < this.lib.melodic.length; program++) {
                 const instrument = this.lib.melodic[program];
-                const {zones: sampleZones} = this.buildMidiPatchData(false, program);
                 const presetZones = [];
-                for (let zoneIndex = 0; zoneIndex < sampleZones.length; zoneIndex++) {
-                    const zone = sampleZones[zoneIndex];
-                    const {sample, keyRange, rootKey} = zone;
-                    const sampleIndex = samples.length;
-                    samples.push({
-                        name: sample.name,
-                        pcm: SoundFontExporter.toInt16(sample.pcm),
-                        sampleRate: sample.sampleRate,
-                        rootKey,
-                        loop: sample.isLoop,
-                        loopStart: sample.loopStart,
-                        loopEnd: sample.loopEnd,
-                    });
-                    const instrumentIndex = instruments.length;
-                    instruments.push({
-                        name: `${instrument.name} ${zoneIndex + 1}`,
-                        sampleIndex,
-                        rootKey,
-                        loop: sample.isLoop,
-                    });
-                    presetZones.push({instrumentIndex, keyRange});
-                }
-                presets.push({
-                    name: instrument.name,
+                const state = this.getInstrumentGeneratorState('melodic', program);
+                const preset = this.getInstrumentPreset('melodic', program);
+                await this.buildMidiPatchDataInChunks(
+                    false,
                     program,
-                    bank: 0,
-                    zones: presetZones,
-                });
-                progressBar.style.width = `${Math.round((program + 1) / total * 100)}%`;
-                await new Promise(resolve => setTimeout(resolve, 0));
+                    preset,
+                    state,
+                    () => false,
+                    (zoneData, zoneIndex, zoneCount) => {
+                        for (const zone of zoneData.zones) {
+                            const {sample, keyRange, rootKey} = zone;
+                            const sampleIndex = samples.length;
+                            samples.push({
+                                name: sample.name,
+                                pcm: SoundFontExporter.toInt16(sample.pcm),
+                                sampleRate: sample.sampleRate,
+                                rootKey,
+                                loop: sample.isLoop,
+                                loopStart: sample.loopStart,
+                                loopEnd: sample.loopEnd,
+                            });
+                            const instrumentIndex = instruments.length;
+                            instruments.push({
+                                name: `${instrument.name} ${zoneIndex + 1}`,
+                                sampleIndex,
+                                rootKey,
+                                loop: sample.isLoop,
+                            });
+                            presetZones.push({instrumentIndex, keyRange});
+                        }
+                        completedZones++;
+                        this.updateExportProgress(
+                            completedZones / totalZones * 70,
+                            `Rendering melodic ${String(program + 1).padStart(3, '0')} — ${instrument.name}, zone ${zoneIndex + 1}/${zoneCount}`
+                        );
+                    }
+                );
+                presets.push({name: instrument.name, program, bank: 0, zones: presetZones});
             }
 
             this.log(`Rendering ${this.lib.drums.length} drum SoundFont samples...`, 'info');
             for (let index = 0; index < this.lib.drums.length; index++) {
                 const drum = this.lib.drums[index];
-                const {zones: sampleZones} = this.buildMidiPatchData(true, drum.note);
-                const [{sample, keyRange, rootKey}] = sampleZones;
-                const sampleIndex = samples.length;
-                samples.push({
-                    name: drum.name,
-                    pcm: SoundFontExporter.toInt16(sample.pcm),
-                    sampleRate: sample.sampleRate,
-                    rootKey,
-                    loop: sample.isLoop,
-                    loopStart: sample.loopStart,
-                    loopEnd: sample.loopEnd,
-                });
-                const instrumentIndex = instruments.length;
-                instruments.push({name: drum.name, sampleIndex, rootKey, loop: sample.isLoop});
-                drumZones.push({instrumentIndex, keyRange});
-                progressBar.style.width = `${Math.round((128 + index + 1) / total * 100)}%`;
-                if (index % 8 === 7) await new Promise(resolve => setTimeout(resolve, 0));
+                const drumState = this.getInstrumentGeneratorState('drum', drum.note);
+                const drumPreset = this.getInstrumentPreset('drum', drum.note);
+                await this.buildMidiPatchDataInChunks(
+                    true,
+                    drum.note,
+                    drumPreset,
+                    drumState,
+                    () => false,
+                    zoneData => {
+                        for (const zone of zoneData.zones) {
+                            const {sample, keyRange, rootKey} = zone;
+                            const sampleIndex = samples.length;
+                            samples.push({
+                                name: drum.name,
+                                pcm: SoundFontExporter.toInt16(sample.pcm),
+                                sampleRate: sample.sampleRate,
+                                rootKey,
+                                loop: sample.isLoop,
+                                loopStart: sample.loopStart,
+                                loopEnd: sample.loopEnd,
+                            });
+                            const instrumentIndex = instruments.length;
+                            instruments.push({
+                                name: drum.name,
+                                sampleIndex,
+                                rootKey,
+                                loop: sample.isLoop,
+                            });
+                            drumZones.push({instrumentIndex, keyRange});
+                        }
+                        completedZones++;
+                        this.updateExportProgress(
+                            completedZones / totalZones * 70,
+                            `Rendering drum ${String(drum.note).padStart(3, '0')} — ${drum.name}`
+                        );
+                    }
+                );
             }
 
             presets.push({name: 'GM Drums', program: 0, bank: 128, zones: drumZones});
             const projectName = this.projects.find(project => project.id === this.currentProjectId)?.name || 'GUS Project';
-            const soundFont = SoundFontExporter.encode({name: projectName, samples, instruments, presets});
+            this.updateExportProgress(70, 'Packing SoundFont sample data...');
+            await this.yieldForExportPaint();
+            const soundFont = await SoundFontExporter.encodeAsync(
+                {name: projectName, samples, instruments, presets},
+                percent => this.updateExportProgress(
+                    70 + percent * 0.29,
+                    `Packing SoundFont data — ${Math.round(percent)}%`
+                )
+            );
             const filename = `${this.getProjectZipFilename().replace(/\.zip$/i, '')}.sf2`;
+            this.updateExportProgress(100, 'Download ready.');
             FileDownloader.download(new Blob([soundFont], {type: 'application/octet-stream'}), filename);
             this.log(`SoundFont exported: ${filename} (${(soundFont.byteLength / 1024 / 1024).toFixed(1)} MB).`, 'ok');
+            await this.yieldForExportPaint();
         } catch (error) {
             this.log(`SoundFont export failed: ${error.message}`, 'err');
         } finally {
-            progress.classList.remove('show');
-            progressBar.style.width = '0%';
+            this.finishExportProgress();
             button.disabled = false;
         }
     }
@@ -4558,59 +4633,102 @@ class GusPatchApp {
             return;
         }
         this.saveCurrentGeneratorState();
-        const btn = this.$('btnZip');
-        btn.disabled = true;
-        this.$('progressWrap').classList.add('show');
+        const button = this.$('btnZip');
+        const progress = this.$('progressWrap');
         const zip = new JSZip();
         const sampleRates = new Set();
-        const totalJobs = 128 + this.lib.drums.length;
+        const totalZones = this.exportZoneCount();
+        let completedZones = 0;
+        button.disabled = true;
+        progress.classList.add('show');
+        this.updateExportProgress(0, 'Preparing ZIP export...');
 
-        // --- 128 melodic ---
-        this.log('Building 128 melodic patches...', 'info');
-        const melodicNames = [];   // ← simpan nama file untuk timidity.cfg
-        for (let i = 0; i < 128; i++) {
-            const {name} = this.lib.melodic[i];
-            const settings = this.getInstrumentGeneratorState('melodic', i);
-            sampleRates.add(settings.sampleRate);
-            const buf = this.buildMidiPatch(false, i);
-            const fname = `${String(i).padStart(3, '0')}_${this.slugify(name)}.pat`;
-            zip.folder('melodic').file(fname, buf);
-            melodicNames.push(fname);
-            this.$('progressBar').style.width = ((i + 1) / totalJobs * 100) + '%';
-            if (i % 16 === 0) await new Promise(r => setTimeout(r, 0));
+        try {
+            await this.yieldForExportPaint();
+            this.log('Building 128 melodic patches...', 'info');
+            const melodicNames = [];
+            for (let i = 0; i < 128; i++) {
+                const {name} = this.lib.melodic[i];
+                const state = this.getInstrumentGeneratorState('melodic', i);
+                sampleRates.add(state.sampleRate);
+                const patchData = await this.buildMidiPatchDataInChunks(
+                    false,
+                    i,
+                    this.getInstrumentPreset('melodic', i),
+                    state,
+                    () => false,
+                    (_zoneData, zoneIndex, zoneCount) => {
+                        completedZones++;
+                        this.updateExportProgress(
+                            completedZones / totalZones * 85,
+                            `Building melodic ${String(i + 1).padStart(3, '0')} — ${name}, zone ${zoneIndex + 1}/${zoneCount}`
+                        );
+                    }
+                );
+                const buffer = GusPatchEncoder.encode({
+                    name: patchData.name,
+                    samples: patchData.zones.map(({sample}) => sample),
+                });
+                const filename = `${String(i).padStart(3, '0')}_${this.slugify(name)}.pat`;
+                zip.folder('melodic').file(filename, buffer);
+                melodicNames.push(filename);
+            }
+
+            this.log(`Building ${this.lib.drums.length} drum patches...`, 'info');
+            const drumNames = [];
+            for (let i = 0; i < this.lib.drums.length; i++) {
+                const {note, name} = this.lib.drums[i];
+                const state = this.getInstrumentGeneratorState('drum', note);
+                sampleRates.add(state.sampleRate);
+                const patchData = await this.buildMidiPatchDataInChunks(
+                    true,
+                    note,
+                    this.getInstrumentPreset('drum', note),
+                    state,
+                    () => false,
+                    () => {
+                        completedZones++;
+                        this.updateExportProgress(
+                            completedZones / totalZones * 85,
+                            `Building drum ${String(note).padStart(3, '0')} — ${name}`
+                        );
+                    }
+                );
+                const buffer = GusPatchEncoder.encode({
+                    name: patchData.name,
+                    samples: patchData.zones.map(({sample}) => sample),
+                });
+                const filename = `drum_${String(note).padStart(2, '0')}_${this.slugify(name)}.pat`;
+                zip.folder('drums').file(filename, buffer);
+                drumNames.push({note, fname: filename});
+            }
+
+            this.log('Creating timidity.cfg and README...', 'info');
+            const sampleRateLabel = sampleRates.size === 1
+                ? `${sampleRates.values().next().value} Hz`
+                : 'Varies by instrument state';
+            zip.file('timidity.cfg', this._buildTimidityCfg(melodicNames, drumNames, sampleRateLabel));
+            zip.file('README.txt', this._buildReadme(sampleRateLabel));
+
+            this.log('Compressing ZIP archive...', 'info');
+            const blob = await zip.generateAsync(
+                {type: 'blob', compression: 'DEFLATE'},
+                metadata => this.updateExportProgress(
+                    85 + metadata.percent * 0.14,
+                    `Compressing ZIP archive — ${Math.round(metadata.percent)}%`
+                )
+            );
+            const filename = this.getProjectZipFilename();
+            this.updateExportProgress(100, 'Download ready.');
+            FileDownloader.download(blob, filename);
+            this.log(`✓ Complete: ${(blob.size / 1024).toFixed(1)} KB`, 'ok');
+            await this.yieldForExportPaint();
+        } catch (error) {
+            this.log(`ZIP export failed: ${error.message}`, 'err');
+        } finally {
+            this.finishExportProgress();
+            button.disabled = false;
         }
-
-        // --- drum presets ---
-        this.log(`Building ${this.lib.drums.length} drum patches...`, 'info');
-        const drumNames = [];      // ← simpan note + nama file untuk timidity.cfg
-        for (let i = 0; i < this.lib.drums.length; i++) {
-            const {note, name} = this.lib.drums[i];
-            const settings = this.getInstrumentGeneratorState('drum', note);
-            sampleRates.add(settings.sampleRate);
-            const buf = this.buildMidiPatch(true, note);
-            const fname = `drum_${String(note).padStart(2, '0')}_${this.slugify(name)}.pat`;
-            zip.folder('drums').file(fname, buf);
-            drumNames.push({ note, fname });
-            this.$('progressBar').style.width = ((128 + i + 1) / totalJobs * 100) + '%';
-            if (i % 8 === 0) await new Promise(r => setTimeout(r, 0));
-        }
-
-        // --- timidity.cfg + README ---
-        this.log('Creating timidity.cfg and README...', 'info');
-        const sampleRateLabel = sampleRates.size === 1
-            ? `${sampleRates.values().next().value} Hz`
-            : 'Varies by instrument state';
-        zip.file('timidity.cfg', this._buildTimidityCfg(melodicNames, drumNames, sampleRateLabel));
-        zip.file('README.txt',   this._buildReadme(sampleRateLabel));
-
-        this.log('Creating ZIP archive...', 'info');
-        const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-        const filename = this.getProjectZipFilename();
-        FileDownloader.download(blob, filename);
-        this.log(`✓ Complete: ${(blob.size / 1024).toFixed(1)} KB`, 'ok');
-
-        this.$('progressWrap').classList.remove('show');
-        btn.disabled = false;
     }
 
     _buildTimidityCfg(melodicNames, drumNames, sampleRateLabel) {

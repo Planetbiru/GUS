@@ -7,6 +7,141 @@ class SoundFontExporter {
         return samples;
     }
 
+    static async encodeAsync({name, samples, instruments, presets}, onProgress = () => {}) {
+        if (samples.length === 0 || instruments.length === 0 || presets.length === 0) {
+            throw new Error('Cannot create an empty SoundFont.');
+        }
+
+        const yieldToBrowser = () => new Promise(resolve => setTimeout(resolve, 0));
+        const sampleHeaders = [];
+        let totalSamplePoints = 0;
+        for (const sample of samples) {
+            const start = totalSamplePoints;
+            const end = start + sample.pcm.length;
+            const validLoop = sample.loop && sample.loopEnd > sample.loopStart;
+            sampleHeaders.push({
+                ...sample,
+                start,
+                end,
+                startLoop: validLoop ? start + sample.loopStart : start,
+                endLoop: validLoop ? start + sample.loopEnd : start,
+            });
+            totalSamplePoints = end;
+        }
+
+        const sampleData = new Int16Array(totalSamplePoints + 46);
+        for (let index = 0; index < sampleHeaders.length; index++) {
+            const sample = sampleHeaders[index];
+            sampleData.set(sample.pcm, sample.start);
+            if (index % 8 === 7 || index === sampleHeaders.length - 1) {
+                onProgress((index + 1) / sampleHeaders.length * 50);
+                await yieldToBrowser();
+            }
+        }
+
+        const copyChunkAsync = async (id, data, startPercent, endPercent) => {
+            const paddedLength = data.length + (data.length & 1);
+            const result = new Uint8Array(8 + paddedLength);
+            result.set(this.text(id), 0);
+            new DataView(result.buffer).setUint32(4, data.length, true);
+            const chunkSize = 1024 * 1024;
+            if (data.length === 0) {
+                onProgress(endPercent);
+                return result;
+            }
+            for (let offset = 0; offset < data.length; offset += chunkSize) {
+                const end = Math.min(data.length, offset + chunkSize);
+                result.set(data.subarray(offset, end), 8 + offset);
+                onProgress(startPercent + (end / data.length) * (endPercent - startPercent));
+                await yieldToBrowser();
+            }
+            return result;
+        };
+        const joinAsync = async (parts, startPercent, endPercent) => {
+            const length = parts.reduce((total, part) => total + part.length, 0);
+            const result = new Uint8Array(length);
+            let offset = 0;
+            const chunkSize = 1024 * 1024;
+            for (const part of parts) {
+                for (let partOffset = 0; partOffset < part.length; partOffset += chunkSize) {
+                    const end = Math.min(part.length, partOffset + chunkSize);
+                    result.set(part.subarray(partOffset, end), offset + partOffset);
+                    onProgress(startPercent + ((offset + end) / length) * (endPercent - startPercent));
+                    await yieldToBrowser();
+                }
+                offset += part.length;
+            }
+            return result;
+        };
+        const listAsync = async (type, chunks, startPercent, endPercent) => {
+            const content = await joinAsync([this.text(type), ...chunks], startPercent, endPercent);
+            return copyChunkAsync('LIST', content, endPercent, endPercent);
+        };
+
+        const sampleChunk = await copyChunkAsync(
+            'smpl',
+            new Uint8Array(sampleData.buffer),
+            50,
+            60
+        );
+        const presetHeaders = [];
+        const presetBags = [];
+        const presetGenerators = [];
+        for (const preset of presets) {
+            presetHeaders.push(this.presetHeader(preset, presetBags.length));
+            for (const zone of preset.zones) {
+                presetBags.push(this.bag(presetGenerators.length));
+                if (zone.keyRange) {
+                    presetGenerators.push(this.generator(43, zone.keyRange[0] | (zone.keyRange[1] << 8)));
+                }
+                presetGenerators.push(this.generator(41, zone.instrumentIndex));
+            }
+        }
+        presetBags.push(this.bag(presetGenerators.length));
+        presetHeaders.push(this.presetHeader({name: 'EOP', program: 0, bank: 0}, presetBags.length - 1));
+
+        const instrumentHeaders = [];
+        const instrumentBags = [];
+        const instrumentGenerators = [];
+        for (const instrument of instruments) {
+            instrumentHeaders.push(this.instrumentHeader(instrument.name, instrumentBags.length));
+            instrumentBags.push(this.bag(instrumentGenerators.length));
+            instrumentGenerators.push(this.generator(54, instrument.loop ? 1 : 0));
+            instrumentGenerators.push(this.generator(58, instrument.rootKey));
+            instrumentGenerators.push(this.generator(53, instrument.sampleIndex));
+        }
+        instrumentBags.push(this.bag(instrumentGenerators.length));
+        instrumentHeaders.push(this.instrumentHeader('EOI', instrumentBags.length - 1));
+
+        const sampleHeaderRecords = sampleHeaders.map(sample => this.sampleHeader(sample));
+        sampleHeaderRecords.push(this.sampleHeader({name: 'EOS'}));
+        const info = this.list('INFO', [
+            this.chunk('ifil', this.version(2, 1)),
+            this.chunk('isng', this.terminated('EMU8000')),
+            this.chunk('INAM', this.terminated(name || 'GUS Patch Generator SoundFont')),
+            this.chunk('ISFT', this.terminated('GUS Patch Generator')),
+        ]);
+        const sdta = await listAsync('sdta', [sampleChunk], 60, 70);
+        const pdta = this.list('pdta', [
+            this.chunk('phdr', this.join(presetHeaders)),
+            this.chunk('pbag', this.join(presetBags)),
+            this.chunk('pmod', new Uint8Array(10)),
+            this.chunk('pgen', this.join(presetGenerators)),
+            this.chunk('inst', this.join(instrumentHeaders)),
+            this.chunk('ibag', this.join(instrumentBags)),
+            this.chunk('imod', new Uint8Array(10)),
+            this.chunk('igen', this.join(instrumentGenerators)),
+            this.chunk('shdr', this.join(sampleHeaderRecords)),
+        ]);
+        const body = await joinAsync(
+            [this.text('sfbk'), info, sdta, pdta],
+            70,
+            85
+        );
+        const result = await copyChunkAsync('RIFF', body, 85, 100);
+        return result.buffer;
+    }
+
     static encode({name, samples, instruments, presets}) {
         if (samples.length === 0 || instruments.length === 0 || presets.length === 0) {
             throw new Error('Cannot create an empty SoundFont.');
