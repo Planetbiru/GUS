@@ -940,7 +940,7 @@ class MelodicRenderer {
                 || !Number.isFinite(renderFreq) || renderFreq <= 0) {
                 throw new Error('One-shot melodic presets require a positive reference frequency.');
             }
-            const frequencyScale = renderFreq / referenceFreq;
+            const frequencyScale = p.pitchInvariant ? 1 : renderFreq / referenceFreq;
             const preset = {
                 ...p,
                 duration: o.duration ?? p.duration,
@@ -965,7 +965,54 @@ class MelodicRenderer {
             if (Number.isFinite(preset.highpass)) preset.highpass *= frequencyScale;
             if (Number.isFinite(preset.lowpass)) preset.lowpass *= frequencyScale;
             const rendered = new DrumRenderer(preset, SR).render();
-            return { ...rendered, naturalFreq: renderFreq };
+            const loop = p.loop === true;
+            let pcm = rendered.pcm;
+            let loopStart = 0;
+            let loopEnd = rendered.length;
+            if (loop) {
+                loopStart = Math.max(0, Math.min(
+                    rendered.length - 1,
+                    Math.round((p.loopStartSeconds || 0) * SR)
+                ));
+                loopEnd = Math.max(loopStart + 1, Math.min(
+                    rendered.length,
+                    Math.round((p.loopEndSeconds || p.duration) * SR)
+                ));
+                const crossfadeLength = Math.min(
+                    Math.round((p.loopCrossfadeSeconds || 0) * SR),
+                    Math.floor((loopEnd - loopStart) / 4)
+                );
+                if (crossfadeLength > 1) {
+                    // Overlap the loop tail into its head to keep the sustain seam smooth.
+                    const loopPcm = new Float32Array(loopEnd - loopStart - crossfadeLength);
+                    for (let i = 0; i < crossfadeLength; i++) {
+                        const mix = i / (crossfadeLength - 1);
+                        const tail = rendered.pcm[loopEnd - crossfadeLength + i];
+                        const head = rendered.pcm[loopStart + i];
+                        loopPcm[i] = tail * (1 - mix) + head * mix;
+                    }
+                    loopPcm.set(
+                        rendered.pcm.subarray(loopStart + crossfadeLength, loopEnd - crossfadeLength),
+                        crossfadeLength
+                    );
+                    pcm = new Float32Array(
+                        loopStart + loopPcm.length + rendered.length - loopEnd
+                    );
+                    pcm.set(rendered.pcm.subarray(0, loopStart));
+                    pcm.set(loopPcm, loopStart);
+                    pcm.set(rendered.pcm.subarray(loopEnd), loopStart + loopPcm.length);
+                    loopEnd = loopStart + loopPcm.length;
+                }
+            }
+            return {
+                ...rendered,
+                pcm,
+                length: pcm.length,
+                loop,
+                loopStart: loop ? loopStart : rendered.loopStart,
+                loopEnd: loop ? loopEnd : rendered.loopEnd,
+                naturalFreq: renderFreq,
+            };
         }
 
         let length, baseFreq, loopStart = 0, loopEnd = 0, cs = 50;
@@ -1381,7 +1428,11 @@ class DrumRenderer {
     _noise(t, noiseBuf, cfg) {
         if (!cfg || !cfg.amp) return 0;
         const idx = Math.min(noiseBuf.length - 1, Math.floor(t * this.SR));
-        return noiseBuf[idx] * cfg.amp * Math.exp(-t / (cfg.decay || 0.1));
+        const attackProgress = Number.isFinite(cfg.attack) && cfg.attack > 0
+            ? Math.min(1, t / cfg.attack)
+            : 1;
+        const attack = attackProgress * attackProgress * (3 - 2 * attackProgress);
+        return noiseBuf[idx] * cfg.amp * attack * Math.exp(-t / (cfg.decay || 0.1));
     }
 
     _impact(t, noiseBuf, cfg) {

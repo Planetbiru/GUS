@@ -6951,6 +6951,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "renderMode": "drum",
+        "pitchInvariant": true,
         "gain": 0.3,
         "freq": 441,
         "duration": 0.15,
@@ -6996,29 +6997,29 @@ var GUS_MELODIC_PRESETS = {
       "description": "Breath Noise: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
+        "renderMode": "drum",
+        "pitchInvariant": true,
+        "loop": true,
+        "sustainLoop": true,
+        "loopStartSeconds": 0.12,
+        "loopEndSeconds": 0.82,
+        "loopCrossfadeSeconds": 0.02,
         "gain": 0.3,
-        "length": 3307,
-        "loop": false,
-        "env": {
-          "a": 0.05,
-          "d": 0.2,
-          "s": 0,
-          "r": 0.1
+        "freq": 441,
+        "duration": 1,
+        "noise": {
+          "amp": 0.85,
+          "attack": 0.1,
+          "decay": 100,
+          "type": "pink",
+          "bandpass": {
+            "center": 3200,
+            "q": 0.7
+          }
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
-        ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.8,
-        "antiAlias": true
+        "highpass": 450,
+        "lowpass": 9000,
+        "fadeOut": 0.18
       }
     },
     {
@@ -7029,29 +7030,24 @@ var GUS_MELODIC_PRESETS = {
       "description": "Seashore: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
+        "renderMode": "drum",
+        "pitchInvariant": true,
         "gain": 0.3,
-        "length": 8820,
-        "loop": false,
-        "env": {
-          "a": 0.5,
-          "d": 1.5,
-          "s": 0.5,
-          "r": 0.5
+        "freq": 441,
+        "duration": 1.2,
+        "noise": {
+          "amp": 0.9,
+          "attack": 0.3,
+          "decay": 1,
+          "type": "pink",
+          "bandpass": {
+            "center": 2400,
+            "q": 0.45
+          }
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
-        ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.9,
-        "antiAlias": true
+        "highpass": 180,
+        "lowpass": 8000,
+        "fadeOut": 0.25
       }
     },
     {
@@ -7062,28 +7058,36 @@ var GUS_MELODIC_PRESETS = {
       "description": "Bird Tweet: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "sine",
-        "length": 4410,
-        "loop": false,
-        "env": {
-          "a": 0.01,
-          "d": 0.3,
-          "s": 0.2,
-          "r": 0.2
-        },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
+        "renderMode": "drum",
+        "pitchInvariant": true,
+        "loop": true,
+        "sustainLoop": true,
+        "gain": 0.45,
+        "freq": 441,
+        "duration": 0.32,
+        "tones": [
+          {
+            "fStart": 1750,
+            "fPeak": 3150,
+            "fEnd": 2250,
+            "riseTime": 0.035,
+            "fallTime": 0.075,
+            "decay": 0.06,
+            "amp": 0.7
+          }
         ],
-        "fm": {
-          "ratio": 4,
-          "index": 5
+        "noise": {
+          "amp": 0.12,
+          "decay": 0.045,
+          "type": "pink",
+          "bandpass": {
+            "center": 6200,
+            "q": 1.2
+          }
         },
-        "noise": 0.2,
-        "antiAlias": true
+        "highpass": 1000,
+        "lowpass": 9000,
+        "fadeOut": 0.08
       }
     },
     {
@@ -7091,37 +7095,74 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Telephone",
       "shortName": "Telephone",
-      "description": "Telephone: a recognizable effect with a distinct texture.",
+      "description": "Telephone: a classic dual-tone bell ring.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "square",
+        "renderMode": "drum",
+        "pitchInvariant": true,
         "gain": 0.3,
-        "length": 6615,
-        "loop": false,
-        "env": {
-          "a": 0.05,
-          "d": 0.5,
-          "s": 0.5,
-          "r": 0.4
-        },
-        "harm": [
-          1,
-          0,
-          0.5,
-          0,
-          0.25
+        "freq": 441,
+        "duration": 1.1,
+        "tones": [
+          {
+            "fStart": 550,
+            "fEnd": 550,
+            "pitchDecay": 20,
+            "decay": 1.5,
+            "amp": 0.9
+          },
+          {
+            "fStart": 600,
+            "fEnd": 600,
+            "pitchDecay": 20,
+            "decay": 1.5,
+            "amp": 0.9
+          },
+          {
+            "fStart": 1100,
+            "fEnd": 1100,
+            "pitchDecay": 20,
+            "decay": 1,
+            "amp": 0.22
+          },
+          {
+            "fStart": 1200,
+            "fEnd": 1200,
+            "pitchDecay": 20,
+            "decay": 1,
+            "amp": 0.18
+          },
+          {
+            "fStart": 1650,
+            "fEnd": 1650,
+            "pitchDecay": 20,
+            "decay": 0.8,
+            "amp": 0.12
+          },
+          {
+            "fStart": 1800,
+            "fEnd": 1800,
+            "pitchDecay": 20,
+            "decay": 0.8,
+            "amp": 0.1
+          },
+          {
+            "fStart": 2200,
+            "fEnd": 2200,
+            "pitchDecay": 20,
+            "decay": 0.6,
+            "amp": 0.06
+          },
+          {
+            "fStart": 2400,
+            "fEnd": 2400,
+            "pitchDecay": 20,
+            "decay": 0.6,
+            "amp": 0.05
+          }
         ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.2,
-        "vibrato": {
-          "rate": 15,
-          "depth": 0.05,
-          "sweep": 15
-        },
-        "antiAlias": true
+        "lowpass": 6500,
+        "fadeOut": 0.18
       }
     },
     {
@@ -7195,32 +7236,86 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Gunshot",
       "shortName": "Gunshot",
-      "description": "Gunshot: a recognizable effect with a distinct texture.",
+      "description": "Gunshot: a sharp crack with a low boom and short tail.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "hammer",
-        "gain": 0.3,
-        "length": 4410,
-        "loop": false,
-        "env": {
-          "a": 0.001,
-          "d": 0.3,
-          "s": 0,
-          "r": 0.1
+        "renderMode": "drum",
+        "pitchInvariant": true,
+        "gain": 0.83,
+        "freq": 441,
+        "duration": 0.75,
+        "membrane": {
+          "freq": 70,
+          "pitchDecay": 0.025,
+          "decay": 0.24,
+          "modes": [
+            {
+              "ratio": 1,
+              "startRatio": 3.8,
+              "amp": 0.9,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "startRatio": 2.4,
+              "amp": 0.4,
+              "decay": 0.65
+            },
+            {
+              "ratio": 2.136,
+              "startRatio": 1.8,
+              "amp": 0.18,
+              "decay": 0.4
+            }
+          ]
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
+        "impacts": [
+          {
+            "type": "white",
+            "amp": 0.9,
+            "duration": 0.035,
+            "decay": 0.008,
+            "bandpass": {
+              "center": 3200,
+              "q": 0.7
+            }
+          },
+          {
+            "type": "brown",
+            "amp": 0.65,
+            "delay": 0.004,
+            "duration": 0.16,
+            "decay": 0.055,
+            "bandpass": {
+              "center": 650,
+              "q": 0.7
+            }
+          },
+          {
+            "type": "brown",
+            "amp": 0.35,
+            "delay": 0.015,
+            "duration": 0.4,
+            "decay": 0.14,
+            "bandpass": {
+              "center": 180,
+              "q": 0.65
+            }
+          }
         ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.9,
-        "antiAlias": true
+        "noiseLayers": [
+          {
+            "type": "white",
+            "amp": 0.08,
+            "decay": 0.08,
+            "bandpass": {
+              "center": 1800,
+              "q": 0.75
+            }
+          }
+        ],
+        "lowpass": 9000,
+        "fadeOut": 0.2
       }
     }
   ]
