@@ -321,6 +321,14 @@
 
                 <canvas id="waveCanvas" width="800" height="128"></canvas>
 
+                <div class="waveform-zoom-controls" role="group" aria-label="Vertical waveform zoom">
+                    <button id="btnWaveZoomIn" type="button" aria-label="Zoom In" title="Zoom In">Zoom In</button>
+                    <button id="btnWaveZoomOut" type="button" aria-label="Zoom Out" title="Zoom Out">Zoom Out</button>
+                    <button id="btnWaveZoomReset" type="button" aria-label="Reset vertical zoom"
+                        title="Reset vertical zoom">Reset</button>
+                    <span id="waveformZoomLevel" aria-live="polite">1×</span>
+                </div>
+
                 <div class="actions">
                     <button id="btnPlayNote" class="primary button-with-icon">
                         <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">

@@ -22,7 +22,7 @@ Use the **Melodic** and **Drum Kit** tabs in the instrument list. Search by inst
 
 Press **F2** anywhere in the app to focus the instrument search and select its current text. The search query is restored after a page reload.
 
-For melodic instruments, choose a base waveform, sample rate, root frequency, and duration. Waveform selection is unavailable for drums. Available harmonic profiles include sine, triangle, square, saw, pulse, organ, flute, clarinet, reed, string, bell, pluck, hammer, bow, and breath. The waveform canvas shows the generated preview.
+For melodic instruments, choose a base waveform, sample rate, root frequency, and duration. Waveform selection is unavailable for drums. Available harmonic profiles include sine, triangle, square, saw, pulse, organ, flute, clarinet, reed, string, bell, pluck, hammer, bow, and breath. The waveform canvas shows the generated preview. Use **Zoom In** and **Zoom Out** to double or halve the vertical scale (1× to 64×); **Reset** returns it to 1×. The zoom level is saved across instrument changes and page reloads.
 
 - **Play C4** previews the selected instrument. For a drum, it plays the selected drum sound.
 - **Scale** plays a short scale for melodic instruments or a sequence of drum sounds for a drum selection.

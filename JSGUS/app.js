@@ -101,6 +101,7 @@ class FileDownloader {
 // ----------------------------------------------------------------
 const PATCH_CACHE_PREFIX = 'pig:';
 const PATCH_CACHE_ENABLED_STORAGE_KEY = 'gus-patch-generator-patch-cache-enabled-v1';
+const WAVEFORM_VERTICAL_ZOOM_STORAGE_KEY = 'gus-patch-generator-waveform-vertical-zoom-v1';
 
 class GusPatchApp {
     constructor(library) {
@@ -159,6 +160,7 @@ class GusPatchApp {
         this.liveWaveformFrame = null;
         this.liveWaveformPaused = false;
         this.liveWaveformMode = 'amplitude';
+        this.waveformVerticalZoom = 1;
         this.patchCacheEnabled = true;
         this.currentType = null;
         this.currentMidi = null;
@@ -383,6 +385,7 @@ class GusPatchApp {
     async init() {
         this.logEl = this.$('log');
         this.patchCacheEnabled = this.loadPatchCachePreference();
+        this.restoreWaveformVerticalZoom();
         await this.initializeProjects();
         this.buildSidebar();
         this.restoreInstrumentSearch();
@@ -702,6 +705,9 @@ class GusPatchApp {
         this.$('btnPlayNote').onclick = () => this.playPreview();
         this.$('btnPlayScale').onclick = () => this.playScale();
         this.$('btnStop').onclick = () => this.audio.stop();
+        this.$('btnWaveZoomIn').onclick = () => this.setWaveformVerticalZoom(this.waveformVerticalZoom * 2);
+        this.$('btnWaveZoomOut').onclick = () => this.setWaveformVerticalZoom(this.waveformVerticalZoom / 2);
+        this.$('btnWaveZoomReset').onclick = () => this.setWaveformVerticalZoom(1);
         this.$('btnDownload').onclick = () => this.downloadCurrent();
         this.$('btnZip').onclick = () => this.downloadAllZip();
         this.$('btnSoundFont').onclick = () => this.downloadSoundFont();
@@ -821,6 +827,40 @@ class GusPatchApp {
         this.$('btnPresetFormMode').onclick = () => this.setPresetEditorMode('form');
         this.$('btnPresetJsonMode').onclick = () => this.setPresetEditorMode('json');
         this.updatePatchCacheToggle();
+    }
+
+    restoreWaveformVerticalZoom() {
+        try {
+            const stored = localStorage.getItem(WAVEFORM_VERTICAL_ZOOM_STORAGE_KEY);
+            const zoom = Number(stored);
+            if (Number.isInteger(zoom) && zoom >= 1 && zoom <= 64 && (zoom & (zoom - 1)) === 0) {
+                this.waveformVerticalZoom = zoom;
+            }
+        } catch (error) {
+            this.log(`Could not restore waveform zoom: ${error.message}`, 'err');
+        }
+        this.updateWaveformZoomControls();
+    }
+
+    setWaveformVerticalZoom(zoom) {
+        this.waveformVerticalZoom = Math.max(1, Math.min(64, zoom));
+        try {
+            localStorage.setItem(WAVEFORM_VERTICAL_ZOOM_STORAGE_KEY, String(this.waveformVerticalZoom));
+        } catch (error) {
+            this.log(`Could not save waveform zoom: ${error.message}`, 'err');
+        }
+        this.updateWaveformZoomControls();
+        this.drawPreview();
+    }
+
+    updateWaveformZoomControls() {
+        const zoomIn = this.$('btnWaveZoomIn');
+        const zoomOut = this.$('btnWaveZoomOut');
+        const zoomLevel = this.$('waveformZoomLevel');
+        if (!zoomIn || !zoomOut || !zoomLevel) return;
+        zoomIn.disabled = this.waveformVerticalZoom >= 64;
+        zoomOut.disabled = this.waveformVerticalZoom <= 1;
+        zoomLevel.textContent = `${this.waveformVerticalZoom}×`;
     }
 
     loadGeneratorState() {
@@ -2109,8 +2149,8 @@ class GusPatchApp {
 
         const player = new TimidityPlayer({
             sampleRate: +this.$('sr').value || 22050,
-            bufferSize: 4096,
-            bufferSizeRealtime: 1024,
+            bufferSize: 1024, // Default buffer size for non-realtime playback
+            bufferSizeRealtime: 512, // Less latency for realtime instrument playback
             timidityCfgLoader: () => this.buildMidiTimidityConfig(),
             instrumentLoader: async (bank, isDrum, program) => {
                 if (this.collectingMidiInstruments) {
@@ -4360,7 +4400,7 @@ class GusPatchApp {
         const N = Math.min(r.pcm.length, W);
         for (let i = 0; i < N; i++) {
             const idx = Math.floor(i * r.pcm.length / N);
-            const y = H / 2 - r.pcm[idx] * (H / 2 - 4);
+            const y = H / 2 - r.pcm[idx] * (H / 2 - 4) * this.waveformVerticalZoom;
             i === 0 ? ctx.moveTo(i, y) : ctx.lineTo(i, y);
         }
         ctx.stroke();
