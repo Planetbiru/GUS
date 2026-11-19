@@ -2147,8 +2147,9 @@ class GusPatchApp {
             throw new Error('TimidityPlayer runtime is unavailable.');
         }
 
+        // Initialize TimidityPlayer with custom loaders for configuration and instruments
         const player = new TimidityPlayer({
-            sampleRate: +this.$('sr').value || 22050,
+            sampleRate: 48000, // Sample rate
             bufferSize: 1024, // Default buffer size for non-realtime playback
             bufferSizeRealtime: 512, // Less latency for realtime instrument playback
             timidityCfgLoader: () => this.buildMidiTimidityConfig(),
@@ -2160,8 +2161,12 @@ class GusPatchApp {
                 return this.getCachedOrBuildMidiPatch(isDrum, program);
             },
         });
+
+        // Store the player instance for later use
         this.timidityPlayer = player;
-        player.on('onInstrumentList', entries => {
+        
+        // Called when TimidityPlayer create instrument list before load it
+        player.onInstrumentList(entries => {
             if (!this.collectingMidiInstruments) return;
             this.midiInstrumentFiles.clear();
             for (const {file, isDrum, program, bank} of entries) {
@@ -2172,17 +2177,23 @@ class GusPatchApp {
             }
             this.renderMidiInstrumentList();
         });
+
+        // Called when TimidityPlayer load instrument
         player.onInstrumentLoading((loaded, total) => {
             this.updateMidiInstrumentProgress(loaded, total);
             if (!this.midiRenderInProgress) {
                 this.$('midiStatus').textContent = `Loading GM instruments ${loaded}/${total}...`;
             }
         });
-        player.on('onInstrumentStatus', (file, status) => {
+
+        // Called when TimidityPlayer update status of the instrument loading process
+        player.onInstrumentStatus((file, status) => {
             if (status === 'loaded') this.markMidiInstrumentLoaded(file);
             if (status === 'failed') this.hideMidiInstrumentProgress();
         });
-        player.on('onInstrumentLoaded', () => {
+
+        // Called when TimidityPlayer load instrument done
+        player.onInstrumentLoaded(() => {
             if (this.collectingMidiInstruments || this.midiRenderInProgress) return;
             if (this.midiMode === 'file') {
                 if (!this.midiData) {
@@ -2208,7 +2219,9 @@ class GusPatchApp {
                     : 'Connect a MIDI controller to play instruments in real time.';
             }
         });
-        player.on('onMidiLoaded', (_midi, duration) => {
+
+        // Called when TimidityPlayer load midi file done
+        player.onMidiLoaded((_midi, duration) => {
             if (this.midiMode === 'sequencer') return;
             this.midiDuration = duration || player.totalDuration || 0;
             this.midiPosition = 0;
@@ -2226,7 +2239,9 @@ class GusPatchApp {
             this.clearActiveMidiNotes();
             this.updateMidiPlaybackUI();
         });
-        player.on('onMidiEvent', event => {
+
+        // Called when TimidityPlayer receive midi event
+        player.onMidiEvent(event => {
             if (event.eventType === player.ME_PROGRAM) {
                 this.midiChannelPrograms.set(event.channel, event.a & 0x7f);
                 this.renderMidiChannelList();
@@ -2246,23 +2261,37 @@ class GusPatchApp {
                 }
             }
         });
-        player.on('onNoteOn', event => this.handleMidiNoteOn(event));
-        player.on('onNoteOff', event => this.handleMidiNoteOff(event));
-        player.on('onSeek', (tick, seconds) => {
+
+        // Called when TimidityPlayer receive midi note on event
+        player.onNoteOn(event => this.handleMidiNoteOn(event));
+
+        // Called when TimidityPlayer receive midi note off event
+        player.onNoteOff(event => this.handleMidiNoteOff(event));
+
+        // Called when TimidityPlayer seek to a specific tick
+        player.onSeek((tick, seconds) => {
             this.midiTick = tick;
             this.midiPosition = seconds;
             this.clearActiveMidiNotes();
             this.updateMidiMixerProgramsAtTick(tick);
         });
-        player.on('onPlay', () => this.setLiveWaveformSource(player.waveformAnalysers));
-        player.on('onResume', () => this.setLiveWaveformSource(player.waveformAnalysers));
-        player.on('onPlaying', (tick, seconds) => {
+
+        // Called when TimidityPlayer start playing midi
+        player.onPlay(() => this.setLiveWaveformSource(player.waveformAnalysers));
+
+        // Called when TimidityPlayer resume playing midi after pause
+        player.onResume(() => this.setLiveWaveformSource(player.waveformAnalysers));
+
+        // Called periodically while TimidityPlayer is playing midi
+        player.onPlaying((tick, seconds) => {
             if (this.midiMode === 'sequencer' || this.midiSeeking) return;
             this.midiTick = tick;
             this.midiPosition = seconds;
             this.updateMidiPlaybackUI();
         });
-        player.on('onPause', () => {
+
+        // Called when TimidityPlayer pause midi playback
+        player.onPause(() => {
             this.midiPosition = player.getTime() / 1000;
             this.midiTick = player.timeToTick(this.midiPosition);
             this.updateMidiPlaybackUI();
@@ -2272,7 +2301,9 @@ class GusPatchApp {
                 this.freezeLiveWaveform();
             }
         });
-        player.on('onEnded', () => {
+
+        // Called when TimidityPlayer finish midi playback
+        player.onEnded(() => {
             if (this.sequencerPlaying && this.midiMode === 'sequencer') {
                 this.clearActiveMidiNotes();
                 this.restartMidiSequencer();
@@ -2281,7 +2312,9 @@ class GusPatchApp {
             this.stopMidiPlayback();
             this.$('midiStatus').textContent = `Ready: ${this.midiFileName}`;
         });
-        player.on('onStop', () => {
+
+        // Called when TimidityPlayer stop midi playback
+        player.onStop(() => {
             this.midiTick = 0;
             const mixerButton = this.$('btnMidiMixer');
             if (mixerButton) mixerButton.disabled = true;
@@ -2289,17 +2322,22 @@ class GusPatchApp {
             this.restoreLiveWaveformSource();
             this.updateMidiPlaybackUI();
         });
-        player.on('onRenderProgress', progress => {
+
+        // Called when TimidityPlayer render progress update
+        player.onRenderProgress(progress => {
             if (this.midiRenderInProgress) {
                 const operation = this.midiRenderOperation || 'WAV';
                 this.$('midiStatus').textContent = `Rendering ${operation}: ${Math.round(progress)}%`;
             }
         });
-        player.on('onError', error => {
+
+        // Called when any error occurs in TimidityPlayer
+        player.onError(error => {
             const message = error && error.message ? error.message : String(error);
             this.$('midiStatus').textContent = `MIDI player error: ${message}`;
         });
 
+        // Initialize TimidityPlayer and setup waveform monitor
         this.timidityPlayerReady = player.init().then(initialized => {
             if (!initialized) throw new Error('TimidityPlayer initialization failed.');
             this.setupMidiWaveformMonitor(player);
@@ -4736,6 +4774,8 @@ class GusPatchApp {
         lines.push('# ================================================');
         lines.push('# TiMidity++ Configuration File');
         lines.push('# Generated by GUS Patch Generator');
+        lines.push('# All samples in the included PAT files are generated algorithmically.');
+        lines.push('# They are not recordings or samples taken from third parties.');
         lines.push(`# Sample rate: ${sampleRateLabel}`);
         lines.push('#');
         lines.push('# The "dir" path below is relative to the location');
