@@ -6951,6 +6951,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "renderMode": "drum",
+        "pitchInvariant": true,
         "gain": 0.3,
         "freq": 441,
         "duration": 0.15,

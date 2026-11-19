@@ -940,7 +940,7 @@ class MelodicRenderer {
                 || !Number.isFinite(renderFreq) || renderFreq <= 0) {
                 throw new Error('One-shot melodic presets require a positive reference frequency.');
             }
-            const frequencyScale = renderFreq / referenceFreq;
+            const frequencyScale = p.pitchInvariant ? 1 : renderFreq / referenceFreq;
             const preset = {
                 ...p,
                 duration: o.duration ?? p.duration,
