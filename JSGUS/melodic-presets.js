@@ -7030,29 +7030,24 @@ var GUS_MELODIC_PRESETS = {
       "description": "Seashore: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
+        "renderMode": "drum",
+        "pitchInvariant": true,
         "gain": 0.3,
-        "length": 8820,
-        "loop": false,
-        "env": {
-          "a": 0.5,
-          "d": 1.5,
-          "s": 0.5,
-          "r": 0.5
+        "freq": 441,
+        "duration": 1.2,
+        "noise": {
+          "amp": 0.9,
+          "attack": 0.3,
+          "decay": 1,
+          "type": "pink",
+          "bandpass": {
+            "center": 2400,
+            "q": 0.45
+          }
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
-        ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.9,
-        "antiAlias": true
+        "highpass": 180,
+        "lowpass": 8000,
+        "fadeOut": 0.25
       }
     },
     {

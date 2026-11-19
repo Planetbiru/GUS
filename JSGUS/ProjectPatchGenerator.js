@@ -983,6 +983,7 @@ class MelodicRenderer {
                     Math.floor((loopEnd - loopStart) / 4)
                 );
                 if (crossfadeLength > 1) {
+                    // Overlap the loop tail into its head to keep the sustain seam smooth.
                     const loopPcm = new Float32Array(loopEnd - loopStart - crossfadeLength);
                     for (let i = 0; i < crossfadeLength; i++) {
                         const mix = i / (crossfadeLength - 1);
