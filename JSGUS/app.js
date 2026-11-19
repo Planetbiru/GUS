@@ -665,7 +665,24 @@ class GusPatchApp {
         d.className = 'inst';
         d.dataset.type = type;
         d.dataset.midi = midi;
-        d.innerHTML = `<span class="instrument-name">${name}</span><span class="num">${num}</span>`;
+
+        const instrumentName = document.createElement('span');
+        instrumentName.className = 'instrument-name';
+
+        const icon = document.createElement('span');
+        icon.className = 'instrument-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML = type === 'drum' ? getDrumMidiIcon(midi) : getMidiIcon(midi, 0);
+
+        const label = document.createElement('span');
+        label.className = 'instrument-label';
+        label.textContent = name;
+        instrumentName.append(icon, label);
+
+        const number = document.createElement('span');
+        number.className = 'num';
+        number.textContent = num;
+        d.append(instrumentName, number);
         d.onclick = () => this.selectInstrument(type, midi);
         return d;
     }
