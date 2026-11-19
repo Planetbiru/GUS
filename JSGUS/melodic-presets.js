@@ -720,12 +720,12 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.44,
+        "gain": 0.8,
         "freq": 441,
         "length": 55125,
         "loop": false,
         "env": {
-          "a": 0.01,
+          "a": 0.004,
           "d": 1.2,
           "s": 0.1,
           "r": 0.5
@@ -750,6 +750,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 0.42,
           "depth": 0.02
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },

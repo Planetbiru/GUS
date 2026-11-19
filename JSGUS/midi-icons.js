@@ -132,7 +132,7 @@ const DRUM_NOTE_ICON_MAP = {
     31: DRUM_ICON_SET.drumstrick,
     32: DRUM_ICON_SET.woodblock,
     33: DRUM_ICON_SET.metronome,
-    34: DRUM_ICON_SET.cowbell,
+    34: DRUM_ICON_SET.metronome,
     35: DRUM_ICON_SET.kick,
     36: DRUM_ICON_SET.kick,
     37: DRUM_ICON_SET.drumstrick,

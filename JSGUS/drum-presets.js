@@ -51,41 +51,49 @@ var GUS_DRUM_PRESETS = {
       "note": 26,
       "name": "Snap",
       "shortName": "Snap",
-      "description": "Snap: dry finger snap with a short broadband crack.",
+      "description": "Snap: dry, crisp finger snap with a brief resonant tail.",
       "preset": {
         "mute": false,
         "gain": 0.42,
-        "duration": 0.12,
+        "duration": 0.09,
         "tones": [
           {
-            "fStart": 1850,
-            "fEnd": 1200,
-            "pitchDecay": 0.012,
-            "decay": 0.025,
-            "amp": 0.65
-          },
-          {
-            "fStart": 3200,
-            "fEnd": 2200,
-            "pitchDecay": 0.008,
-            "decay": 0.012,
-            "amp": 0.24
+            "fStart": 1700,
+            "fEnd": 1050,
+            "pitchDecay": 0.006,
+            "decay": 0.018,
+            "amp": 0.22
           }
         ],
-        "noise": {
-          "amp": 0.55,
-          "decay": 0.008,
-          "type": "white",
-          "bandpass": {
-            "center": 3200,
-            "q": 0.65
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.018,
+            "decay": 0.004,
+            "amp": 0.7,
+            "type": "white",
+            "bandpass": {
+              "center": 2800,
+              "q": 0.7
+            }
+          },
+          {
+            "delay": 0.004,
+            "duration": 0.014,
+            "decay": 0.005,
+            "amp": 0.28,
+            "type": "white",
+            "bandpass": {
+              "center": 4400,
+              "q": 0.7
+            }
           }
-        },
+        ],
         "click": {
-          "duration": 0.002,
-          "amp": 0.28
+          "duration": 0.001,
+          "amp": 0.12
         },
-        "highpass": 450,
+        "highpass": 500,
         "lowpass": 9000
       }
     },
