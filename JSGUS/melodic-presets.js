@@ -6997,29 +6997,29 @@ var GUS_MELODIC_PRESETS = {
       "description": "Breath Noise: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
+        "renderMode": "drum",
+        "pitchInvariant": true,
+        "loop": true,
+        "sustainLoop": true,
+        "loopStartSeconds": 0.12,
+        "loopEndSeconds": 0.82,
+        "loopCrossfadeSeconds": 0.02,
         "gain": 0.3,
-        "length": 3307,
-        "loop": false,
-        "env": {
-          "a": 0.05,
-          "d": 0.2,
-          "s": 0,
-          "r": 0.1
+        "freq": 441,
+        "duration": 1,
+        "noise": {
+          "amp": 0.85,
+          "attack": 0.1,
+          "decay": 100,
+          "type": "pink",
+          "bandpass": {
+            "center": 3200,
+            "q": 0.7
+          }
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
-        ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.8,
-        "antiAlias": true
+        "highpass": 450,
+        "lowpass": 9000,
+        "fadeOut": 0.18
       }
     },
     {
