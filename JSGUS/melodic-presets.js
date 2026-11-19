@@ -1828,7 +1828,7 @@ var GUS_MELODIC_PRESETS = {
         "brightness": {
           "loopCutoff": 5800
         },
-        "highpass": 200,
+        "highpass": 220,
         "antiAlias": true
       }
     },
@@ -1926,7 +1926,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 3500,
           "loopCutoff": 6000
         },
-        "highpass": 250,
+        "highpass": 320,
         "antiAlias": true
       }
     },
