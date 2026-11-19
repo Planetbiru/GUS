@@ -1,45 +1,59 @@
-# Manual Pengguna: Pembuatan File PAT dan Paket ZIP
+# Uraian Teknis Modul Pembentukan Berkas GUS Patch (.PAT)
 
 | Metadata | Nilai |
 | --- | --- |
-| Versi dokumen | 1.0 |
-| Tanggal | 18 November 2026 |
+| Versi dokumen | 1.1 |
+| Tanggal | 19 November 2026 |
 
-## 1. Tujuan dan ruang lingkup
+## 1. Pendahuluan, Tujuan, dan Ruang Lingkup
 
-Manual ini menjelaskan pembuatan berkas instrumen Gravis Ultrasound Patch
-(`.pat`) dari preset yang disediakan oleh aplikasi. Pembahasan dibatasi pada:
+Dokumen ini disusun sebagai uraian teknis pendukung permohonan pencatatan Hak
+Cipta atas perangkat lunak yang diajukan kepada Direktorat Jenderal Kekayaan
+Intelektual (DJKI).
+Uraian berfokus pada modul yang membentuk berkas instrumen Gravis Ultrasound
+Patch (`.pat`) berdasarkan data preset melodi dan drum yang disediakan aplikasi.
+Penjelasan mencakup struktur komponen, parameter yang diproses, tahapan render,
+serta pengodean keluaran.
 
-- `JSGUS/ProjectPatchGenerator.js`
-- `JSGUS/melodic-presets.js`
-- `JSGUS/drum-presets.js`
+Ruang lingkup teknis dokumen ini meliputi komponen berikut:
 
-Manual ini tidak membahas pemutaran MIDI, pembuatan SoundFont, atau ekspor
-audio. Contoh HTML membuat satu berkas PAT untuk satu program melodi atau satu
-nomor nada drum, lalu memasukkan berkas PAT tersebut ke dalam satu ZIP tanpa
-kompresi. ZIP berisi PAT, bukan dokumen manual ini.
+- `JSGUS/ProjectPatchGenerator.js`, sebagai modul pemrosesan dan pengodean;
+- `JSGUS/melodic-presets.js`, sebagai sumber data preset instrumen melodi; dan
+- `JSGUS/drum-presets.js`, sebagai sumber data preset instrumen drum.
 
-### Format GUS Patch dan alasan pemilihan
+Dokumen ini menguraikan implementasi teknis sebagaimana terdapat pada sumber
+perangkat lunak yang dirujuk. Dokumen ini bukan spesifikasi resmi format GUS
+dan tidak dimaksudkan sebagai penetapan status hukum atau kepemilikan atas
+format maupun pustaka pihak ketiga. Nama format dan pustaka digunakan sebagai
+rujukan teknis untuk menjelaskan interoperabilitas.
 
-GUS Patch (`.pat`) adalah format patch instrumen untuk Gravis Ultrasound.
-Berkas yang dibuat generator memiliki header `GF1PATCH110` dan menyimpan
-metadata instrumen serta sampel PCM signed 16-bit little-endian. Metadata dapat
-mencakup rentang pitch, frekuensi dasar, loop, dan envelope playback.
+Modul menghasilkan satu berkas PAT untuk satu instrumen atau satu identitas
+drum. Contoh HTML pada bagian 6 mengemas berkas PAT yang dihasilkan ke dalam
+ZIP tanpa kompresi; pengemasan ZIP merupakan langkah distribusi contoh dan
+bukan bagian dari sintesis atau pengodean sampel.
 
-Satu berkas PAT mewakili satu instrumen, tetapi instrumen tersebut dapat
-memiliki satu atau beberapa sampel/zona nada. Pemisahan satu instrumen per
-berkas dipilih agar instrumen dapat diganti atau diperbarui secara parsial:
-pengguna cukup mengganti PAT instrumen yang diinginkan tanpa membangun ulang
-atau mengganti satu bank yang berisi instrumen lain. Contoh HTML dalam manual
-ini membuat satu sampel untuk satu PAT; ekspor instrumen multi-zona tetap
-dapat menempatkan beberapa sampel instrumen yang sama dalam satu PAT.
+### Format GUS Patch dan Pertimbangan Pemilihan
 
-### Konversi ke format lain
+GUS Patch (`.pat`) merupakan format patch instrumen yang digunakan oleh
+perangkat lunak dan perangkat yang kompatibel dengan Gravis Ultrasound.
+Berkas keluaran generator menggunakan header `GF1PATCH110` dan memuat metadata
+instrumen beserta sampel PCM bertanda 16-bit little-endian. Metadata sampel
+dapat mencakup rentang nada, frekuensi dasar, titik loop, envelope, dan
+parameter pemutaran lainnya.
+
+Satu berkas PAT mewakili satu instrumen dan dapat memuat satu atau beberapa
+sampel/zona nada dari instrumen tersebut. Struktur ini memungkinkan penggantian
+atau pembaruan satu instrumen secara parsial tanpa membangun ulang bank yang
+memuat instrumen lain. Contoh HTML pada dokumen ini menghasilkan satu sampel
+per PAT; proses ekspor instrumen multi-zona dapat menempatkan beberapa sampel
+dari instrumen yang sama ke dalam satu PAT.
+
+### Konversi ke Format Lain
 
 Sampel dan pemetaan instrumen dalam PAT dapat diekstrak atau dikonversi dengan
-perangkat lunak yang sesuai ke format sampler lain, misalnya SF2, SF3, atau
-SFZ. Sampel PCM juga dapat disimpan sebagai berkas audio seperti WAV, tetapi
-berkas audio sampel saja tidak menyimpan seluruh pemetaan instrumen.
+perangkat lunak yang sesuai ke format sampler lain, seperti SF2, SF3, atau
+SFZ. Sampel PCM juga dapat disimpan sebagai berkas audio, misalnya WAV;
+berkas audio sampel tidak mencakup keseluruhan metadata dan pemetaan instrumen.
 
 - **SF2 (SoundFont 2):** format bank SoundFont yang dapat mengemas banyak
   instrumen/preset beserta sampel dan pemetaannya dalam satu berkas bank.
@@ -48,69 +62,73 @@ berkas audio sampel saja tidak menyimpan seluruh pemetaan instrumen.
   mendukung SF3.
 - **SFZ:** format definisi instrumen berbasis teks. Berkas `.sfz` memetakan
   sampel ke rentang nada dan zona, biasanya dengan merujuk berkas audio
-  terpisah seperti WAV. Untuk memindahkan instrumen, sertakan berkas SFZ dan
-  semua sampel yang dirujuknya.
+  terpisah seperti WAV. Untuk distribusi instrumen, berkas SFZ perlu disertai
+  seluruh sampel yang dirujuknya.
 
-Konversi tidak selalu mempertahankan seluruh karakter atau metadata secara
-sempurna. Dukungan loop, rentang/zona nada, envelope, dan parameter khusus
-bergantung pada format tujuan serta perangkat lunak konverter; periksa dan
-dengarkan kembali hasil konversi.
+Konversi antarformat dapat mengubah karakter suara atau tidak mempertahankan
+seluruh metadata. Dukungan terhadap loop, rentang/zona nada, envelope, dan
+parameter khusus bergantung pada format tujuan dan perangkat lunak konverter.
+Karena itu, hasil konversi perlu diperiksa secara teknis dan dievaluasi kembali
+dengan pemutaran audio.
 
-## 2. Fungsi berkas sumber
+## 2. Komponen Perangkat Lunak
 
 | Berkas | Fungsi |
 | --- | --- |
-| `JSGUS/melodic-presets.js` | Menyediakan `GUS_MELODIC_PRESETS`: master gain dan preset instrumen melodi menurut nomor program MIDI. |
-| `JSGUS/drum-presets.js` | Menyediakan `GUS_DRUM_PRESETS`: master gain dan preset instrumen drum menurut nomor nada MIDI. |
-| `JSGUS/ProjectPatchGenerator.js` | Memvalidasi dan merender preset menjadi data sampel, menyusun metadata patch, serta menyediakan `GusPatchEncoder` untuk mengodekan data menjadi format PAT. |
-| `jszip/jszip.min.js` | Hanya digunakan contoh HTML untuk memasukkan satu berkas PAT ke dalam ZIP tanpa kompresi; tidak terlibat dalam sintesis suara. |
+| `JSGUS/melodic-presets.js` | Menyediakan `GUS_MELODIC_PRESETS`, yang memuat master gain dan data preset melodi menurut nomor program MIDI. |
+| `JSGUS/drum-presets.js` | Menyediakan `GUS_DRUM_PRESETS`, yang memuat master gain dan data preset drum menurut nomor nada MIDI. |
+| `JSGUS/ProjectPatchGenerator.js` | Memvalidasi dan merender data preset menjadi sampel, menyusun metadata patch, serta menyediakan `GusPatchEncoder` untuk menghasilkan berkas PAT. |
+| `jszip/jszip.min.js` | Digunakan oleh contoh HTML untuk mengemas berkas PAT ke dalam ZIP tanpa kompresi; tidak digunakan dalam proses sintesis suara. |
 
-Ketiga berkas dimuat sebagai JavaScript biasa, bukan modul. Muat berkas preset
-terlebih dahulu, kemudian generator. Data preset melodi dan drum harus berada
-di cakupan halaman sebelum generator digunakan.
+Ketiga berkas JavaScript inti dimuat sebagai skrip biasa, bukan sebagai modul.
+Koleksi preset melodi dan drum harus dimuat sebelum `ProjectPatchGenerator.js`
+agar datanya tersedia pada cakupan halaman saat generator diinisialisasi.
 
-## 3. Identitas instrumen
+## 3. Identitas Instrumen
 
-- **Melodi:** gunakan nomor program MIDI `0–127` pada properti `program`.
-  Contohnya, `0` adalah program pertama. Data preset melodi menyediakan satu
-  entri untuk setiap program.
-- **Drum:** gunakan nomor nada MIDI pada properti `note`. Daftar drum bersifat
-  jarang; tidak semua angka `0–127` tersedia. Gunakan angka yang benar-benar
-  ada di `GUS_DRUM_PRESETS.instruments`.
-- **Preset:** parameter bunyi disimpan pada properti `preset` tiap instrumen.
-  Master gain berada pada properti `gain` di tingkat koleksi preset.
+- **Instrumen melodi:** identifikasi menggunakan nomor program MIDI `0–127`
+  pada properti `program`. Data preset menyediakan satu entri untuk setiap
+  nomor program.
+- **Instrumen drum:** identifikasi menggunakan nomor nada MIDI pada properti
+  `note`. Daftar nada drum bersifat tidak berurutan dan hanya mencakup nada
+  yang tersedia di `GUS_DRUM_PRESETS.instruments`.
+- **Data preset:** parameter bunyi setiap instrumen disimpan pada properti
+  `preset`. Master gain ditetapkan pada properti `gain` di tingkat koleksi.
 
-Preset drum dapat memiliki komponen nada, membran, logam, noise, impact,
-click, dan burst. Preset melodi dapat berupa suara periodik/loop maupun
-one-shot. Nilai yang tidak sesuai pada properti yang digunakan renderer dapat
-membuat proses gagal atau menghasilkan suara yang tidak diharapkan.
+Preset drum dapat terdiri atas komponen nada, membran, logam, noise, impact,
+click, dan burst. Preset melodi dapat dirender sebagai sampel periodik (loop)
+atau one-shot. Nilai parameter yang tidak sesuai dengan tipe data atau rentang
+yang diharapkan dapat menyebabkan proses gagal atau menghasilkan keluaran yang
+berbeda dari karakter suara yang dimaksud.
 
-## 4. Struktur dan komponen preset
+## 4. Struktur dan Komponen Preset
 
-### 4.1 Struktur umum
+### 4.1 Struktur Umum
 
-`GUS_MELODIC_PRESETS` dan `GUS_DRUM_PRESETS` masing-masing memiliki `gain`
-tingkat koleksi dan array `instruments`. Master gain dikalikan dengan
-`preset.gain` instrumen; jika gain instrumen tidak dicantumkan, nilainya
-dianggap `1`.
+`GUS_MELODIC_PRESETS` dan `GUS_DRUM_PRESETS` masing-masing memuat properti
+`gain` pada tingkat koleksi dan array `instruments`. Nilai master gain
+dikalikan dengan `preset.gain` instrumen. Apabila gain instrumen tidak
+ditentukan, generator menggunakan nilai bawaan `1`.
 
 Preset melodi memiliki bentuk
 `{ program, family, name, shortName, description, preset }`. Nomor `program`
 harus unik dan mencakup program General MIDI `0–127`; nomor program ditentukan
 dari nilai `program`, bukan posisi entri di array.
 
-Preset drum memiliki bentuk
+Setiap entri preset drum memiliki bentuk
 `{ note, name, shortName, description, preset }`. Saat ini tersedia 57 entri
-dengan nomor nada `25–84` secara renggang; tidak semua nomor dalam rentang itu
-tersedia. Nilai `note` harus unik dan berada pada rentang MIDI `0–127`.
+dengan nomor nada MIDI `25–84` yang tidak berurutan; tidak seluruh nomor pada
+rentang tersebut tersedia. Nilai `note` wajib unik dan berada pada rentang
+MIDI `0–127`.
 
-Pada kedua jenis instrumen, `name` adalah nama lengkap untuk tampilan.
-`shortName` adalah nama instrumen di header patch dan maksimal 16 karakter.
-`description` adalah ringkasan suara berbahasa Inggris, harus terisi, dan
-maksimal 60 karakter karena ditulis ke header patch. Objek preset berupa data
-JavaScript biasa dan dimuat sebelum `ProjectPatchGenerator.js`.
+Pada kedua jenis instrumen, `name` menyimpan nama lengkap untuk tampilan.
+`shortName` menyimpan nama instrumen pada header patch dengan panjang maksimum
+16 karakter. `description` merupakan ringkasan suara berbahasa Inggris yang
+wajib diisi dan dibatasi maksimum 60 karakter karena ditulis ke header patch.
+Objek preset disimpan sebagai data JavaScript dan dimuat sebelum
+`ProjectPatchGenerator.js`.
 
-### 4.2 Properti preset melodi
+### 4.2 Properti Preset Melodi
 
 | Properti | Penjelasan |
 | --- | --- |
@@ -122,7 +140,7 @@ JavaScript biasa dan dimuat sebelum `ProjectPatchGenerator.js`.
 | `duration` | Durasi dalam detik untuk one-shot dengan `renderMode: "drum"`. One-shot melodi biasa menggunakan `length` atau durasi generator. |
 | `harm` | Amplitudo relatif tiap harmonik; indeks `0` adalah fundamental. |
 | `phases` | Fase awal opsional tiap harmonik dalam satuan siklus. Elemen yang tidak diisi menggunakan fase nol. |
-| `phaseScale` | Ada pada sebagian data preset, tetapi saat ini tidak dibaca renderer sehingga tidak berpengaruh. Gunakan `phases` untuk mengatur fase harmonik. |
+| `phaseScale` | Terdapat pada sebagian data preset, tetapi belum dibaca renderer sehingga tidak berpengaruh. Pengaturan fase harmonik dilakukan melalui `phases`. |
 | `antiAlias` | Jika `true`, harmonik pada atau di atas 49% sample rate render tidak disertakan. |
 | `env` | Envelope one-shot: `a` (attack), `d` (decay), dan `r` (release) dalam detik; `s` adalah level sustain `0–1`. Untuk loop, envelope playback ditangani oleh envelope GUS. |
 | `loop` | Jika bernilai truthy, sampel dirender sebagai suara periodik/loop. |
@@ -131,13 +149,14 @@ JavaScript biasa dan dimuat sebelum `ProjectPatchGenerator.js`.
 | `loopSkip` | Banyaknya siklus sebelum titik mulai loop; nilai bawaan `3`. |
 | `tailCycles` | Banyaknya siklus tambahan untuk ekor/release loop. Jika tidak diatur, panjangnya diturunkan dari frekuensi dan `env.r`, dengan minimum 4 siklus. |
 | `loopAttack` | Lama fade-in dalam detik sebelum wilayah loop. |
-| `loopAttackNoise` | Noise transient `{ amp, duration }` yang ditempatkan sebelum loop. Gunakan ini untuk loop, bukan `attackNoise`. |
-| `sustainLoop` | Atur `false` untuk menghilangkan penanda sustain-loop GUS tanpa menghapus loop sampelnya. |
+| `loopAttackNoise` | Noise transient `{ amp, duration }` yang ditempatkan sebelum loop. Properti ini digunakan untuk preset loop, sebagai pengganti `attackNoise`. |
+| `sustainLoop` | Nilai `false` menghilangkan penanda sustain-loop GUS tanpa menghapus loop sampel. |
 | `patchEnvelope` | Envelope GUS opsional yang ditulis ke header, berupa enam nilai mentah `rates` dan enam nilai `offsets`. |
 | `noise` | Pada melodi biasa, angka blend noise: one-shot memakai white noise dan loop memakai siklus pink-noise berulang. Dalam `renderMode: "drum"`, properti ini berupa objek noise seperti pada preset drum. |
 | `fm` | Modulasi frekuensi: `ratio` adalah rasio frekuensi modulator terhadap carrier, `index` adalah kedalaman modulasi. Untuk loop, FM hanya digunakan jika `ratio` bilangan bulat. |
 | `detune` | Array nilai detuning suara dalam sen. Diabaikan pada loop. |
-| `vibrato` | Objek `{ rate, depth, sweep }`: laju dalam hertz, kedalaman sebagai fraksi pitch, dan sweep untuk onset. Pada loop, vibrato disimpan di header GUS. |
+| `tremolo` | Opsional `{ rate, sweep, depth }`: `rate` dalam hertz `0–25` (dipetakan ke byte GUS `0–255`), `sweep` byte GUS `0–255`, dan `depth` fraksi amplitudo `0–1` (dipetakan ke byte `0–255`). Nilai dikodekan ke header sampel PAT, bukan diterapkan ke PCM. Properti yang tidak ada menghasilkan nilai nol; belum ada preset melodi bawaan yang mengaktifkannya. |
+| `vibrato` | Objek `{ rate, sweep, depth }`: `rate` dalam hertz, `sweep` byte GUS `0–255` untuk onset, dan `depth` sebagai fraksi pitch (hingga `0,02` saat dipetakan ke GUS). Vibrato dapat diterapkan pada PCM one-shot; nilai loop saat ini tidak ditulis oleh encoder PAT. |
 | `vibratoOnset` | Waktu dalam detik yang diperlukan vibrato one-shot untuk mencapai kedalaman penuh. |
 | `inharmonicity` | Koefisien peregangan frekuensi parsial agar harmonik tidak sepenuhnya harmonis. Diabaikan pada loop. |
 | `attackNoise` | Transient pink-noise pada awal one-shot, dengan `amp` dan `duration` dalam detik. |
@@ -149,10 +168,10 @@ JavaScript biasa dan dimuat sebelum `ProjectPatchGenerator.js`.
 | `formants` | Array filter puncak `{ freq, q, gain }`; `freq` dalam hertz dan `gain` dalam desibel. |
 | `drive` | Besaran soft-saturation yang diterapkan setelah formant. |
 | `guitarAmp` | Tahap efek gitar opsional: `preampCutoff` dan `cabinetCutoff` dalam hertz, serta `drive`, `bias`, `mix`, dan `clip` (campuran menuju hard clipping). |
-| `renderMode` | Atur ke `"drum"` untuk merender program melodi sebagai one-shot pitch-scaled memakai komponen renderer drum. |
+| `renderMode` | Nilai `"drum"` merender preset melodi sebagai one-shot dengan pitch scaling menggunakan komponen renderer drum. |
 | `tones` | Digunakan dalam `renderMode: "drum"`; struktur elemennya sama dengan properti `tones` pada preset drum. |
 | `highpass` | Cutoff high-pass dalam hertz, diterapkan pada sampel hasil render. |
-| `lowpass` | Cutoff low-pass dalam hertz untuk `renderMode: "drum"`. Pada loop melodi biasa gunakan `brightness.loopCutoff`. |
+| `lowpass` | Cutoff low-pass dalam hertz untuk `renderMode: "drum"`. Untuk loop melodi biasa, low-pass menggunakan `brightness.loopCutoff`. |
 | `fadeOut` | Lama fade-out dalam detik untuk one-shot `renderMode: "drum"`. |
 
 Karakter profil pada `defaultWaveform`:
@@ -179,8 +198,10 @@ waktu, seperti `pitchScoop`, `detune`, `inharmonicity`, dan `partialDecay`,
 dinonaktifkan agar siklus stabil. Attack, decay, dan sustain dari `env` tidak
 diterapkan ke sampel loop. Nilai `env.r` dapat menentukan panjang ekor default,
 sedangkan perilaku release playback berasal dari envelope patch GUS.
-`loopAttackNoise` ditempatkan sebelum wilayah loop dan vibrato loop disimpan
-di header GUS.
+`loopAttackNoise` ditempatkan sebelum wilayah loop. Properti `tremolo`, jika
+ditambahkan ke preset, disimpan pada header sampel GUS dan efeknya bergantung
+pada player PAT; generator tidak memodulasikan PCM hasil render. Tidak ada
+preset bawaan yang mengaturnya.
 
 Untuk `renderMode: "drum"`, `freq` menjadi pitch referensi. Pitch MIDI yang
 diminta menskalakan frekuensi nada dan cutoff filter. Setiap elemen `tones`
@@ -192,7 +213,7 @@ mengatur level, dan `fm: { ratio, index }` menambahkan modulasi frekuensi.
 Sample rate melodi dikendalikan oleh opsi `sampleRate` pada
 `ProjectPatchGenerator`; properti `sampleRate` di preset melodi tidak dibaca.
 
-### 4.3 Properti preset drum
+### 4.3 Properti Preset Drum
 
 Setiap `preset` drum dirender sebagai gabungan satu atau lebih komponen berikut.
 
@@ -215,6 +236,7 @@ Setiap `preset` drum dirender sebagai gabungan satu atau lebih komponen berikut.
 | `bursts` | Array waktu mulai burst noise dalam detik. Setiap burst berlangsung sekitar 12 ms. |
 | `highpass`, `lowpass` | Cutoff high-pass dan low-pass opsional dalam hertz. |
 | `fadeOut` | Panjang fade-out dalam detik. Jika tidak diatur, fade dibatasi hingga 96 sampel atau 5% panjang sampel, mana yang lebih pendek. |
+| `tremolo` | Opsional `{ rate, sweep, depth }` dengan `rate` `0–25` Hz (dipetakan ke byte GUS `0–255`), `sweep` byte GUS `0–255`, dan `depth` fraksi amplitudo `0–1` (dipetakan ke byte `0–255`). Nilai ditulis ke header PAT; tidak mengubah PCM dan tidak diaktifkan pada preset drum bawaan. |
 
 Nada, membran, komponen metalik, noise, impact, click, dan burst dapat
 digabungkan pada preset yang sama. Renderer menjumlahkan komponen, menerapkan
@@ -222,33 +244,33 @@ filter dan fade pada tepi sampel, kemudian menormalisasi hasil sebelum
 pengodean patch. Properti preset drum tidak mengatur panning; balance sampel
 GUS ditetapkan di tengah (`7`).
 
-## 5. Alur pembuatan
+## 5. Tahapan Pembentukan Berkas
 
-1. Muat koleksi preset melodi dan drum.
-2. Buat objek `ProjectPatchGenerator`, dengan sample rate dan durasi bawaan
-   bila diperlukan.
-3. Pilih jenis instrumen dan identitasnya: nomor program untuk melodi atau
-   nomor nada untuk drum.
-4. Panggil `generate({ isDrum, program, pitchFrom, pitchTo })`.
-   Untuk drum, nilai `program` adalah nomor nada drum.
-5. Hasil `generate()` adalah objek JavaScript, bukan berkas PAT siap unduh.
-   Hasilnya berisi sampel di
+1. Koleksi preset melodi dan drum dimuat ke halaman.
+2. Objek `ProjectPatchGenerator` diinisialisasi dengan sample rate dan, apabila
+   diperlukan, durasi yang ditentukan.
+3. Jenis instrumen dan identitasnya ditentukan melalui nomor program melodi
+   atau nomor nada drum.
+4. Metode `generate({ isDrum, program, pitchFrom, pitchTo })` memproses preset.
+   Untuk drum, parameter `program` berisi nomor nada drum.
+5. Hasil `generate()` berupa objek JavaScript, bukan berkas PAT siap unduh.
+   Data sampel tersedia pada
    `result.patch.instruments[0].layers[0].samples[0]`.
-6. Kodekan sampel menggunakan `GusPatchEncoder.encode()` untuk memperoleh
-   data berkas PAT.
-7. Tambahkan hanya berkas PAT tersebut ke ZIP menggunakan metode `STORE`, lalu
-   unduh berkas `.zip`.
+6. `GusPatchEncoder.encode()` mengodekan data sampel dan metadata menjadi
+   berkas PAT.
+7. Pada contoh distribusi, berkas PAT dimasukkan ke ZIP dengan metode `STORE`
+   (tanpa kompresi).
 
-Contoh di bawah memakai rentang nada MIDI `0–127` untuk menghasilkan satu
-sampel. Aplikasi dapat menggunakan beberapa zona sampel untuk ekspor instrumen
-melodi; contoh minimal ini sengaja hanya membuat satu sampel.
+Contoh berikut menggunakan rentang nada MIDI `0–127` dan menghasilkan satu
+sampel. Implementasi ekspor instrumen melodi dapat menggunakan beberapa zona
+sampel; contoh ini dibatasi pada satu sampel per PAT.
 
-## 6. Contoh HTML mandiri
+## 6. Contoh Implementasi HTML Mandiri
 
-Simpan contoh berikut sebagai berkas HTML pada direktori yang sama dengan
-folder `JSGUS` dan `jszip`. Jalankan melalui server web lokal atau server
-aplikasi agar berkas JavaScript dapat dimuat melalui HTTP; jangan mengandalkan
-pembukaan langsung dengan `file://`.
+Untuk menjalankan contoh, berkas HTML ditempatkan pada direktori yang sama
+dengan folder `JSGUS` dan `jszip`, kemudian disajikan melalui server web lokal
+atau server aplikasi agar skrip dapat dimuat melalui HTTP. Contoh ini tidak
+mengasumsikan pemuatan berkas secara langsung melalui `file://`.
 
 ```html
 <!doctype html>
@@ -334,7 +356,10 @@ pembukaan langsung dengan `file://`.
           isLoop,
           sustainLoop,
           envRates: sample.envRates,
-          envOffsets: sample.envOffsets
+          envOffsets: sample.envOffsets,
+          tremoloSweep: sample.tremoloSweep,
+          tremoloRate: sample.tremoloRate,
+          tremoloDepth: sample.tremoloDepth
         }]
       });
     }
@@ -391,32 +416,33 @@ pembukaan langsung dengan `file://`.
 </html>
 ```
 
-### Catatan penggunaan contoh
+### Catatan Penggunaan Contoh
 
-- Untuk melodi, masukkan nomor program MIDI. Untuk drum, masukkan nomor
-  `note` yang tersedia di preset drum; contoh awal setelah memilih Drum adalah
-  nada `25`.
-- Contoh memakai sample rate `22050` Hz dan membiarkan durasi mengikuti
-  perilaku bawaan generator serta preset.
-- Contoh mempertahankan status loop dan envelope patch, mengubah PCM dari
-  bentuk byte menjadi sampel float untuk encoder, lalu memasukkan satu PAT ke
-  dalam ZIP dengan `compression: 'STORE'`.
-- Jika nomor drum tidak tersedia atau preset gagal divalidasi, pesan kesalahan
-  ditampilkan pada halaman dan tidak ada ZIP yang diunduh.
+- Pada mode melodi, nilai yang dimasukkan merupakan nomor program MIDI. Pada
+  mode drum, nilai tersebut merupakan nomor `note` yang tersedia di preset
+  drum; nilai awal contoh adalah `25`.
+- Contoh menggunakan sample rate `22050` Hz dan mengikuti durasi bawaan
+  generator serta preset.
+- Status loop dan envelope patch dipertahankan. Data PCM dikonversi dari byte
+  menjadi sampel float sebelum dikirim ke encoder, kemudian satu berkas PAT
+  dimasukkan ke ZIP dengan `compression: 'STORE'`.
+- Apabila nomor drum tidak tersedia atau preset tidak lolos validasi, halaman
+  menampilkan pesan kesalahan dan tidak menghasilkan ZIP.
 
-## 7. Pemeriksaan hasil
+## 7. Pemeriksaan Hasil
 
-1. Pastikan unduhan memiliki ekstensi `.zip`.
-2. Buka ZIP dan pastikan isinya tepat satu berkas `.pat`. Metode kompresinya
-   harus `Store`/`Stored` (tanpa kompresi).
-3. Ekstrak PAT, pastikan ukuran lebih dari nol, lalu buka dengan aplikasi yang
-   dapat membaca patch GUS atau muat ke player yang mendukung format tersebut.
-4. Dengarkan pada beberapa nada yang sesuai. Sampel satu-zona dapat terdengar
-   berbeda pada nada yang jauh dari frekuensi dasarnya.
-5. Jika hasil tidak sesuai, periksa identitas program/nada, urutan pemuatan
-   script, konsol browser, serta nilai dan struktur objek `preset`.
+1. Arsip hasil unduhan memiliki ekstensi `.zip`.
+2. Isi arsip terdiri atas tepat satu berkas `.pat` dengan metode kompresi
+   `Store`/`Stored` (tanpa kompresi).
+3. Berkas PAT dapat diekstrak, memiliki ukuran lebih dari nol, dan dapat
+   dibuka oleh aplikasi yang mendukung format GUS.
+4. Pemutaran diuji pada beberapa nada yang sesuai. Sampel satu zona dapat
+   menunjukkan karakter berbeda pada nada yang jauh dari frekuensi dasarnya.
+5. Apabila hasil tidak sesuai, pemeriksaan mencakup identitas program/nada,
+   urutan pemuatan skrip, konsol browser, serta nilai dan struktur objek
+   `preset`.
 
-File PAT yang dihasilkan menggunakan format patch GUS dengan header
-`GF1PATCH110` dan sampel PCM signed 16-bit little-endian. Manual ini
-menjelaskan alur teknis pembuatan berkas dan bukan penilaian hukum atas
-kelayakan pendaftaran atau kepemilikan hak.
+Berkas PAT yang dihasilkan menggunakan format patch GUS dengan header
+`GF1PATCH110` dan sampel PCM signed 16-bit little-endian. Dokumen ini
+merangkum fungsi, alur pemrosesan, format keluaran, dan batasan teknis modul
+berdasarkan implementasi sumber yang dirujuk.

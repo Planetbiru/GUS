@@ -1,3 +1,5 @@
+// Optional preset.tremolo: { rate: 0-25 Hz, sweep: GUS byte 0-255, depth: 0-1 }.
+// Omitted in the built-in presets so generated patches keep tremolo disabled.
 var GUS_DRUM_PRESETS = {
   "gain": 0.85,
   "instruments": [
@@ -49,41 +51,49 @@ var GUS_DRUM_PRESETS = {
       "note": 26,
       "name": "Snap",
       "shortName": "Snap",
-      "description": "Snap: dry finger snap with a short broadband crack.",
+      "description": "Snap: dry, crisp finger snap with a brief resonant tail.",
       "preset": {
         "mute": false,
         "gain": 0.42,
-        "duration": 0.12,
+        "duration": 0.09,
         "tones": [
           {
-            "fStart": 1850,
-            "fEnd": 1200,
-            "pitchDecay": 0.012,
-            "decay": 0.025,
-            "amp": 0.65
-          },
-          {
-            "fStart": 3200,
-            "fEnd": 2200,
-            "pitchDecay": 0.008,
-            "decay": 0.012,
-            "amp": 0.24
+            "fStart": 1700,
+            "fEnd": 1050,
+            "pitchDecay": 0.006,
+            "decay": 0.018,
+            "amp": 0.22
           }
         ],
-        "noise": {
-          "amp": 0.55,
-          "decay": 0.008,
-          "type": "white",
-          "bandpass": {
-            "center": 3200,
-            "q": 0.65
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.018,
+            "decay": 0.004,
+            "amp": 0.7,
+            "type": "white",
+            "bandpass": {
+              "center": 2800,
+              "q": 0.7
+            }
+          },
+          {
+            "delay": 0.004,
+            "duration": 0.014,
+            "decay": 0.005,
+            "amp": 0.28,
+            "type": "white",
+            "bandpass": {
+              "center": 4400,
+              "q": 0.7
+            }
           }
-        },
+        ],
         "click": {
-          "duration": 0.002,
-          "amp": 0.28
+          "duration": 0.001,
+          "amp": 0.12
         },
-        "highpass": 450,
+        "highpass": 500,
         "lowpass": 9000
       }
     },
@@ -131,39 +141,43 @@ var GUS_DRUM_PRESETS = {
       "description": "Sticks: dry crossed-stick click with a woody tone.",
       "preset": {
         "mute": false,
-        "gain": 0.42,
-        "duration": 0.12,
+        "gain": 0.25,
+        "duration": 0.18,
         "tones": [
           {
-            "fStart": 1650,
-            "fEnd": 1300,
-            "pitchDecay": 0.01,
-            "decay": 0.028,
-            "amp": 0.55
+            "fStart": 1050,
+            "fEnd": 1050,
+            "decay": 0.035,
+            "amp": 0.48
           },
           {
-            "fStart": 2450,
-            "fEnd": 1900,
-            "pitchDecay": 0.008,
-            "decay": 0.016,
-            "amp": 0.26
+            "fStart": 1750,
+            "fEnd": 1750,
+            "decay": 0.025,
+            "amp": 0.24
+          },
+          {
+            "fStart": 2800,
+            "fEnd": 2800,
+            "decay": 0.012,
+            "amp": 0.1
           }
         ],
         "noise": {
-          "amp": 0.24,
-          "decay": 0.006,
+          "amp": 0.18,
+          "decay": 0.004,
           "type": "white",
           "bandpass": {
-            "center": 2300,
-            "q": 0.7
+            "center": 2000,
+            "q": 0.85
           }
         },
         "click": {
-          "duration": 0.002,
-          "amp": 0.25
+          "duration": 0.0015,
+          "amp": 0.2
         },
-        "highpass": 500,
-        "lowpass": 8000
+        "highpass": 250,
+        "lowpass": 7000
       }
     },
     {
@@ -203,38 +217,27 @@ var GUS_DRUM_PRESETS = {
       "note": 33,
       "name": "Metronome Click",
       "shortName": "Metro. Click",
-      "description": "Metronome Click: clear pitched timing tick.",
+      "description": "Metronome Click: short metallic tick.",
       "preset": {
         "mute": false,
-        "gain": 0.4,
-        "duration": 0.12,
-        "tones": [
-          {
-            "fStart": 2250,
-            "fEnd": 1850,
-            "pitchDecay": 0.008,
-            "decay": 0.028,
-            "amp": 0.7
-          },
-          {
-            "fStart": 3400,
-            "fEnd": 2800,
-            "pitchDecay": 0.006,
-            "decay": 0.012,
-            "amp": 0.2
-          }
-        ],
-        "noise": {
-          "amp": 0.18,
-          "decay": 0.004,
-          "type": "white",
-          "bandpass": {
-            "center": 3000,
-            "q": 0.8
-          }
+        "gain": 0.25,
+        "duration": 0.08,
+        "metallic": {
+          "baseFreq": 1400,
+          "partials": [
+            1,
+            2.4,
+            3.8
+          ],
+          "decay": 0.018,
+          "amp": 0.48
         },
-        "highpass": 800,
-        "lowpass": 9000
+        "click": {
+          "duration": 0.0015,
+          "amp": 0.15
+        },
+        "highpass": 250,
+        "lowpass": 6000
       }
     },
     {
