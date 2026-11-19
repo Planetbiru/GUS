@@ -1097,6 +1097,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -1150,6 +1151,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -1257,6 +1259,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -2706,6 +2709,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": -2.5
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -2848,6 +2852,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": -3
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -2926,6 +2931,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -3000,6 +3006,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -5253,6 +5260,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -5290,6 +5298,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -5426,6 +5435,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -5462,6 +5472,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -5499,6 +5510,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -5636,6 +5648,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -5702,6 +5715,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -6114,6 +6128,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -6275,6 +6290,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9500,
           "end": 2600
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -6452,6 +6468,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "Banjo: a distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
+        "highpass": 120,
         "defaultWaveform": "pluck",
         "freq": 441,
         "length": 44100,
@@ -6580,6 +6597,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5,
           "depth": 0.01
         },
+        "highpass": 120,
         "antiAlias": true
       }
     },
