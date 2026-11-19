@@ -34,3 +34,35 @@ Highpass **120 Hz** ditambahkan karena sebelumnya belum tersedia:
 | 107 | Koto |
 
 Filter ini hanya mengurangi energi relatif di frekuensi bawah; tidak menaikkan level frekuensi tinggi secara langsung.
+
+## Percobaan tuning Distortion Gtr (sudah di-rollback)
+
+Program 30 (**Distortion Gtr**) disetel untuk mengurangi kekasaran saturasi dan low-end:
+
+| Parameter | Sebelum | Sesudah |
+| --- | ---: | ---: |
+| Guitar amp drive | 3.5 | 2.5 |
+| Wet mix | 0.95 | 0.8 |
+| Hard clip | 0.2 | 0.1 |
+| Continuous noise | 0.02 | 0.004 |
+| Preamp highpass | 100 Hz | 160 Hz |
+| Preset highpass | 800 Hz | 1000 Hz |
+
+Drive, wet mix, hard clip, dan noise kontinu yang lebih rendah mengurangi saturasi kasar serta desis. Cutoff preamp yang lebih tinggi menekan low-end sebelum saturasi; highpass preset mengurangi low-end tersisa setelah render.
+Perubahan pada tabel ini telah di-rollback dan tidak aktif pada preset saat ini.
+
+## Percobaan tuning Overdriven Gtr (sudah di-rollback)
+
+Program 29 (**Overdriven Gtr**) disetel untuk mengurangi low-end:
+
+| Parameter | Sebelum | Sesudah |
+| --- | ---: | ---: |
+| Preamp highpass | 90 Hz | 160 Hz |
+| Preset highpass | 800 Hz | 1000 Hz |
+
+Drive tetap 1 dan wet mix tetap 0 karena konfigurasi ini sudah menonaktifkan saturasi amp tambahan; hard clipping juga tidak digunakan. Filter yang lebih tinggi mengurangi energi rendah tanpa menambahkan saturasi baru.
+Perubahan pada tabel ini telah di-rollback dan tidak aktif pada preset saat ini.
+
+## Penyesuaian noise Distortion Gtr setelah rollback
+
+Noise kontinu program 30 diturunkan dari **0,02** menjadi **0,01**. Parameter drive, mix, clipping, dan filter dibiarkan pada nilai awal agar pengurangan noise tidak menurunkan level maupun mengubah karakter gitar secara berlebihan.
