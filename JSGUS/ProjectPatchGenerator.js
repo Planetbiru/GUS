@@ -1156,8 +1156,8 @@ class MelodicRenderer {
             for (let i = 0; i < fi; i++) out[i] *= i / fi;
         }
 
-        GUSPatchGenerator.normalize(out, 0.9);
         if (p.highpass) GUSPatchGenerator.highpass(out, p.highpass, SR);
+        GUSPatchGenerator.normalize(out, 0.9);
         return { pcm: out, length, loopStart, loopEnd, loop: isLoop, SR, naturalFreq };
     }
 
