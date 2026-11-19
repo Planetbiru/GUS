@@ -7063,28 +7063,36 @@ var GUS_MELODIC_PRESETS = {
       "description": "Bird Tweet: a recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "sine",
-        "length": 4410,
-        "loop": false,
-        "env": {
-          "a": 0.01,
-          "d": 0.3,
-          "s": 0.2,
-          "r": 0.2
-        },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
+        "renderMode": "drum",
+        "pitchInvariant": true,
+        "loop": true,
+        "sustainLoop": true,
+        "gain": 0.45,
+        "freq": 441,
+        "duration": 0.32,
+        "tones": [
+          {
+            "fStart": 1750,
+            "fPeak": 3150,
+            "fEnd": 2250,
+            "riseTime": 0.035,
+            "fallTime": 0.075,
+            "decay": 0.06,
+            "amp": 0.7
+          }
         ],
-        "fm": {
-          "ratio": 4,
-          "index": 5
+        "noise": {
+          "amp": 0.12,
+          "decay": 0.045,
+          "type": "pink",
+          "bandpass": {
+            "center": 6200,
+            "q": 1.2
+          }
         },
-        "noise": 0.2,
-        "antiAlias": true
+        "highpass": 1000,
+        "lowpass": 9000,
+        "fadeOut": 0.08
       }
     },
     {

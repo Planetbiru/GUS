@@ -965,7 +965,14 @@ class MelodicRenderer {
             if (Number.isFinite(preset.highpass)) preset.highpass *= frequencyScale;
             if (Number.isFinite(preset.lowpass)) preset.lowpass *= frequencyScale;
             const rendered = new DrumRenderer(preset, SR).render();
-            return { ...rendered, naturalFreq: renderFreq };
+            const loop = p.loop === true;
+            return {
+                ...rendered,
+                loop,
+                loopStart: loop ? 0 : rendered.loopStart,
+                loopEnd: loop ? rendered.length : rendered.loopEnd,
+                naturalFreq: renderFreq,
+            };
         }
 
         let length, baseFreq, loopStart = 0, loopEnd = 0, cs = 50;
