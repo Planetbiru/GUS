@@ -7241,11 +7241,11 @@ var GUS_MELODIC_PRESETS = {
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
-        "gain": 0.3,
+        "gain": 0.83,
         "freq": 441,
         "duration": 0.75,
         "membrane": {
-          "freq": 75,
+          "freq": 70,
           "pitchDecay": 0.025,
           "decay": 0.24,
           "modes": [
