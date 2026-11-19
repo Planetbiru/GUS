@@ -7095,37 +7095,74 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Telephone",
       "shortName": "Telephone",
-      "description": "Telephone: a recognizable effect with a distinct texture.",
+      "description": "Telephone: a classic dual-tone bell ring.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "square",
+        "renderMode": "drum",
+        "pitchInvariant": true,
         "gain": 0.3,
-        "length": 6615,
-        "loop": false,
-        "env": {
-          "a": 0.05,
-          "d": 0.5,
-          "s": 0.5,
-          "r": 0.4
-        },
-        "harm": [
-          1,
-          0,
-          0.5,
-          0,
-          0.25
+        "freq": 441,
+        "duration": 1.1,
+        "tones": [
+          {
+            "fStart": 550,
+            "fEnd": 550,
+            "pitchDecay": 20,
+            "decay": 1.5,
+            "amp": 0.9
+          },
+          {
+            "fStart": 600,
+            "fEnd": 600,
+            "pitchDecay": 20,
+            "decay": 1.5,
+            "amp": 0.9
+          },
+          {
+            "fStart": 1100,
+            "fEnd": 1100,
+            "pitchDecay": 20,
+            "decay": 1,
+            "amp": 0.22
+          },
+          {
+            "fStart": 1200,
+            "fEnd": 1200,
+            "pitchDecay": 20,
+            "decay": 1,
+            "amp": 0.18
+          },
+          {
+            "fStart": 1650,
+            "fEnd": 1650,
+            "pitchDecay": 20,
+            "decay": 0.8,
+            "amp": 0.12
+          },
+          {
+            "fStart": 1800,
+            "fEnd": 1800,
+            "pitchDecay": 20,
+            "decay": 0.8,
+            "amp": 0.1
+          },
+          {
+            "fStart": 2200,
+            "fEnd": 2200,
+            "pitchDecay": 20,
+            "decay": 0.6,
+            "amp": 0.06
+          },
+          {
+            "fStart": 2400,
+            "fEnd": 2400,
+            "pitchDecay": 20,
+            "decay": 0.6,
+            "amp": 0.05
+          }
         ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.2,
-        "vibrato": {
-          "rate": 15,
-          "depth": 0.05,
-          "sweep": 15
-        },
-        "antiAlias": true
+        "lowpass": 6500,
+        "fadeOut": 0.18
       }
     },
     {
