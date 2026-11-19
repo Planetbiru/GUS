@@ -1815,23 +1815,23 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 14
         },
         "guitarAmp": {
-          "drive": 1.6,
+          "drive": 1.35,
           "bias": 0.008,
-          "mix": 0.72,
+          "mix": 0.64,
           "clip": 0.0,
-          "preampCutoff": 130,
+          "preampCutoff": 70,
           "cabinetCutoff": 5600
         },
         "formants": [
           { "freq": 500,  "q": 1.5, "gain": -1.0 },
-          { "freq": 1100, "q": 1.3, "gain": 1.5 },
-          { "freq": 2000, "q": 1.4, "gain": 2.0 },
-          { "freq": 3200, "q": 1.6, "gain": 1.5 }
+          { "freq": 1100, "q": 1.3, "gain": 1.0 },
+          { "freq": 2000, "q": 1.4, "gain": 1.0 },
+          { "freq": 3200, "q": 1.6, "gain": 0.75 }
         ],
         "brightness": {
           "loopCutoff": 5800
         },
-        "highpass": 220,
+        "highpass": 80,
         "antiAlias": true
       }
     },
@@ -1895,12 +1895,12 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 12
         },
         "guitarAmp": {
-          "drive": 2,
+          "drive": 1.65,
           "bias": 0.005,
-          "mix": 0.82,
-          "clip": 0.05,
-          "preampCutoff": 150,
-          "cabinetCutoff": 5200
+          "mix": 0.7,
+          "clip": 0,
+          "preampCutoff": 70,
+          "cabinetCutoff": 4800
         },
         "formants": [
           {
@@ -1911,17 +1911,17 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 1200,
             "q": 1.3,
-            "gain": 2
+            "gain": 1
           },
           {
             "freq": 2200,
             "q": 1.4,
-            "gain": 2.5
+            "gain": 1.5
           },
           {
             "freq": 3500,
             "q": 1.6,
-            "gain": 1.5
+            "gain": 0.75
           }
         ],
         "brightness": {
@@ -1929,7 +1929,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 3500,
           "loopCutoff": 6000
         },
-        "highpass": 320,
+        "highpass": 80,
         "antiAlias": true
       }
     },
