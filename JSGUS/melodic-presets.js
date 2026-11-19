@@ -1645,7 +1645,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.525,
+        "gain": 0.84,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -1692,7 +1692,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 5600,
           "loopCutoff": 5200
         },
-        "highpass": 200,
+        "highpass": 900,
         "antiAlias": true
       }
     },
@@ -1894,7 +1894,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 1200
         },
-        "highpass": 100,
+        "highpass": 500,
         "antiAlias": true
       }
     },
@@ -2055,7 +2055,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 3200,
           "loopCutoff": 18000
         },
-        "highpass": 100,
+        "highpass": 500,
         "antiAlias": true
       }
     },
