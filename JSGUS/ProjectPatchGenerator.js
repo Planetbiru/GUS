@@ -1047,6 +1047,7 @@ class MelodicRenderer {
         const inharmB   = isLoop ? 0    : (p.inharmonicity || 0);
         const atk       = isLoop ? (p.loopAttackNoise || null) : (p.attackNoise || null);
         const pluck     = isLoop ? null : (p.pluckTransient || null);
+        const trem      = isLoop ? (p.tremolo || null) : null;
         const pluckPosition = Number.isFinite(p.pluckPosition)
             ? Math.max(0.01, Math.min(0.49, p.pluckPosition))
             : null;
@@ -1072,7 +1073,9 @@ class MelodicRenderer {
             };
         });
         const out = new Float32Array(length);
-        const noiseBuf    = (isLoop && noiseAmt > 0) ? this._buildLoopNoise(cs) : null;
+        const noiseBuf    = (isLoop && noiseAmt > 0 && !p.noiseOnly) ? this._buildLoopNoise(cs) : null;
+        const lowNoiseAmt = isLoop && p.noiseOnly ? (p.lowNoise || 0) : 0;
+        const lowNoiseBuf = lowNoiseAmt > 0 ? this._buildLoopNoise(cs, 'brown') : null;
         const fadeSamples = isLoop ? cs : 0;
         const loopAttackSamples = isLoop && p.loopAttack
             ? Math.min(loopStart, Math.max(1, Math.round(SR * p.loopAttack)))
@@ -1130,8 +1133,20 @@ class MelodicRenderer {
                 const n = noiseBuf ? noiseBuf[i % cs] : (Math.random() * 2 - 1);
                 sample = sample * (1 - noiseAmt) + n * noiseAmt;
             }
+            if (lowNoiseBuf) {
+                const low = lowNoiseBuf[i % cs];
+                sample = sample * (1 - lowNoiseAmt) + low * lowNoiseAmt;
+            }
 
-            out[i] = sample * this._envelope(
+            let tremolo = 1;
+            if (trem) {
+                const rate = Math.max(0.1, Math.min(25, trem.rate || 12));
+                const depth = Math.max(0, Math.min(1, trem.depth || 0.75));
+                const chop = 0.5 + 0.5 * Math.sin(Math.PI * 2 * rate * t);
+                tremolo = 1 - depth + depth * chop;
+            }
+
+            out[i] = sample * tremolo * this._envelope(
                 t, length, env, isLoop, i, fadeSamples, loopAttackSamples
             );
         }
@@ -1237,8 +1252,10 @@ class MelodicRenderer {
         return e;
     }
 
-    _buildLoopNoise(cs) {
-        const buf = GUSPatchGenerator.pinkNoise(cs);
+    _buildLoopNoise(cs, type = 'pink') {
+        const buf = type === 'brown'
+            ? GUSPatchGenerator.brownNoise(cs)
+            : GUSPatchGenerator.pinkNoise(cs);
         let np = 0;
         for (let i = 0; i < cs; i++) np = Math.max(np, Math.abs(buf[i]));
         if (np > 0) for (let i = 0; i < cs; i++) buf[i] /= np;
@@ -1286,11 +1303,15 @@ class DrumRenderer {
             cfg,
             buffer: this._buildNoise(cfg, length, SR)
         }));
+        const noiseBurstsBuf = p.noiseBursts
+            ? this._buildNoiseBursts(p.noiseBursts, length, SR)
+            : null;
 
         for (let i = 0; i < length; i++) {
             const t = i / SR;
             let sample = 0;
             sample += this._tones(t, tones);
+            if (noiseBurstsBuf) sample += noiseBurstsBuf[i];
             if (membrane) sample += this._membrane(t, membrane);
             if (metallic) sample += this._metallic(t, metallic);
             for (const impact of impactBuffers) {
@@ -1433,6 +1454,77 @@ class DrumRenderer {
             : 1;
         const attack = attackProgress * attackProgress * (3 - 2 * attackProgress);
         return noiseBuf[idx] * cfg.amp * attack * Math.exp(-t / (cfg.decay || 0.1));
+    }
+
+    _buildNoiseBursts(cfg, length, SR) {
+        const out = new Float32Array(length);
+        const bands = cfg.bands || [
+            {center: 900, q: 0.7, amp: 0.31},
+            {center: 1800, q: 0.75, amp: 0.69},
+            {center: 3400, q: 0.8, amp: 0.60},
+            {center: 6500, q: 0.7, amp: 0.24},
+        ];
+        const bankLength = Math.max(256, Math.round(SR * 0.08));
+        const noiseBanks = bands.map(band => {
+            const noise = GUSPatchGenerator.bandpassNoise(
+                bankLength,
+                band.center,
+                band.q,
+                SR
+            );
+            let energy = 0;
+            for (let i = 0; i < noise.length; i++) energy += noise[i] * noise[i];
+            const rms = Math.sqrt(energy / noise.length);
+            if (rms > 0) {
+                for (let i = 0; i < noise.length; i++) noise[i] /= rms;
+            }
+            return {noise, amp: band.amp};
+        });
+
+        const density = Math.max(1, cfg.density || 155);
+        const addClap = (start, intensity) => {
+            const fastDecay = 0.004 + Math.random() * 0.009;
+            const roomDecay = 0.018 + Math.random() * 0.045;
+            const eventLength = Math.round(SR * (0.008 + Math.random() * 0.045));
+            const attackLength = Math.max(1, Math.round(SR * (0.0004 + Math.random() * 0.0012)));
+            const sources = noiseBanks.map(({noise, amp}) => ({
+                noise,
+                amp,
+                offset: Math.floor(Math.random() * noise.length),
+            }));
+
+            for (let j = 0; j < eventLength && start + j < length; j++) {
+                const attack = Math.min(1, j / attackLength);
+                const t = j / SR;
+                const envelope = attack * (
+                    0.72 * Math.exp(-t / fastDecay)
+                    + 0.28 * Math.exp(-t / roomDecay)
+                );
+                let sample = 0;
+                for (const source of sources) {
+                    sample += source.noise[(source.offset + j) % source.noise.length]
+                        * source.amp;
+                }
+                out[start + j] += sample * envelope * intensity;
+            }
+        };
+
+        let time = Math.random() * 0.012;
+        while (time < length / SR) {
+            const start = Math.round(time * SR);
+            const intensity = 0.35 + Math.random() * 0.9;
+            addClap(start, intensity);
+            if (Math.random() < 0.24) {
+                addClap(
+                    start + Math.round(SR * (0.006 + Math.random() * 0.018)),
+                    intensity * (0.18 + Math.random() * 0.3)
+                );
+            }
+            time += -Math.log(Math.max(1e-6, Math.random())) / density;
+        }
+
+        GUSPatchGenerator.normalize(out, cfg.peak || 0.95);
+        return out;
     }
 
     _impact(t, noiseBuf, cfg) {
