@@ -1275,8 +1275,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 24,
       "family": "Guitar",
-      "name": "Nylon Guitar",
-      "shortName": "Nylon Guitar",
+      "name": "Acoustic Nylon Guitar",
+      "shortName": "Ac. Nylon Gtr",
       "description": "Warm, rounded pluck with a soft decay.",
       "preset": {
         "mute": false,
@@ -1424,8 +1424,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 25,
       "family": "Guitar",
-      "name": "Steel Guitar",
-      "shortName": "Steel Guitar",
+      "name": "Acoustic Steel Guitar",
+      "shortName": "Ac. Steel Gtr",
       "description": "Bright pluck with a smooth, controlled attack.",
       "preset": {
         "mute": false,
@@ -1579,7 +1579,7 @@ var GUS_MELODIC_PRESETS = {
       "program": 26,
       "family": "Guitar",
       "name": "Jazz Guitar",
-      "shortName": "Jazz Guitar",
+      "shortName": "Jazz Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
@@ -1651,8 +1651,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 27,
       "family": "Guitar",
-      "name": "Clean Guitar",
-      "shortName": "Clean Guitar",
+      "name": "Electric Clean Guitar",
+      "shortName": "E. Clean Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
@@ -1712,7 +1712,7 @@ var GUS_MELODIC_PRESETS = {
       "program": 28,
       "family": "Guitar",
       "name": "Muted Guitar",
-      "shortName": "Muted Guitar",
+      "shortName": "Muted Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
@@ -1942,8 +1942,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 31,
       "family": "Guitar",
-      "name": "Gtr Harmonics",
-      "shortName": "Gtr Harmonics",
+      "name": "Harmonics Guitar",
+      "shortName": "Harmonics Gtr",
       "description": "Sustained guitar overtone with loop.",
       "preset": {
         "mute": false,
