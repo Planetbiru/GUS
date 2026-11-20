@@ -123,12 +123,16 @@ const DRUM_ICON_SET = {
     vibraslap: '<svg width="24" height="24" viewBox="0 0 512 512" fill="currentColor"><path d="M0 115V58q7-26 34-26l195 30 11 8q3-6 11-7 14 3 6 16-13 13-6 31l8 12q2 12-12 11-4-2-6-5-9 10-22 12H30q-24-3-30-25"/><path d="M512 155v260q-14 60-77 65a77 77 0 0 1-75-61l-2-156q-5-16-20-21l-207-1q-12-8 0-17h209q29 6 36 36l1 149q7 39 46 51 42 7 64-29l6-18V157q-9-42-50-49l-172-1q-10-5-4-14l4-3q90-2 180 1 49 13 61 64M0 244v-22q12-45 60-44 40 6 48 46 5 38-27 57-40 18-70-13-8-12-11-24"/></svg>',
     metronome: '<svg width="24" height="24" viewBox="0 0 314 314" fill="currentColor"><path d="m282 47-4-5-11-6 5-10a7 7 0 1 0-12-7l-5 10-11-7a7 7 0 0 0-10 4l-14 40q-1 6 3 9l5 2-23 42-20-102q-4-15-21-17h-56Q92 2 87 17L46 224l-14 70q-1 8 4 14 4 6 13 6h174q8 0 13-6t3-14l-14-70-16-84 31-56 5 3a7 7 0 0 0 9-2l26-33q3-2 2-5M101 20q1-5 7-6h56q5 1 7 6l23 118-30 54q-9-5-21-5v-15h11a7 7 0 1 0 0-14h-11v-42h11a7 7 0 1 0 0-14h-11V61h11a7 7 0 1 0 0-14h-11V35a7 7 0 1 0-14 0v12h-11a7 7 0 1 0 0 14h11v41h-11a7 7 0 1 0 0 14h11v42h-11a7 7 0 1 0 0 14h11v15c-20 1-32 10-44 18q-11 9-23 13zm124 279-2 1H49l-3-1v-2l13-64q20-4 34-16 16-15 43-17c19 0 30 8 42 17q15 12 35 16l12 64zm-15-81q-13-3-24-13l-10-6 22-40zm36-146-11-7 9-26 20 11z"/></svg>',
     drumstrick: '<svg width="24" height="24" viewBox="0 0 314 314" fill="currentColor"><path d="M308 274 187 157l93-96q12-1 23-12 9-9 11-21 2-13-7-21-6-7-17-7-14 0-25 11-10 11-12 23l-96 94-96-94q-1-12-12-23-9-9-21-11Q15-2 7 7q-9 8-7 21 2 12 11 21 11 11 23 12l93 96L6 273v1q-6 7-6 16t7 17 18 7 16-6l116-121 116 121a22 22 0 0 0 17 6q9 0 17-7 7-8 7-17t-6-16M43 50q-1-3-6-3-8 0-16-8-6-5-7-13-1-4 3-9 5-4 9-3 8 1 13 7 8 8 8 16 0 5 3 6l97 94-10 10zM31 298q-3 2-6 2-5 0-8-3t-3-8l2-6L264 43q3-1 3-6 0-8 8-16 7-7 15-7 3-1 7 3 4 5 3 9-1 8-7 13-8 8-16 8-4 0-6 3zm269-9q0 5-3 8t-8 3l-6-2-116-121 10-10 121 116z"/></svg>',
+    scratch: '<svg width="24" height="24" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="27" cy="37" r="20"/><circle cx="27" cy="37" r="13"/><circle cx="27" cy="37" r="3" fill="currentColor" stroke="none"/><path d="m44 11 8 8-15 15M44 11l8-5 6 6-5 8M38 34l9 9"/></svg>',
 };
 
 const DRUM_NOTE_ICON_MAP = {
     25: DRUM_ICON_SET.snare,
     26: DRUM_ICON_SET.hand,
     27: DRUM_ICON_SET.woodblock,
+    28: DRUM_ICON_SET.hand,
+    29: DRUM_ICON_SET.scratch,
+    30: DRUM_ICON_SET.scratch,
     31: DRUM_ICON_SET.drumstrick,
     32: DRUM_ICON_SET.woodblock,
     33: DRUM_ICON_SET.metronome,
@@ -183,6 +187,9 @@ const DRUM_NOTE_ICON_MAP = {
     82: DRUM_ICON_SET.maracas,
     83: DRUM_ICON_SET.conga,
     84: MIDI_ICONS.tubularBells,
+    85: DRUM_ICON_SET.woodblock,
+    86: DRUM_ICON_SET.tom,
+    87: DRUM_ICON_SET.tom,
 };
 
 function getDrumMidiIcon(note) {

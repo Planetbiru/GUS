@@ -135,6 +135,188 @@ var GUS_DRUM_PRESETS = {
       }
     },
     {
+      "note": 28,
+      "name": "Slap",
+      "shortName": "Slap",
+      "description": "Dry hand slap with a sharp broadband attack and a woody body",
+      "preset": {
+        "mute": false,
+        "gain": 0.48,
+        "duration": 0.2,
+        "tones": [
+          {
+            "fStart": 230,
+            "fEnd": 165,
+            "pitchDecay": 0.012,
+            "decay": 0.075,
+            "amp": 0.32
+          },
+          {
+            "fStart": 610,
+            "fEnd": 390,
+            "pitchDecay": 0.006,
+            "decay": 0.035,
+            "amp": 0.24
+          },
+          {
+            "fStart": 1450,
+            "fEnd": 920,
+            "pitchDecay": 0.003,
+            "decay": 0.018,
+            "amp": 0.12
+          }
+        ],
+        "noiseLayers": [
+          {
+            "amp": 0.72,
+            "decay": 0.012,
+            "type": "white",
+            "bandpass": {
+              "center": 2100,
+              "q": 0.62
+            }
+          },
+          {
+            "amp": 0.32,
+            "decay": 0.028,
+            "type": "pink",
+            "bandpass": {
+              "center": 850,
+              "q": 0.7
+            }
+          }
+        ],
+        "click": {
+          "duration": 0.0015,
+          "amp": 0.16
+        },
+        "highpass": 80,
+        "lowpass": 7200
+      }
+    },
+    {
+      "note": 29,
+      "name": "Scratch 1",
+      "shortName": "Scratch 1",
+      "description": "Rough, low turntable scrape with a descending, gritty pitch.",
+      "preset": {
+        "mute": false,
+        "gain": 0.34,
+        "duration": 0.42,
+        "tones": [
+          {
+            "fStart": 1750,
+            "fEnd": 410,
+            "pitchDecay": 0.11,
+            "decay": 0.19,
+            "amp": 0.3,
+            "fm": {
+              "ratio": 2.4,
+              "index": 1.15
+            }
+          },
+          {
+            "fStart": 920,
+            "fEnd": 260,
+            "pitchDecay": 0.075,
+            "decay": 0.12,
+            "amp": 0.18,
+            "fm": {
+              "ratio": 1.73,
+              "index": 0.8
+            }
+          }
+        ],
+        "noiseLayers": [
+          {
+            "amp": 0.62,
+            "attack": 0.004,
+            "decay": 0.17,
+            "type": "brown",
+            "bandpass": {
+              "center": 1350,
+              "q": 0.58
+            }
+          },
+          {
+            "amp": 0.3,
+            "attack": 0.002,
+            "decay": 0.075,
+            "type": "white",
+            "bandpass": {
+              "center": 3600,
+              "q": 0.68
+            }
+          }
+        ],
+        "highpass": 180,
+        "lowpass": 6200
+      }
+    },
+    {
+      "note": 30,
+      "name": "Scratch 2",
+      "shortName": "Scratch 2",
+      "description": "Short, brighter turntable scrape",
+      "preset": {
+        "mute": false,
+        "gain": 0.3,
+        "duration": 0.28,
+        "tones": [
+          {
+            "fStart": 560,
+            "fPeak": 2350,
+            "fEnd": 760,
+            "riseTime": 0.009,
+            "fallTime": 0.12,
+            "decay": 0.13,
+            "amp": 0.28,
+            "fm": {
+              "ratio": 2.15,
+              "index": 1.05
+            }
+          },
+          {
+            "fStart": 850,
+            "fPeak": 3100,
+            "fEnd": 1250,
+            "riseTime": 0.006,
+            "fallTime": 0.075,
+            "decay": 0.075,
+            "amp": 0.14,
+            "fm": {
+              "ratio": 1.62,
+              "index": 0.65
+            }
+          }
+        ],
+        "noiseLayers": [
+          {
+            "amp": 0.56,
+            "attack": 0.002,
+            "decay": 0.095,
+            "type": "white",
+            "bandpass": {
+              "center": 2700,
+              "q": 0.64
+            }
+          },
+          {
+            "amp": 0.25,
+            "attack": 0.004,
+            "decay": 0.14,
+            "type": "pink",
+            "bandpass": {
+              "center": 1150,
+              "q": 0.72
+            }
+          }
+        ],
+        "highpass": 220,
+        "lowpass": 7600
+      }
+    },
+    {
       "note": 31,
       "name": "Sticks",
       "shortName": "Sticks",
@@ -2484,6 +2666,170 @@ var GUS_DRUM_PRESETS = {
         },
         "highpass": 650,
         "lowpass": 10500
+      }
+    },
+    {
+      "note": 85,
+      "name": "Castanets",
+      "shortName": "Castanets",
+      "description": "Dry, sharp wooden clacks with a pair of bright resonances.",
+      "preset": {
+        "mute": false,
+        "gain": 0.22,
+        "duration": 0.18,
+        "tones": [
+          {
+            "fStart": 1850,
+            "fEnd": 1450,
+            "pitchDecay": 0.004,
+            "decay": 0.032,
+            "amp": 0.54
+          },
+          {
+            "fStart": 3150,
+            "fEnd": 2600,
+            "pitchDecay": 0.003,
+            "decay": 0.021,
+            "amp": 0.3
+          }
+        ],
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.022,
+            "decay": 0.006,
+            "amp": 0.38,
+            "type": "white",
+            "bandpass": {
+              "center": 3600,
+              "q": 0.72
+            }
+          },
+          {
+            "delay": 0.014,
+            "duration": 0.018,
+            "decay": 0.005,
+            "amp": 0.2,
+            "type": "white",
+            "bandpass": {
+              "center": 4700,
+              "q": 0.68
+            }
+          }
+        ],
+        "highpass": 900,
+        "lowpass": 8500
+      }
+    },
+    {
+      "note": 86,
+      "name": "Mute Surdo",
+      "shortName": "Mute Surdo",
+      "description": "Short, damped low surdo thump with a soft beater attack.",
+      "preset": {
+        "mute": false,
+        "gain": 0.56,
+        "duration": 0.3,
+        "membrane": {
+          "freq": 118,
+          "pitchDecay": 0.018,
+          "decay": 0.16,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.9,
+              "decay": 1
+            },
+            {
+              "ratio": 1.62,
+              "amp": 0.34,
+              "decay": 0.58
+            },
+            {
+              "ratio": 2.18,
+              "amp": 0.16,
+              "decay": 0.38
+            },
+            {
+              "ratio": 2.76,
+              "amp": 0.07,
+              "decay": 0.25
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.16
+        },
+        "noise": {
+          "amp": 0.13,
+          "decay": 0.022,
+          "type": "pink",
+          "bandpass": {
+            "center": 460,
+            "q": 0.7
+          }
+        },
+        "highpass": 35,
+        "lowpass": 1800
+      }
+    },
+    {
+      "note": 87,
+      "name": "Open Surdo",
+      "shortName": "Open Surdo",
+      "description": "Deep, resonant surdo note with a rounded attack and decay.",
+      "preset": {
+        "mute": false,
+        "gain": 0.5,
+        "duration": 0.78,
+        "membrane": {
+          "freq": 92,
+          "pitchDecay": 0.032,
+          "decay": 0.67,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.58,
+              "amp": 0.42,
+              "decay": 0.78
+            },
+            {
+              "ratio": 2.12,
+              "amp": 0.2,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.68,
+              "amp": 0.12,
+              "decay": 0.4
+            },
+            {
+              "ratio": 3.16,
+              "amp": 0.07,
+              "decay": 0.3
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.004,
+          "amp": 0.12
+        },
+        "noise": {
+          "amp": 0.1,
+          "decay": 0.04,
+          "type": "pink",
+          "bandpass": {
+            "center": 320,
+            "q": 0.65
+          }
+        },
+        "highpass": 30,
+        "lowpass": 1500
       }
     }
   ]
