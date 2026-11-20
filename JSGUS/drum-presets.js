@@ -141,7 +141,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Dry hand slap with a sharp broadband attack and a woody body",
       "preset": {
         "mute": false,
-        "gain": 0.48,
+        "gain": 0.42,
         "duration": 0.2,
         "tones": [
           {
@@ -1815,15 +1815,15 @@ var GUS_DRUM_PRESETS = {
       "note": 62,
       "name": "Mute Hi Conga",
       "shortName": "Mute Hi Conga",
-      "description": "Conga strike with a rounded, resonant skin.",
+      "description": "Short, dry high conga strike with a bright, muted skin tone.",
       "preset": {
         "mute": false,
-        "gain": 0.55,
-        "duration": 0.42,
+        "gain": 0.32,
+        "duration": 0.12,
         "membrane": {
-          "freq": 320,
-          "pitchDecay": 0.018,
-          "decay": 0.07,
+          "freq": 297,
+          "pitchDecay": 0.008,
+          "decay": 0.045,
           "modes": [
             {
               "ratio": 1,
@@ -1843,19 +1843,19 @@ var GUS_DRUM_PRESETS = {
           ]
         },
         "click": {
-          "duration": 0.003,
-          "amp": 0.24
+          "duration": 0.002,
+          "amp": 0.3
         },
         "noise": {
-          "amp": 0.16,
-          "decay": 0.008,
+          "amp": 0.19,
+          "decay": 0.012,
           "type": "pink",
           "bandpass": {
-            "center": 1800,
-            "q": 0.85
+            "center": 2200,
+            "q": 0.8
           }
         },
-        "lowpass": 2600
+        "lowpass": 4600
       }
     },
     {
