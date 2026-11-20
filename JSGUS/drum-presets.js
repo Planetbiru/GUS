@@ -141,7 +141,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Dry hand slap with a sharp broadband attack and a woody body",
       "preset": {
         "mute": false,
-        "gain": 0.42,
+        "gain": 0.39,
         "duration": 0.2,
         "tones": [
           {
@@ -668,7 +668,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Layered clap with a sharp, brief transient.",
       "preset": {
         "mute": false,
-        "gain": 0.65,
+        "gain": 0.57,
         "duration": 0.3,
         "noise": {
           "amp": 0.85,

@@ -3368,7 +3368,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "Rounded vowel formants with a soft vocal onset.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "sine",
+        "defaultWaveform": "string",
         "gain": 0.5,
         "loop": true,
         "cycles": 14,
@@ -3388,7 +3388,13 @@ var GUS_MELODIC_PRESETS = {
           0.055,
           0.03,
           0.016,
-          0.008
+          0.008,
+          0.006,
+          0.0045,
+          0.0034,
+          0.0025,
+          0.0019,
+          0.0014
         ],
         "phases": [
           -0.01,
@@ -3400,10 +3406,16 @@ var GUS_MELODIC_PRESETS = {
           -0.49,
           -0.64,
           -0.81,
-          -1
+          -1,
+          -1.21,
+          -1.44,
+          -1.69,
+          -1.96,
+          -2.25,
+          -2.56
         ],
         "phaseScale": 0.01,
-        "noise": 0.035,
+        "noise": 0.045,
         "vibratoOnset": 0.2,
         "vibrato": {
           "rate": 5,
@@ -3437,6 +3449,16 @@ var GUS_MELODIC_PRESETS = {
             "freq": 3200,
             "q": 1.8,
             "gain": 0.2
+          },
+          {
+            "freq": 3700,
+            "q": 1.6,
+            "gain": 3
+          },
+          {
+            "freq": 5200,
+            "q": 1.5,
+            "gain": 2
           }
         ],
         "highpass": 350,
