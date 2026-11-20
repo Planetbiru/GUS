@@ -8,7 +8,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Acoustic Grand Piano",
       "shortName": "Ac. Grand Piano",
-      "description": "Ac. Grand: clear struck-key tone with a controlled decay.",
+      "description": "Clear struck-key tone with a controlled decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -130,7 +130,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Bright Piano",
       "shortName": "Bright Piano",
-      "description": "Bright Piano: struck-key tone with a resonant decay.",
+      "description": "Struck-key tone with a resonant decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -217,7 +217,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Electric Grand",
       "shortName": "Elec. Grand",
-      "description": "Elec. Grand: struck-key tone with a resonant decay.",
+      "description": "Struck-key tone with a resonant decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -277,7 +277,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Honky-tonk",
       "shortName": "Honky-tonk",
-      "description": "Honky-tonk: struck-key tone with a resonant decay.",
+      "description": "Struck-key tone with a resonant decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -367,7 +367,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "E.Piano 1",
       "shortName": "E.Piano 1",
-      "description": "E.Piano 1: struck-key tone with a resonant decay.",
+      "description": "Struck-key tone with a resonant decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -427,7 +427,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "E.Piano 2",
       "shortName": "E.Piano 2",
-      "description": "E.Piano 2: struck-key tone with a resonant decay.",
+      "description": "Struck-key tone with a resonant decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -487,7 +487,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Harpsichord",
       "shortName": "Harpsichord",
-      "description": "Harpsichord: struck-key tone with a resonant decay.",
+      "description": "Struck-key tone with a resonant decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -545,7 +545,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Clavinet",
       "shortName": "Clavinet",
-      "description": "Clavinet: struck-key tone with a resonant decay.",
+      "description": "Struck-key tone with a resonant decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -601,7 +601,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Celesta",
       "shortName": "Celesta",
-      "description": "Celesta: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -641,7 +641,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Glockenspiel",
       "shortName": "Glockenspiel",
-      "description": "Glockenspiel: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -681,7 +681,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Music Box",
       "shortName": "Music Box",
-      "description": "Music Box: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -718,7 +718,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Vibraphone",
       "shortName": "Vibraphone",
-      "description": "Vibraphone: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -761,7 +761,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Marimba",
       "shortName": "Marimba",
-      "description": "Marimba: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -798,7 +798,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Xylophone",
       "shortName": "Xylophone",
-      "description": "Xylophone: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -834,7 +834,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Tubular Bells",
       "shortName": "Tubular Bells",
-      "description": "Tubular Bells: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -873,7 +873,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Dulcimer",
       "shortName": "Dulcimer",
-      "description": "Dulcimer: a bright strike with a clear ringing tone.",
+      "description": "A bright strike with a clear ringing tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -928,7 +928,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Drawbar Organ",
       "shortName": "Drawbar Organ",
-      "description": "Drawbar Organ: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "organ",
@@ -960,7 +960,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Percussive Organ",
       "shortName": "Percussive Organ",
-      "description": "Percussive Organ: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pulse",
@@ -994,7 +994,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Rock Organ",
       "shortName": "Rock Organ",
-      "description": "Rock Organ: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
@@ -1028,7 +1028,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Church Organ",
       "shortName": "Church Organ",
-      "description": "Church Organ: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "organ",
@@ -1060,7 +1060,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Reed Organ",
       "shortName": "Reed Organ",
-      "description": "Reed Organ: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -1115,7 +1115,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Accordion",
       "shortName": "Accordion",
-      "description": "Accordion: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -1169,7 +1169,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Harmonica",
       "shortName": "Harmonica",
-      "description": "Harmonica: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -1222,7 +1222,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Tango Accordion",
       "shortName": "Tango Accordion",
-      "description": "Tango Accordion: a steady tone with layered harmonics.",
+      "description": "A steady tone with layered harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -1277,7 +1277,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Nylon Guitar",
       "shortName": "Nylon Guitar",
-      "description": "Nylon Guitar: warm, rounded pluck with a soft decay.",
+      "description": "Warm, rounded pluck with a soft decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": null,
@@ -1426,7 +1426,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Steel Guitar",
       "shortName": "Steel Guitar",
-      "description": "Steel Guitar: bright pluck with a smooth, controlled attack.",
+      "description": "Bright pluck with a smooth, controlled attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": null,
@@ -1580,7 +1580,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Jazz Guitar",
       "shortName": "Jazz Guitar",
-      "description": "Jazz Guitar: a plucked-string attack with natural decay.",
+      "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -1653,7 +1653,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Clean Guitar",
       "shortName": "Clean Guitar",
-      "description": "Clean Guitar: a plucked-string attack with natural decay.",
+      "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -1713,7 +1713,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Muted Guitar",
       "shortName": "Muted Guitar",
-      "description": "Muted Guitar: a plucked-string attack with natural decay.",
+      "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -1788,7 +1788,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Overdriven Gtr",
       "shortName": "Overdriven Gtr",
-      "description": "Overdriven Gtr: driven guitar with a sustained loop.",
+      "description": "Driven guitar with a sustained loop.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -1846,7 +1846,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Distortion Gtr",
       "shortName": "Distortion Gtr",
-      "description": "Distortion Gtr: driven guitar with a sustained loop.",
+      "description": "Driven guitar with a sustained loop.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -1944,7 +1944,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Gtr Harmonics",
       "shortName": "Gtr Harmonics",
-      "description": "Gtr Harmonics: sustained guitar overtone with loop.",
+      "description": "Sustained guitar overtone with loop.",
       "preset": {
         "mute": false,
         "defaultWaveform": null,
@@ -2013,7 +2013,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Acoustic Bass",
       "shortName": "Ac. Bass",
-      "description": "Ac. Bass: a focused low end and firm fundamental.",
+      "description": "A focused low end and firm fundamental.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -2054,7 +2054,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Finger Bass",
       "shortName": "Finger Bass",
-      "description": "Finger Bass: a focused low end and firm fundamental.",
+      "description": "A focused low end and firm fundamental.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -2095,7 +2095,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Pick Bass",
       "shortName": "Pick Bass",
-      "description": "Pick Bass: a focused low end and firm fundamental.",
+      "description": "A focused low end and firm fundamental.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -2136,7 +2136,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Fretless Bass",
       "shortName": "Fretless Bass",
-      "description": "Fretless Bass: a smooth, singing tone with a rounded attack.",
+      "description": "A smooth, singing tone with a rounded attack.",
       "preset": {
         "mute": false,
         "gain": 0.58,
@@ -2176,7 +2176,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Slap Bass 1",
       "shortName": "Slap Bass 1",
-      "description": "Slap Bass 1: a focused low end and firm fundamental.",
+      "description": "A focused low end and firm fundamental.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -2218,7 +2218,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Slap Bass 2",
       "shortName": "Slap Bass 2",
-      "description": "Slap Bass 2: a focused low end and firm fundamental.",
+      "description": "A focused low end and firm fundamental.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -2260,7 +2260,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Synth Bass 1",
       "shortName": "Synth Bass 1",
-      "description": "Synth Bass 1: a focused low end and firm fundamental.",
+      "description": "A focused low end and firm fundamental.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -2300,7 +2300,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Bass",
       "name": "Synth Bass 2",
       "shortName": "Synth Bass 2",
-      "description": "Synth Bass 2: a focused low end and firm fundamental.",
+      "description": "A focused low end and firm fundamental.",
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
@@ -2342,7 +2342,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Violin",
       "shortName": "Violin",
-      "description": "Violin: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
@@ -2433,7 +2433,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Viola",
       "shortName": "Viola",
-      "description": "Viola: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
@@ -2523,7 +2523,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Cello",
       "shortName": "Cello",
-      "description": "Cello: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
@@ -2595,7 +2595,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Contrabass",
       "shortName": "Contrabass",
-      "description": "Contrabass: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
@@ -2666,7 +2666,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Tremolo Str",
       "shortName": "Tremolo Str",
-      "description": "Tremolo Str: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
@@ -2738,7 +2738,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Pizzicato",
       "shortName": "Pizzicato",
-      "description": "Pizzicato: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -2817,7 +2817,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Harp",
       "shortName": "Harp",
-      "description": "Harp: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -2892,7 +2892,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Strings",
       "name": "Timpani",
       "shortName": "Timpani",
-      "description": "Timpani: a bowed or plucked tone with rich harmonics.",
+      "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -2921,7 +2921,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Strings 1",
       "shortName": "Strings 1",
-      "description": "Strings 1: a layered orchestral blend with smooth sustain.",
+      "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
@@ -3022,7 +3022,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Strings 2",
       "shortName": "Strings 2",
-      "description": "Strings 2: a layered orchestral blend with smooth sustain.",
+      "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
@@ -3123,7 +3123,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "SynthStrings 1",
       "shortName": "SynthStrings 1",
-      "description": "SynthStrings 1: a layered orchestral blend with smooth.",
+      "description": "A layered orchestral blend with smooth.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -3201,7 +3201,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "SynthStrings 2",
       "shortName": "SynthStrings 2",
-      "description": "SynthStrings 2: a layered orchestral blend with smooth.",
+      "description": "A layered orchestral blend with smooth.",
       "preset": {
         "mute": false,
         "defaultWaveform": "triangle",
@@ -3281,7 +3281,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Choir Aahs",
       "shortName": "Choir Aahs",
-      "description": "Choir Aahs: a layered orchestral blend with smooth sustain.",
+      "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -3365,7 +3365,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Voice Oohs",
       "shortName": "Voice Oohs",
-      "description": "Voice Oohs: rounded vowel formants with a soft vocal onset.",
+      "description": "Rounded vowel formants with a soft vocal onset.",
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
@@ -3448,7 +3448,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Synth Voice",
       "shortName": "Synth Voice",
-      "description": "Synth Voice: a layered orchestral blend with smooth sustain.",
+      "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -3529,7 +3529,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Orchestra Hit",
       "shortName": "Orchestra Hit",
-      "description": "Orchestra Hit: a layered orchestral blend with smooth.",
+      "description": "A layered orchestral blend with smooth.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -3578,7 +3578,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "Trumpet",
       "shortName": "Trumpet",
-      "description": "Trumpet: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -3670,7 +3670,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "Trombone",
       "shortName": "Trombone",
-      "description": "Trombone: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -3746,7 +3746,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "Tuba",
       "shortName": "Tuba",
-      "description": "Tuba: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
@@ -3821,7 +3821,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "Muted Trpt",
       "shortName": "Muted Trpt",
-      "description": "Muted Trpt: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pulse",
@@ -3896,7 +3896,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "French Horn",
       "shortName": "French Horn",
-      "description": "French Horn: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -3970,7 +3970,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "Brass Section",
       "shortName": "Brass Section",
-      "description": "Brass Section: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -4058,7 +4058,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "SynthBrass 1",
       "shortName": "SynthBrass 1",
-      "description": "SynthBrass 1: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -4125,7 +4125,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Brass",
       "name": "SynthBrass 2",
       "shortName": "SynthBrass 2",
-      "description": "SynthBrass 2: a bold attack and bright, focused tone.",
+      "description": "A bold attack and bright, focused tone.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pulse",
@@ -4186,7 +4186,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "Soprano Sax",
       "shortName": "Soprano Sax",
-      "description": "Soprano Sax: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -4258,7 +4258,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "Alto Sax",
       "shortName": "Alto Sax",
-      "description": "Alto Sax: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -4320,7 +4320,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "Tenor Sax",
       "shortName": "Tenor Sax",
-      "description": "Tenor Sax: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -4405,7 +4405,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "Bari Sax",
       "shortName": "Bari Sax",
-      "description": "Bari Sax: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -4476,7 +4476,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "Oboe",
       "shortName": "Oboe",
-      "description": "Oboe: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -4536,7 +4536,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "English Horn",
       "shortName": "English Horn",
-      "description": "English Horn: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -4594,7 +4594,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "Bassoon",
       "shortName": "Bassoon",
-      "description": "Bassoon: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "clarinet",
@@ -4653,7 +4653,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Reed",
       "name": "Clarinet",
       "shortName": "Clarinet",
-      "description": "Clarinet: a reedy wind tone with expressive harmonics.",
+      "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "clarinet",
@@ -4704,7 +4704,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Piccolo",
       "shortName": "Piccolo",
-      "description": "Piccolo: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
@@ -4754,7 +4754,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Flute",
       "shortName": "Flute",
-      "description": "Flute: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "defaultWaveform": "flute",
@@ -4810,7 +4810,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Recorder",
       "shortName": "Recorder",
-      "description": "Recorder: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "defaultWaveform": "flute",
@@ -4866,7 +4866,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Pan Flute",
       "shortName": "Pan Flute",
-      "description": "Pan Flute: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
@@ -4922,7 +4922,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Blown Bottle",
       "shortName": "Blown Bottle",
-      "description": "Blown Bottle: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -4967,7 +4967,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Shakuhachi",
       "shortName": "Shakuhachi",
-      "description": "Shakuhachi: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -5017,7 +5017,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Whistle",
       "shortName": "Whistle",
-      "description": "Whistle: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
@@ -5064,7 +5064,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pipe",
       "name": "Ocarina",
       "shortName": "Ocarina",
-      "description": "Ocarina: a breath-driven tone with a rounded body.",
+      "description": "A breath-driven tone with a rounded body.",
       "preset": {
         "mute": false,
         "defaultWaveform": "flute",
@@ -5109,7 +5109,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (square)",
       "shortName": "Lead (square)",
-      "description": "Lead (square): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
@@ -5149,7 +5149,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (saw)",
       "shortName": "Lead (saw)",
-      "description": "Lead (saw): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -5187,7 +5187,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (calliope)",
       "shortName": "Lead (calliope)",
-      "description": "Lead (calliope): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": null,
@@ -5285,7 +5285,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (chiff)",
       "shortName": "Lead (chiff)",
-      "description": "Lead (chiff): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "clarinet",
@@ -5324,7 +5324,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (charang)",
       "shortName": "Lead (charang)",
-      "description": "Lead (charang): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -5361,7 +5361,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (voice)",
       "shortName": "Lead (voice)",
-      "description": "Lead (voice): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -5399,7 +5399,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (fifths)",
       "shortName": "Lead (fifths)",
-      "description": "Lead (fifths): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -5434,7 +5434,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Lead",
       "name": "Lead (bass+ld)",
       "shortName": "Lead (bass+ld)",
-      "description": "Lead (bass+ld): a focused synth tone with strong harmonics.",
+      "description": "A focused synth tone with strong harmonics.",
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
@@ -5470,7 +5470,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (new age)",
       "shortName": "Pad (new age)",
-      "description": "Pad (new age): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
@@ -5537,7 +5537,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (warm)",
       "shortName": "Pad (warm)",
-      "description": "Pad (warm): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "triangle",
@@ -5604,7 +5604,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (polysynth)",
       "shortName": "Pad (polysynth)",
-      "description": "Pad (polysynth): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -5672,7 +5672,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (choir)",
       "shortName": "Pad (choir)",
-      "description": "Pad (choir): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -5740,7 +5740,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (bowed)",
       "shortName": "Pad (bowed)",
-      "description": "Pad (bowed): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
@@ -5807,7 +5807,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (metallic)",
       "shortName": "Pad (metallic)",
-      "description": "Pad (metallic): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -5878,7 +5878,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (halo)",
       "shortName": "Pad (halo)",
-      "description": "Pad (halo): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
@@ -5945,7 +5945,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Pad",
       "name": "Pad (sweep)",
       "shortName": "Pad (sweep)",
-      "description": "Pad (sweep): a soft sustained synth texture.",
+      "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -6017,7 +6017,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (rain)",
       "shortName": "FX (rain)",
-      "description": "FX (rain): an evolving synthetic texture with distinct.",
+      "description": "An evolving synthetic texture with distinct.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -6049,7 +6049,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (soundtrack)",
       "shortName": "FX (soundtrack)",
-      "description": "FX (soundtrack): an evolving synthetic texture with.",
+      "description": "An evolving synthetic texture with.",
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
@@ -6081,7 +6081,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (crystal)",
       "shortName": "FX (crystal)",
-      "description": "FX (crystal): an evolving synthetic texture with distinct.",
+      "description": "An evolving synthetic texture with distinct.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -6113,7 +6113,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (atmosphere)",
       "shortName": "FX (atmosphere)",
-      "description": "FX (atmosphere): nylon pluck with a faint airy shimmer.",
+      "description": "Nylon pluck with a faint airy shimmer.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -6179,7 +6179,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (brightness)",
       "shortName": "FX (brightness)",
-      "description": "FX (brightness): an evolving synthetic texture with.",
+      "description": "An evolving synthetic texture with.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -6211,7 +6211,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (goblins)",
       "shortName": "FX (goblins)",
-      "description": "FX (goblins): an evolving synthetic texture with distinct.",
+      "description": "An evolving synthetic texture with distinct.",
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
@@ -6243,7 +6243,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (echoes)",
       "shortName": "FX (echoes)",
-      "description": "FX (echoes): an evolving synthetic texture with distinct.",
+      "description": "An evolving synthetic texture with distinct.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -6277,7 +6277,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "FX",
       "name": "FX (sci-fi)",
       "shortName": "FX (sci-fi)",
-      "description": "FX (sci-fi): an evolving synthetic texture with distinct.",
+      "description": "An evolving synthetic texture with distinct.",
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
@@ -6309,7 +6309,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Sitar",
       "shortName": "Sitar",
-      "description": "Sitar: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -6345,7 +6345,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Banjo",
       "shortName": "Banjo",
-      "description": "Banjo: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "highpass": 120,
@@ -6417,7 +6417,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Shamisen",
       "shortName": "Shamisen",
-      "description": "Shamisen: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -6451,7 +6451,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Koto",
       "shortName": "Koto",
-      "description": "Koto: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
@@ -6486,7 +6486,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Kalimba",
       "shortName": "Kalimba",
-      "description": "Kalimba: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -6521,7 +6521,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Bagpipe",
       "shortName": "Bagpipe",
-      "description": "Bagpipe: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -6569,7 +6569,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Fiddle",
       "shortName": "Fiddle",
-      "description": "Fiddle: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
@@ -6638,7 +6638,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ethnic",
       "name": "Shanai",
       "shortName": "Shanai",
-      "description": "Shanai: a distinctive folk tone with a bright attack.",
+      "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
@@ -6692,7 +6692,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Tinkle Bell",
       "shortName": "Tinkle Bell",
-      "description": "Tinkle Bell: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -6729,7 +6729,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Agogo",
       "shortName": "Agogo",
-      "description": "Agogo: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "pulse",
@@ -6765,7 +6765,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Steel Drums",
       "shortName": "Steel Drums",
-      "description": "Steel Drums: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
@@ -6804,7 +6804,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Woodblock",
       "shortName": "Woodblock",
-      "description": "Woodblock: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -6832,7 +6832,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Taiko Drum",
       "shortName": "Taiko Drum",
-      "description": "Taiko Drum: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -6861,7 +6861,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Melodic Tom",
       "shortName": "Melodic Tom",
-      "description": "Melodic Tom: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
@@ -6891,7 +6891,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Synth Drum",
       "shortName": "Synth Drum",
-      "description": "Synth Drum: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "sine",
@@ -6920,7 +6920,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Perc",
       "name": "Reverse Cymbal",
       "shortName": "Reverse Cymbal",
-      "description": "Reverse Cymbal: a pitched strike with clear resonance.",
+      "description": "A pitched strike with clear resonance.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -6953,7 +6953,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Fret Noise",
       "shortName": "Fret Noise",
-      "description": "Fret Noise: a recognizable effect with a distinct texture.",
+      "description": "A recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
@@ -7000,7 +7000,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Breath Noise",
       "shortName": "Breath Noise",
-      "description": "Breath Noise: a recognizable effect with a distinct texture.",
+      "description": "A recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
@@ -7033,7 +7033,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Seashore",
       "shortName": "Seashore",
-      "description": "Seashore: a recognizable effect with a distinct texture.",
+      "description": "A recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
@@ -7061,7 +7061,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Bird Tweet",
       "shortName": "Bird Tweet",
-      "description": "Bird Tweet: a recognizable effect with a distinct texture.",
+      "description": "A recognizable effect with a distinct texture.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
@@ -7101,7 +7101,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Telephone",
       "shortName": "Telephone",
-      "description": "Telephone: a classic dual-tone bell ring.",
+      "description": "A classic dual-tone bell ring.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
@@ -7176,7 +7176,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Helicopter",
       "shortName": "Helicopter",
-      "description": "Helicopter: broadband rotor chop and airflow noise.",
+      "description": "Broadband rotor chop and airflow noise.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
@@ -7212,7 +7212,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Applause",
       "shortName": "Applause",
-      "description": "Applause: procedurally generated broadband handclap crowd.",
+      "description": "Procedurally generated broadband handclap crowd.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
@@ -7239,7 +7239,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Gunshot",
       "shortName": "Gunshot",
-      "description": "Gunshot: a sharp crack with a low boom and short tail.",
+      "description": "A sharp crack with a low boom and short tail.",
       "preset": {
         "mute": false,
         "renderMode": "drum",
