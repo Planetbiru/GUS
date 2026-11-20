@@ -5721,7 +5721,9 @@ var GUS_MELODIC_PRESETS = {
         "defaultWaveform": "breath",
         "gain": 0.51,
         "loop": true,
-        "cycles": 16,
+        "cycles": 44,
+        "loopSkip": 36,
+        "loopAttack": 0.07,
         "env": {
           "a": 0.3,
           "d": 0.3,
@@ -5733,7 +5735,18 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.2,
           0.1,
-          0.05
+          0.05,
+          0.035,
+          0.028,
+          0.023,
+          0.019,
+          0.016,
+          0.013,
+          0.011,
+          0.009,
+          0.007,
+          0.006,
+          0.005
         ],
         "detune": [
           -15,
@@ -5771,7 +5784,12 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 4500,
             "q": 3.5,
-            "gain": 1.5
+            "gain": 2.5
+          },
+          {
+            "freq": 5600,
+            "q": 1.6,
+            "gain": 2.5
           }
         ],
         "highpass": 250,
