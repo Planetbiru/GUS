@@ -1195,16 +1195,26 @@ canvas {
 }
 
 .progress {
-    height: 6px;
-    background: var(--panel2);
-    border-radius: 3px;
-    overflow: hidden;
     margin-top: 12px;
     display: none;
 }
 
 .progress.show {
-    display: block;
+    display: grid;
+    gap: 6px;
+}
+
+.progress-label {
+    color: var(--dim);
+    font-size: 11px;
+    min-height: 14px;
+}
+
+.progress-track {
+    height: 6px;
+    background: var(--panel2);
+    border-radius: 3px;
+    overflow: hidden;
 }
 
 .progress-bar {

@@ -553,7 +553,11 @@
                 <div id="midiStatus" class="meta midi-status" role="status" aria-live="polite">Select a MIDI file to play with the generated GM bank.</div>
                 <div class="log" id="log">Ready.</div>
                 <div class="progress" id="progressWrap">
-                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-label" id="exportProgressLabel" role="status" aria-live="polite"></div>
+                    <div class="progress-track" id="progressTrack" role="progressbar"
+                        aria-label="Export progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
                 </div>
             </div>
         </main>
