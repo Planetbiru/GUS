@@ -5520,7 +5520,9 @@ var GUS_MELODIC_PRESETS = {
         "defaultWaveform": "triangle",
         "gain": 0.55,
         "loop": true,
-        "cycles": 16,
+        "cycles": 40,
+        "loopSkip": 24,
+        "loopAttack": 0.05,
         "env": {
           "a": 0.3,
           "d": 0.3,
@@ -5546,16 +5548,16 @@ var GUS_MELODIC_PRESETS = {
           0.004
         ],
         "detune": [
-          -15,
+          -10,
           0,
-          15
+          10
         ],
         "vibratoOnset": 0.2,
         "vibrato": {
           "rate": 2,
           "depth": 0.003
         },
-        "drive": 1.15,
+        "drive": 1,
         "formants": [
           {
             "freq": 250,
@@ -5580,12 +5582,12 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 4500,
             "q": 0.9,
-            "gain": 4
+            "gain": 3.5
           },
           {
             "freq": 5600,
             "q": 0.9,
-            "gain": 3
+            "gain": 2.5
           }
         ],
         "highpass": 250,
