@@ -7176,31 +7176,34 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Helicopter",
       "shortName": "Helicopter",
-      "description": "Helicopter: a recognizable effect with a distinct texture.",
+      "description": "Helicopter: broadband rotor chop and airflow noise.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "saw",
-        "gain": 0.3,
+        "defaultWaveform": "breath",
+        "gain": 0.36,
+        "freq": 441,
         "length": 8820,
-        "loop": false,
+        "loop": true,
+        "cycles": 36,
+        "tailCycles": 180,
+        "loopSkip": 16,
+        "loopAttack": 0.015,
         "env": {
-          "a": 0.05,
+          "a": 0.02,
           "d": 0.5,
-          "s": 0.5,
-          "r": 0.4
+          "s": 1,
+          "r": 0.3
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
-        ],
-        "fm": {
-          "ratio": 1.02,
-          "index": 2
+        "noiseOnly": true,
+        "harm": [0],
+        "noise": 1,
+        "lowNoise": 0.08,
+        "tremolo": {
+          "rate": 14,
+          "depth": 0.82
         },
-        "noise": 0.5,
+        "highpass": 23,
+        "lowpass": 7200,
         "antiAlias": true
       }
     },

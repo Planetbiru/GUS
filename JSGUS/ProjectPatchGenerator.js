@@ -1047,6 +1047,7 @@ class MelodicRenderer {
         const inharmB   = isLoop ? 0    : (p.inharmonicity || 0);
         const atk       = isLoop ? (p.loopAttackNoise || null) : (p.attackNoise || null);
         const pluck     = isLoop ? null : (p.pluckTransient || null);
+        const trem      = isLoop ? (p.tremolo || null) : null;
         const pluckPosition = Number.isFinite(p.pluckPosition)
             ? Math.max(0.01, Math.min(0.49, p.pluckPosition))
             : null;
@@ -1072,7 +1073,9 @@ class MelodicRenderer {
             };
         });
         const out = new Float32Array(length);
-        const noiseBuf    = (isLoop && noiseAmt > 0) ? this._buildLoopNoise(cs) : null;
+        const noiseBuf    = (isLoop && noiseAmt > 0 && !p.noiseOnly) ? this._buildLoopNoise(cs) : null;
+        const lowNoiseAmt = isLoop && p.noiseOnly ? (p.lowNoise || 0) : 0;
+        const lowNoiseBuf = lowNoiseAmt > 0 ? this._buildLoopNoise(cs, 'brown') : null;
         const fadeSamples = isLoop ? cs : 0;
         const loopAttackSamples = isLoop && p.loopAttack
             ? Math.min(loopStart, Math.max(1, Math.round(SR * p.loopAttack)))
@@ -1130,8 +1133,20 @@ class MelodicRenderer {
                 const n = noiseBuf ? noiseBuf[i % cs] : (Math.random() * 2 - 1);
                 sample = sample * (1 - noiseAmt) + n * noiseAmt;
             }
+            if (lowNoiseBuf) {
+                const low = lowNoiseBuf[i % cs];
+                sample = sample * (1 - lowNoiseAmt) + low * lowNoiseAmt;
+            }
 
-            out[i] = sample * this._envelope(
+            let tremolo = 1;
+            if (trem) {
+                const rate = Math.max(0.1, Math.min(25, trem.rate || 12));
+                const depth = Math.max(0, Math.min(1, trem.depth || 0.75));
+                const chop = 0.5 + 0.5 * Math.sin(Math.PI * 2 * rate * t);
+                tremolo = 1 - depth + depth * chop;
+            }
+
+            out[i] = sample * tremolo * this._envelope(
                 t, length, env, isLoop, i, fadeSamples, loopAttackSamples
             );
         }
@@ -1237,8 +1252,10 @@ class MelodicRenderer {
         return e;
     }
 
-    _buildLoopNoise(cs) {
-        const buf = GUSPatchGenerator.pinkNoise(cs);
+    _buildLoopNoise(cs, type = 'pink') {
+        const buf = type === 'brown'
+            ? GUSPatchGenerator.brownNoise(cs)
+            : GUSPatchGenerator.pinkNoise(cs);
         let np = 0;
         for (let i = 0; i < cs; i++) np = Math.max(np, Math.abs(buf[i]));
         if (np > 0) for (let i = 0; i < cs; i++) buf[i] /= np;

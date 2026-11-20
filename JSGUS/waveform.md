@@ -234,6 +234,6 @@ Ini adalah titik awal berdasarkan karakter spektrum waveform yang tersedia, buka
 | 122 | Seashore | `breath` |
 | 123 | Bird Tweet | `sine` |
 | 124 | Telephone | `square` |
-| 125 | Helicopter | `saw` |
+| 125 | Helicopter | `breath` |
 | 126 | Applause | `breath` |
 | 127 | Gunshot | `hammer` |
