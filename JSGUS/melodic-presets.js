@@ -1832,7 +1832,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 500,  "q": 1.5, "gain": -1.0 },
           { "freq": 1100, "q": 1.3, "gain": 1.0 },
           { "freq": 2000, "q": 1.4, "gain": 1.0 },
-          { "freq": 3200, "q": 1.6, "gain": 0.75 }
+          { "freq": 3800, "q": 0.65, "gain": 8 }
         ],
         "brightness": {
           "loopCutoff": 5800
@@ -1925,9 +1925,9 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           },
           {
-            "freq": 3500,
-            "q": 1.6,
-            "gain": 0.75
+            "freq": 3800,
+            "q": 0.8,
+            "gain": 6
           }
         ],
         "brightness": {
