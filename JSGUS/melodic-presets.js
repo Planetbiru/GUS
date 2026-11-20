@@ -6020,27 +6020,24 @@ var GUS_MELODIC_PRESETS = {
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
+        "defaultWaveform": null,
+        "gain": 0.3,
+        "freq": 441,
         "length": 44100,
-        "loop": false,
+        "loop": true,
+        "cycles": 300,
+        "tailCycles": 180,
+        "loopSkip": 16,
+        "loopAttack": 0.02,
         "env": {
           "a": 0.05,
           "d": 0.5,
-          "s": 0.5,
+          "s": 1,
           "r": 0.4
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
-        ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.3,
+        "harm": [0],
+        "noise": 1,
+        "noiseOnly": true,
         "antiAlias": true
       }
     },
@@ -6053,6 +6050,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
+        "gain": 0.3,
         "length": 44100,
         "loop": false,
         "env": {
@@ -6085,6 +6083,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
+        "gain": 0.3,
         "length": 44100,
         "loop": false,
         "env": {
@@ -6117,6 +6116,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
+        "gain": 0.3,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -6183,6 +6183,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
+        "gain": 0.3,
         "length": 44100,
         "loop": false,
         "env": {
@@ -6215,6 +6216,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
+        "gain": 0.3,
         "length": 44100,
         "loop": false,
         "env": {
@@ -6247,7 +6249,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 1.5,
+        "gain": 0.3,
         "length": 44100,
         "loop": true,
         "sustainLoop": false,
@@ -6280,6 +6282,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
         "mute": false,
+        "gain": 0.3,
         "defaultWaveform": "saw",
         "length": 44100,
         "loop": false,
@@ -6313,6 +6316,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
+        "gain": 0.3,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -6348,8 +6352,8 @@ var GUS_MELODIC_PRESETS = {
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
         "mute": false,
-        "highpass": 120,
         "defaultWaveform": "pluck",
+        "gain": 0.3,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -6409,6 +6413,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -6421,6 +6426,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
+        "gain": 0.3,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -6455,6 +6461,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
+        "gain": 0.3,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -6490,6 +6497,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
+        "gain": 0.3,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -6525,6 +6533,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "reed",
+        "gain": 0.3,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -6573,7 +6582,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bow",
-        "gain": 1.5,
+        "gain": 0.3,
         "loop": true,
         "cycles": 14,
         "env": {
