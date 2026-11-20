@@ -108,6 +108,40 @@
         </div>
     </dialog>
 
+    <dialog id="midiRenderDialog" aria-labelledby="midiRenderTitle">
+        <div class="dialog-content">
+            <header class="dialog-header">
+                <h2 id="midiRenderTitle">Render MIDI</h2>
+                <button id="btnCloseMidiRender" class="dialog-close" type="button" aria-label="Close render options">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <label for="midiRenderType">Type</label>
+                <select id="midiRenderType">
+                    <option value="mixed">Mixed stereo</option>
+                    <option value="stereo">Stem stereo</option>
+                    <option value="mono">Stem mono</option>
+                </select>
+                <label for="midiRenderSampleRate">Sample rate</label>
+                <select id="midiRenderSampleRate">
+                    <option value="44100">44100 Hz</option>
+                    <option value="48000" selected>48000 Hz</option>
+                    <option value="96000">96000 Hz</option>
+                </select>
+                <p>Mixed exports a WAV file. Stem options export FLAC files in a ZIP archive.</p>
+            </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelMidiRender" type="button">Cancel</button>
+                    <button id="btnConfirmMidiRender" class="primary" type="button">Render</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
     <dialog id="newProjectDialog" aria-labelledby="newProjectTitle">
         <div class="dialog-content">
             <header class="dialog-header">
@@ -439,23 +473,12 @@
                             aria-haspopup="dialog" aria-controls="midiMixerDialog">Mixer</button>
                         <button id="btnTogglePatchCache" type="button" aria-pressed="true">Patch Cache: On</button>
                         <button id="btnClearPatchCache" type="button">Clear Patch Cache</button>
-                        <button id="btnMidiRender" class="button-with-icon" disabled>
+                        <button id="btnMidiRender" class="button-with-icon" type="button" disabled
+                            aria-haspopup="dialog" aria-controls="midiRenderDialog">
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
                             </svg>
                             <span>Render</span>
-                        </button>
-                        <button id="btnMidiRenderStemsStereo" class="button-with-icon" disabled>
-                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
-                            </svg>
-                            <span>Render Stem Stereo</span>
-                        </button>
-                        <button id="btnMidiRenderStemsMono" class="button-with-icon" disabled>
-                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
-                            </svg>
-                            <span>Render Stem Mono</span>
                         </button>
                     </div>
                     <div class="midi-transport-row">

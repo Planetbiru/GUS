@@ -5517,7 +5517,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "sine",
+        "defaultWaveform": "triangle",
         "gain": 0.55,
         "loop": true,
         "cycles": 16,
@@ -5532,7 +5532,18 @@ var GUS_MELODIC_PRESETS = {
           0.32,
           0.16,
           0.08,
-          0.04
+          0.04,
+          0.03,
+          0.025,
+          0.02,
+          0.016,
+          0.013,
+          0.011,
+          0.009,
+          0.007,
+          0.006,
+          0.005,
+          0.004
         ],
         "detune": [
           -15,
@@ -5548,31 +5559,36 @@ var GUS_MELODIC_PRESETS = {
         "formants": [
           {
             "freq": 250,
-            "q": 1.5,
-            "gain": 4
+            "q": 1.2,
+            "gain": 1.5
           },
           {
             "freq": 450,
-            "q": 2,
-            "gain": 5
+            "q": 1.2,
+            "gain": 1.5
           },
           {
             "freq": 1100,
-            "q": 2.5,
-            "gain": 4
+            "q": 1.2,
+            "gain": 2
           },
           {
             "freq": 2800,
-            "q": 3,
-            "gain": 3
+            "q": 1,
+            "gain": 2.5
           },
           {
             "freq": 4500,
-            "q": 3.5,
-            "gain": 1.5
+            "q": 0.9,
+            "gain": 4
+          },
+          {
+            "freq": 5600,
+            "q": 0.9,
+            "gain": 3
           }
         ],
-        "highpass": 120,
+        "highpass": 250,
         "antiAlias": true
       }
     },

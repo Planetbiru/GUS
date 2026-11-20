@@ -46,6 +46,18 @@ header h1 {
     font-size: 12px;
 }
 
+dialog .dialog-header,
+dialog .dialog-footer {
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+dialog.is-dragging .dialog-header,
+dialog.is-dragging .dialog-footer {
+    cursor: grabbing;
+}
+
 .dialog-body:not(.about-dialog-body) p {
     font-size: 14px;
 }
