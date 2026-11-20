@@ -45,6 +45,16 @@ const GM_MELODIC_NAMES = [
 ];
 
 const GM_DRUM_NAMES = {
+  25: "Snare Roll",
+  26: "Snap",
+  27: "High Q",
+  28: "Slap",
+  29: "Scratch 1",
+  30: "Scratch 2",
+  31: "Sticks",
+  32: "Square Click",
+  33: "Metronome Click",
+  34: "Metronome Bell",
   35: "Acoustic Bass Drum", 36: "Bass Drum 1", 37: "Side Stick", 38: "Acoustic Snare",
   39: "Hand Clap", 40: "Electric Snare", 41: "Low Floor Tom", 42: "Closed Hi Hat",
   43: "High Floor Tom", 44: "Pedal Hi Hat", 45: "Low Tom", 46: "Open Hi Hat",
@@ -56,7 +66,9 @@ const GM_DRUM_NAMES = {
   67: "High Agogo", 68: "Low Agogo", 69: "Cabasa", 70: "Maracas",
   71: "Short Whistle", 72: "Long Whistle", 73: "Short Guiro", 74: "Long Guiro",
   75: "Claves", 76: "Hi Wood Block", 77: "Low Wood Block", 78: "Mute Cuica",
-  79: "Open Cuica", 80: "Mute Triangle", 81: "Open Triangle"
+  79: "Open Cuica", 80: "Mute Triangle", 81: "Open Triangle",
+  82: "Shaker", 83: "Open Cuica", 84: "Bell Tree", 85: "Castanets",
+  86: "Mute Surdo", 87: "Open Surdo"
 };
 
 const IMPORT_NAME_MAX_LEN = 16;

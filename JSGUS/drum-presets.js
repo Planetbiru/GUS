@@ -141,7 +141,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Dry hand slap with a sharp broadband attack and a woody body",
       "preset": {
         "mute": false,
-        "gain": 0.48,
+        "gain": 0.42,
         "duration": 0.2,
         "tones": [
           {
@@ -402,7 +402,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Short metallic tick.",
       "preset": {
         "mute": false,
-        "gain": 0.25,
+        "gain": 0.22,
         "duration": 0.08,
         "metallic": {
           "baseFreq": 1400,
@@ -429,7 +429,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Bright single timing bell.",
       "preset": {
         "mute": false,
-        "gain": 0.296,
+        "gain": 0.22,
         "duration": 0.45,
         "metallic": {
           "baseFreq": 1750,
@@ -1815,15 +1815,15 @@ var GUS_DRUM_PRESETS = {
       "note": 62,
       "name": "Mute Hi Conga",
       "shortName": "Mute Hi Conga",
-      "description": "Conga strike with a rounded, resonant skin.",
+      "description": "Short, dry high conga strike with a bright, muted skin tone.",
       "preset": {
         "mute": false,
-        "gain": 0.55,
-        "duration": 0.42,
+        "gain": 0.32,
+        "duration": 0.12,
         "membrane": {
-          "freq": 320,
-          "pitchDecay": 0.018,
-          "decay": 0.07,
+          "freq": 297,
+          "pitchDecay": 0.008,
+          "decay": 0.045,
           "modes": [
             {
               "ratio": 1,
@@ -1843,19 +1843,19 @@ var GUS_DRUM_PRESETS = {
           ]
         },
         "click": {
-          "duration": 0.003,
-          "amp": 0.24
+          "duration": 0.002,
+          "amp": 0.3
         },
         "noise": {
-          "amp": 0.16,
-          "decay": 0.008,
+          "amp": 0.19,
+          "decay": 0.012,
           "type": "pink",
           "bandpass": {
-            "center": 1800,
-            "q": 0.85
+            "center": 2200,
+            "q": 0.8
           }
         },
-        "lowpass": 2600
+        "lowpass": 4600
       }
     },
     {
@@ -2296,21 +2296,55 @@ var GUS_DRUM_PRESETS = {
       "note": 73,
       "name": "Short Guiro",
       "shortName": "Short Guiro",
-      "description": "Raspy guiro scrape with a textured, rattling.",
+      "description": "Short guiro scrape with the same bright, rattling texture.",
       "preset": {
         "mute": false,
-        "gain": 0.42,
-        "duration": 0.15,
-        "noise": {
-          "amp": 1,
-          "decay": 0.15,
-          "type": "pink",
-          "bandpass": {
-            "center": 3500,
-            "q": 1.5
+        "gain": 0.23,
+        "duration": 0.16,
+        "fadeOut": 0.025,
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.04,
+            "type": "white",
+            "bandpass": { "center": 2900, "q": 0.8 }
+          },
+          {
+            "delay": 0.022,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.06,
+            "type": "white",
+            "bandpass": { "center": 3700, "q": 0.8 }
+          },
+          {
+            "delay": 0.045,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.08,
+            "type": "white",
+            "bandpass": { "center": 4700, "q": 0.8 }
+          },
+          {
+            "delay": 0.068,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.1,
+            "type": "white",
+            "bandpass": { "center": 5900, "q": 0.8 }
+          },
+          {
+            "delay": 0.091,
+            "duration": 0.05,
+            "decay": 0.02,
+            "amp": 0.12,
+            "type": "white",
+            "bandpass": { "center": 7100, "q": 0.8 }
           }
-        },
-        "highpass": 2500
+        ],
+        "highpass": 1700
       }
     },
     {
@@ -2320,7 +2354,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Raspy guiro scrape with a textured, rattling.",
       "preset": {
         "mute": false,
-        "gain": 0.35,
+        "gain": 0.21,
         "duration": 0.3,
         "fadeOut": 0.05,
         "impacts": [
