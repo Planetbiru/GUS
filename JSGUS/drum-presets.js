@@ -2815,8 +2815,9 @@ var GUS_DRUM_PRESETS = {
       "description": "Deep, resonant surdo note with a rounded attack and decay.",
       "preset": {
         "mute": false,
-        "gain": 0.5,
-        "duration": 0.78,
+        "gain": 0.36,
+        "duration": 1.3,
+        "fadeOut": 0.55,
         "membrane": {
           "freq": 92,
           "pitchDecay": 0.032,
