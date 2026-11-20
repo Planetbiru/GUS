@@ -1,7 +1,7 @@
 // Optional preset.tremolo: { rate: 0-25 Hz, sweep: GUS byte 0-255, depth: 0-1 }.
 // Omitted in the built-in presets so generated patches keep tremolo disabled.
 var GUS_DRUM_PRESETS = {
-  "gain": 0.85,
+  "gain": 0.81,
   "instruments": [
     {
       "note": 25,
@@ -439,7 +439,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Ac. Snare: crisp snare crack with a broad noise burst.",
       "preset": {
         "mute": false,
-        "gain": 0.95,
+        "gain": 0.88,
         "duration": 0.28,
         "membrane": {
           "freq": 180,
@@ -513,7 +513,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Elec. Snare: bright snare snap with a tight noisy tail.",
       "preset": {
         "mute": false,
-        "gain": 0.95,
+        "gain": 0.88,
         "duration": 0.28,
         "membrane": {
           "freq": 195,
