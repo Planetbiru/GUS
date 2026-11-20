@@ -121,7 +121,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 15000,
           "end": 9500
         },
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -418,7 +418,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 3,
           "index": 1.6
         },
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -478,7 +478,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 2,
           "index": 2.25
         },
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -3737,7 +3737,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -5663,7 +5663,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -5798,7 +5798,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -5869,7 +5869,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -6268,7 +6268,7 @@ var GUS_MELODIC_PRESETS = {
           0.04
         ],
         "noise": 0.01,
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
@@ -6629,7 +6629,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "highpass": 200,
+        "highpass": 230,
         "antiAlias": true
       }
     },
