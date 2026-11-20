@@ -224,7 +224,7 @@ class TimidityPlayer {
      * - 'onNoteOff' when a Note Off event occurs, or a Note On with velocity = 0
      * - 'onMidiEvent' for all MIDI events with full details
      *
-     * @param {number} tick - MIDI tick position of the event.
+     * @param {number} callbackPosition - Sample position supplied by the current C build.
      * @param {number} timeMilisecond - Event time in milliseconds.
      * @param {number} eventStatus - Raw MIDI status byte.
      * @param {number} channel - MIDI channel number.
@@ -233,7 +233,11 @@ class TimidityPlayer {
      * @param {number} b - Second event parameter (e.g., velocity).
      * @param {number} textPtr - Pointer to optional UTF-8 text data.
      */
-    _handleMidiEvent(tick, timeMilisecond, eventStatus, channel, eventType, a, b, textPtr) {
+    _handleMidiEvent(callbackPosition, timeMilisecond, eventStatus, channel, eventType, a, b, textPtr) {
+        // The current C build passes sample position here, so read the actual MIDI tick from the song.
+        const tick = this.songPtr !== 0
+            ? this.c.getCurrentTick(this.songPtr)
+            : callbackPosition;
         const timeSecond = timeMilisecond / 1000.0; // Convert milliseconds to seconds
         let text = '';
         if (textPtr) {
@@ -454,6 +458,7 @@ class TimidityPlayer {
      *   totalSeconds: number,
      *   programMap: Array<Array<{tick: number, channel: number, program: number}>>,
      *   volumeMap: Array<Array<{tick: number, channel: number, value: number}>>,
+     *   panMap: Array<Array<{tick: number, channel: number, value: number}>>,
      *   expressionMap: Array<Array<{tick: number, channel: number, value: number}>>,
      *   bankMsbMap: Array<Array<{tick: number, channel: number, value: number}>>,
      *   bankLsbMap: Array<Array<{tick: number, channel: number, value: number}>>
@@ -467,6 +472,9 @@ class TimidityPlayer {
      *   - `maxTick` — highest absolute tick encountered across all tracks.
      *   - `totalSeconds` — computed song duration in seconds from tempo map + `maxTick`.
      *   - `programMap[ch]` — Program Change events for channel `ch`, sorted by tick.
+     *   - `volumeMap[ch]` — Channel Volume (CC 7) events for channel `ch`, sorted by tick.
+     *   - `panMap[ch]` — Pan (CC 10) events for channel `ch`, sorted by tick.
+     *   - `expressionMap[ch]` — Expression (CC 11) events for channel `ch`, sorted by tick.
      *   - `bankMsbMap[ch]` — Bank Select MSB (CC 0) events for channel `ch`, sorted by tick.
      *   - `bankLsbMap[ch]` — Bank Select LSB (CC 32) events for channel `ch`, sorted by tick.
      * @throws {Error} If the data does not begin with a valid `MThd` header chunk.
@@ -497,6 +505,7 @@ class TimidityPlayer {
         const channelsUsed = new Set();
         const programEvents = [];
         const volumeEvents = [];
+        const panEvents = [];
         const expressionEvents = [];
         const bankMsbEvents = [];
         const bankLsbEvents = [];
@@ -562,6 +571,8 @@ class TimidityPlayer {
                         if (cmd === 0xB) { // Control Change
                             if (d1 === 7) {
                                 volumeEvents.push({ tick: absTick, channel: ch, value: d2 });
+                            } else if (d1 === 10) {
+                                panEvents.push({ tick: absTick, channel: ch, value: d2 });
                             } else if (d1 === 11) {
                                 expressionEvents.push({ tick: absTick, channel: ch, value: d2 });
                             } else if (d1 === 0) {
@@ -592,6 +603,7 @@ class TimidityPlayer {
 
         const programMap = buildChannelMap(programEvents);
         const volumeMap = buildChannelMap(volumeEvents);
+        const panMap = buildChannelMap(panEvents);
         const expressionMap = buildChannelMap(expressionEvents);
         const bankMsbMap = buildChannelMap(bankMsbEvents);
         const bankLsbMap = buildChannelMap(bankLsbEvents);
@@ -655,7 +667,7 @@ class TimidityPlayer {
         }
 
         return { division, timeMap, measureMap, tracksCount, trackNames, trackHasNotes, channelsUsed: Array.from(channelsUsed).sort((a, b) => a - b), maxTick, totalSeconds,
-            programMap, volumeMap, expressionMap, bankMsbMap, bankLsbMap
+            programMap, volumeMap, panMap, expressionMap, bankMsbMap, bankLsbMap
         };
     }
 
@@ -948,7 +960,16 @@ class TimidityPlayer {
      * @returns {number} The pan value (0-127), or -1 if no song is loaded or the channel is invalid.
      */
     getPan(channel, tick) {
-        return this.getControllerValueAtTick(channel, 10, tick);
+        if (this.songPtr === 0 || channel < 0 || channel > 15) return -1;
+        const events = this.tempoMap?.panMap?.[channel];
+        if (!events) return this.getControllerValueAtTick(channel, 10, tick);
+
+        let value = 64;
+        for (const event of events) {
+            if (event.tick > tick) break;
+            value = event.value;
+        }
+        return value;
     }
 
     /**
@@ -1843,7 +1864,8 @@ class TimidityPlayer {
      * @returns {Promise<boolean>} True if successfully loaded.
      */
     async loadInstrumentForSong(channel, program, bank = 0) {
-        if (!this.songPtr) {
+        const songPtr = this.songPtr;
+        if (!songPtr) {
             // This can happen if no song is loaded yet. It's not a critical error,
             // as the instrument will be loaded when the song is loaded.
             return Promise.resolve(true);
@@ -1870,7 +1892,10 @@ class TimidityPlayer {
         const patchListString = this.c.getRequiredPatches(streamPtr);
         this.c.closeStream(streamPtr);
         this.Module._free(dummyMidiPtr);
-        return this._loadRequiredPatches(patchListString, { bank, isDrum, program }).then(() => this.c.loadProgram(this.songPtr, bank, program, isDrum) === 0);
+        return this._loadRequiredPatches(patchListString, { bank, isDrum, program }).then(() => {
+            if (this.songPtr !== songPtr) return false;
+            return this.c.loadProgram(songPtr, bank, program, isDrum) === 0;
+        });
     }
 
     /**
