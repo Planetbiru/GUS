@@ -7212,32 +7212,26 @@ var GUS_MELODIC_PRESETS = {
       "family": "SFX",
       "name": "Applause",
       "shortName": "Applause",
-      "description": "Applause: a recognizable effect with a distinct texture.",
+      "description": "Applause: procedurally generated broadband handclap crowd.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "breath",
-        "gain": 0.3,
-        "length": 8820,
-        "loop": false,
-        "env": {
-          "a": 0.05,
-          "d": 2,
-          "s": 0.7,
-          "r": 0.5
+        "renderMode": "drum",
+        "gain": 0.45,
+        "pitchInvariant": true,
+        "loop": true,
+        "sustainLoop": true,
+        "loopStartSeconds": 1.63,
+        "loopEndSeconds": 2.89,
+        "loopCrossfadeSeconds": 0.035,
+        "freq": 261.6,
+        "duration": 2.91,
+        "noiseBursts": {
+          "density": 155,
+          "peak": 0.95
         },
-        "harm": [
-          1,
-          0.5,
-          0.33,
-          0.25,
-          0.2
-        ],
-        "fm": {
-          "ratio": 1.5,
-          "index": 3
-        },
-        "noise": 0.9,
-        "antiAlias": true
+        "highpass": 250,
+        "lowpass": 10500,
+        "fadeOut": 0.025
       }
     },
     {
