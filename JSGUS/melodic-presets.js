@@ -3281,13 +3281,14 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Choir Aahs",
       "shortName": "Choir Aahs",
-      "description": "A layered orchestral blend with smooth sustain.",
+      "description": "Airy choral 'ah' vowel with a soft, open sustain.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.5,
         "loop": true,
-        "cycles": 14,
+        "cycles": 38,
+        "loopSkip": 24,
         "env": {
           "a": 0.18,
           "d": 0.3,
@@ -3321,7 +3322,7 @@ var GUS_MELODIC_PRESETS = {
           -1.21
         ],
         "phaseScale": 0.01,
-        "noise": 0.025,
+        "noise": 0.035,
         "vibratoOnset": 0.2,
         "vibrato": {
           "rate": 4.8,
@@ -3329,26 +3330,26 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 20
         },
         "drive": 0.15,
-        "loopAttack": 0.02,
+        "loopAttack": 0.05,
         "loopAttackNoise": {
-          "amp": 0.025,
-          "duration": 0.04
+          "amp": 0.012,
+          "duration": 0.025
         },
         "formants": [
           {
-            "freq": 700,
-            "q": 1.1,
-            "gain": 4
+            "freq": 800,
+            "q": 0.85,
+            "gain": 8
           },
           {
-            "freq": 1200,
-            "q": 1.2,
-            "gain": 3
+            "freq": 1400,
+            "q": 1,
+            "gain": 6
           },
           {
-            "freq": 2600,
+            "freq": 2700,
             "q": 1.5,
-            "gain": 1.5
+            "gain": 1
           },
           {
             "freq": 3500,
