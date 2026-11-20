@@ -3368,7 +3368,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "Rounded vowel formants with a soft vocal onset.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "sine",
+        "defaultWaveform": "string",
         "gain": 0.5,
         "loop": true,
         "cycles": 14,
@@ -3388,7 +3388,13 @@ var GUS_MELODIC_PRESETS = {
           0.055,
           0.03,
           0.016,
-          0.008
+          0.008,
+          0.006,
+          0.0045,
+          0.0034,
+          0.0025,
+          0.0019,
+          0.0014
         ],
         "phases": [
           -0.01,
@@ -3400,10 +3406,16 @@ var GUS_MELODIC_PRESETS = {
           -0.49,
           -0.64,
           -0.81,
-          -1
+          -1,
+          -1.21,
+          -1.44,
+          -1.69,
+          -1.96,
+          -2.25,
+          -2.56
         ],
         "phaseScale": 0.01,
-        "noise": 0.035,
+        "noise": 0.045,
         "vibratoOnset": 0.2,
         "vibrato": {
           "rate": 5,
@@ -3437,6 +3449,16 @@ var GUS_MELODIC_PRESETS = {
             "freq": 3200,
             "q": 1.8,
             "gain": 0.2
+          },
+          {
+            "freq": 3700,
+            "q": 1.6,
+            "gain": 3
+          },
+          {
+            "freq": 5200,
+            "q": 1.5,
+            "gain": 2
           }
         ],
         "highpass": 350,
@@ -3999,7 +4021,13 @@ var GUS_MELODIC_PRESETS = {
           0.19,
           0.13,
           0.085,
-          0.05
+          0.05,
+          0.04,
+          0.032,
+          0.026,
+          0.021,
+          0.017,
+          0.013
         ],
         "phases": [
           0,
@@ -4011,7 +4039,12 @@ var GUS_MELODIC_PRESETS = {
           0.8,
           0.98,
           0.17,
-          0.4
+          0.4,
+          0.65,
+          0.9,
+          0.15,
+          0.4,
+          0.65
         ],
         "noise": 0,
         "attackNoise": {
@@ -4048,6 +4081,16 @@ var GUS_MELODIC_PRESETS = {
             "freq": 3000,
             "q": 1.8,
             "gain": 1.5
+          },
+          {
+            "freq": 4300,
+            "q": 1.7,
+            "gain": 3.5
+          },
+          {
+            "freq": 5900,
+            "q": 1.5,
+            "gain": 2
           }
         ],
         "antiAlias": true
