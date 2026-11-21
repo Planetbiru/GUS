@@ -994,10 +994,10 @@ var GUS_MELODIC_PRESETS = {
       "family": "Organ",
       "name": "Rock Organ",
       "shortName": "Rock Organ",
-      "description": "A steady tone with layered harmonics.",
+      "description": "A full drawbar tone with a mild driven edge.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "square",
+        "defaultWaveform": null,
         "gain": 0.38,
         "loop": true,
         "cycles": 12,
@@ -1009,17 +1009,23 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0,
+          0.24,
+          0.72,
+          0.2,
           0.5,
-          0,
-          0.4,
-          0,
-          0.3,
-          0,
-          0.25,
-          0,
-          0.2
+          0.16,
+          0.36,
+          0.14,
+          0.28,
+          0.12,
+          0.22,
+          0.1,
+          0.17,
+          0.08,
+          0.13,
+          0.06
         ],
+        "drive": 0.18,
         "antiAlias": true
       }
     },
@@ -3239,7 +3245,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
-        "gain": 0.42,
+        "gain": 0.48,
         "loop": true,
         "cycles": 38,
         "loopSkip": 24,
@@ -3324,7 +3330,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
-        "gain": 0.42,
+        "gain": 0.48,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -3429,7 +3435,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
-        "gain": 0.42,
+        "gain": 0.48,
         "loop": true,
         "cycles": 14,
         "env": {
