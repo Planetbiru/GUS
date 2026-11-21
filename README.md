@@ -48,7 +48,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 - **Microphone recording** — record audio directly via MediaRecorder and convert to 16-bit mono PCM
 - **Auto-parameter estimation** on import — root frequency via autocorrelation, envelope via RMS analysis
 - **Frequency range map** — visualize sample coverage across the keyboard to detect overlaps
-- **Generated sample variants and key zones** — choose A to restore the original instrument sound, or B–E for alternate waveforms; generate melodic samples for MIDI pitch ranges 0–127 and add multiple non-overlapping zones to build multi-sample instruments. Each Demo melodic patch contains seven samples covering the full MIDI range.
+- **Generated sample variants and key zones** — choose A to restore the original instrument sound, or B–E for alternate waveforms; generate melodic samples for MIDI pitch ranges 0–127 and add multiple non-overlapping zones to build multi-sample instruments. Demo melodic patches use three precision tiers: 19, 10, or 6 zones per instrument.
 
 ### File Import
 | Format | Extension | Description |
@@ -79,7 +79,7 @@ Built with vanilla JavaScript and no build step. Runs entirely in the browser. A
 
 ### Project Management
 - Multiple projects, each with its own patch list
-- **Demo project** — generate 128 melodic GM patches and 47 drum-note patches; melodic patches use seven samples covering MIDI pitches 0–127
+- **Demo project** — generate 128 melodic GM patches and 47 drum-note patches; melodic patches use 19, 10, or 6 zones according to instrument precision tier
 - **Project properties** — edit project name, author, source, dates, and description
 - Patches are automatically shared between projects if referenced by multiple projects
 - **Recovered Library** — patches whose project assignment was lost are recovered automatically
@@ -254,7 +254,7 @@ Then open **http://localhost:8000** in your browser.
 
 ### First Run
 
-1. Click **Demo** or **Create Demo** to generate a demo project with 128 melodic GM patches and 47 drum-note patches. Each melodic patch has seven samples spanning MIDI pitches 0–127; the first generation can take longer than subsequent opens.
+1. Click **Demo** or **Create Demo** to generate a demo project with 128 melodic GM patches and 47 drum-note patches. Melodic patches use high, medium, or low precision with 19, 10, or 6 zones spanning MIDI pitches 0–127; the first generation can take longer than subsequent opens.
 2. Or click **Add Project** → **Open a .PAT file** to import your own patch
 3. Once patches exist, use the **MIDI Preview** panel to load a `.mid` file and hear your patches
 
@@ -318,7 +318,7 @@ When adding a sample, open **Generate Automatically**, choose the instrument typ
 
 The same A–E choices appear in the sample editor for generated samples. Select **A — Original** to restore the saved original sample after trying another waveform. This restores the original PCM rather than generating it again, so any noise in the original sound is preserved exactly.
 
-For melodic samples, set **Pitch From** and **Pitch To** to MIDI note numbers from 0 to 127. Each generation creates one sample for the selected range; create additional samples with adjacent, non-overlapping ranges to cover more notes. Leaving the default range at 0–127 makes that sample cover the full keyboard. Drum samples use the full range automatically. If Demo generation is run again, incomplete generated melodic patches are upgraded to seven full-coverage zones.
+For melodic samples, set **Pitch From** and **Pitch To** to MIDI note numbers from 0 to 127. Each generation creates one sample for the selected range; create additional samples with adjacent, non-overlapping ranges to cover more notes. Leaving the default range at 0–127 makes that sample cover the full keyboard. Drum samples use the full range automatically. If Demo generation is run again, incomplete or legacy melodic patches are upgraded to the preset precision profile: 19 zones for high precision, 10 for medium precision, or 6 for low precision.
 
 ### Playing MIDI & Using the Timeline
 
@@ -503,6 +503,7 @@ Supported melodic `preset` properties:
 | `gain` | Non-negative per-instrument level multiplier, multiplied by the data-set master `gain`; high levels can saturate during 16-bit patch encoding. |
 | `defaultWaveform` | Default harmonic profile: `sine`, `triangle`, `square`, `saw`, `pulse`, `organ`, `flute`, `clarinet`, `reed`, `string`, `bell`, `pluck`, `hammer`, `bow`, or `breath`. A harmonic-amplitude array can also be supplied. A selected non-preset waveform replaces `harm`. |
 | `freq` | Default/root frequency in hertz. Pitch-zone generation may choose a different root. |
+| `sampleRate` | Not read on melodic presets; rendering is controlled by the `ProjectPatchGenerator` `sampleRate` option. |
 | `length` | One-shot sample length in samples at the 22,050 Hz reference rate; scaled for other sample rates. Ignored for loops. |
 | `duration` | Duration in seconds for `renderMode: "drum"` one-shots. Ordinary melodic one-shots use `length` or the generator duration. |
 | `harm` | Relative amplitude of each partial, starting with the fundamental at index 0. |
@@ -535,9 +536,16 @@ Supported melodic `preset` properties:
 | `guitarAmp` | Optional guitar stage: `preampCutoff` and `cabinetCutoff` in hertz, `drive`, `bias`, `mix`, and `clip` (blend toward hard clipping). |
 | `renderMode` | Set to `"drum"` to render a melodic program as a pitch-scaled one-shot using drum components. |
 | `tones` | Used by `renderMode: "drum"`; see the drum `tones` row for supported tone fields. |
+| `membrane`, `metallic`, `noiseLayers`, `impact`, `impacts`, `click`, `bursts` | Additional DrumRenderer components allowed by melodic presets with `renderMode: "drum"`; their fields and behavior match the drum preset component documentation below. |
 | `highpass` | High-pass cutoff in hertz, applied to the rendered sample. |
 | `lowpass` | Low-pass cutoff in hertz for `renderMode: "drum"`; ordinary melodic rendering uses `brightness.loopCutoff` for loop low-pass filtering. |
 | `fadeOut` | Fade-out time in seconds for `renderMode: "drum"` one-shots. |
+| `pitchInvariant` | If `true` for `renderMode: "drum"`, MIDI pitch does not scale tone and filter frequencies; the texture stays at its configured pitch. |
+| `noiseOnly` | For looped melodic presets, `true` makes noise the primary loop source instead of the normal oscillator/pink-noise blend. |
+| `lowNoise` | Brown-noise level used as a supplemental layer by a loop with `noiseOnly: true`. |
+| `loopStartSeconds`, `loopEndSeconds` | Start and end of the sustain loop for `renderMode: "drum"` presets, in seconds. `loopEndSeconds` defaults to `duration`. |
+| `loopCrossfadeSeconds` | Loop-seam overlap/crossfade length in seconds for `renderMode: "drum"` loops; capped at one quarter of the loop span. |
+| `noiseBursts` | Randomized noise-clap bursts for `renderMode: "drum"` presets, supporting `density`, `peak`, and optional `bands[]: { center, q, amp }`. |
 
 When `loop` is enabled, sample length comes from the loop period, `cycles`,
 and `tailCycles`; `length` is ignored. The looped waveform disables
@@ -558,6 +566,21 @@ and optional `fm: { ratio, index }` adds frequency modulation.
 
 Melodic render sample rate is controlled by the `ProjectPatchGenerator`
 `sampleRate` option; a `sampleRate` field on a melodic preset is not read.
+
+Melodic exports use three key-zone profiles to reduce PAT file size:
+
+| Precision | Zones | GM programs |
+|---|---:|---|
+| High | 19 | 0–15, 24–31, 40–47, 56–79 |
+| Bass | 16 | 32–39 |
+| Medium | 10 | 16–23, 48–55, 80–87 |
+| Low | 6 | 88–127 |
+
+High precision covers Piano/Chromatic, Guitar/Strings, and Brass/Reed/Pipe.
+The Bass family uses its dedicated 16-zone `BASS_PITCH_RANGES`. Medium precision covers Organ, Ensemble, and Lead. Low
+precision covers Pad, FX, and SFX. The profiles are defined explicitly in
+`MELODIC_HIGH_PRECISION_PROGRAMS`, `MELODIC_MEDIUM_PRECISION_PROGRAMS`, and
+`MELODIC_LOW_PRECISION_PROGRAMS`.
 
 ### Editing drum presets
 
@@ -603,6 +626,8 @@ Drum `preset` properties are combined by `DrumRenderer`:
 | `metallic` | Inharmonic ringing sound with `baseFreq` in hertz, partial frequency multipliers in `partials`, `amp`, and `decay` in seconds. Set `randomPhase: true` for randomized partial starting phases. |
 | `noise` | One noise layer with `amp`, `decay` in seconds, `type` (`white`, `pink`, or `brown`), and optional `bandpass: { center, q }`. Without `bandpass`, the noise is unfiltered. |
 | `noiseLayers` | Array of noise layers; each supports the same fields as `noise`. |
+| `noise.attack` | Optional noise attack time in seconds for `noise` or each `noiseLayers` entry. |
+| `noiseBursts` | Randomized band-filtered burst texture with optional `density`, `peak`, and `bands[]: { center, q, amp }`; without `bands`, the renderer uses its standard four-band bank. |
 | `impact` | One noise impact with `amp`, `duration`, `decay`, optional `delay`, `type`, and optional `bandpass`. |
 | `impacts` | Array of impact layers with the same fields as `impact`; use this to combine multiple hits. |
 | `click` | Short random-noise attack click with `duration` in seconds and `amp`. |

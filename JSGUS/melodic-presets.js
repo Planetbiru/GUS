@@ -1,7 +1,11 @@
 // Optional preset.tremolo: { rate: 0-25 Hz, sweep: GUS byte 0-255, depth: 0-1 }.
 // Omitted in the built-in presets so generated patches keep tremolo disabled.
 var GUS_MELODIC_PRESETS = {
-  "gain": 0.24,
+  "name": "GUS Melodic Presets",
+  "type": "melodic",
+  "version": "1.0",
+  "lastModified": "2026-11-21T12:00:00Z",
+  "gain": 0.18,
   "instruments": [
     {
       "program": 0,
@@ -722,7 +726,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.55,
+        "gain": 0.42,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -752,7 +756,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 0.42,
           "depth": 0.02
         },
-        "highpass": 120,
+        "highpass": 300,
         "antiAlias": true
       }
     },
@@ -1663,7 +1667,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.82,
+        "gain": 0.52,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -1710,7 +1714,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 5600,
           "loopCutoff": 5200
         },
-        "highpass": 1200,
+        "highpass": 1600,
         "antiAlias": true
       }
     },
@@ -1723,7 +1727,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.48,
+        "gain": 0.34,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -1785,7 +1789,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "highpass": 800,
+        "highpass": 1200,
         "antiAlias": true
       }
     },
@@ -1798,7 +1802,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.48,
+        "gain": 0.32,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -1843,7 +1847,7 @@ var GUS_MELODIC_PRESETS = {
         "brightness": {
           "loopCutoff": 5800
         },
-        "highpass": 80,
+        "highpass": 220,
         "antiAlias": true
       }
     },
@@ -1856,7 +1860,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.66,
+        "gain": 0.40,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -1941,7 +1945,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 3500,
           "loopCutoff": 6000
         },
-        "highpass": 80,
+        "highpass": 220,
         "antiAlias": true
       }
     },
@@ -2064,7 +2068,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.58,
+        "gain": 0.40,
         "freq": 220,
         "length": 33075,
         "loop": true,
@@ -2093,6 +2097,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
+        "highpass": 80,
         "antiAlias": true
       }
     },
