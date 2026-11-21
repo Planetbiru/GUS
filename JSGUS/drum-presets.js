@@ -791,9 +791,9 @@ var GUS_DRUM_PRESETS = {
         "gain": 0.85,
         "duration": 0.65,
         "membrane": {
-          "freq": 65,
-          "pitchDecay": 0.06,
-          "decay": 0.5,
+          "freq": 78,
+          "pitchDecay": 0.025,
+          "decay": 0.26,
           "modes": [
             {
               "ratio": 1,
@@ -819,19 +819,20 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.18
+          "amp": 0.3
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.024,
+          "amp": 0.34,
+          "decay": 0.018,
           "type": "pink",
           "bandpass": {
-            "center": 1200,
+            "center": 2200,
             "q": 0.75
           }
         },
-        "highpass": 40,
-        "lowpass": 3200
+        "highpass": 55,
+        "lowpass": 5500,
+        "fadeOut": 0.06
       }
     },
     {
@@ -887,8 +888,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.6,
         "membrane": {
           "freq": 90,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -914,19 +915,20 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.2
+          "amp": 0.26
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.022,
+          "amp": 0.29,
+          "decay": 0.018,
           "type": "pink",
           "bandpass": {
-            "center": 1350,
+            "center": 1800,
             "q": 0.75
           }
         },
         "highpass": 55,
-        "lowpass": 3600
+        "lowpass": 5000,
+        "fadeOut": 0.05
       }
     },
     {
@@ -977,8 +979,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 120,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.025,
+          "decay": 0.25,
           "modes": [
             {
               "ratio": 1,
@@ -1004,19 +1006,20 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.2
+          "amp": 0.3
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.02,
+          "amp": 0.34,
+          "decay": 0.016,
           "type": "pink",
           "bandpass": {
-            "center": 1500,
+            "center": 2700,
             "q": 0.75
           }
         },
-        "highpass": 70,
-        "lowpass": 3900
+        "highpass": 100,
+        "lowpass": 6500,
+        "fadeOut": 0.05
       }
     },
     {
@@ -1055,8 +1058,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 155,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -1082,19 +1085,20 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.2
+          "amp": 0.26
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.019,
+          "amp": 0.29,
+          "decay": 0.015,
           "type": "pink",
           "bandpass": {
-            "center": 1700,
+            "center": 2200,
             "q": 0.75
           }
         },
         "highpass": 90,
-        "lowpass": 4250
+        "lowpass": 6000,
+        "fadeOut": 0.05
       }
     },
     {
@@ -1108,8 +1112,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 190,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -1135,19 +1139,20 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.22
+          "amp": 0.28
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.018,
+          "amp": 0.29,
+          "decay": 0.014,
           "type": "pink",
           "bandpass": {
-            "center": 1850,
+            "center": 2400,
             "q": 0.75
           }
         },
         "highpass": 115,
-        "lowpass": 4500
+        "lowpass": 6500,
+        "fadeOut": 0.05
       }
     },
     {
@@ -1232,8 +1237,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 240,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -1259,19 +1264,20 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.22
+          "amp": 0.28
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.017,
+          "amp": 0.29,
+          "decay": 0.013,
           "type": "pink",
           "bandpass": {
-            "center": 2100,
+            "center": 2700,
             "q": 0.75
           }
         },
         "highpass": 145,
-        "lowpass": 4900
+        "lowpass": 7000,
+        "fadeOut": 0.05
       }
     },
     {
