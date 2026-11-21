@@ -122,8 +122,8 @@ var GUS_MELODIC_PRESETS = {
           "time": 0.006
         },
         "brightness": {
-          "start": 15000,
-          "end": 9500
+          "start": 16500,
+          "end": 10500
         },
         "highpass": 230,
         "antiAlias": true
