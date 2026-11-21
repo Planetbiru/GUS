@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MANUAL_PEMBUATAN_PAT.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> or <div class="page"></div> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="uraian-teknis-modul-pembentukan-berkas-gus-patch-pat">Uraian Teknis Modul Pembentukan Berkas GUS Patch (.PAT)</h1>
+<table>
+<thead>
+<tr>
+<th>Metadata</th>
+<th>Nilai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Versi dokumen</td>
+<td>1.1</td>
+</tr>
+<tr>
+<td>Tanggal</td>
+<td>19 November 2026</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-pendahuluan-tujuan-dan-ruang-lingkup">1. Pendahuluan, Tujuan, dan Ruang Lingkup</h2>
+<p>Dokumen ini disusun sebagai uraian teknis pendukung permohonan pencatatan Hak
+Cipta atas perangkat lunak yang diajukan kepada Direktorat Jenderal Kekayaan
+Intelektual (DJKI).
+Uraian berfokus pada modul yang membentuk berkas instrumen Gravis Ultrasound
+Patch (<code>.pat</code>) berdasarkan data preset melodi dan drum yang disediakan aplikasi.
+Penjelasan mencakup struktur komponen, parameter yang diproses, tahapan render,
+serta pengodean keluaran.</p>
+<p>Ruang lingkup teknis dokumen ini meliputi komponen berikut:</p>
+<ul>
+<li><code>JSGUS/ProjectPatchGenerator.js</code>, sebagai modul pemrosesan dan pengodean;</li>
+<li><code>JSGUS/melodic-presets.js</code>, sebagai sumber data preset instrumen melodi; dan</li>
+<li><code>JSGUS/drum-presets.js</code>, sebagai sumber data preset instrumen drum.</li>
+</ul>
+<p>Dokumen ini menguraikan implementasi teknis sebagaimana terdapat pada sumber
+perangkat lunak yang dirujuk. Dokumen ini bukan spesifikasi resmi format GUS
+dan tidak dimaksudkan sebagai penetapan status hukum atau kepemilikan atas
+format maupun pustaka pihak ketiga. Nama format dan pustaka digunakan sebagai
+rujukan teknis untuk menjelaskan interoperabilitas.</p>
+<p>Modul menghasilkan satu berkas PAT untuk satu instrumen atau satu identitas
+drum. Contoh HTML pada bagian 6 mengemas berkas PAT yang dihasilkan ke dalam
+ZIP tanpa kompresi; pengemasan ZIP merupakan langkah distribusi contoh dan
+bukan bagian dari sintesis atau pengodean sampel.</p>
+<h3 id="format-gus-patch-dan-pertimbangan-pemilihan">Format GUS Patch dan Pertimbangan Pemilihan</h3>
+<p>GUS Patch (<code>.pat</code>) merupakan format patch instrumen yang digunakan oleh
+perangkat lunak dan perangkat yang kompatibel dengan Gravis Ultrasound.
+Berkas keluaran generator menggunakan header <code>GF1PATCH110</code> dan memuat metadata
+instrumen beserta sampel PCM bertanda 16-bit little-endian. Metadata sampel
+dapat mencakup rentang nada, frekuensi dasar, titik loop, envelope, dan
+parameter pemutaran lainnya.</p>
+<p>Satu berkas PAT mewakili satu instrumen dan dapat memuat satu atau beberapa
+sampel/zona nada dari instrumen tersebut. Struktur ini memungkinkan penggantian
+atau pembaruan satu instrumen secara parsial tanpa membangun ulang bank yang
+memuat instrumen lain. Contoh HTML pada dokumen ini menghasilkan satu sampel
+per PAT; proses ekspor instrumen multi-zona dapat menempatkan beberapa sampel
+dari instrumen yang sama ke dalam satu PAT.</p>
+<h3 id="konversi-ke-format-lain">Konversi ke Format Lain</h3>
+<p>Sampel dan pemetaan instrumen dalam PAT dapat diekstrak atau dikonversi dengan
+perangkat lunak yang sesuai ke format sampler lain, seperti SF2, SF3, atau
+SFZ. Sampel PCM juga dapat disimpan sebagai berkas audio, misalnya WAV;
+berkas audio sampel tidak mencakup keseluruhan metadata dan pemetaan instrumen.</p>
+<ul>
+<li><strong>SF2 (SoundFont 2):</strong> format bank SoundFont yang dapat mengemas banyak
+instrumen/preset beserta sampel dan pemetaannya dalam satu berkas bank.</li>
+<li><strong>SF3:</strong> varian SoundFont yang menyimpan sampel menggunakan kompresi Ogg
+Vorbis untuk mengurangi ukuran; pemutaran memerlukan aplikasi yang
+mendukung SF3.</li>
+<li><strong>SFZ:</strong> format definisi instrumen berbasis teks. Berkas <code>.sfz</code> memetakan
+sampel ke rentang nada dan zona, biasanya dengan merujuk berkas audio
+terpisah seperti WAV. Untuk distribusi instrumen, berkas SFZ perlu disertai
+seluruh sampel yang dirujuknya.</li>
+</ul>
+<p>Konversi antarformat dapat mengubah karakter suara atau tidak mempertahankan
+seluruh metadata. Dukungan terhadap loop, rentang/zona nada, envelope, dan
+parameter khusus bergantung pada format tujuan dan perangkat lunak konverter.
+Karena itu, hasil konversi perlu diperiksa secara teknis dan dievaluasi kembali
+dengan pemutaran audio.</p>
+<h2 id="2-komponen-perangkat-lunak">2. Komponen Perangkat Lunak</h2>
+<table>
+<thead>
+<tr>
+<th>Berkas</th>
+<th>Fungsi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JSGUS/melodic-presets.js</code></td>
+<td>Menyediakan <code>GUS_MELODIC_PRESETS</code>, yang memuat master gain dan data preset melodi menurut nomor program MIDI.</td>
+</tr>
+<tr>
+<td><code>JSGUS/drum-presets.js</code></td>
+<td>Menyediakan <code>GUS_DRUM_PRESETS</code>, yang memuat master gain dan data preset drum menurut nomor nada MIDI.</td>
+</tr>
+<tr>
+<td><code>JSGUS/ProjectPatchGenerator.js</code></td>
+<td>Memvalidasi dan merender data preset menjadi sampel, menyusun metadata patch, serta menyediakan <code>GusPatchEncoder</code> untuk menghasilkan berkas PAT.</td>
+</tr>
+<tr>
+<td><code>jszip/jszip.min.js</code></td>
+<td>Digunakan oleh contoh HTML untuk mengemas berkas PAT ke dalam ZIP tanpa kompresi; tidak digunakan dalam proses sintesis suara.</td>
+</tr>
+</tbody>
+</table>
+<p>Ketiga berkas JavaScript inti dimuat sebagai skrip biasa, bukan sebagai modul.
+Koleksi preset melodi dan drum harus dimuat sebelum <code>ProjectPatchGenerator.js</code>
+agar datanya tersedia pada cakupan halaman saat generator diinisialisasi.</p>
+<h2 id="3-identitas-instrumen">3. Identitas Instrumen</h2>
+<ul>
+<li><strong>Instrumen melodi:</strong> identifikasi menggunakan nomor program MIDI <code>0–127</code>
+pada properti <code>program</code>. Data preset menyediakan satu entri untuk setiap
+nomor program.</li>
+<li><strong>Instrumen drum:</strong> identifikasi menggunakan nomor nada MIDI pada properti
+<code>note</code>. Daftar nada drum bersifat tidak berurutan dan hanya mencakup nada
+yang tersedia di <code>GUS_DRUM_PRESETS.instruments</code>.</li>
+<li><strong>Data preset:</strong> parameter bunyi setiap instrumen disimpan pada properti
+<code>preset</code>. Master gain ditetapkan pada properti <code>gain</code> di tingkat koleksi.</li>
+</ul>
+<p>Preset drum dapat terdiri atas komponen nada, membran, logam, noise, impact,
+click, dan burst. Preset melodi dapat dirender sebagai sampel periodik (loop)
+atau one-shot. Nilai parameter yang tidak sesuai dengan tipe data atau rentang
+yang diharapkan dapat menyebabkan proses gagal atau menghasilkan keluaran yang
+berbeda dari karakter suara yang dimaksud.</p>
+<h2 id="4-struktur-dan-komponen-preset">4. Struktur dan Komponen Preset</h2>
+<h3 id="41-struktur-umum">4.1 Struktur Umum</h3>
+<p><code>GUS_MELODIC_PRESETS</code> dan <code>GUS_DRUM_PRESETS</code> memiliki struktur koleksi umum
+<code>{ name, type, version, lastModified, gain, instruments }</code>. Properti <code>name</code>
+menyimpan nama koleksi; <code>type</code> membedakan koleksi <code>melodic</code> dan
+<code>drum</code>; <code>version</code> menunjukkan versi generator yang digunakan untuk
+koleksi preset; <code>lastModified</code> mencatat waktu pembaruan; <code>gain</code>
+merupakan master gain; dan <code>instruments</code> adalah array data instrumennya.
+Nilai master gain dikalikan dengan <code>preset.gain</code> instrumen. Apabila gain
+instrumen tidak ditentukan, generator menggunakan nilai bawaan <code>1</code>.</p>
+<p>Preset melodi memiliki bentuk
+<code>{ program, family, name, shortName, description, preset }</code>. Nomor <code>program</code>
+harus unik dan mencakup program General MIDI <code>0–127</code>; nomor program ditentukan
+dari nilai <code>program</code>, bukan posisi entri di array.</p>
+<p>Setiap entri preset drum memiliki bentuk
+<code>{ note, name, shortName, description, preset }</code>. Saat ini tersedia 57 entri
+dengan nomor nada MIDI <code>25–84</code> yang tidak berurutan; tidak seluruh nomor pada
+rentang tersebut tersedia. Nilai <code>note</code> wajib unik dan berada pada rentang
+MIDI <code>0–127</code>.</p>
+<p>Pada kedua jenis instrumen, <code>name</code> menyimpan nama lengkap untuk tampilan.
+<code>shortName</code> menyimpan nama instrumen pada header patch dengan panjang maksimum
+16 karakter. <code>description</code> merupakan ringkasan suara berbahasa Inggris yang
+wajib diisi dan dibatasi maksimum 60 karakter karena ditulis ke header patch.
+Objek preset disimpan sebagai data JavaScript dan dimuat sebelum
+<code>ProjectPatchGenerator.js</code>.</p>
+<h3 id="42-properti-preset-melodi">4.2 Properti Preset Melodi</h3>
+<table>
+<thead>
+<tr>
+<th>Properti</th>
+<th>Penjelasan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mute</code></td>
+<td>Jika <code>true</code>, gain keluaran patch diatur ke nol.</td>
+</tr>
+<tr>
+<td><code>gain</code></td>
+<td>Pengali level instrumen yang dikalikan dengan master gain koleksi. Level tinggi dapat mengalami saturasi saat dikonversi ke PCM 16-bit.</td>
+</tr>
+<tr>
+<td><code>defaultWaveform</code></td>
+<td>Bentuk harmonik bawaan: salah satu profil waveform di bawah atau array amplitudo harmonik. Waveform yang dipilih selain preset menggantikan nilai <code>harm</code>.</td>
+</tr>
+<tr>
+<td><code>freq</code></td>
+<td>Frekuensi dasar/referensi dalam hertz. Saat generator membuat zona nada, frekuensi dasar dapat ditentukan oleh zona tersebut.</td>
+</tr>
+<tr>
+<td><code>sampleRate</code></td>
+<td>Pada preset melodi tidak dibaca. Sample rate ditentukan oleh opsi <code>sampleRate</code> pada <code>ProjectPatchGenerator</code>.</td>
+</tr>
+<tr>
+<td><code>length</code></td>
+<td>Panjang sampel one-shot dalam jumlah sampel pada acuan 22.050 Hz; disesuaikan untuk sample rate lain. Diabaikan untuk loop.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>Durasi dalam detik untuk one-shot dengan <code>renderMode: &quot;drum&quot;</code>. One-shot melodi biasa menggunakan <code>length</code> atau durasi generator.</td>
+</tr>
+<tr>
+<td><code>harm</code></td>
+<td>Amplitudo relatif tiap harmonik; indeks <code>0</code> adalah fundamental.</td>
+</tr>
+<tr>
+<td><code>phases</code></td>
+<td>Fase awal opsional tiap harmonik dalam satuan siklus. Elemen yang tidak diisi menggunakan fase nol.</td>
+</tr>
+<tr>
+<td><code>phaseScale</code></td>
+<td>Terdapat pada sebagian data preset, tetapi belum dibaca renderer sehingga tidak berpengaruh. Pengaturan fase harmonik dilakukan melalui <code>phases</code>.</td>
+</tr>
+<tr>
+<td><code>antiAlias</code></td>
+<td>Jika <code>true</code>, harmonik pada atau di atas 49% sample rate render tidak disertakan.</td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>Envelope one-shot: <code>a</code> (attack), <code>d</code> (decay), dan <code>r</code> (release) dalam detik; <code>s</code> adalah level sustain <code>0–1</code>. Untuk loop, envelope playback ditangani oleh envelope GUS.</td>
+</tr>
+<tr>
+<td><code>loop</code></td>
+<td>Jika bernilai truthy, sampel dirender sebagai suara periodik/loop.</td>
+</tr>
+<tr>
+<td><code>cycleSamples</code></td>
+<td>Jumlah sampel eksplisit per siklus loop. Jika tidak ada, nilainya dihitung dari frekuensi dasar dan sample rate.</td>
+</tr>
+<tr>
+<td><code>cycles</code></td>
+<td>Banyaknya siklus sampai akhir bagian loop; nilai bawaan <code>12</code>.</td>
+</tr>
+<tr>
+<td><code>loopSkip</code></td>
+<td>Banyaknya siklus sebelum titik mulai loop; nilai bawaan <code>3</code>.</td>
+</tr>
+<tr>
+<td><code>tailCycles</code></td>
+<td>Banyaknya siklus tambahan untuk ekor/release loop. Jika tidak diatur, panjangnya diturunkan dari frekuensi dan <code>env.r</code>, dengan minimum 4 siklus.</td>
+</tr>
+<tr>
+<td><code>loopAttack</code></td>
+<td>Lama fade-in dalam detik sebelum wilayah loop.</td>
+</tr>
+<tr>
+<td><code>loopAttackNoise</code></td>
+<td>Noise transient <code>{ amp, duration }</code> yang ditempatkan sebelum loop. Properti ini digunakan untuk preset loop, sebagai pengganti <code>attackNoise</code>.</td>
+</tr>
+<tr>
+<td><code>sustainLoop</code></td>
+<td>Nilai <code>false</code> menghilangkan penanda sustain-loop GUS tanpa menghapus loop sampel.</td>
+</tr>
+<tr>
+<td><code>patchEnvelope</code></td>
+<td>Envelope GUS opsional yang ditulis ke header, berupa enam nilai mentah <code>rates</code> dan enam nilai <code>offsets</code>.</td>
+</tr>
+<tr>
+<td><code>noise</code></td>
+<td>Pada melodi biasa, angka blend noise: one-shot memakai white noise dan loop memakai siklus pink-noise berulang. Dalam <code>renderMode: &quot;drum&quot;</code>, properti ini berupa objek noise seperti pada preset drum.</td>
+</tr>
+<tr>
+<td><code>fm</code></td>
+<td>Modulasi frekuensi: <code>ratio</code> adalah rasio frekuensi modulator terhadap carrier, <code>index</code> adalah kedalaman modulasi. Untuk loop, FM hanya digunakan jika <code>ratio</code> bilangan bulat.</td>
+</tr>
+<tr>
+<td><code>detune</code></td>
+<td>Array nilai detuning suara dalam sen. Diabaikan pada loop.</td>
+</tr>
+<tr>
+<td><code>tremolo</code></td>
+<td>Opsional <code>{ rate, sweep, depth }</code>: <code>rate</code> dalam hertz <code>0–25</code> (dipetakan ke byte GUS <code>0–255</code>), <code>sweep</code> byte GUS <code>0–255</code>, dan <code>depth</code> fraksi amplitudo <code>0–1</code> (dipetakan ke byte <code>0–255</code>). Nilai dikodekan ke header sampel PAT, bukan diterapkan ke PCM. Properti yang tidak ada menghasilkan nilai nol; belum ada preset melodi bawaan yang mengaktifkannya.</td>
+</tr>
+<tr>
+<td><code>vibrato</code></td>
+<td>Objek <code>{ rate, sweep, depth }</code>: <code>rate</code> dalam hertz, <code>sweep</code> byte GUS <code>0–255</code> untuk onset, dan <code>depth</code> sebagai fraksi pitch (hingga <code>0,02</code> saat dipetakan ke GUS). Vibrato dapat diterapkan pada PCM one-shot; nilai loop saat ini tidak ditulis oleh encoder PAT.</td>
+</tr>
+<tr>
+<td><code>vibratoOnset</code></td>
+<td>Waktu dalam detik yang diperlukan vibrato one-shot untuk mencapai kedalaman penuh.</td>
+</tr>
+<tr>
+<td><code>inharmonicity</code></td>
+<td>Koefisien peregangan frekuensi parsial agar harmonik tidak sepenuhnya harmonis. Diabaikan pada loop.</td>
+</tr>
+<tr>
+<td><code>attackNoise</code></td>
+<td>Transient pink-noise pada awal one-shot, dengan <code>amp</code> dan <code>duration</code> dalam detik.</td>
+</tr>
+<tr>
+<td><code>pluckTransient</code></td>
+<td>Transient noise band-pass one-shot: <code>freq</code> pusat filter dalam hertz, <code>q</code>, <code>amp</code>, <code>duration</code>, <code>decay</code>, dan <code>type</code> noise opsional.</td>
+</tr>
+<tr>
+<td><code>pluckPosition</code></td>
+<td>Posisi petikan string sebagai fraksi <code>0,01–0,49</code>; mengubah amplitudo relatif harmonik.</td>
+</tr>
+<tr>
+<td><code>pitchScoop</code></td>
+<td>Tekukan pitch pada awal one-shot, dengan <code>time</code> dalam detik dan <code>depth</code> berupa fraksi.</td>
+</tr>
+<tr>
+<td><code>partialDecay</code></td>
+<td>Array waktu decay dalam detik untuk masing-masing harmonik. Diabaikan pada loop.</td>
+</tr>
+<tr>
+<td><code>brightness</code></td>
+<td>Untuk one-shot, sweep low-pass dari cutoff <code>start</code> ke <code>end</code> dalam hertz. Untuk loop, <code>loopCutoff</code> menerapkan low-pass statis.</td>
+</tr>
+<tr>
+<td><code>formants</code></td>
+<td>Array filter puncak <code>{ freq, q, gain }</code>; <code>freq</code> dalam hertz dan <code>gain</code> dalam desibel.</td>
+</tr>
+<tr>
+<td><code>drive</code></td>
+<td>Besaran soft-saturation yang diterapkan setelah formant.</td>
+</tr>
+<tr>
+<td><code>guitarAmp</code></td>
+<td>Tahap efek gitar opsional: <code>preampCutoff</code> dan <code>cabinetCutoff</code> dalam hertz, serta <code>drive</code>, <code>bias</code>, <code>mix</code>, dan <code>clip</code> (campuran menuju hard clipping).</td>
+</tr>
+<tr>
+<td><code>renderMode</code></td>
+<td>Nilai <code>&quot;drum&quot;</code> merender preset melodi sebagai one-shot dengan pitch scaling menggunakan komponen renderer drum.</td>
+</tr>
+<tr>
+<td><code>tones</code></td>
+<td>Digunakan dalam <code>renderMode: &quot;drum&quot;</code>; struktur elemennya sama dengan properti <code>tones</code> pada preset drum.</td>
+</tr>
+<tr>
+<td><code>membrane</code>, <code>metallic</code>, <code>noiseLayers</code>, <code>impact</code>, <code>impacts</code>, <code>click</code>, <code>bursts</code></td>
+<td>Komponen renderer drum tambahan yang dapat dipakai oleh preset melodi ber-<code>renderMode: &quot;drum&quot;</code>; struktur dan arti nilainya sama dengan komponen drum.</td>
+</tr>
+<tr>
+<td><code>highpass</code></td>
+<td>Cutoff high-pass dalam hertz, diterapkan pada sampel hasil render.</td>
+</tr>
+<tr>
+<td><code>lowpass</code></td>
+<td>Cutoff low-pass dalam hertz untuk <code>renderMode: &quot;drum&quot;</code>. Untuk loop melodi biasa, low-pass menggunakan <code>brightness.loopCutoff</code>.</td>
+</tr>
+<tr>
+<td><code>fadeOut</code></td>
+<td>Lama fade-out dalam detik untuk one-shot <code>renderMode: &quot;drum&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>pitchInvariant</code></td>
+<td>Jika <code>true</code> pada preset <code>renderMode: &quot;drum&quot;</code>, frekuensi tone dan noise tidak diskalakan oleh nada MIDI; suara tetap pada karakter pitch yang ditentukan.</td>
+</tr>
+<tr>
+<td><code>noiseOnly</code></td>
+<td>Pada loop melodi biasa, <code>true</code> membuat preset memakai noise sebagai suara utama dan mengabaikan lapisan pink-noise normal.</td>
+</tr>
+<tr>
+<td><code>lowNoise</code></td>
+<td>Besar brown-noise pelengkap untuk loop ber-<code>noiseOnly</code>; digunakan bersama <code>noise</code> sebagai parameter lapisan utama.</td>
+</tr>
+<tr>
+<td><code>loopStartSeconds</code>, <code>loopEndSeconds</code></td>
+<td>Titik mulai dan akhir wilayah loop untuk preset <code>renderMode: &quot;drum&quot;</code> dalam detik. <code>loopEndSeconds</code> default ke <code>duration</code>.</td>
+</tr>
+<tr>
+<td><code>loopCrossfadeSeconds</code></td>
+<td>Panjang crossfade overlap pada seam loop untuk preset <code>renderMode: &quot;drum&quot;</code>, dibatasi seperempat panjang wilayah loop.</td>
+</tr>
+<tr>
+<td><code>noiseBursts</code></td>
+<td>Burst noise acak untuk melodi <code>renderMode: &quot;drum&quot;</code>; mendukung <code>density</code>, <code>peak</code>, dan array band <code>{ center, q, amp }</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Karakter profil pada <code>defaultWaveform</code>:</p>
+<ul>
+<li><code>sine</code>: nada sinus murni tanpa harmonik atas.</li>
+<li><code>triangle</code>: lembut dengan harmonik ganjil yang cepat melemah.</li>
+<li><code>square</code>: karakter hollow dengan harmonik ganjil kuat.</li>
+<li><code>saw</code>: cerah dan kaya deret harmonik.</li>
+<li><code>pulse</code>: nasal dan terfokus.</li>
+<li><code>organ</code>: kaya dan stabil seperti drawbar organ.</li>
+<li><code>flute</code>: halus dan airy dengan sedikit harmonik tinggi.</li>
+<li><code>clarinet</code>: berkarakter kayu dengan dominasi harmonik ganjil.</li>
+<li><code>reed</code>: cerah dan reedy dengan harmonik atas kuat.</li>
+<li><code>string</code>: penuh dan sustain dengan harmonik yang berangsur melemah.</li>
+<li><code>bell</code>: metalik dengan kekuatan parsial yang tidak merata.</li>
+<li><code>pluck</code>: attack membulat dengan harmonik yang menurun seperti senar dipetik.</li>
+<li><code>hammer</code>: attack tajam dan spektrum yang cepat melunak.</li>
+<li><code>bow</code>: padat dan sustain seperti string yang digesek.</li>
+<li><code>breath</code>: fundamental dominan dengan sedikit karakter napas.</li>
+</ul>
+<p>Ketika <code>loop</code> aktif, panjang sampel berasal dari periode loop, <code>cycles</code>, dan
+<code>tailCycles</code>; <code>length</code> tidak digunakan. Fitur one-shot yang berubah terhadap
+waktu, seperti <code>pitchScoop</code>, <code>detune</code>, <code>inharmonicity</code>, dan <code>partialDecay</code>,
+dinonaktifkan agar siklus stabil. Attack, decay, dan sustain dari <code>env</code> tidak
+diterapkan ke sampel loop. Nilai <code>env.r</code> dapat menentukan panjang ekor default,
+sedangkan perilaku release playback berasal dari envelope patch GUS.
+<code>loopAttackNoise</code> ditempatkan sebelum wilayah loop. Properti <code>tremolo</code>, jika
+ditambahkan ke preset, disimpan pada header sampel GUS dan efeknya bergantung
+pada player PAT; generator tidak memodulasikan PCM hasil render. Tidak ada
+preset bawaan yang mengaturnya.</p>
+<p>Untuk <code>renderMode: &quot;drum&quot;</code>, <code>freq</code> menjadi pitch referensi. Pitch MIDI yang
+diminta menskalakan frekuensi nada dan cutoff filter. Setiap elemen <code>tones</code>
+mendukung <code>fStart</code> dan <code>fEnd</code> dalam hertz. <code>fPeak</code>, <code>riseTime</code>, dan <code>fallTime</code>
+opsional membentuk kenaikan/penurunan pitch; tanpa <code>fPeak</code>, <code>pitchDecay</code>
+mengatur pitch slide eksponensial. <code>decay</code> mengatur ekor amplitudo, <code>amp</code>
+mengatur level, dan <code>fm: { ratio, index }</code> menambahkan modulasi frekuensi.</p>
+<p>Sample rate melodi dikendalikan oleh opsi <code>sampleRate</code> pada
+<code>ProjectPatchGenerator</code>; properti <code>sampleRate</code> di preset melodi tidak dibaca.</p>
+<h3 id="43-properti-preset-drum">4.3 Properti Preset Drum</h3>
+<p>Setiap <code>preset</code> drum dirender sebagai gabungan satu atau lebih komponen berikut.</p>
+<table>
+<thead>
+<tr>
+<th>Properti</th>
+<th>Penjelasan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mute</code></td>
+<td>Jika <code>true</code>, gain keluaran patch diatur ke nol.</td>
+</tr>
+<tr>
+<td><code>gain</code></td>
+<td>Pengali level instrumen yang dikalikan dengan master gain drum. Level tinggi dapat mengalami saturasi saat dikonversi ke PCM 16-bit.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>Lama render dalam detik.</td>
+</tr>
+<tr>
+<td><code>sampleRate</code></td>
+<td>Sample rate minimum opsional dalam hertz, berupa bilangan bulat positif. Sample rate efektif sekurang-kurangnya sebesar sample rate yang diminta generator.</td>
+</tr>
+<tr>
+<td><code>tones</code></td>
+<td>Array nada sinus yang meluruh. Setiap nada mendukung <code>fStart</code>/<code>fEnd</code> dalam hertz, <code>pitchDecay</code> untuk pitch slide eksponensial, <code>decay</code> dalam detik, <code>amp</code>, dan <code>fm: { ratio, index }</code> opsional.</td>
+</tr>
+<tr>
+<td><code>tones[].fPeak</code>, <code>riseTime</code>, <code>fallTime</code></td>
+<td>Opsional; membentuk perubahan pitch terarah dari frekuensi awal ke puncak lalu ke frekuensi akhir.</td>
+</tr>
+<tr>
+<td><code>membrane</code></td>
+<td>Suara membran dengan frekuensi dasar <code>freq</code>, <code>pitchDecay</code>, <code>decay</code>, serta <code>modes</code> opsional.</td>
+</tr>
+<tr>
+<td><code>membrane.modes[]</code></td>
+<td>Tiap mode memiliki <code>ratio</code> frekuensi, <code>amp</code> relatif, <code>startRatio</code> opsional (bawaan <code>1,2</code>), dan pengali <code>decay</code>.</td>
+</tr>
+<tr>
+<td><code>metallic</code></td>
+<td>Dengung inharmonis dengan <code>baseFreq</code>, pengali frekuensi parsial pada <code>partials</code>, <code>amp</code>, dan <code>decay</code>. <code>randomPhase: true</code> mengacak fase awal parsial.</td>
+</tr>
+<tr>
+<td><code>noise</code></td>
+<td>Satu lapisan noise dengan <code>amp</code>, <code>decay</code> dalam detik, <code>type</code> (<code>white</code>, <code>pink</code>, atau <code>brown</code>), dan <code>bandpass: { center, q }</code> opsional. Tanpa <code>bandpass</code>, noise tidak difilter.</td>
+</tr>
+<tr>
+<td><code>noiseLayers</code></td>
+<td>Array lapisan noise; tiap elemen mendukung properti yang sama dengan <code>noise</code>.</td>
+</tr>
+<tr>
+<td><code>noise.attack</code></td>
+<td>Lama attack noise dalam detik pada lapisan <code>noise</code> atau <code>noiseLayers</code>; jika tidak ada, attack langsung penuh.</td>
+</tr>
+<tr>
+<td><code>noiseBursts</code></td>
+<td>Burst noise acak berlapis; mendukung <code>density</code> untuk jumlah event per detik, <code>peak</code> normalisasi, serta <code>bands[]: { center, q, amp }</code>.</td>
+</tr>
+<tr>
+<td><code>impact</code></td>
+<td>Satu impact noise dengan <code>amp</code>, <code>duration</code>, <code>decay</code>, <code>delay</code> opsional, <code>type</code>, dan <code>bandpass</code> opsional.</td>
+</tr>
+<tr>
+<td><code>impacts</code></td>
+<td>Array impact dengan struktur yang sama seperti <code>impact</code>, untuk menggabungkan beberapa benturan.</td>
+</tr>
+<tr>
+<td><code>click</code></td>
+<td>Klik attack pendek dari noise acak, dengan <code>duration</code> dalam detik dan <code>amp</code>.</td>
+</tr>
+<tr>
+<td><code>bursts</code></td>
+<td>Array waktu mulai burst noise dalam detik. Setiap burst berlangsung sekitar 12 ms.</td>
+</tr>
+<tr>
+<td><code>highpass</code>, <code>lowpass</code></td>
+<td>Cutoff high-pass dan low-pass opsional dalam hertz.</td>
+</tr>
+<tr>
+<td><code>fadeOut</code></td>
+<td>Panjang fade-out dalam detik. Jika tidak diatur, fade dibatasi hingga 96 sampel atau 5% panjang sampel, mana yang lebih pendek.</td>
+</tr>
+<tr>
+<td><code>tremolo</code></td>
+<td>Opsional <code>{ rate, sweep, depth }</code> dengan <code>rate</code> <code>0–25</code> Hz (dipetakan ke byte GUS <code>0–255</code>), <code>sweep</code> byte GUS <code>0–255</code>, dan <code>depth</code> fraksi amplitudo <code>0–1</code> (dipetakan ke byte <code>0–255</code>). Nilai ditulis ke header PAT; tidak mengubah PCM dan tidak diaktifkan pada preset drum bawaan.</td>
+</tr>
+</tbody>
+</table>
+<p>Nada, membran, komponen metalik, noise, impact, click, dan burst dapat
+digabungkan pada preset yang sama. Renderer menjumlahkan komponen, menerapkan
+filter dan fade pada tepi sampel, kemudian menormalisasi hasil sebelum
+pengodean patch. Properti preset drum tidak mengatur panning; balance sampel
+GUS ditetapkan di tengah (<code>7</code>).</p>
+<h2 id="5-tahapan-pembentukan-berkas">5. Tahapan Pembentukan Berkas</h2>
+<ol>
+<li>Koleksi preset melodi dan drum dimuat ke halaman.</li>
+<li>Objek <code>ProjectPatchGenerator</code> diinisialisasi dengan sample rate dan, apabila
+diperlukan, durasi yang ditentukan.</li>
+<li>Jenis instrumen dan identitasnya ditentukan melalui nomor program melodi
+atau nomor nada drum.</li>
+<li>Metode <code>generate({ isDrum, program, pitchFrom, pitchTo })</code> memproses preset.
+Untuk drum, parameter <code>program</code> berisi nomor nada drum.</li>
+<li>Hasil <code>generate()</code> berupa objek JavaScript, bukan berkas PAT siap unduh.
+Data sampel tersedia pada
+<code>result.patch.instruments[0].layers[0].samples[0]</code>.</li>
+<li><code>GusPatchEncoder.encode()</code> mengodekan data sampel dan metadata menjadi
+berkas PAT.</li>
+<li>Pada contoh distribusi, berkas PAT dimasukkan ke ZIP dengan metode <code>STORE</code>
+(tanpa kompresi).</li>
+</ol>
+<p>Contoh berikut menggunakan rentang nada MIDI <code>0–127</code> dan menghasilkan satu
+sampel. Implementasi ekspor instrumen melodi dapat menggunakan beberapa zona
+sampel; contoh ini dibatasi pada satu sampel per PAT.</p>
+<h3 id="profil-ketelitian-zona-melodi">Profil Ketelitian Zona Melodi</h3>
+<p>Ekspor instrumen melodi membagi rentang MIDI <code>0–127</code> menurut karakter
+instrumen agar ukuran berkas PAT tetap efisien:</p>
+<table>
+<thead>
+<tr>
+<th>Profil</th>
+<th style="text-align:right">Zona</th>
+<th>Instrumen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tinggi</td>
+<td style="text-align:right">19</td>
+<td>Program 0–15; Piano dan Chromatic; 24–31; Guitar; 40–47; Strings; 56–79; Brass, Reed, dan Pipe</td>
+</tr>
+<tr>
+<td>Khusus Bass</td>
+<td style="text-align:right">16</td>
+<td>Program 32–39; selalu memakai <code>BASS_PITCH_RANGES</code> melalui <code>MELODIC_BASS_PRECISION_PROGRAMS</code></td>
+</tr>
+<tr>
+<td>Sedang</td>
+<td style="text-align:right">10</td>
+<td>Program 16–23; Organ; 48–55; Ensemble; 80–87; Lead</td>
+</tr>
+<tr>
+<td>Rendah</td>
+<td style="text-align:right">6</td>
+<td>Program 88–127; Pad, FX, dan SFX</td>
+</tr>
+</tbody>
+</table>
+<p>Jumlah zona berbeda menurut profil yang ditetapkan untuk tiap instrumen:
+instrumen yang sensitif terhadap perubahan pitch dan karakter transien memakai
+lebih banyak zona, sedangkan instrumen yang stabil secara spektral atau toleran
+terhadap perubahan pitch memakai lebih sedikit zona. Rentang zona tidak selalu
+berjarak sama. Pada profil tinggi, zona lebih rapat di register tengah yang
+umum digunakan dan lebih lebar di ujung rentang; profil bass juga lebih rapat
+di wilayah rendah hingga menengah sebelum melebar di nada tinggi. Pembagian ini
+mengalokasikan lebih banyak sampel pada wilayah pitch yang lazim dimainkan.
+Tujuannya adalah meningkatkan kualitas suara pada rentang nada tersebut sambil
+menjaga jumlah sampel dan ukuran data agar tidak terlalu besar.
+Rentang tersebut ditentukan sebelumnya dalam kode, bukan dihitung secara
+adaptif dari statistik penggunaan aktual.</p>
+<p>Daftar program disimpan secara eksplisit pada <code>MELODIC_PRECISION_PROGRAMS_HIGH</code>,
+<code>MELODIC_PRECISION_PROGRAMS_BASS</code>, <code>MELODIC_PRECISION_PROGRAMS_MEDIUM</code>, dan
+<code>MELODIC_PRECISION_PROGRAMS_LOW</code> dalam <code>JSGUS/ProjectPatchGenerator.js</code>.</p>
+<h2 id="6-contoh-implementasi-html-mandiri">6. Contoh Implementasi HTML Mandiri</h2>
+<p>Untuk menjalankan contoh, berkas HTML ditempatkan pada direktori yang sama
+dengan folder <code>JSGUS</code> dan <code>jszip</code>, kemudian disajikan melalui server web lokal
+atau server aplikasi agar skrip dapat dimuat melalui HTTP. Contoh ini tidak
+mengasumsikan pemuatan berkas secara langsung melalui <code>file://</code>.</p>
+<pre class="hljs"><code><div><span class="hljs-meta">&lt;!doctype <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;id&quot;</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;viewport&quot;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&quot;width=device-width, initial-scale=1&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Pembuat File PAT<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Pembuat File PAT<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;kind&quot;</span>&gt;</span>Jenis instrumen<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">select</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;kind&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">option</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;melodic&quot;</span>&gt;</span>Melodi<span class="hljs-tag">&lt;/<span class="hljs-name">option</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">option</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;drum&quot;</span>&gt;</span>Drum<span class="hljs-tag">&lt;/<span class="hljs-name">option</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">select</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;instrumentId&quot;</span>&gt;</span>Nomor program / nada<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;instrumentId&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;number&quot;</span> <span class="hljs-attr">min</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">max</span>=<span class="hljs-string">&quot;127&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;0&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;generateButton&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;button&quot;</span>&gt;</span>Generate PAT<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;status&quot;</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;status&quot;</span>&gt;</span>Pilih instrumen, lalu tekan tombol.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;JSGUS/melodic-presets.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;JSGUS/drum-presets.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;JSGUS/ProjectPatchGenerator.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;jszip/jszip.min.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
+    <span class="hljs-keyword">const</span> generator = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProjectPatchGenerator</span>({
+      <span class="hljs-attr">sampleRate</span>: <span class="hljs-number">22050</span>
+    });
+
+    <span class="hljs-keyword">const</span> kindInput = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;kind&#x27;</span>);
+    <span class="hljs-keyword">const</span> instrumentInput = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;instrumentId&#x27;</span>);
+    <span class="hljs-keyword">const</span> status = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;status&#x27;</span>);
+
+    kindInput.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;change&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+      instrumentInput.<span class="hljs-property">value</span> = kindInput.<span class="hljs-property">value</span> === <span class="hljs-string">&#x27;drum&#x27;</span> ? <span class="hljs-string">&#x27;25&#x27;</span> : <span class="hljs-string">&#x27;0&#x27;</span>;
+    });
+
+    <span class="hljs-keyword">function</span> <span class="hljs-title function_">createPatBuffer</span>(<span class="hljs-params">result</span>) {
+      <span class="hljs-keyword">const</span> sample = result.<span class="hljs-property">patch</span>.<span class="hljs-property">instruments</span>[<span class="hljs-number">0</span>].<span class="hljs-property">layers</span>[<span class="hljs-number">0</span>].<span class="hljs-property">samples</span>[<span class="hljs-number">0</span>];
+      <span class="hljs-keyword">const</span> pcmBytes = sample.<span class="hljs-property">pcm</span>;
+
+      <span class="hljs-keyword">if</span> (!(pcmBytes <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">Uint8Array</span>) || pcmBytes.<span class="hljs-property">byteLength</span> % <span class="hljs-number">2</span> !== <span class="hljs-number">0</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Data PCM dari generator tidak valid.&#x27;</span>);
+      }
+
+      <span class="hljs-comment">// generate() menyimpan PCM sebagai byte signed 16-bit little-endian.</span>
+      <span class="hljs-keyword">const</span> pcmView = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DataView</span>(
+        pcmBytes.<span class="hljs-property">buffer</span>,
+        pcmBytes.<span class="hljs-property">byteOffset</span>,
+        pcmBytes.<span class="hljs-property">byteLength</span>
+      );
+      <span class="hljs-keyword">const</span> pcm = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Float32Array</span>(pcmBytes.<span class="hljs-property">byteLength</span> / <span class="hljs-number">2</span>);
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; pcm.<span class="hljs-property">length</span>; i++) {
+        pcm[i] = pcmView.<span class="hljs-title function_">getInt16</span>(i * <span class="hljs-number">2</span>, <span class="hljs-literal">true</span>) / <span class="hljs-number">32768</span>;
+      }
+
+      <span class="hljs-keyword">const</span> isLoop =
+        (sample.<span class="hljs-property">modes</span> &amp; <span class="hljs-title class_">ProjectPatchGenerator</span>.<span class="hljs-property">MODE_LOOP</span>) !== <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">const</span> sustainLoop =
+        (sample.<span class="hljs-property">modes</span> &amp; <span class="hljs-title class_">ProjectPatchGenerator</span>.<span class="hljs-property">MODE_SUSTAIN</span>) !== <span class="hljs-number">0</span>;
+
+      <span class="hljs-keyword">return</span> <span class="hljs-title class_">GusPatchEncoder</span>.<span class="hljs-title function_">encode</span>({
+        <span class="hljs-attr">name</span>: result.<span class="hljs-property">name</span>,
+        <span class="hljs-attr">samples</span>: [{
+          <span class="hljs-attr">name</span>: sample.<span class="hljs-property">name</span>,
+          pcm,
+          <span class="hljs-attr">sampleRate</span>: sample.<span class="hljs-property">sampleRate</span>,
+          <span class="hljs-attr">rootFreq</span>: sample.<span class="hljs-property">rootFreq</span>,
+          <span class="hljs-attr">lowFreq</span>: sample.<span class="hljs-property">lowFreq</span>,
+          <span class="hljs-attr">highFreq</span>: sample.<span class="hljs-property">highFreq</span>,
+          <span class="hljs-comment">// Offset loop pada objek patch generator berupa byte;</span>
+          <span class="hljs-comment">// encoder menerima offset dalam jumlah sampel.</span>
+          <span class="hljs-attr">loopStart</span>: sample.<span class="hljs-property">loopStart</span> / <span class="hljs-number">2</span>,
+          <span class="hljs-attr">loopEnd</span>: sample.<span class="hljs-property">loopEnd</span> / <span class="hljs-number">2</span>,
+          isLoop,
+          sustainLoop,
+          <span class="hljs-attr">envRates</span>: sample.<span class="hljs-property">envRates</span>,
+          <span class="hljs-attr">envOffsets</span>: sample.<span class="hljs-property">envOffsets</span>,
+          <span class="hljs-attr">tremoloSweep</span>: sample.<span class="hljs-property">tremoloSweep</span>,
+          <span class="hljs-attr">tremoloRate</span>: sample.<span class="hljs-property">tremoloRate</span>,
+          <span class="hljs-attr">tremoloDepth</span>: sample.<span class="hljs-property">tremoloDepth</span>
+        }]
+      });
+    }
+
+    <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">downloadPatZip</span>(<span class="hljs-params">patBuffer, patFilename, zipFilename</span>) {
+      <span class="hljs-keyword">const</span> zip = <span class="hljs-keyword">new</span> <span class="hljs-title class_">JSZip</span>();
+      zip.<span class="hljs-title function_">file</span>(patFilename, patBuffer);
+      <span class="hljs-keyword">const</span> blob = <span class="hljs-keyword">await</span> zip.<span class="hljs-title function_">generateAsync</span>({
+        <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;blob&#x27;</span>,
+        <span class="hljs-attr">compression</span>: <span class="hljs-string">&#x27;STORE&#x27;</span>
+      });
+      <span class="hljs-keyword">const</span> url = <span class="hljs-variable constant_">URL</span>.<span class="hljs-title function_">createObjectURL</span>(blob);
+      <span class="hljs-keyword">const</span> link = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">&#x27;a&#x27;</span>);
+      link.<span class="hljs-property">href</span> = url;
+      link.<span class="hljs-property">download</span> = zipFilename;
+      <span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>.<span class="hljs-title function_">appendChild</span>(link);
+      link.<span class="hljs-title function_">click</span>();
+      link.<span class="hljs-title function_">remove</span>();
+      <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> <span class="hljs-variable constant_">URL</span>.<span class="hljs-title function_">revokeObjectURL</span>(url), <span class="hljs-number">1000</span>);
+    }
+
+    <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;generateButton&#x27;</span>).<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;click&#x27;</span>, <span class="hljs-title function_">async</span> () =&gt; {
+      <span class="hljs-keyword">try</span> {
+        <span class="hljs-keyword">const</span> isDrum = kindInput.<span class="hljs-property">value</span> === <span class="hljs-string">&#x27;drum&#x27;</span>;
+        <span class="hljs-keyword">const</span> program = <span class="hljs-title class_">Number</span>(instrumentInput.<span class="hljs-property">value</span>);
+        <span class="hljs-keyword">if</span> (!<span class="hljs-title class_">Number</span>.<span class="hljs-title function_">isInteger</span>(program) || program &lt; <span class="hljs-number">0</span> || program &gt; <span class="hljs-number">127</span>) {
+          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Nomor program/nada harus berupa bilangan 0–127.&#x27;</span>);
+        }
+
+        <span class="hljs-keyword">const</span> result = generator.<span class="hljs-title function_">generate</span>({
+          isDrum,
+          program,
+          <span class="hljs-attr">pitchFrom</span>: <span class="hljs-number">0</span>,
+          <span class="hljs-attr">pitchTo</span>: <span class="hljs-number">127</span>
+        });
+        <span class="hljs-keyword">const</span> patBuffer = <span class="hljs-title function_">createPatBuffer</span>(result);
+        <span class="hljs-keyword">const</span> prefix = isDrum
+          ? <span class="hljs-string">`drum_<span class="hljs-subst">${<span class="hljs-built_in">String</span>(program).padStart(<span class="hljs-number">2</span>, <span class="hljs-string">&#x27;0&#x27;</span>)}</span>`</span>
+          : <span class="hljs-title class_">String</span>(program).<span class="hljs-title function_">padStart</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&#x27;0&#x27;</span>);
+        <span class="hljs-keyword">const</span> safeName = result.<span class="hljs-property">name</span>
+          .<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/[^A-Za-z0-9]+/g</span>, <span class="hljs-string">&#x27;_&#x27;</span>)
+          .<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/^_+|_+$/g</span>, <span class="hljs-string">&#x27;&#x27;</span>);
+        <span class="hljs-keyword">const</span> patFilename = <span class="hljs-string">`<span class="hljs-subst">${prefix}</span>_<span class="hljs-subst">${safeName}</span>.pat`</span>;
+        <span class="hljs-keyword">const</span> zipFilename = <span class="hljs-string">`<span class="hljs-subst">${prefix}</span>_<span class="hljs-subst">${safeName}</span>.zip`</span>;
+
+        <span class="hljs-keyword">await</span> <span class="hljs-title function_">downloadPatZip</span>(patBuffer, patFilename, zipFilename);
+        status.<span class="hljs-property">textContent</span> = <span class="hljs-string">`Berhasil membuat <span class="hljs-subst">${zipFilename}</span>. ZIP berisi satu file PAT tanpa kompresi.`</span>;
+      } <span class="hljs-keyword">catch</span> (error) {
+        status.<span class="hljs-property">textContent</span> = <span class="hljs-string">`Gagal membuat ZIP PAT: <span class="hljs-subst">${error.message}</span>`</span>;
+      }
+    });
+  </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</div></code></pre>
+<h3 id="catatan-penggunaan-contoh">Catatan Penggunaan Contoh</h3>
+<ul>
+<li>Pada mode melodi, nilai yang dimasukkan merupakan nomor program MIDI. Pada
+mode drum, nilai tersebut merupakan nomor <code>note</code> yang tersedia di preset
+drum; nilai awal contoh adalah <code>25</code>.</li>
+<li>Contoh menggunakan sample rate <code>22050</code> Hz dan mengikuti durasi bawaan
+generator serta preset.</li>
+<li>Status loop dan envelope patch dipertahankan. Data PCM dikonversi dari byte
+menjadi sampel float sebelum dikirim ke encoder, kemudian satu berkas PAT
+dimasukkan ke ZIP dengan <code>compression: 'STORE'</code>.</li>
+<li>Apabila nomor drum tidak tersedia atau preset tidak lolos validasi, halaman
+menampilkan pesan kesalahan dan tidak menghasilkan ZIP.</li>
+</ul>
+<h2 id="7-pemeriksaan-hasil">7. Pemeriksaan Hasil</h2>
+<ol>
+<li>Arsip hasil unduhan memiliki ekstensi <code>.zip</code>.</li>
+<li>Isi arsip terdiri atas tepat satu berkas <code>.pat</code> dengan metode kompresi
+<code>Store</code>/<code>Stored</code> (tanpa kompresi).</li>
+<li>Berkas PAT dapat diekstrak, memiliki ukuran lebih dari nol, dan dapat
+dibuka oleh aplikasi yang mendukung format GUS.</li>
+<li>Pemutaran diuji pada beberapa nada yang sesuai. Sampel satu zona dapat
+menunjukkan karakter berbeda pada nada yang jauh dari frekuensi dasarnya.</li>
+<li>Apabila hasil tidak sesuai, pemeriksaan mencakup identitas program/nada,
+urutan pemuatan skrip, konsol browser, serta nilai dan struktur objek
+<code>preset</code>.</li>
+</ol>
+<p>Berkas PAT yang dihasilkan menggunakan format patch GUS dengan header
+<code>GF1PATCH110</code> dan sampel PCM signed 16-bit little-endian. Dokumen ini
+merangkum fungsi, alur pemrosesan, format keluaran, dan batasan teknis modul
+berdasarkan implementasi sumber yang dirujuk.</p>
+
+</body>
+</html>
