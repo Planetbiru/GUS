@@ -54,47 +54,65 @@ var GUS_DRUM_PRESETS = {
       "description": "Dry, crisp finger snap with a brief resonant tail.",
       "preset": {
         "mute": false,
-        "gain": 0.42,
-        "duration": 0.09,
+        "gain": 0.34,
+        "duration": 0.075,
         "tones": [
           {
-            "fStart": 1700,
-            "fEnd": 1050,
-            "pitchDecay": 0.006,
-            "decay": 0.018,
-            "amp": 0.22
+            "fStart": 4200,
+            "fEnd": 3300,
+            "pitchDecay": 0.002,
+            "decay": 0.004,
+            "amp": 0.12
+          },
+          {
+            "fStart": 5200,
+            "fEnd": 3900,
+            "pitchDecay": 0.001,
+            "decay": 0.0028,
+            "amp": 0.038
           }
         ],
         "impacts": [
           {
             "delay": 0,
-            "duration": 0.018,
-            "decay": 0.004,
-            "amp": 0.7,
+            "duration": 0.003,
+            "decay": 0.0008,
+            "amp": 1,
             "type": "white",
             "bandpass": {
-              "center": 2800,
-              "q": 0.7
+              "center": 4100,
+              "q": 1.25
             }
           },
           {
-            "delay": 0.004,
-            "duration": 0.014,
-            "decay": 0.005,
-            "amp": 0.28,
+            "delay": 0.0015,
+            "duration": 0.006,
+            "decay": 0.0015,
+            "amp": 0.38,
             "type": "white",
             "bandpass": {
-              "center": 4400,
-              "q": 0.7
+              "center": 2400,
+              "q": 1.35
+            }
+          },
+          {
+            "delay": 0.0025,
+            "duration": 0.008,
+            "decay": 0.0022,
+            "amp": 0.24,
+            "type": "white",
+            "bandpass": {
+              "center": 5600,
+              "q": 0.8
             }
           }
         ],
         "click": {
-          "duration": 0.001,
-          "amp": 0.12
+          "duration": 0.0008,
+          "amp": 0.28
         },
-        "highpass": 500,
-        "lowpass": 9000
+        "highpass": 900,
+        "lowpass": 8500
       }
     },
     {
@@ -141,57 +159,81 @@ var GUS_DRUM_PRESETS = {
       "description": "Dry hand slap with a sharp broadband attack and a woody body",
       "preset": {
         "mute": false,
-        "gain": 0.39,
-        "duration": 0.2,
+        "gain": 0.34,
+        "duration": 0.265,
         "tones": [
           {
-            "fStart": 230,
-            "fEnd": 165,
-            "pitchDecay": 0.012,
-            "decay": 0.075,
-            "amp": 0.32
+            "fStart": 210,
+            "fEnd": 150,
+            "pitchDecay": 0.014,
+            "decay": 0.09,
+            "amp": 0.38
           },
           {
-            "fStart": 610,
-            "fEnd": 390,
-            "pitchDecay": 0.006,
-            "decay": 0.035,
-            "amp": 0.24
+            "fStart": 650,
+            "fEnd": 360,
+            "pitchDecay": 0.007,
+            "decay": 0.042,
+            "amp": 0.28
           },
           {
-            "fStart": 1450,
-            "fEnd": 920,
-            "pitchDecay": 0.003,
-            "decay": 0.018,
-            "amp": 0.12
+            "fStart": 1350,
+            "fEnd": 760,
+            "pitchDecay": 0.004,
+            "decay": 0.022,
+            "amp": 0.16
           }
         ],
         "noiseLayers": [
           {
-            "amp": 0.72,
-            "decay": 0.012,
+            "amp": 0.82,
+            "decay": 0.008,
             "type": "white",
             "bandpass": {
-              "center": 2100,
-              "q": 0.62
+              "center": 1450,
+              "q": 0.8
             }
           },
           {
-            "amp": 0.32,
-            "decay": 0.028,
+            "amp": 0.42,
+            "decay": 0.012,
             "type": "pink",
             "bandpass": {
-              "center": 850,
-              "q": 0.7
+              "center": 2800,
+              "q": 0.68
+            }
+          }
+        ],
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.012,
+            "decay": 0.0025,
+            "amp": 0.92,
+            "type": "white",
+            "bandpass": {
+              "center": 950,
+              "q": 1
+            }
+          },
+          {
+            "delay": 0.003,
+            "duration": 0.018,
+            "decay": 0.004,
+            "amp": 0.36,
+            "type": "pink",
+            "bandpass": {
+              "center": 3900,
+              "q": 0.72
             }
           }
         ],
         "click": {
-          "duration": 0.0015,
-          "amp": 0.16
+          "duration": 0.0012,
+          "amp": 0.2
         },
-        "highpass": 80,
-        "lowpass": 7200
+        "highpass": 70,
+        "lowpass": 8000
       }
     },
     {
