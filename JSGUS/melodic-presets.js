@@ -3239,7 +3239,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
-        "gain": 0.5,
+        "gain": 0.42,
         "loop": true,
         "cycles": 38,
         "loopSkip": 24,
@@ -3324,7 +3324,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
-        "gain": 0.5,
+        "gain": 0.42,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -3429,7 +3429,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
-        "gain": 0.5,
+        "gain": 0.42,
         "loop": true,
         "cycles": 14,
         "env": {
