@@ -472,25 +472,22 @@ Each entry has `program`, `family`, `name`, `shortName`, `description`, and a
 {
   program: 24,
   family: "Guitar",
-  name: "Nylon Guitar",
-  shortName: "Nylon Guitar",
-  description: "Nylon Guitar: a plucked-string attack with natural decay.",
+  name: "Acoustic Nylon Guitar",
+  shortName: "Ac. Nylon Gtr",
+  description: "Warm, rounded pluck with a soft decay.",
   preset: {
+    gain: 0.51,
     freq: 441,
-    harm: [1, 0.8, 0.6, 0.4, 0.25, 0.15, 0.08, 0.04, 0.02],
-    env: { a: 0.002, d: 1.5, s: 0, r: 0.5 },
-    length: 66150,
-    attackNoise: { amp: 0.032, duration: 0.022 },
-    pluckPosition: 0.16,
-    pluckTransient: {
-      freq: 1900, q: 0.8, amp: 0.026, duration: 0.02, decay: 0.009
-    },
-    brightness: { start: 7600, end: 1800 },
-    formants: [
-      { freq: 105, q: 1.2, gain: 2.5 },
-      { freq: 210, q: 1.8, gain: 3.5 },
-      { freq: 390, q: 2.1, gain: 3 }
-    ]
+    harm: [1, 0.3, 0.18, 0.14, 0.12, 0.1, 0.085, 0.075,
+      0.065, 0.057, 0.05, 0.044, 0.039, 0.034, 0.03, 0.026],
+    partialDecay: [2.4, 1.6, 1.1, 0.9, 0.8, 0.75, 0.7, 0.65,
+      0.6, 0.55, 0.5, 0.46, 0.42, 0.39, 0.36, 0.33],
+    inharmonicity: 0,
+    pluckPosition: 0.22,
+    pitchScoop: { depth: 0.0005, time: 0.012 },
+    brightness: { start: 20000, end: 14000 },
+    highpass: 100,
+    antiAlias: true
   }
 }
 ```
