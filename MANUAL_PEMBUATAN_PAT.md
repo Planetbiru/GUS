@@ -287,13 +287,22 @@ instrumen agar ukuran berkas PAT tetap efisien:
 | Sedang | 10 | Program 16–23; Organ; 48–55; Ensemble; 80–87; Lead |
 | Rendah | 6 | Program 88–127; Pad, FX, dan SFX |
 
-Profil tinggi dipakai untuk instrumen yang sensitif terhadap pitch dan
-karakter transien. Profil sedang menekan jumlah sampel pada instrumen yang
-lebih stabil secara spektral. Profil rendah digunakan untuk pad, tekstur,
-efek, dan SFX yang toleran terhadap perubahan pitch lintas rentang luas.
-Daftar program disimpan secara eksplisit pada `MELODIC_HIGH_PRECISION_PROGRAMS`,
-`MELODIC_MEDIUM_PRECISION_PROGRAMS`, dan `MELODIC_LOW_PRECISION_PROGRAMS`
-dalam `JSGUS/ProjectPatchGenerator.js`.
+Jumlah zona berbeda menurut profil yang ditetapkan untuk tiap instrumen:
+instrumen yang sensitif terhadap perubahan pitch dan karakter transien memakai
+lebih banyak zona, sedangkan instrumen yang stabil secara spektral atau toleran
+terhadap perubahan pitch memakai lebih sedikit zona. Rentang zona tidak selalu
+berjarak sama. Pada profil tinggi, zona lebih rapat di register tengah yang
+umum digunakan dan lebih lebar di ujung rentang; profil bass juga lebih rapat
+di wilayah rendah hingga menengah sebelum melebar di nada tinggi. Pembagian ini
+mengalokasikan lebih banyak sampel pada wilayah pitch yang lazim dimainkan.
+Tujuannya adalah meningkatkan kualitas suara pada rentang nada tersebut sambil
+menjaga jumlah sampel dan ukuran data agar tidak terlalu besar.
+Rentang tersebut ditentukan sebelumnya dalam kode, bukan dihitung secara
+adaptif dari statistik penggunaan aktual.
+
+Daftar program disimpan secara eksplisit pada `MELODIC_PRECISION_PROGRAMS_HIGH`,
+`MELODIC_PRECISION_PROGRAMS_BASS`, `MELODIC_PRECISION_PROGRAMS_MEDIUM`, dan
+`MELODIC_PRECISION_PROGRAMS_LOW` dalam `JSGUS/ProjectPatchGenerator.js`.
 
 ## 6. Contoh Implementasi HTML Mandiri
 
