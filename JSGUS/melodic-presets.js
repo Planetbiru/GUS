@@ -1,6 +1,10 @@
 // Optional preset.tremolo: { rate: 0-25 Hz, sweep: GUS byte 0-255, depth: 0-1 }.
 // Omitted in the built-in presets so generated patches keep tremolo disabled.
 var GUS_MELODIC_PRESETS = {
+  "name": "GUS Melodic Presets",
+  "type": "melodic",
+  "version": "1.0",
+  "lastModified": "2026-11-21T12:00:00Z",
   "gain": 0.18,
   "instruments": [
     {
