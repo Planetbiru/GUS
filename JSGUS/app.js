@@ -462,9 +462,13 @@ class GusPatchApp {
         document.addEventListener('pointerdown', event => {
             if (event.button !== 0 || event.isPrimary === false) return;
             const target = event.target instanceof Element ? event.target : null;
-            const handle = target?.matches('dialog .dialog-header, dialog .dialog-footer') ? target : null;
+            const handle = target?.closest('dialog .dialog-header, dialog .dialog-footer');
             const dialog = handle?.closest('dialog');
             if (!dialog?.open) return;
+            if (target.closest(
+                'button, a, input, select, textarea, label, summary, ' +
+                '[contenteditable="true"], [role="button"], [role="link"], [role="checkbox"], [role="radio"]'
+            )) return;
 
             const rect = dialog.getBoundingClientRect();
             dragState = {
@@ -477,6 +481,7 @@ class GusPatchApp {
                 rect,
                 dragged: false,
             };
+            handle.setPointerCapture(event.pointerId);
         });
 
         document.addEventListener('pointermove', event => {
@@ -486,6 +491,7 @@ class GusPatchApp {
             if (!dragState.dragged && Math.hypot(deltaX, deltaY) < 3) return;
 
             dragState.dragged = true;
+            dragState.dialog.classList.add('is-dragging');
             event.preventDefault();
             const left = Math.max(0, Math.min(
                 window.innerWidth - dragState.rect.width,
@@ -504,6 +510,7 @@ class GusPatchApp {
         const stopDragging = event => {
             if (!dragState || event.pointerId !== dragState.pointerId) return;
             const dragged = dragState.dragged;
+            dragState.dialog.classList.remove('is-dragging');
             dragState = null;
             if (!dragged || event.type === 'pointercancel') return;
 
@@ -786,9 +793,13 @@ class GusPatchApp {
             this.handleMidiSeekInput(event, this.$('midiSeek'));
         });
         this.$('midiMixerSeek').addEventListener('change', () => this.commitMidiSeek());
-        this.$('btnMidiRender').onclick = () => this.renderMidiToWav();
-        this.$('btnMidiRenderStemsStereo').onclick = () => this.renderMidiStemsToFlac('stereo');
-        this.$('btnMidiRenderStemsMono').onclick = () => this.renderMidiStemsToFlac('mono');
+        this.$('btnMidiRender').onclick = () => this.openMidiRenderDialog();
+        this.$('btnCloseMidiRender').onclick = () => this.$('midiRenderDialog').close();
+        this.$('btnCancelMidiRender').onclick = () => this.$('midiRenderDialog').close();
+        this.$('btnConfirmMidiRender').onclick = () => this.confirmMidiRender();
+        this.$('midiRenderDialog').addEventListener('click', event => {
+            if (event.target === this.$('midiRenderDialog')) this.$('midiRenderDialog').close();
+        });
         this.$('midiVolume').addEventListener('input', () => this.handleMidiVolumeInput());
         this.$('midiChannelList').addEventListener('click', event => {
             const button = event.target.closest('button[data-channel][data-control]');
@@ -3827,10 +3838,40 @@ class GusPatchApp {
         this.updateMidiPlaybackUI();
     }
 
-    async renderMidiToWav() {
+    openMidiRenderDialog() {
+        if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
+        this.showDialogCentered(this.$('midiRenderDialog'));
+    }
+
+    confirmMidiRender() {
+        const type = this.$('midiRenderType').value;
+        const sampleRate = Number(this.$('midiRenderSampleRate').value);
+        const status = this.$('midiStatus');
+        if (!['mixed', 'mono', 'stereo'].includes(type)) {
+            const message = `Unsupported MIDI render type: ${type}.`;
+            status.textContent = message;
+            this.log(message, 'err');
+            return;
+        }
+        if (![44100, 48000, 96000].includes(sampleRate)) {
+            const message = `Unsupported MIDI render sample rate: ${sampleRate}.`;
+            status.textContent = message;
+            this.log(message, 'err');
+            return;
+        }
+
+        this.$('midiRenderDialog').close();
+        if (type === 'mixed') {
+            this.renderMidiToWav(sampleRate);
+        } else {
+            this.renderMidiStemsToFlac(type, sampleRate);
+        }
+    }
+
+    async renderMidiToWav(sampleRate = this.timidityPlayer?.sampleRate || 48000) {
         if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
         this.midiRenderInProgress = true;
-        this.midiRenderOperation = 'WAV';
+        this.midiRenderOperation = `WAV ${sampleRate} Hz`;
         this.updateMidiPlaybackUI();
         const status = this.$('midiStatus');
 
@@ -3842,8 +3883,8 @@ class GusPatchApp {
             }
 
             const resumePlayback = player.isPlaying && !player.isPaused;
-            status.textContent = 'Rendering WAV...';
-            const wav = await player.renderOffline({sampleRate: player.sampleRate});
+            status.textContent = `Rendering WAV at ${sampleRate} Hz...`;
+            const wav = await player.renderOffline({sampleRate});
             if (!(wav instanceof Blob)) throw new Error('TimidityPlayer returned no WAV data.');
 
             const baseName = this.midiFileName.replace(/\.(mid|midi)$/i, '') || 'midi-render';
@@ -4157,13 +4198,13 @@ class GusPatchApp {
         return output;
     }
 
-    async renderMidiStemsToFlac(stemLayout) {
+    async renderMidiStemsToFlac(stemLayout, sampleRate = this.timidityPlayer?.sampleRate || 48000) {
         if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
         if (stemLayout !== 'mono' && stemLayout !== 'stereo') {
             throw new Error(`Unsupported stem output layout: ${stemLayout}.`);
         }
         this.midiRenderInProgress = true;
-        this.midiRenderOperation = 'FLAC stems';
+        this.midiRenderOperation = `FLAC stems ${sampleRate} Hz`;
         this.updateMidiPlaybackUI();
         const status = this.$('midiStatus');
         let player = null;
@@ -4192,7 +4233,7 @@ class GusPatchApp {
             const zip = new JSZip();
             const baseName = this.midiFileName.replace(/\.(mid|midi)$/i, '') || 'midi-render';
             const safeBaseName = baseName.replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim() || 'midi-render';
-            const renderOptions = {sampleRate: player.sampleRate, isMono};
+            const renderOptions = {sampleRate, isMono};
 
             for (let i = 0; i < stems.length; i++) {
                 const stem = stems[i];
@@ -4201,7 +4242,7 @@ class GusPatchApp {
                     ? `Track_${String(stem.index + 1).padStart(2, '0')}_${midi.tracks[stem.index].name || `Track_${stem.index + 1}`}`
                         .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim()
                     : `Channel_${String(stem.index + 1).padStart(2, '0')}`;
-                status.textContent = `Rendering FLAC stem ${i + 1}/${stems.length}: ${stemName}...`;
+                status.textContent = `Rendering FLAC stem ${i + 1}/${stems.length} at ${sampleRate} Hz: ${stemName}...`;
                 const options = stem.type === 'track'
                     ? {...renderOptions, soloTrack: stem.index}
                     : renderOptions;
@@ -4265,8 +4306,6 @@ class GusPatchApp {
         this.$('btnMidiStop').disabled = this.midiMode !== 'file' || !this.midiData;
         this.$('btnMidiMixerStop').disabled = this.$('btnMidiStop').disabled;
         this.$('btnMidiRender').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
-        this.$('btnMidiRenderStemsStereo').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
-        this.$('btnMidiRenderStemsMono').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
         seek.disabled = this.midiMode !== 'file' || !this.midiData || !this.midiDuration;
         mixerSeek.disabled = seek.disabled;
 

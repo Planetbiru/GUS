@@ -1275,8 +1275,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 24,
       "family": "Guitar",
-      "name": "Nylon Guitar",
-      "shortName": "Nylon Guitar",
+      "name": "Acoustic Nylon Guitar",
+      "shortName": "Ac. Nylon Gtr",
       "description": "Warm, rounded pluck with a soft decay.",
       "preset": {
         "mute": false,
@@ -1424,8 +1424,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 25,
       "family": "Guitar",
-      "name": "Steel Guitar",
-      "shortName": "Steel Guitar",
+      "name": "Acoustic Steel Guitar",
+      "shortName": "Ac. Steel Gtr",
       "description": "Bright pluck with a smooth, controlled attack.",
       "preset": {
         "mute": false,
@@ -1579,7 +1579,7 @@ var GUS_MELODIC_PRESETS = {
       "program": 26,
       "family": "Guitar",
       "name": "Jazz Guitar",
-      "shortName": "Jazz Guitar",
+      "shortName": "Jazz Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
@@ -1651,8 +1651,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 27,
       "family": "Guitar",
-      "name": "Clean Guitar",
-      "shortName": "Clean Guitar",
+      "name": "Electric Clean Guitar",
+      "shortName": "E. Clean Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
@@ -1712,7 +1712,7 @@ var GUS_MELODIC_PRESETS = {
       "program": 28,
       "family": "Guitar",
       "name": "Muted Guitar",
-      "shortName": "Muted Guitar",
+      "shortName": "Muted Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
         "mute": false,
@@ -1832,7 +1832,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 500,  "q": 1.5, "gain": -1.0 },
           { "freq": 1100, "q": 1.3, "gain": 1.0 },
           { "freq": 2000, "q": 1.4, "gain": 1.0 },
-          { "freq": 3200, "q": 1.6, "gain": 0.75 }
+          { "freq": 3800, "q": 0.65, "gain": 8 }
         ],
         "brightness": {
           "loopCutoff": 5800
@@ -1925,9 +1925,9 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           },
           {
-            "freq": 3500,
-            "q": 1.6,
-            "gain": 0.75
+            "freq": 3800,
+            "q": 0.8,
+            "gain": 6
           }
         ],
         "brightness": {
@@ -1942,8 +1942,8 @@ var GUS_MELODIC_PRESETS = {
     {
       "program": 31,
       "family": "Guitar",
-      "name": "Gtr Harmonics",
-      "shortName": "Gtr Harmonics",
+      "name": "Harmonics Guitar",
+      "shortName": "Harmonics Gtr",
       "description": "Sustained guitar overtone with loop.",
       "preset": {
         "mute": false,
@@ -2924,7 +2924,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "string",
+        "defaultWaveform": null,
         "gain": 0.27,
         "loop": true,
         "cycles": 22,
@@ -2937,48 +2937,25 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.496,
-          0.336,
-          0.232,
-          0.152,
-          0.096,
-          0.06,
-          0.036,
-          0.02,
-          0.056632,
-          0.05076,
-          0.04592,
-          0.041888,
-          0.038464,
-          0.035528,
-          0.032984,
-          0.030768,
-          0.028808,
-          0.027072,
-          0.02552,
-          0.024128,
-          0.022872,
-          0.021736,
-          0.020696,
-          0.019744,
-          0.018872,
-          0.018072,
-          0.017336,
-          0.016648,
-          0.016008,
-          0.015416,
-          0.014864
-        ],
-        "phases": [
-          0,
-          0.1,
-          0.3,
-          0.6,
-          0.2,
-          0.8,
-          0.4,
-          0.9,
-          0.5
+          0.4786,
+          0.2318,
+          0.1288,
+          0.1161,
+          0.0716,
+          0.0589,
+          0.025,
+          0.0111,
+          0.0079,
+          0.0075,
+          0.005,
+          0.005,
+          0.004,
+          0.0035,
+          0.003,
+          0.0026,
+          0.0023,
+          0.002,
+          0.0017
         ],
         "vibratoOnset": 0.2,
         "vibrato": {
@@ -3025,7 +3002,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "bow",
+        "defaultWaveform": null,
         "gain": 0.27,
         "loop": true,
         "cycles": 22,
@@ -3038,48 +3015,25 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.44,
-          0.272,
-          0.16,
-          0.096,
-          0.056,
-          0.032,
-          0.016,
-          0.07964,
-          0.051336,
-          0.064512,
-          0.042392,
-          0.054128,
-          0.036056,
-          0.046576,
-          0.031336,
-          0.04084,
-          0.027696,
-          0.036344,
-          0.024792,
-          0.032712,
-          0.022432,
-          0.029736,
-          0.020472,
-          0.02724,
-          0.018824,
-          0.025128,
-          0.017416,
-          0.023312,
-          0.0162,
-          0.021736,
-          0.015136
-        ],
-        "phases": [
-          0,
-          0.1,
-          0.3,
-          0.6,
-          0.2,
-          0.8,
-          0.4,
-          0.9,
-          0.5
+          0.4786,
+          0.2318,
+          0.1288,
+          0.1161,
+          0.0716,
+          0.0589,
+          0.025,
+          0.0111,
+          0.0079,
+          0.0075,
+          0.005,
+          0.005,
+          0.004,
+          0.0035,
+          0.003,
+          0.0026,
+          0.0023,
+          0.002,
+          0.0017
         ],
         "vibratoOnset": 0.2,
         "vibrato": {
@@ -3281,13 +3235,14 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Choir Aahs",
       "shortName": "Choir Aahs",
-      "description": "A layered orchestral blend with smooth sustain.",
+      "description": "Airy choral 'ah' vowel with a soft, open sustain.",
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
-        "gain": 0.5,
+        "gain": 0.42,
         "loop": true,
-        "cycles": 14,
+        "cycles": 38,
+        "loopSkip": 24,
         "env": {
           "a": 0.18,
           "d": 0.3,
@@ -3321,7 +3276,7 @@ var GUS_MELODIC_PRESETS = {
           -1.21
         ],
         "phaseScale": 0.01,
-        "noise": 0.025,
+        "noise": 0.035,
         "vibratoOnset": 0.2,
         "vibrato": {
           "rate": 4.8,
@@ -3329,26 +3284,26 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 20
         },
         "drive": 0.15,
-        "loopAttack": 0.02,
+        "loopAttack": 0.05,
         "loopAttackNoise": {
-          "amp": 0.025,
-          "duration": 0.04
+          "amp": 0.012,
+          "duration": 0.025
         },
         "formants": [
           {
-            "freq": 700,
-            "q": 1.1,
-            "gain": 4
+            "freq": 800,
+            "q": 0.85,
+            "gain": 8
           },
           {
-            "freq": 1200,
-            "q": 1.2,
-            "gain": 3
+            "freq": 1400,
+            "q": 1,
+            "gain": 6
           },
           {
-            "freq": 2600,
+            "freq": 2700,
             "q": 1.5,
-            "gain": 1.5
+            "gain": 1
           },
           {
             "freq": 3500,
@@ -3369,7 +3324,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "string",
-        "gain": 0.5,
+        "gain": 0.42,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -3474,7 +3429,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "breath",
-        "gain": 0.5,
+        "gain": 0.42,
         "loop": true,
         "cycles": 14,
         "env": {
@@ -5516,10 +5471,12 @@ var GUS_MELODIC_PRESETS = {
       "description": "A soft sustained synth texture.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "sine",
+        "defaultWaveform": "triangle",
         "gain": 0.55,
         "loop": true,
-        "cycles": 16,
+        "cycles": 40,
+        "loopSkip": 24,
+        "loopAttack": 0.05,
         "env": {
           "a": 0.3,
           "d": 0.3,
@@ -5531,47 +5488,63 @@ var GUS_MELODIC_PRESETS = {
           0.32,
           0.16,
           0.08,
-          0.04
+          0.04,
+          0.03,
+          0.025,
+          0.02,
+          0.016,
+          0.013,
+          0.011,
+          0.009,
+          0.007,
+          0.006,
+          0.005,
+          0.004
         ],
         "detune": [
-          -15,
+          -10,
           0,
-          15
+          10
         ],
         "vibratoOnset": 0.2,
         "vibrato": {
           "rate": 2,
           "depth": 0.003
         },
-        "drive": 1.15,
+        "drive": 1,
         "formants": [
           {
             "freq": 250,
-            "q": 1.5,
-            "gain": 4
+            "q": 1.2,
+            "gain": 1.5
           },
           {
             "freq": 450,
-            "q": 2,
-            "gain": 5
+            "q": 1.2,
+            "gain": 1.5
           },
           {
             "freq": 1100,
-            "q": 2.5,
-            "gain": 4
+            "q": 1.2,
+            "gain": 2
           },
           {
             "freq": 2800,
-            "q": 3,
-            "gain": 3
+            "q": 1,
+            "gain": 2.5
           },
           {
             "freq": 4500,
-            "q": 3.5,
-            "gain": 1.5
+            "q": 0.9,
+            "gain": 3.5
+          },
+          {
+            "freq": 5600,
+            "q": 0.9,
+            "gain": 2.5
           }
         ],
-        "highpass": 120,
+        "highpass": 250,
         "antiAlias": true
       }
     },
