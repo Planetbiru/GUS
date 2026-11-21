@@ -2068,7 +2068,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.40,
+        "gain": 0.62,
         "freq": 220,
         "length": 33075,
         "loop": true,
@@ -2110,7 +2110,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.58,
+        "gain": 0.62,
         "freq": 220,
         "length": 33075,
         "loop": true,
@@ -2150,7 +2150,7 @@ var GUS_MELODIC_PRESETS = {
       "description": "A smooth, singing tone with a rounded attack.",
       "preset": {
         "mute": false,
-        "gain": 0.58,
+        "gain": 0.62,
         "freq": 220,
         "length": 33075,
         "loop": true,
@@ -2191,7 +2191,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.58,
+        "gain": 0.62,
         "freq": 220,
         "length": 33075,
         "loop": true,
@@ -2233,7 +2233,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
-        "gain": 0.58,
+        "gain": 0.62,
         "freq": 220,
         "length": 33075,
         "loop": true,
@@ -2275,7 +2275,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.58,
+        "gain": 0.62,
         "freq": 220,
         "length": 33075,
         "loop": true,
@@ -2315,7 +2315,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "square",
-        "gain": 0.58,
+        "gain": 0.62,
         "freq": 220,
         "length": 33075,
         "loop": true,

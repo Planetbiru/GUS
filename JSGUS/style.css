@@ -243,7 +243,7 @@ button.toggle-button[aria-pressed="true"]:hover:not(:disabled):not(.primary):not
 }
 
 #btnMidiPlay {
-    min-width: 90px;
+    min-width: 85px;
 }
 
 #btnSequencerPause {
@@ -1549,5 +1549,5 @@ canvas {
 }
 
 #btnTogglePatchCache{
-    width: 120px;
+    width: 140px;
 }
