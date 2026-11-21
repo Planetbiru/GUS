@@ -1685,7 +1685,13 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.25,
           0.15,
-          0.08
+          0.08,
+          0.04,
+          0.03,
+          0.022,
+          0.016,
+          0.012,
+          0.008
         ],
         "partialDecay": [
           3,
@@ -1696,25 +1702,35 @@ var GUS_MELODIC_PRESETS = {
           0.7,
           0.5,
           0.4,
-          0.3
+          0.3,
+          0.25,
+          0.2,
+          0.16
         ],
         "attackNoise": {
           "amp": 0.08,
           "duration": 0.009
+        },
+        "pluckTransient": {
+          "freq": 5200,
+          "q": 0.9,
+          "amp": 0.035,
+          "duration": 0.012,
+          "decay": 0.006
         },
         "guitarAmp": {
           "drive": 1,
           "bias": 0,
           "mix": 0.15,
           "preampCutoff": 75,
-          "cabinetCutoff": 9500
+          "cabinetCutoff": 15000
         },
         "brightness": {
-          "start": 10500,
-          "end": 5600,
-          "loopCutoff": 5200
+          "start": 16000,
+          "end": 9000,
+          "loopCutoff": 6500
         },
-        "highpass": 1600,
+        "highpass": 120,
         "antiAlias": true
       }
     },
