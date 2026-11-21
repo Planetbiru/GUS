@@ -225,7 +225,10 @@ class GusPatchApp {
 
     updatePatchCacheToggle() {
         const button = this.$('btnTogglePatchCache');
-        button.textContent = `Patch Cache: ${this.patchCacheEnabled ? 'On' : 'Off'}`;
+        const label = this.$('patchCacheToggleLabel');
+        if (label) {
+            label.textContent = `Patch Cache: ${this.patchCacheEnabled ? 'On' : 'Off'}`;
+        }
         button.setAttribute('aria-pressed', String(this.patchCacheEnabled));
     }
 

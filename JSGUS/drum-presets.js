@@ -5,7 +5,7 @@ var GUS_DRUM_PRESETS = {
   "type": "drum",
   "version": "1.0",
   "lastModified": "2026-11-21T12:00:00Z",
-  "gain": 0.62,
+  "gain": 0.58,
   "instruments": [
     {
       "note": 25,
@@ -1780,7 +1780,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Skin-drum strike with a crisp, woody tone.",
       "preset": {
         "mute": false,
-        "gain": 0.45,
+        "gain": 0.42,
         "duration": 0.27,
         "membrane": {
           "freq": 400,
@@ -1822,7 +1822,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Skin-drum strike with a crisp, woody tone.",
       "preset": {
         "mute": false,
-        "gain": 0.45,
+        "gain": 0.42,
         "duration": 0.27,
         "membrane": {
           "freq": 280,
