@@ -136,6 +136,7 @@ Objek preset disimpan sebagai data JavaScript dan dimuat sebelum
 | `gain` | Pengali level instrumen yang dikalikan dengan master gain koleksi. Level tinggi dapat mengalami saturasi saat dikonversi ke PCM 16-bit. |
 | `defaultWaveform` | Bentuk harmonik bawaan: salah satu profil waveform di bawah atau array amplitudo harmonik. Waveform yang dipilih selain preset menggantikan nilai `harm`. |
 | `freq` | Frekuensi dasar/referensi dalam hertz. Saat generator membuat zona nada, frekuensi dasar dapat ditentukan oleh zona tersebut. |
+| `sampleRate` | Pada preset melodi tidak dibaca. Sample rate ditentukan oleh opsi `sampleRate` pada `ProjectPatchGenerator`. |
 | `length` | Panjang sampel one-shot dalam jumlah sampel pada acuan 22.050 Hz; disesuaikan untuk sample rate lain. Diabaikan untuk loop. |
 | `duration` | Durasi dalam detik untuk one-shot dengan `renderMode: "drum"`. One-shot melodi biasa menggunakan `length` atau durasi generator. |
 | `harm` | Amplitudo relatif tiap harmonik; indeks `0` adalah fundamental. |
@@ -170,9 +171,16 @@ Objek preset disimpan sebagai data JavaScript dan dimuat sebelum
 | `guitarAmp` | Tahap efek gitar opsional: `preampCutoff` dan `cabinetCutoff` dalam hertz, serta `drive`, `bias`, `mix`, dan `clip` (campuran menuju hard clipping). |
 | `renderMode` | Nilai `"drum"` merender preset melodi sebagai one-shot dengan pitch scaling menggunakan komponen renderer drum. |
 | `tones` | Digunakan dalam `renderMode: "drum"`; struktur elemennya sama dengan properti `tones` pada preset drum. |
+| `membrane`, `metallic`, `noiseLayers`, `impact`, `impacts`, `click`, `bursts` | Komponen renderer drum tambahan yang dapat dipakai oleh preset melodi ber-`renderMode: "drum"`; struktur dan arti nilainya sama dengan komponen drum. |
 | `highpass` | Cutoff high-pass dalam hertz, diterapkan pada sampel hasil render. |
 | `lowpass` | Cutoff low-pass dalam hertz untuk `renderMode: "drum"`. Untuk loop melodi biasa, low-pass menggunakan `brightness.loopCutoff`. |
 | `fadeOut` | Lama fade-out dalam detik untuk one-shot `renderMode: "drum"`. |
+| `pitchInvariant` | Jika `true` pada preset `renderMode: "drum"`, frekuensi tone dan noise tidak diskalakan oleh nada MIDI; suara tetap pada karakter pitch yang ditentukan. |
+| `noiseOnly` | Pada loop melodi biasa, `true` membuat preset memakai noise sebagai suara utama dan mengabaikan lapisan pink-noise normal. |
+| `lowNoise` | Besar brown-noise pelengkap untuk loop ber-`noiseOnly`; digunakan bersama `noise` sebagai parameter lapisan utama. |
+| `loopStartSeconds`, `loopEndSeconds` | Titik mulai dan akhir wilayah loop untuk preset `renderMode: "drum"` dalam detik. `loopEndSeconds` default ke `duration`. |
+| `loopCrossfadeSeconds` | Panjang crossfade overlap pada seam loop untuk preset `renderMode: "drum"`, dibatasi seperempat panjang wilayah loop. |
+| `noiseBursts` | Burst noise acak untuk melodi `renderMode: "drum"`; mendukung `density`, `peak`, dan array band `{ center, q, amp }`. |
 
 Karakter profil pada `defaultWaveform`:
 
@@ -230,6 +238,8 @@ Setiap `preset` drum dirender sebagai gabungan satu atau lebih komponen berikut.
 | `metallic` | Dengung inharmonis dengan `baseFreq`, pengali frekuensi parsial pada `partials`, `amp`, dan `decay`. `randomPhase: true` mengacak fase awal parsial. |
 | `noise` | Satu lapisan noise dengan `amp`, `decay` dalam detik, `type` (`white`, `pink`, atau `brown`), dan `bandpass: { center, q }` opsional. Tanpa `bandpass`, noise tidak difilter. |
 | `noiseLayers` | Array lapisan noise; tiap elemen mendukung properti yang sama dengan `noise`. |
+| `noise.attack` | Lama attack noise dalam detik pada lapisan `noise` atau `noiseLayers`; jika tidak ada, attack langsung penuh. |
+| `noiseBursts` | Burst noise acak berlapis; mendukung `density` untuk jumlah event per detik, `peak` normalisasi, serta `bands[]: { center, q, amp }`. |
 | `impact` | Satu impact noise dengan `amp`, `duration`, `decay`, `delay` opsional, `type`, dan `bandpass` opsional. |
 | `impacts` | Array impact dengan struktur yang sama seperti `impact`, untuk menggabungkan beberapa benturan. |
 | `click` | Klik attack pendek dari noise acak, dengan `duration` dalam detik dan `amp`. |
@@ -264,6 +274,26 @@ GUS ditetapkan di tengah (`7`).
 Contoh berikut menggunakan rentang nada MIDI `0–127` dan menghasilkan satu
 sampel. Implementasi ekspor instrumen melodi dapat menggunakan beberapa zona
 sampel; contoh ini dibatasi pada satu sampel per PAT.
+
+### Profil Ketelitian Zona Melodi
+
+Ekspor instrumen melodi membagi rentang MIDI `0–127` menurut karakter
+instrumen agar ukuran berkas PAT tetap efisien:
+
+| Profil | Zona | Instrumen |
+| --- | ---: | --- |
+| Tinggi | 19 | Program 0–15; Piano dan Chromatic; 24–31; Guitar; 40–47; Strings; 56–79; Brass, Reed, dan Pipe |
+| Khusus Bass | 16 | Program 32–39; selalu memakai `BASS_PITCH_RANGES` melalui `MELODIC_BASS_PRECISION_PROGRAMS` |
+| Sedang | 10 | Program 16–23; Organ; 48–55; Ensemble; 80–87; Lead |
+| Rendah | 6 | Program 88–127; Pad, FX, dan SFX |
+
+Profil tinggi dipakai untuk instrumen yang sensitif terhadap pitch dan
+karakter transien. Profil sedang menekan jumlah sampel pada instrumen yang
+lebih stabil secara spektral. Profil rendah digunakan untuk pad, tekstur,
+efek, dan SFX yang toleran terhadap perubahan pitch lintas rentang luas.
+Daftar program disimpan secara eksplisit pada `MELODIC_HIGH_PRECISION_PROGRAMS`,
+`MELODIC_MEDIUM_PRECISION_PROGRAMS`, dan `MELODIC_LOW_PRECISION_PROGRAMS`
+dalam `JSGUS/ProjectPatchGenerator.js`.
 
 ## 6. Contoh Implementasi HTML Mandiri
 

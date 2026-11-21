@@ -7,7 +7,7 @@ class ProjectPatchGenerator {
   static MODE_LOOP          = 0x04;
   static MODE_SUSTAIN       = 0x20;
   static MODE_ENVELOPE      = 0x40;
-  static MELODIC_PITCH_RANGES = Object.freeze([
+  static MELODIC_PITCH_RANGES_HIGH = Object.freeze([
     {pitchFrom:0, pitchTo:15},
     {pitchFrom:16, pitchTo:21},
     {pitchFrom:22, pitchTo:27},
@@ -28,7 +28,7 @@ class ProjectPatchGenerator {
     {pitchFrom:104, pitchTo:111},
     {pitchFrom:112, pitchTo:127}
   ].map(range => Object.freeze(range)));
-  static BASS_PITCH_RANGES = Object.freeze([
+  static MELODIC_PITCH_RANGES_BASS = Object.freeze([
     {pitchFrom:0, pitchTo:5},
     {pitchFrom:6, pitchTo:10},
     {pitchFrom:11, pitchTo:15},
@@ -49,6 +49,57 @@ class ProjectPatchGenerator {
   static DRUM_PITCH_RANGES = Object.freeze([
     Object.freeze({pitchFrom:1, pitchTo:127})
   ]);
+
+  static MELODIC_PITCH_RANGES_MEDIUM = Object.freeze([
+    {pitchFrom:0, pitchTo:11},
+    {pitchFrom:12, pitchTo:23},
+    {pitchFrom:24, pitchTo:35},
+    {pitchFrom:36, pitchTo:47},
+    {pitchFrom:48, pitchTo:59},
+    {pitchFrom:60, pitchTo:71},
+    {pitchFrom:72, pitchTo:83},
+    {pitchFrom:84, pitchTo:95},
+    {pitchFrom:96, pitchTo:107},
+    {pitchFrom:108, pitchTo:127}
+  ].map(range => Object.freeze(range)));
+
+  static MELODIC_PITCH_RANGES_LOW = Object.freeze([
+    {pitchFrom:0, pitchTo:19},
+    {pitchFrom:20, pitchTo:39},
+    {pitchFrom:40, pitchTo:59},
+    {pitchFrom:60, pitchTo:79},
+    {pitchFrom:80, pitchTo:99},
+    {pitchFrom:100, pitchTo:127}
+  ].map(range => Object.freeze(range)));
+
+  static MELODIC_PRECISION_PROGRAMS_HIGH = Object.freeze([
+    // Acoustic, percussive, bowed, brass, and woodwind instruments.
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+    24, 25, 26, 27, 28, 29, 30, 31,
+    40, 41, 42, 43, 44, 45, 46, 47,
+    56, 57, 58, 59, 60, 61, 62, 63,
+    64, 65, 66, 67, 68, 69, 70, 71,
+    72, 73, 74, 75, 76, 77, 78, 79
+  ]);
+
+  static MELODIC_PRECISION_PROGRAMS_BASS = Object.freeze([
+    32, 33, 34, 35, 36, 37, 38, 39
+  ]);
+
+  static MELODIC_PRECISION_PROGRAMS_MEDIUM = Object.freeze([
+    16, 17, 18, 19, 20, 21, 22, 23,
+    48, 49, 50, 51, 52, 53, 54, 55,
+    80, 81, 82, 83, 84, 85, 86, 87
+  ]);
+
+  static MELODIC_PRECISION_PROGRAMS_LOW = Object.freeze([
+    88, 89, 90, 91, 92, 93, 94, 95,
+    96, 97, 98, 99, 100, 101, 102, 103,
+    104, 105, 106, 107, 108, 109, 110, 111,
+    112, 113, 114, 115, 116, 117, 118, 119,
+    120, 121, 122, 123, 124, 125, 126, 127
+  ]);
+
   static WAVEFORM_TYPES = Object.freeze([
     Object.freeze({value: 'sine',     name: 'Sine',     description: 'Pure tone with no upper harmonics.'}),
     Object.freeze({value: 'triangle', name: 'Triangle', description: 'Soft, mellow tone with gently fading odd harmonics.'}),
@@ -94,9 +145,19 @@ class ProjectPatchGenerator {
 
   static getPitchRanges(isDrum, program) {
     if (isDrum) return this.DRUM_PITCH_RANGES;
-    return program >= 32 && program <= 39
-      ? this.BASS_PITCH_RANGES
-      : this.MELODIC_PITCH_RANGES;
+    if (this.MELODIC_PRECISION_PROGRAMS_BASS.includes(program)) {
+      return this.MELODIC_PITCH_RANGES_BASS;
+    }
+    if (this.MELODIC_PRECISION_PROGRAMS_LOW.includes(program)) {
+      return this.MELODIC_PITCH_RANGES_LOW;
+    }
+    if (this.MELODIC_PRECISION_PROGRAMS_MEDIUM.includes(program)) {
+      return this.MELODIC_PITCH_RANGES_MEDIUM;
+    }
+    if (this.MELODIC_PRECISION_PROGRAMS_HIGH.includes(program)) {
+      return this.MELODIC_PITCH_RANGES_HIGH;
+    }
+    return this.MELODIC_PITCH_RANGES_MEDIUM;
   }
 
   /**
