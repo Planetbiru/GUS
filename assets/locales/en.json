@@ -1,7 +1,7 @@
 {
-  "app_title": "Planetbiru Instrument Editor",
+  "app_title": "Planetbiru Instrument Creator",
   "about_button": "About",
-  "about_title": "About Planetbiru Instrument Editor",
+  "about_title": "About Planetbiru Instrument Creator",
   "about_description": "A browser-based editor for opening, managing, and exporting GUS instrument patches, SoundFonts, and SFZ packages.",
   "about_features": "Manage patch projects, preview audio, and play MIDI in your browser.",
   "about_company": "PT Planetbiru Studio Indonesia",
@@ -70,7 +70,7 @@
   "export_instrument": "Export This Instrument",
   "midi_monitor": "MIDI Monitor",
   "no_midi_messages": "No MIDI messages yet.",
-  "editor_heading": "Planetbiru Instrument Editor",
+  "editor_heading": "Planetbiru Instrument Creator",
   "welcome_description": "Load a Gravis Ultrasound .PAT file, a SoundFont .SF2/.SF3 file, a Surge VST2 .FXP preset, or a zipped .SFZ package. FXP wavetable data is converted to an approximate GUS patch; synth modulation and effects are not preserved. Edit patch properties, edit waveforms, import/export WAV files, and test sounds using your keyboard or MIDI. All data is stored in your browser's IndexedDB. Warning: SoundFont and SFZ packages are generally large, and their size can grow substantially when converted to GUS Patches. Make sure your computer has enough RAM and free storage.",
   "welcome_tip": "<b>Tip:</b> Load and play a MIDI file in the <b>MIDI Preview</b> panel in the left sidebar to test patch sounds.",
   "open_file": "Open File",

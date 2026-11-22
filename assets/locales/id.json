@@ -1,7 +1,7 @@
 {
-  "app_title": "Planetbiru Instrument Editor",
+  "app_title": "Planetbiru Instrument Creator",
   "about_button": "Tentang",
-  "about_title": "Tentang Planetbiru Instrument Editor",
+  "about_title": "Tentang Planetbiru Instrument Creator",
   "about_description": "Editor berbasis browser untuk membuka, mengelola, dan mengekspor patch instrumen GUS, SoundFont, dan SFZ.",
   "about_features": "Kelola proyek patch, pratinjau audio, dan putar MIDI di browser.",
   "about_company": "PT Planetbiru Studio Indonesia",
@@ -70,7 +70,7 @@
   "export_instrument": "Export Instrumen Ini",
   "midi_monitor": "Pemantau MIDI",
   "no_midi_messages": "Belum ada pesan MIDI.",
-  "editor_heading": "Planetbiru Instrument Editor",
+  "editor_heading": "Planetbiru Instrument Creator",
   "welcome_description": "Muat file Gravis Ultrasound .PAT, SoundFont .SF2/.SF3, preset Surge VST2 .FXP, atau paket .SFZ dalam ZIP. Data wavetable FXP dikonversi menjadi patch GUS perkiraan; modulasi dan efek synth tidak dipertahankan. Edit properti patch, edit bentuk gelombang, impor/ekspor WAV, dan uji suara menggunakan keyboard atau MIDI. Semua data disimpan di IndexedDB browser Anda. Peringatan: paket SoundFont dan SFZ umumnya berukuran besar dan dapat bertambah saat dikonversi menjadi GUS Patch. Pastikan komputer memiliki RAM dan ruang penyimpanan yang cukup.",
   "welcome_tip": "<b>Tips:</b> Anda dapat menguji patch suara dengan memuat file MIDI dan memutarnya melalui panel <b>Preview MIDI</b> di sidebar sebelah kiri.",
   "open_file": "Buka File",

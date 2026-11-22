@@ -1,4 +1,4 @@
-# Planetbiru Instrument Editor
+# Planetbiru Instrument Creator
 
 A browser-based editor for **Gravis Ultrasound (GUS) `.PAT` patches**, **SoundFonts (`.sf2` and `.sf3`)**, **Surge VST2 presets (`.fxp`)**, and **SFZ instruments**. It also supports importing and exporting Timidity ZIP packages and MIDI.js soundfonts — plus full waveform editing, sample management, MIDI playback, interactive timeline visualization, and instrument export.
 
