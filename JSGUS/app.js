@@ -102,6 +102,9 @@ class FileDownloader {
 const PATCH_CACHE_PREFIX = 'pig:';
 const PATCH_CACHE_ENABLED_STORAGE_KEY = 'gus-patch-generator-patch-cache-enabled-v1';
 const WAVEFORM_VERTICAL_ZOOM_STORAGE_KEY = 'gus-patch-generator-waveform-vertical-zoom-v1';
+const MIDI_FILE_DB_NAME = 'gus-patch-generator-midi-file';
+const MIDI_FILE_DB_STORE = 'files';
+const LAST_MIDI_FILE_KEY = 'last-selected';
 
 class GusPatchApp {
     constructor(library) {
@@ -111,6 +114,8 @@ class GusPatchApp {
         this.timidityPlayerReady = null;
         this.midiData = null;
         this.midiFileName = '';
+        this.midiFileDb = null;
+        this.midiFileDbReady = null;
         this.midiDuration = 0;
         this.midiPosition = 0;
         this.midiTick = 0;
@@ -450,6 +455,7 @@ class GusPatchApp {
         document.addEventListener('fullscreenchange', () => this.updateButton());
 
         this.updateButton();
+        await this.restoreLastMidiFile();
     }
 
     updateButton() {
@@ -3324,6 +3330,72 @@ class GusPatchApp {
         return result;
     }
 
+    async openMidiFileDb() {
+        if (this.midiFileDb) return this.midiFileDb;
+        if (this.midiFileDbReady) return this.midiFileDbReady;
+        if (!window.indexedDB) throw new Error('IndexedDB is not available in this browser.');
+
+        this.midiFileDbReady = new Promise((resolve, reject) => {
+            const request = indexedDB.open(MIDI_FILE_DB_NAME, 1);
+            request.onupgradeneeded = () => {
+                if (!request.result.objectStoreNames.contains(MIDI_FILE_DB_STORE)) {
+                    request.result.createObjectStore(MIDI_FILE_DB_STORE);
+                }
+            };
+            request.onsuccess = () => {
+                this.midiFileDb = request.result;
+                resolve(this.midiFileDb);
+            };
+            request.onerror = () => {
+                this.midiFileDbReady = null;
+                reject(request.error || new Error('Could not open MIDI file storage.'));
+            };
+        });
+        return this.midiFileDbReady;
+    }
+
+    async saveLastMidiFile(file) {
+        const db = await this.openMidiFileDb();
+        const record = {
+            name: file.name,
+            type: file.type,
+            lastModified: file.lastModified,
+            data: await file.arrayBuffer(),
+        };
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(MIDI_FILE_DB_STORE, 'readwrite');
+            transaction.objectStore(MIDI_FILE_DB_STORE).put(record, LAST_MIDI_FILE_KEY);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('Could not save MIDI file.'));
+            transaction.onabort = () => reject(transaction.error || new Error('MIDI file save was aborted.'));
+        });
+    }
+
+    async restoreLastMidiFile() {
+        try {
+            const db = await this.openMidiFileDb();
+            const record = await new Promise((resolve, reject) => {
+                const transaction = db.transaction(MIDI_FILE_DB_STORE, 'readonly');
+                const request = transaction.objectStore(MIDI_FILE_DB_STORE).get(LAST_MIDI_FILE_KEY);
+                request.onsuccess = () => resolve(request.result || null);
+                request.onerror = () => reject(request.error || new Error('Could not read saved MIDI file.'));
+            });
+            if (!record) return;
+            if (typeof record.name !== 'string' || !(record.data instanceof ArrayBuffer)) {
+                throw new Error('The saved MIDI file data is invalid.');
+            }
+
+            const file = new File([record.data], record.name, {
+                type: record.type || 'audio/midi',
+                lastModified: record.lastModified || Date.now(),
+            });
+            await this.loadMidiFile({target: {files: [file], value: ''}});
+        } catch (error) {
+            this.$('midiStatus').textContent = `Saved MIDI restore failed: ${error.message}`;
+            this.log(`Saved MIDI restore failed: ${error.message}`, 'err');
+        }
+    }
+
     async loadMidiFile(event) {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
@@ -3366,6 +3438,11 @@ class GusPatchApp {
             this.updateMidiPlaybackUI();
             status.textContent = `Ready: ${file.name}`;
             this.scheduleMidiInstrumentProgressHide();
+            try {
+                await this.saveLastMidiFile(file);
+            } catch (error) {
+                this.log(`Could not remember MIDI file for reload: ${error.message}`, 'err');
+            }
         } catch (error) {
             this.hideMidiInstrumentProgress();
             this.clearMidiInstrumentList();
@@ -3376,7 +3453,7 @@ class GusPatchApp {
             this.log(`MIDI load failed: ${error.message}`, 'err');
             this.updateMidiPlaybackUI();
         } finally {
-            event.target.value = '';
+            if (event.target) event.target.value = '';
         }
     }
 

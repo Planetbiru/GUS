@@ -5,7 +5,7 @@ var GUS_DRUM_PRESETS = {
   "type": "drum",
   "version": "1.0",
   "lastModified": "2026-11-21T12:00:00Z",
-  "gain": 0.58,
+  "gain": 0.66,
   "instruments": [
     {
       "note": 25,
@@ -499,7 +499,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Deep kick thump with a short beater click.",
       "preset": {
         "mute": false,
-        "gain": 0.32,
+        "gain": 0.35,
         "duration": 0.55,
         "membrane": {
           "freq": 46,
@@ -550,6 +550,7 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
+        "highpass": 30,
         "lowpass": 4200
       }
     },
@@ -560,7 +561,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Punchy kick with a focused low end.",
       "preset": {
         "mute": false,
-        "gain": 0.32,
+        "gain": 0.35,
         "duration": 0.55,
         "membrane": {
           "freq": 52,
@@ -611,6 +612,7 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
+        "highpass": 30,
         "lowpass": 4500
       }
     },

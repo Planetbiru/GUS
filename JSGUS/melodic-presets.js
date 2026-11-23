@@ -5,7 +5,7 @@ var GUS_MELODIC_PRESETS = {
   "type": "melodic",
   "version": "1.0",
   "lastModified": "2026-11-21T12:00:00Z",
-  "gain": 0.18,
+  "gain": 0.24,
   "instruments": [
     {
       "program": 0,
@@ -125,7 +125,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 16500,
           "end": 10500
         },
-        "highpass": 230,
+        "highpass": 300,
         "antiAlias": true
       }
     },
@@ -212,7 +212,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "highpass": 140,
         "antiAlias": true
       }
     },
@@ -272,7 +272,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 3,
           "index": 1.8
         },
-        "highpass": 80,
+        "highpass": 140,
         "antiAlias": true
       }
     },
@@ -362,7 +362,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "highpass": 140,
         "antiAlias": true
       }
     },
@@ -422,7 +422,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 3,
           "index": 1.6
         },
-        "highpass": 230,
+        "highpass": 280,
         "antiAlias": true
       }
     },
@@ -482,7 +482,7 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 2,
           "index": 2.25
         },
-        "highpass": 230,
+        "highpass": 280,
         "antiAlias": true
       }
     },
@@ -540,7 +540,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "highpass": 140,
         "antiAlias": true
       }
     },
@@ -596,7 +596,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "highpass": 140,
         "antiAlias": true
       }
     },
@@ -1297,9 +1297,9 @@ var GUS_MELODIC_PRESETS = {
         "loop": false,
         "env": {
           "a": 0.002,
-          "d": 1.5,
+          "d": 1,
           "s": 0,
-          "r": 0.5
+          "r": 0.3
         },
         "harm": [
           1,
@@ -1344,10 +1344,10 @@ var GUS_MELODIC_PRESETS = {
           "time": 0.012
         },
         "brightness": {
-          "start": 20000,
-          "end": 14000
+          "start": 21000,
+          "end": 16000
         },
-        "highpass": 100,
+        "highpass": 150,
         "antiAlias": true
       }
     },
@@ -1366,9 +1366,9 @@ var GUS_MELODIC_PRESETS = {
         "loop": false,
         "env": {
           "a": 0.001,
-          "d": 1.2,
+          "d": 0.85,
           "s": 0,
-          "r": 0.4
+          "r": 0.25
         },
         "harm": [
           1,
@@ -1456,8 +1456,8 @@ var GUS_MELODIC_PRESETS = {
           "time": 0.01
         },
         "brightness": {
-          "start": 19000,
-          "end": 13000
+          "start": 21000,
+          "end": 16000
         },
         "formants": [
           {
@@ -1501,7 +1501,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "highpass": 300,
+        "highpass": 330,
         "antiAlias": true
       }
     },
@@ -1587,7 +1587,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.52,
+        "gain": 0.76,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -1646,11 +1646,11 @@ var GUS_MELODIC_PRESETS = {
           "cabinetCutoff": 15000
         },
         "brightness": {
-          "start": 16000,
-          "end": 9000,
+          "start": 18000,
+          "end": 12000,
           "loopCutoff": 6500
         },
-        "highpass": 120,
+        "highpass": 160,
         "antiAlias": true
       }
     },
@@ -1738,7 +1738,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.32,
+        "gain": 1.2,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -1772,7 +1772,7 @@ var GUS_MELODIC_PRESETS = {
           "mix": 0.64,
           "clip": 0.0,
           "preampCutoff": 70,
-          "cabinetCutoff": 5600
+          "cabinetCutoff": 7200
         },
         "formants": [
           { "freq": 500,  "q": 1.5, "gain": -1.0 },
@@ -1781,7 +1781,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 3800, "q": 0.65, "gain": 8 }
         ],
         "brightness": {
-          "loopCutoff": 5800
+          "loopCutoff": 8500
         },
         "highpass": 220,
         "antiAlias": true
@@ -1796,7 +1796,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.40,
+        "gain": 1.2,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -1852,7 +1852,7 @@ var GUS_MELODIC_PRESETS = {
           "mix": 0.7,
           "clip": 0,
           "preampCutoff": 70,
-          "cabinetCutoff": 4800
+          "cabinetCutoff": 9000
         },
         "formants": [
           {
@@ -1879,7 +1879,7 @@ var GUS_MELODIC_PRESETS = {
         "brightness": {
           "start": 6000,
           "end": 3500,
-          "loopCutoff": 6000
+          "loopCutoff": 10500
         },
         "highpass": 220,
         "antiAlias": true
@@ -6948,7 +6948,7 @@ var GUS_MELODIC_PRESETS = {
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
-        "gain": 0.3,
+        "gain": 0.55,
         "freq": 441,
         "duration": 0.15,
         "tones": [
