@@ -2170,7 +2170,7 @@ class GusPatchApp {
         // Initialize TimidityPlayer with custom loaders for configuration and instruments
         const player = new TimidityPlayer({
             sampleRate: 48000, // Sample rate
-            bufferSize: 1024, // Default buffer size for non-realtime playback
+            bufferSize: 512, // Default buffer size for non-realtime playback
             bufferSizeRealtime: 512, // Less latency for realtime instrument playback
             timidityCfgLoader: () => this.buildMidiTimidityConfig(),
             instrumentLoader: async (bank, isDrum, program) => {

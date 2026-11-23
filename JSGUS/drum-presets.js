@@ -2849,11 +2849,11 @@ var GUS_DRUM_PRESETS = {
         "mute": false,
         "gain": 0.36,
         "duration": 1.3,
-        "fadeOut": 0.55,
+        "fadeOut": 0.15,
         "membrane": {
           "freq": 92,
-          "pitchDecay": 0.032,
-          "decay": 0.67,
+          "pitchDecay": 0.022,
+          "decay": 0.42,
           "modes": [
             {
               "ratio": 1,
@@ -2883,20 +2883,20 @@ var GUS_DRUM_PRESETS = {
           ]
         },
         "click": {
-          "duration": 0.004,
-          "amp": 0.12
+          "duration": 0.007,
+          "amp": 0.28
         },
         "noise": {
-          "amp": 0.1,
-          "decay": 0.04,
+          "amp": 0.18,
+          "decay": 0.025,
           "type": "pink",
           "bandpass": {
-            "center": 320,
-            "q": 0.65
+            "center": 380,
+            "q": 0.7
           }
         },
-        "highpass": 30,
-        "lowpass": 1500
+        "highpass": 45,
+        "lowpass": 1200
       }
     }
   ]
