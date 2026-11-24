@@ -487,6 +487,7 @@ Each entry has `program`, `family`, `name`, `shortName`, `description`, and a
     pitchScoop: { depth: 0.0005, time: 0.012 },
     brightness: { start: 20000, end: 14000 },
     highpass: 100,
+    graphicEqualizer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     antiAlias: true
   }
 }
@@ -535,6 +536,7 @@ Supported melodic `preset` properties:
 | `tones` | Used by `renderMode: "drum"`; see the drum `tones` row for supported tone fields. |
 | `membrane`, `metallic`, `noiseLayers`, `impact`, `impacts`, `click`, `bursts` | Additional DrumRenderer components allowed by melodic presets with `renderMode: "drum"`; their fields and behavior match the drum preset component documentation below. |
 | `highpass` | High-pass cutoff in hertz, applied to the rendered sample. |
+| `graphicEqualizer` | Optional array of exactly 10 finite dB gains, ordered for `[31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]` Hz bands. Each value must be between `-12` and `+12` dB; the UI uses `0.1` dB steps and built-in presets default to ten zeroes. Sequential peaking filters (`Q=1.4`) apply directly to rendered PCM before normalization, so the effect is baked into PAT/SF2 samples rather than stored as a patch-header effect. Bands at or above 49% of the render sample rate are skipped. |
 | `lowpass` | Low-pass cutoff in hertz for `renderMode: "drum"`; ordinary melodic rendering uses `brightness.loopCutoff` for loop low-pass filtering. |
 | `fadeOut` | Fade-out time in seconds for `renderMode: "drum"` one-shots. |
 | `pitchInvariant` | If `true` for `renderMode: "drum"`, MIDI pitch does not scale tone and filter frequencies; the texture stays at its configured pitch. |
@@ -605,6 +607,7 @@ characters. Set `GUS_DRUM_PRESETS.gain` to adjust the drum master level.
         bandpass: { center: 6500, q: 0.58 } }
     ],
     highpass: 3900,
+    graphicEqualizer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     lowpass: 10500
   }
 }
@@ -630,6 +633,7 @@ Drum `preset` properties are combined by `DrumRenderer`:
 | `click` | Short random-noise attack click with `duration` in seconds and `amp`. |
 | `bursts` | Array of noise-burst start times in seconds; each burst lasts about 12 ms. |
 | `highpass`, `lowpass` | Optional high-pass and low-pass cutoff frequencies in hertz. |
+| `graphicEqualizer` | Optional array of exactly 10 finite dB gains, ordered for `[31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]` Hz bands. Each value must be between `-12` and `+12` dB; the UI uses `0.1` dB steps and built-in presets default to ten zeroes. Sequential peaking filters (`Q=1.4`) apply directly to rendered PCM before normalization, so the effect is baked into PAT/SF2 samples rather than stored as a patch-header effect. Bands at or above 49% of the render sample rate are skipped. |
 | `fadeOut` | Fade-out length in seconds. If omitted, the renderer uses a short edge fade. |
 | `tremolo` | Optional `{ rate, sweep, depth }` with `rate` in hertz (`0–25`, mapped to a GUS byte `0–255`), `sweep` as a GUS byte (`0–255`), and normalized `depth` (`0–1`, mapped to a byte `0–255`). Encoded in the PAT sample header; omitted in built-in drum presets. |
 

@@ -48,6 +48,7 @@ var GUS_DRUM_PRESETS = {
           0.44
         ],
         "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000
       }
     },
@@ -116,6 +117,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.28
         },
         "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -153,7 +155,8 @@ var GUS_DRUM_PRESETS = {
           "duration": 0.002,
           "amp": 0.18
         },
-        "highpass": 180
+        "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -237,6 +240,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.2
         },
         "highpass": 70,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8000
       }
     },
@@ -296,6 +300,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6200
       }
     },
@@ -359,6 +364,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7600
       }
     },
@@ -405,6 +411,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.2
         },
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000
       }
     },
@@ -438,6 +445,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.22
         },
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000
       }
     },
@@ -465,6 +473,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.15
         },
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6000
       }
     },
@@ -489,6 +498,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.48
         },
         "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -551,6 +561,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 30,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4200
       }
     },
@@ -613,6 +624,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 30,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4500
       }
     },
@@ -659,6 +671,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.25
         },
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -706,7 +719,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.65
           }
         },
-        "highpass": 600
+        "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -728,6 +742,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "bursts": [
           0,
           0.011,
@@ -780,7 +795,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.7
           }
         },
-        "highpass": 600
+        "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -833,6 +849,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 55,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 5500,
         "fadeOut": 0.06
       }
@@ -876,6 +893,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 4500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -929,6 +947,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 55,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 5000,
         "fadeOut": 0.05
       }
@@ -967,6 +986,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.12
         },
         "highpass": 2800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -1020,6 +1040,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 100,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6500,
         "fadeOut": 0.05
       }
@@ -1046,6 +1067,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 4600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -1099,6 +1121,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 90,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6000,
         "fadeOut": 0.05
       }
@@ -1153,6 +1176,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 115,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6500,
         "fadeOut": 0.05
       }
@@ -1225,6 +1249,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -1278,6 +1303,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 145,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000,
         "fadeOut": 0.05
       }
@@ -1331,6 +1357,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -1381,7 +1408,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 3000
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1454,6 +1482,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 1800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 11000
       }
     },
@@ -1525,6 +1554,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 3400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500
       }
     },
@@ -1575,7 +1605,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 3000
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1603,7 +1634,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.5
           }
         ],
-        "highpass": 400
+        "highpass": 400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1674,6 +1706,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -1704,7 +1737,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.3,
           "type": "pink"
         },
-        "highpass": 800
+        "highpass": 800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1756,6 +1790,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -1798,7 +1833,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "highpass": 260
+        "highpass": 260,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1840,7 +1876,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "highpass": 220
+        "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1887,7 +1924,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 4600
+        "lowpass": 4600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1934,7 +1972,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 2400
+        "lowpass": 2400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1981,7 +2020,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 2000
+        "lowpass": 2000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2058,6 +2098,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 110,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4500
       }
     },
@@ -2135,6 +2176,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 90,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 3800
       }
     },
@@ -2163,7 +2205,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.3
           }
         ],
-        "highpass": 500
+        "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2191,7 +2234,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.3
           }
         ],
-        "highpass": 500
+        "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2212,7 +2256,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.6
           }
         },
-        "highpass": 6000
+        "highpass": 6000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2233,7 +2278,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.6
           }
         },
-        "highpass": 7000
+        "highpass": 7000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2277,7 +2323,8 @@ var GUS_DRUM_PRESETS = {
             "q": 10
           }
         },
-        "highpass": 3200
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2321,7 +2368,8 @@ var GUS_DRUM_PRESETS = {
             "q": 12
           }
         },
-        "highpass": 3200
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2376,7 +2424,8 @@ var GUS_DRUM_PRESETS = {
             "bandpass": { "center": 7100, "q": 0.8 }
           }
         ],
-        "highpass": 1700
+        "highpass": 1700,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2455,7 +2504,8 @@ var GUS_DRUM_PRESETS = {
             "bandpass": { "center": 8000, "q": 0.8 }
           }
         ],
-        "highpass": 1600
+        "highpass": 1600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2483,7 +2533,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.5
           }
         ],
-        "highpass": 1500
+        "highpass": 1500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2509,7 +2560,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.006,
           "type": "pink"
         },
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2535,7 +2587,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.006,
           "type": "pink"
         },
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2560,7 +2613,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2585,7 +2639,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2614,6 +2669,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.1
         },
         "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -2637,7 +2693,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 1,
           "amp": 0.55
         },
-        "highpass": 3000
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2670,6 +2727,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 6200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 11500
       }
     },
@@ -2704,7 +2762,8 @@ var GUS_DRUM_PRESETS = {
             "q": 1.2
           }
         },
-        "highpass": 220
+        "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2731,6 +2790,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.42
         },
         "highpass": 650,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500
       }
     },
@@ -2784,6 +2844,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -2837,6 +2898,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 35,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 1800
       }
     },
@@ -2896,6 +2958,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 45,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 1200
       }
     }

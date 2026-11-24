@@ -529,6 +529,18 @@ class ProjectPatchGenerator {
  */
 class GUSPatchGenerator {
     static TAU = Math.PI * 2;
+    static GRAPHIC_EQUALIZER_BANDS = Object.freeze([
+        Object.freeze({label: '31 Hz', frequency: 31}),
+        Object.freeze({label: '63 Hz', frequency: 63}),
+        Object.freeze({label: '125 Hz', frequency: 125}),
+        Object.freeze({label: '250 Hz', frequency: 250}),
+        Object.freeze({label: '500 Hz', frequency: 500}),
+        Object.freeze({label: '1 kHz', frequency: 1000}),
+        Object.freeze({label: '2 kHz', frequency: 2000}),
+        Object.freeze({label: '4 kHz', frequency: 4000}),
+        Object.freeze({label: '8 kHz', frequency: 8000}),
+        Object.freeze({label: '16 kHz', frequency: 16000}),
+    ]);
 
     /**
      * Evaluates a sine wave at a phase expressed in cycles.
@@ -696,6 +708,26 @@ class GUSPatchGenerator {
             const y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
             x2 = x1; x1 = x; y2 = y1; y1 = y;
             buf[i] = y;
+        }
+    }
+
+    /**
+     * Applies the preset's ten-band graphic equalizer to a buffer.
+     * @param {Float32Array} buf Audio samples to filter; modified in place.
+     * @param {number[]} gains Band gains in decibels.
+     * @param {number} SR Sample rate in hertz.
+     * @returns {void}
+     */
+    static applyGraphicEqualizer(buf, gains, SR) {
+        const bands = this.GRAPHIC_EQUALIZER_BANDS;
+        if (!Array.isArray(gains) || gains.length !== bands.length
+            || gains.some(gain => !Number.isFinite(gain) || gain < -12 || gain > 12)) {
+            throw new Error('Graphic equalizer must contain 10 gains between -12 and +12 dB.');
+        }
+        for (let index = 0; index < bands.length; index++) {
+            if (gains[index] !== 0) {
+                this.peakFilter(buf, bands[index].frequency, 1.4, gains[index], SR);
+            }
         }
     }
 
@@ -1272,6 +1304,9 @@ class MelodicRenderer {
         if (p.guitarAmp) GUSPatchGenerator.guitarAmp(out, p.guitarAmp, SR);
         if (p.formants) GUSPatchGenerator.applyFormants(out, p.formants, SR);
         if (p.drive)    GUSPatchGenerator.softClip(out, p.drive);
+        if (p.graphicEqualizer != null) {
+            GUSPatchGenerator.applyGraphicEqualizer(out, p.graphicEqualizer, SR);
+        }
 
         // Fade-in 2 ms (non-loop)
         if (!isLoop) {
@@ -1389,6 +1424,9 @@ class DrumRenderer {
 
         if (p.highpass) GUSPatchGenerator.highpass(out, p.highpass, SR);
         if (p.lowpass)  GUSPatchGenerator.lowpass(out, p.lowpass, SR);
+        if (p.graphicEqualizer != null) {
+            GUSPatchGenerator.applyGraphicEqualizer(out, p.graphicEqualizer, SR);
+        }
         GUSPatchGenerator.fadeIn(out, Math.min(64, Math.floor(length * 0.01)));
         const fadeOutSamples = Number.isFinite(p.fadeOut) && p.fadeOut > 0
             ? Math.round(SR * p.fadeOut)
@@ -1687,7 +1725,17 @@ class InstrumentLibrary {
         if (programs.some(instrument => !instrument)) {
             throw new Error("Melodic preset data must define every program from 0 to 127.");
         }
-        return programs;
+        return programs.map(instrument => this.withDefaultGraphicEqualizer(instrument));
+    }
+
+    withDefaultGraphicEqualizer(instrument) {
+        return {
+            ...instrument,
+            preset: {
+                graphicEqualizer: new Array(GUSPatchGenerator.GRAPHIC_EQUALIZER_BANDS.length).fill(0),
+                ...instrument.preset,
+            },
+        };
     }
 
     _buildDrums() {
@@ -1726,6 +1774,6 @@ class InstrumentLibrary {
             }
             notes.add(instrument.note);
         }
-        return GUS_DRUM_PRESETS.instruments;
+        return GUS_DRUM_PRESETS.instruments.map(instrument => this.withDefaultGraphicEqualizer(instrument));
     }
 }

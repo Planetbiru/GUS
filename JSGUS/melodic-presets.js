@@ -149,6 +149,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -240,6 +241,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -304,6 +306,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -398,6 +401,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -462,6 +466,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 280,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -526,6 +531,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 280,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -588,6 +594,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -648,6 +655,7 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 4500, "q": 0.7, "gain": 0.5 }
         ],
         "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -688,7 +696,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -728,7 +737,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -765,7 +775,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -808,6 +819,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.02
         },
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -845,7 +857,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -881,7 +894,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -920,7 +934,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -975,7 +990,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1007,7 +1023,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0.1
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1041,7 +1058,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0.1
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1081,7 +1099,8 @@ var GUS_MELODIC_PRESETS = {
           0.06
         ],
         "drive": 0.18,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1113,7 +1132,8 @@ var GUS_MELODIC_PRESETS = {
           0.12,
           0.1
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1168,6 +1188,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1222,6 +1243,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1275,7 +1297,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1330,6 +1353,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1399,6 +1423,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 16000
         },
         "highpass": 150,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1553,6 +1578,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 330,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1626,6 +1652,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1702,6 +1729,7 @@ var GUS_MELODIC_PRESETS = {
           "loopCutoff": 6500
         },
         "highpass": 160,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1777,6 +1805,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 1200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1835,6 +1864,7 @@ var GUS_MELODIC_PRESETS = {
           "loopCutoff": 8500
         },
         "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1933,6 +1963,7 @@ var GUS_MELODIC_PRESETS = {
           "loopCutoff": 10500
         },
         "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2002,7 +2033,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2043,7 +2075,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2085,6 +2118,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 900
         },
         "highpass": 80,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2126,7 +2160,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2166,7 +2201,8 @@ var GUS_MELODIC_PRESETS = {
         "brightness": {
           "loopCutoff": 3500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2208,7 +2244,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2250,7 +2287,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2290,7 +2328,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2332,7 +2371,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2423,6 +2463,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2513,6 +2554,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2585,6 +2627,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2656,7 +2699,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": -2.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2728,6 +2772,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2807,6 +2852,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2882,6 +2928,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2911,7 +2958,8 @@ var GUS_MELODIC_PRESETS = {
           0.2
         ],
         "noise": 0.1,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2989,6 +3037,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3067,6 +3116,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3145,6 +3195,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3225,6 +3276,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3310,6 +3362,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3415,6 +3468,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3496,6 +3550,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3545,7 +3600,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -3637,6 +3693,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3713,6 +3770,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3788,7 +3846,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -3863,7 +3922,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -3937,7 +3997,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4046,7 +4107,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4113,7 +4175,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4174,7 +4237,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4246,6 +4310,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4308,6 +4373,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4393,6 +4459,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4464,6 +4531,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 150,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4524,7 +4592,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4582,7 +4651,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 4
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4641,7 +4711,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 3.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4692,7 +4763,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4742,7 +4814,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4798,7 +4871,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4854,7 +4928,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4910,7 +4985,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4955,7 +5031,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5005,7 +5082,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5052,7 +5130,8 @@ var GUS_MELODIC_PRESETS = {
             "q": 12
           }
         },
-        "highpass": 3200
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5097,7 +5176,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5137,6 +5217,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5175,6 +5256,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5273,7 +5355,8 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "drive": 0.8,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5312,6 +5395,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5349,6 +5433,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5387,6 +5472,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5422,7 +5508,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5458,7 +5545,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5543,6 +5631,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5610,6 +5699,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5678,6 +5768,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5764,6 +5855,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5831,6 +5923,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5902,6 +5995,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5969,7 +6063,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6041,6 +6136,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6070,7 +6166,8 @@ var GUS_MELODIC_PRESETS = {
         "harm": [0],
         "noise": 1,
         "noiseOnly": true,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6103,7 +6200,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6136,7 +6234,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6203,6 +6302,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2600
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6236,7 +6336,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 2
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6269,7 +6370,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 4
         },
         "noise": 0.04,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6303,6 +6405,7 @@ var GUS_MELODIC_PRESETS = {
         ],
         "noise": 0.01,
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6336,7 +6439,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3.5
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6373,7 +6477,8 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5,
           "depth": 0.01
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6446,6 +6551,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6481,7 +6587,8 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5,
           "depth": 0.01
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6517,6 +6624,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.01
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6553,7 +6661,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6602,7 +6711,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6671,6 +6781,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6725,7 +6836,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6762,7 +6874,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6798,7 +6911,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6837,7 +6951,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6865,7 +6980,8 @@ var GUS_MELODIC_PRESETS = {
           0.15
         ],
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6894,7 +7010,8 @@ var GUS_MELODIC_PRESETS = {
           0.15
         ],
         "noise": 0.1,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6924,6 +7041,7 @@ var GUS_MELODIC_PRESETS = {
         ],
         "noise": 0.3,
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6953,7 +7071,8 @@ var GUS_MELODIC_PRESETS = {
           0.1
         ],
         "noise": 0.15,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6986,7 +7105,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.6,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -7032,6 +7152,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 4000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7500,
         "fadeOut": 1
       }
@@ -7065,6 +7186,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 450,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000,
         "fadeOut": 0.18
       }
@@ -7093,6 +7215,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8000,
         "fadeOut": 0.25
       }
@@ -7133,6 +7256,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 1000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000,
         "fadeOut": 0.08
       }
@@ -7209,7 +7333,8 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "lowpass": 6500,
-        "fadeOut": 0.18
+        "fadeOut": 0.18,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -7244,6 +7369,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.82
         },
         "highpass": 23,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7200,
         "antiAlias": true
       }
@@ -7271,6 +7397,7 @@ var GUS_MELODIC_PRESETS = {
           "peak": 0.95
         },
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500,
         "fadeOut": 0.025
       }
@@ -7359,7 +7486,8 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "lowpass": 9000,
-        "fadeOut": 0.2
+        "fadeOut": 0.2,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     }
   ]

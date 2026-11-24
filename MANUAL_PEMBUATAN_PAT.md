@@ -173,6 +173,7 @@ Objek preset disimpan sebagai data JavaScript dan dimuat sebelum
 | `tones` | Digunakan dalam `renderMode: "drum"`; struktur elemennya sama dengan properti `tones` pada preset drum. |
 | `membrane`, `metallic`, `noiseLayers`, `impact`, `impacts`, `click`, `bursts` | Komponen renderer drum tambahan yang dapat dipakai oleh preset melodi ber-`renderMode: "drum"`; struktur dan arti nilainya sama dengan komponen drum. |
 | `highpass` | Cutoff high-pass dalam hertz, diterapkan pada sampel hasil render. |
+| `graphicEqualizer` | Array opsional berisi tepat 10 gain desibel dalam urutan band `[31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]` Hz. Setiap nilai harus berada pada rentang `-12` hingga `+12` dB; UI mengubahnya dengan langkah `0.1` dB dan preset bawaan menggunakan sepuluh nilai nol. Renderer menerapkan filter peaking berurutan dengan `Q=1.4` langsung pada PCM sebelum normalisasi. Efeknya menjadi bagian dari sampel PAT/SF2, bukan metadata header; band yang frekuensinya mencapai `49%` sample rate render atau lebih akan dilewati. |
 | `lowpass` | Cutoff low-pass dalam hertz untuk `renderMode: "drum"`. Untuk loop melodi biasa, low-pass menggunakan `brightness.loopCutoff`. |
 | `fadeOut` | Lama fade-out dalam detik untuk one-shot `renderMode: "drum"`. |
 | `pitchInvariant` | Jika `true` pada preset `renderMode: "drum"`, frekuensi tone dan noise tidak diskalakan oleh nada MIDI; suara tetap pada karakter pitch yang ditentukan. |
@@ -245,6 +246,7 @@ Setiap `preset` drum dirender sebagai gabungan satu atau lebih komponen berikut.
 | `click` | Klik attack pendek dari noise acak, dengan `duration` dalam detik dan `amp`. |
 | `bursts` | Array waktu mulai burst noise dalam detik. Setiap burst berlangsung sekitar 12 ms. |
 | `highpass`, `lowpass` | Cutoff high-pass dan low-pass opsional dalam hertz. |
+| `graphicEqualizer` | Array opsional berisi tepat 10 gain desibel dalam urutan band `[31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]` Hz. Setiap nilai harus berada pada rentang `-12` hingga `+12` dB; UI mengubahnya dengan langkah `0.1` dB dan preset bawaan menggunakan sepuluh nilai nol. Renderer menerapkan filter peaking berurutan dengan `Q=1.4` pada PCM sebelum normalisasi. Efeknya dibakar ke sampel PAT/SF2, bukan disimpan sebagai metadata header; band pada atau di atas `49%` sample rate render dilewati. |
 | `fadeOut` | Panjang fade-out dalam detik. Jika tidak diatur, fade dibatasi hingga 96 sampel atau 5% panjang sampel, mana yang lebih pendek. |
 | `tremolo` | Opsional `{ rate, sweep, depth }` dengan `rate` `0–25` Hz (dipetakan ke byte GUS `0–255`), `sweep` byte GUS `0–255`, dan `depth` fraksi amplitudo `0–1` (dipetakan ke byte `0–255`). Nilai ditulis ke header PAT; tidak mengubah PCM dan tidak diaktifkan pada preset drum bawaan. |
 
