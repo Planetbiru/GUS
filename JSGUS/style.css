@@ -58,6 +58,11 @@ dialog.is-dragging .dialog-footer {
     cursor: grabbing;
 }
 
+.dialog-close svg {
+    width: 18px;
+    height: 18px;
+}
+
 .dialog-body:not(.about-dialog-body) p {
     font-size: 14px;
 }
@@ -1545,7 +1550,7 @@ canvas {
 
 /* ---- Preset form ---- */
 .preset-form {
-    max-height: min(50dvh, 320px);
+    max-height: min(50dvh, 250px);
     overflow-y: auto;
     padding: 8px 12px 12px;
     background: var(--bg);
