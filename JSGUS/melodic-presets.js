@@ -1818,9 +1818,9 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 14
         },
         "guitarAmp": {
-          "drive": 1.35,
+          "drive": 1.15,
           "bias": 0.008,
-          "mix": 0.64,
+          "mix": 0.42,
           "clip": 0.0,
           "preampCutoff": 70,
           "cabinetCutoff": 7200
