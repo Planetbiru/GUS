@@ -699,12 +699,42 @@ class GusPatchApp {
         label.textContent = name;
         instrumentName.append(icon, label);
 
+        const presetStatus = document.createElement('span');
+        presetStatus.className = 'instrument-preset-status';
+
         const number = document.createElement('span');
         number.className = 'num';
         number.textContent = num;
-        d.append(instrumentName, number);
+        d.append(instrumentName, presetStatus, number);
+        this.updatePresetOverrideMarker(type, midi, d);
         d.onclick = () => this.selectInstrument(type, midi);
         return d;
+    }
+
+    updatePresetOverrideMarker(type, midi, item) {
+        const instrumentItem = item || this.$('instrumentList')?.querySelector(
+            `.inst[data-type="${type}"][data-midi="${midi}"]`
+        );
+        const marker = instrumentItem?.querySelector('.instrument-preset-status');
+        if (!marker) return;
+
+        const isOverridden = Object.prototype.hasOwnProperty.call(
+            this.generatorState.presets,
+            `${type}:${midi}`
+        );
+        const status = isOverridden ? 'Preset overridden in this project' : 'Original factory preset';
+        marker.textContent = '';
+        marker.setAttribute('role', 'img');
+        marker.setAttribute('aria-label', status);
+        marker.classList.toggle('is-overridden', isOverridden);
+        marker.classList.toggle('is-original', !isOverridden);
+        marker.title = status;
+    }
+
+    updatePresetOverrideMarkers() {
+        this.$('instrumentList').querySelectorAll('.inst').forEach(item => {
+            this.updatePresetOverrideMarker(item.dataset.type, item.dataset.midi, item);
+        });
     }
 
     enhanceNumberInputs() {
@@ -1125,6 +1155,7 @@ class GusPatchApp {
                     this.renderProjectControls();
                     this.$('newProjectDialog').close();
                     this.selectInstrument('melodic', 0);
+                    this.updatePresetOverrideMarkers();
                     this.log(`Project created: ${name}.`, 'ok');
                 } catch (error) {
                     this.$('newProjectError').textContent = error.message;
@@ -1144,6 +1175,7 @@ class GusPatchApp {
                     await this.writeProjects(this.projects);
                     this.currentProjectId = projectId;
                     this.generatorState = this.normalizeProjectState(nextProject.state);
+                    this.updatePresetOverrideMarkers();
                     this.currentType = null;
                     this.currentMidi = null;
                     const selected = this.generatorState.selected;
@@ -1237,6 +1269,7 @@ class GusPatchApp {
                         this.audio.stop();
                         this.currentProjectId = remaining[0].id;
                         this.generatorState = this.normalizeProjectState(remaining[0].state);
+                        this.updatePresetOverrideMarkers();
                         this.currentType = null;
                         this.currentMidi = null;
                         const selected = this.generatorState.selected;
@@ -1431,6 +1464,7 @@ class GusPatchApp {
 
         updatePresetEditor() {
             const preset = this.getInstrumentPreset(this.currentType, this.currentMidi);
+            this.updatePresetOverrideMarker(this.currentType, this.currentMidi);
             this.$('presetJson').value = JSON.stringify(preset, null, 2);
             this.updateGraphicEqualizerButton(preset);
             // Rebuild form hanya jika isi preset berbeda dari yang tampil di form.
@@ -2098,6 +2132,7 @@ class GusPatchApp {
                     ...this.generatorState.presets,
                     ...Object.fromEntries(imported),
                 };
+                this.updatePresetOverrideMarkers();
                 if (activePreset) this.refreshGeneratorDuration(type, Number(this.currentMidi));
                 await this.persistGeneratorState();
 
@@ -2256,6 +2291,7 @@ class GusPatchApp {
             const type = this.currentType || 'melodic';
             const midi = this.currentMidi == null ? 0 : this.currentMidi;
             this.generatorState = {selected: null, instruments: {}, presets: {}};
+            this.updatePresetOverrideMarkers();
             this.currentType = null;
             this.currentMidi = null;
             this.selectInstrument(type, midi);
