@@ -2,9 +2,28 @@
 
 This is a WebAssembly port of the `libTiMidity` MIDI synthesizer engine, equipped with a comprehensive JavaScript API (`TimidityPlayer`) designed specifically for integration into a **Digital Audio Workstation (DAW)** operating in the web browser.
 
+## Live Demo
+
+Explore the player in your browser: [LibTiMidityPlayer Live Demo (asm.js)](https://planetbiru.github.io/LibTiMidityPlayer/index.html) or [LibTiMidityPlayer Live Demo (wasm)](https://planetbiru.github.io/LibTiMidityPlayer/wasm.html).
+
+## Requirements
+
+The bundled Emscripten runtime checks these minimum versions:
+
+- **Node.js:** 18.3.0 or later. This check is skipped when running under Bun or Deno.
+- **Safari:** 15.0 or later.
+- **Firefox:** 79 or later.
+- **Chrome:** 85 or later.
+- **Microsoft Edge (Chromium):** 85 or later.
+
+These are the browser and Node.js version checks performed by `libtimidity.js`.
+
 This project provides JavaScript bindings for libTiMidity. The bindings are licensed under MIT. The original C core remains under LGPL/Artistic.
 
 Modified C source code is included in src/c-core/modified and distributed under MIT, while original libTiMidity code remains under LGPL/Artistic
+
+> **💡 GUS Patch Info:** 
+> Want to create, edit, or import **GUS Patch** (.pat) files to use here? Please visit the **[GUS Patch Editor](https://composer.planetbiru.com/instrument-editor/)**.
 
 ## Overview
 
@@ -54,6 +73,11 @@ The standard libTiMidity engine has been heavily modified and extended to meet t
    - Provides flexibility for hybrid arrangements, such as audio drums plus MIDI strings.
    - During rendering, the final result can be a single audio mix that combines both sound sources.
 
+7. **Integration with sample creator applications**
+   - Enables MIDI playback and instrument control to be incorporated into sample creation workflows.
+   - Supports consistent preview, generation, and offline export of instrument or loop samples.
+   - Provides reusable synthesis and rendering facilities without limiting the player to sample creation use cases.
+
 ## Quick Start
 
 Include the scripts in your HTML:
@@ -82,6 +106,23 @@ player.on('onInit', async () => {
 player.init();
 ```
 
+### Limiting C-core memory
+
+The C core can optionally cap its own `timi_malloc`/`timi_calloc`/`timi_realloc`
+allocations. Set the limit in MiB when constructing the player:
+
+```javascript
+const player = new TimidityPlayer({ memoryLimitMB: 256 });
+```
+
+The limit is applied before the C engine initializes. Omit the option or set it
+to `0` for no C-core allocation cap. This does not cap JavaScript allocations
+or change the WebAssembly heap maximum; `libtimidity.js` must be rebuilt with
+the memory-limit export and `-s ALLOW_MEMORY_GROWTH=1` for the option to work.
+The cap is global to the shared WebAssembly module, so player instances using
+the same module share it.
+See [convert-to-js.md](./convert-to-js.md) for the build commands.
+
 ### Handling Real-Time MIDI Input
 
 If you have a MIDI controller connected, you can directly inject real-time events into the engine:
@@ -99,16 +140,6 @@ player.sendEvent(256, 0, bendValue);
 
 ## Documentation
 Please refer to the JSDoc comments within `timidity-player.js` for an exhaustive list of methods and events. For a detailed list of changes made to the C Core, read `CHANGELOG.md`.
-
-### Generated melodic preset anti-aliasing
-
-The GUS melodic presets define an `antiAlias` boolean for each instrument. When enabled, the patch generator omits harmonics whose frequency reaches 49% of the sample rate or higher. This keeps harmonics above the practical Nyquist limit from folding back into the audible range as aliasing, particularly for high notes and bright, distorted waveforms.
-
-### Generated drum preset fade-out
-
-Drum presets can define a `fadeOut` property in seconds to control the fade at the end of the rendered sample. For example, `"fadeOut": 0.18` fades the final 180 ms smoothly to silence. The fade duration is capped at the sample length.
-
-If `fadeOut` is omitted or is not a positive finite number, the generator uses its default short fade of up to 96 samples or 5% of the sample, whichever is smaller. This setting applies to generated drum patches.
 
 ## License
 

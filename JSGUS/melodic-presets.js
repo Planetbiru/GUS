@@ -5,7 +5,7 @@ var GUS_MELODIC_PRESETS = {
   "type": "melodic",
   "version": "1.0",
   "lastModified": "2026-11-21T12:00:00Z",
-  "gain": 0.18,
+  "gain": 0.24,
   "instruments": [
     {
       "program": 0,
@@ -16,67 +16,85 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 37485,
         "loop": false,
         "env": {
           "a": 0.001,
-          "d": 1.4,
+          "d": 1.8,
           "s": 0,
           "r": 0.22
         },
+        "patchEnvelope": {
+          "rates": [
+            9,
+            0,
+            0,
+            137,
+            0,
+            0
+          ],
+          "offsets": [
+            255,
+            255,
+            255,
+            0,
+            0,
+            0
+          ]
+        },
         "harm": [
           1,
-          0.56,
-          0.36,
-          0.225,
-          0.144,
-          0.099,
-          0.0675,
-          0.045,
-          0.0306,
-          0.0207,
-          0.0144,
-          0.0099,
-          0.0072,
-          0.0054,
-          0.00405,
-          0.00315,
-          0.00243,
-          0.00189,
-          0.00153,
-          0.00117,
-          0.0009,
-          0.00072,
-          0.00054,
-          0.000405
+          0.42,
+          0.27,
+          0.18,
+          0.135,
+          0.105,
+          0.082,
+          0.066,
+          0.053,
+          0.044,
+          0.037,
+          0.031,
+          0.026,
+          0.022,
+          0.019,
+          0.016,
+          0.014,
+          0.012,
+          0.01,
+          0.0085,
+          0.007,
+          0.006,
+          0.005,
+          0.004
         ],
         "partialDecay": [
           2.4,
-          1.5,
-          1,
-          0.72,
-          0.52,
-          0.38,
-          0.28,
+          1.6,
+          1.1,
+          0.85,
+          0.65,
+          0.5,
+          0.4,
+          0.32,
+          0.26,
           0.21,
-          0.16,
-          0.12,
-          0.09,
-          0.07,
-          0.06,
-          0.05,
-          0.045,
-          0.04,
-          0.035,
-          0.03,
-          0.027,
-          0.024,
-          0.021,
-          0.018,
-          0.016,
-          0.014
+          0.17,
+          0.14,
+          0.115,
+          0.095,
+          0.078,
+          0.064,
+          0.053,
+          0.044,
+          0.037,
+          0.031,
+          0.026,
+          0.022,
+          0.019,
+          0.016
         ],
         "phases": [
           0,
@@ -122,10 +140,16 @@ var GUS_MELODIC_PRESETS = {
           "time": 0.006
         },
         "brightness": {
-          "start": 15000,
-          "end": 9500
+          "start": 16500,
+          "end": 10500
         },
-        "highpass": 230,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 320, "q": 0.8, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -138,7 +162,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -212,7 +236,12 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -225,7 +254,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -272,7 +301,12 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 3,
           "index": 1.8
         },
-        "highpass": 80,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -285,7 +319,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "hammer",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -362,7 +396,12 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -375,7 +414,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -422,7 +461,12 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 3,
           "index": 1.6
         },
-        "highpass": 230,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 280,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -435,7 +479,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -482,7 +526,12 @@ var GUS_MELODIC_PRESETS = {
           "ratio": 2,
           "index": 2.25
         },
-        "highpass": 230,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 280,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -495,7 +544,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -540,7 +589,12 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -553,7 +607,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 66150,
         "loop": false,
@@ -596,7 +650,12 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "highpass": 80,
+        "formants": [
+          { "freq": 180, "q": 0.7, "gain": -1.5 },
+          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+        ],
+        "highpass": 140,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -609,7 +668,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "bell",
-        "gain": 0.55,
+        "gain": 0.65,
         "freq": 441,
         "length": 55125,
         "loop": false,
@@ -637,7 +696,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -677,7 +737,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -714,7 +775,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -757,6 +819,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.02
         },
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -794,7 +857,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -830,7 +894,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -869,7 +934,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -924,7 +990,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -956,7 +1023,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0.1
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -990,7 +1058,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0.1
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1030,7 +1099,8 @@ var GUS_MELODIC_PRESETS = {
           0.06
         ],
         "drive": 0.18,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1062,7 +1132,8 @@ var GUS_MELODIC_PRESETS = {
           0.12,
           0.1
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1117,6 +1188,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1171,6 +1243,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1224,7 +1297,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1279,6 +1353,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1297,9 +1372,9 @@ var GUS_MELODIC_PRESETS = {
         "loop": false,
         "env": {
           "a": 0.002,
-          "d": 1.5,
+          "d": 1,
           "s": 0,
-          "r": 0.5
+          "r": 0.3
         },
         "harm": [
           1,
@@ -1309,31 +1384,15 @@ var GUS_MELODIC_PRESETS = {
           0.12,
           0.1,
           0.085,
-          0.09,
-          0.078,
-          0.07,
-          0.063,
-          0.056,
+          0.075,
+          0.065,
+          0.057,
           0.05,
-          0.046,
-          0.041,
-          0.037,
+          0.044,
+          0.039,
           0.034,
           0.03,
-          0.026,
-          0.024,
-          0.021,
-          0.019,
-          0.017,
-          0.014,
-          0.012,
-          0.0105,
-          0.009,
-          0.0075,
-          0.006,
-          0.0045,
-          0.0035,
-          0.0025
+          0.026
         ],
         "partialDecay": [
           2.4,
@@ -1351,83 +1410,20 @@ var GUS_MELODIC_PRESETS = {
           0.42,
           0.39,
           0.36,
-          0.33,
-          0.31,
-          0.29,
-          0.27,
-          0.25,
-          0.23,
-          0.21,
-          0.19,
-          0.17,
-          0.16,
-          0.15,
-          0.14,
-          0.13,
-          0.12,
-          0.11,
-          0.1,
-          0.09
+          0.33
         ],
-        "inharmonicity": 0.00002,
-        "attackNoise": {
-          "amp": 0.003,
-          "duration": 0.005
-        },
+        "inharmonicity": 0,
         "pluckPosition": 0.22,
-        "pluckTransient": {
-          "freq": 3000,
-          "q": 1,
-          "amp": 0.006,
-          "duration": 0.007,
-          "decay": 0.007
-        },
         "pitchScoop": {
           "depth": 0.0005,
           "time": 0.012
         },
         "brightness": {
-          "start": 18000,
-          "end": 12000
+          "start": 21000,
+          "end": 16000
         },
-        "formants": [
-          {
-            "freq": 150,
-            "q": 0.8,
-            "gain": 0
-          },
-          {
-            "freq": 230,
-            "q": 0.8,
-            "gain": 0
-          },
-          {
-            "freq": 410,
-            "q": 0.85,
-            "gain": 0.25
-          },
-          {
-            "freq": 780,
-            "q": 0.95,
-            "gain": 0.6
-          },
-          {
-            "freq": 3000,
-            "q": 1,
-            "gain": 1.5
-          },
-          {
-            "freq": 4600,
-            "q": 1,
-            "gain": 2
-          },
-          {
-            "freq": 7000,
-            "q": 1,
-            "gain": 1.4
-          }
-        ],
-        "highpass": 300,
+        "highpass": 150,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1446,9 +1442,9 @@ var GUS_MELODIC_PRESETS = {
         "loop": false,
         "env": {
           "a": 0.001,
-          "d": 1.2,
+          "d": 0.85,
           "s": 0,
-          "r": 0.4
+          "r": 0.25
         },
         "harm": [
           1,
@@ -1536,8 +1532,8 @@ var GUS_MELODIC_PRESETS = {
           "time": 0.01
         },
         "brightness": {
-          "start": 19000,
-          "end": 13000
+          "start": 21000,
+          "end": 16000
         },
         "formants": [
           {
@@ -1581,7 +1577,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "highpass": 300,
+        "highpass": 330,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1655,6 +1652,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1667,7 +1665,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "pluck",
-        "gain": 0.52,
+        "gain": 0.76,
         "freq": 441,
         "length": 44100,
         "loop": false,
@@ -1685,7 +1683,13 @@ var GUS_MELODIC_PRESETS = {
           0.4,
           0.25,
           0.15,
-          0.08
+          0.08,
+          0.04,
+          0.03,
+          0.022,
+          0.016,
+          0.012,
+          0.008
         ],
         "partialDecay": [
           3,
@@ -1696,25 +1700,36 @@ var GUS_MELODIC_PRESETS = {
           0.7,
           0.5,
           0.4,
-          0.3
+          0.3,
+          0.25,
+          0.2,
+          0.16
         ],
         "attackNoise": {
           "amp": 0.08,
           "duration": 0.009
+        },
+        "pluckTransient": {
+          "freq": 5200,
+          "q": 0.9,
+          "amp": 0.035,
+          "duration": 0.012,
+          "decay": 0.006
         },
         "guitarAmp": {
           "drive": 1,
           "bias": 0,
           "mix": 0.15,
           "preampCutoff": 75,
-          "cabinetCutoff": 9500
+          "cabinetCutoff": 15000
         },
         "brightness": {
-          "start": 10500,
-          "end": 5600,
-          "loopCutoff": 5200
+          "start": 18000,
+          "end": 12000,
+          "loopCutoff": 6500
         },
-        "highpass": 1600,
+        "highpass": 160,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1790,6 +1805,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 1200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1802,7 +1818,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.32,
+        "gain": 0.97,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -1831,12 +1847,12 @@ var GUS_MELODIC_PRESETS = {
           "sweep": 14
         },
         "guitarAmp": {
-          "drive": 1.35,
+          "drive": 1.15,
           "bias": 0.008,
-          "mix": 0.64,
+          "mix": 0.42,
           "clip": 0.0,
           "preampCutoff": 70,
-          "cabinetCutoff": 5600
+          "cabinetCutoff": 7200
         },
         "formants": [
           { "freq": 500,  "q": 1.5, "gain": -1.0 },
@@ -1845,9 +1861,10 @@ var GUS_MELODIC_PRESETS = {
           { "freq": 3800, "q": 0.65, "gain": 8 }
         ],
         "brightness": {
-          "loopCutoff": 5800
+          "loopCutoff": 8500
         },
         "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1860,7 +1877,7 @@ var GUS_MELODIC_PRESETS = {
       "preset": {
         "mute": false,
         "defaultWaveform": "saw",
-        "gain": 0.40,
+        "gain": 0.97,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -1916,7 +1933,7 @@ var GUS_MELODIC_PRESETS = {
           "mix": 0.7,
           "clip": 0,
           "preampCutoff": 70,
-          "cabinetCutoff": 4800
+          "cabinetCutoff": 9000
         },
         "formants": [
           {
@@ -1943,9 +1960,10 @@ var GUS_MELODIC_PRESETS = {
         "brightness": {
           "start": 6000,
           "end": 3500,
-          "loopCutoff": 6000
+          "loopCutoff": 10500
         },
         "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2015,7 +2033,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2056,7 +2075,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2098,6 +2118,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 900
         },
         "highpass": 80,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2139,7 +2160,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2179,7 +2201,8 @@ var GUS_MELODIC_PRESETS = {
         "brightness": {
           "loopCutoff": 3500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2221,7 +2244,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2263,7 +2287,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2303,7 +2328,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2345,7 +2371,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2436,6 +2463,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2526,6 +2554,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2598,6 +2627,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2669,7 +2699,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": -2.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2741,6 +2772,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2820,6 +2852,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2895,6 +2928,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2924,7 +2958,8 @@ var GUS_MELODIC_PRESETS = {
           0.2
         ],
         "noise": 0.1,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -3002,6 +3037,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3080,6 +3116,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3158,6 +3195,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3238,6 +3276,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3323,6 +3362,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3428,6 +3468,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3509,6 +3550,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3558,7 +3600,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -3650,6 +3693,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3726,6 +3770,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3801,7 +3846,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -3876,7 +3922,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -3950,7 +3997,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4059,7 +4107,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4126,7 +4175,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4187,7 +4237,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4259,6 +4310,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4321,6 +4373,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4406,6 +4459,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4477,6 +4531,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 150,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4537,7 +4592,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4595,7 +4651,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 4
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4654,7 +4711,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 3.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4705,7 +4763,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4755,7 +4814,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4811,7 +4871,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4867,7 +4928,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4923,7 +4985,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -4968,7 +5031,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5018,7 +5082,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5065,7 +5130,8 @@ var GUS_MELODIC_PRESETS = {
             "q": 12
           }
         },
-        "highpass": 3200
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5110,7 +5176,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5150,6 +5217,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5188,6 +5256,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5286,7 +5355,8 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "drive": 0.8,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5325,6 +5395,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5362,6 +5433,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5400,6 +5472,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5435,7 +5508,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5471,7 +5545,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -5556,6 +5631,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5623,6 +5699,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5691,6 +5768,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5777,6 +5855,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5844,6 +5923,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5915,6 +5995,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5982,7 +6063,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6054,6 +6136,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6083,7 +6166,8 @@ var GUS_MELODIC_PRESETS = {
         "harm": [0],
         "noise": 1,
         "noiseOnly": true,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6116,7 +6200,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6149,7 +6234,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6216,6 +6302,7 @@ var GUS_MELODIC_PRESETS = {
           "end": 2600
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6249,7 +6336,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 2
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6282,7 +6370,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 4
         },
         "noise": 0.04,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6316,6 +6405,7 @@ var GUS_MELODIC_PRESETS = {
         ],
         "noise": 0.01,
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6349,7 +6439,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3.5
         },
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6386,7 +6477,8 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5,
           "depth": 0.01
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6459,6 +6551,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6494,7 +6587,8 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5,
           "depth": 0.01
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6530,6 +6624,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.01
         },
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6566,7 +6661,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6615,7 +6711,8 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6684,6 +6781,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6738,7 +6836,8 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6775,7 +6874,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6811,7 +6911,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6850,7 +6951,8 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6878,7 +6980,8 @@ var GUS_MELODIC_PRESETS = {
           0.15
         ],
         "noise": 0.2,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6907,7 +7010,8 @@ var GUS_MELODIC_PRESETS = {
           0.15
         ],
         "noise": 0.1,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6937,6 +7041,7 @@ var GUS_MELODIC_PRESETS = {
         ],
         "noise": 0.3,
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6966,7 +7071,8 @@ var GUS_MELODIC_PRESETS = {
           0.1
         ],
         "noise": 0.15,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -6999,7 +7105,8 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.6,
-        "antiAlias": true
+        "antiAlias": true,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -7012,7 +7119,7 @@ var GUS_MELODIC_PRESETS = {
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
-        "gain": 0.3,
+        "gain": 0.55,
         "freq": 441,
         "duration": 0.15,
         "tones": [
@@ -7045,6 +7152,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 4000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7500,
         "fadeOut": 1
       }
@@ -7078,6 +7186,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 450,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000,
         "fadeOut": 0.18
       }
@@ -7106,6 +7215,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8000,
         "fadeOut": 0.25
       }
@@ -7146,6 +7256,7 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 1000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000,
         "fadeOut": 0.08
       }
@@ -7222,7 +7333,8 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "lowpass": 6500,
-        "fadeOut": 0.18
+        "fadeOut": 0.18,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -7257,6 +7369,7 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.82
         },
         "highpass": 23,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7200,
         "antiAlias": true
       }
@@ -7284,6 +7397,7 @@ var GUS_MELODIC_PRESETS = {
           "peak": 0.95
         },
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500,
         "fadeOut": 0.025
       }
@@ -7372,7 +7486,8 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "lowpass": 9000,
-        "fadeOut": 0.2
+        "fadeOut": 0.2,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     }
   ]

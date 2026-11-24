@@ -276,6 +276,81 @@
         </div>
     </dialog>
 
+    <dialog id="graphicEqualizerDialog" class="graphic-equalizer-dialog"
+        aria-labelledby="graphicEqualizerTitle">
+        <div class="dialog-content">
+            <header class="dialog-header">
+                <h2 id="graphicEqualizerTitle">Graphic Equalizer</h2>
+                <button id="btnCloseGraphicEqualizer" class="dialog-close" type="button" aria-label="Close graphic equalizer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div id="graphicEqualizerBands" class="graphic-equalizer-bands"></div>
+            </div>
+            <footer class="dialog-footer">
+                <div id="graphicEqualizerTransport" class="graphic-equalizer-transport" hidden>
+                    <div id="graphicEqualizerMidiPlayback" class="graphic-equalizer-midi-playback" hidden>
+                        <button id="btnGraphicEqualizerPlayback" class="button-with-icon" type="button"
+                            aria-pressed="false">
+                            <svg id="graphicEqualizerPlayIcon" class="button-icon" viewBox="0 0 24 24"
+                                aria-hidden="true" focusable="false">
+                                <path d="M8 5v14l11-7z" fill="currentColor" />
+                            </svg>
+                            <svg id="graphicEqualizerPauseIcon" class="button-icon" viewBox="0 0 24 24"
+                                aria-hidden="true" focusable="false" hidden>
+                                <path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="currentColor" />
+                            </svg>
+                            <span id="graphicEqualizerPlaybackLabel">Play</span>
+                        </button>
+                        <button id="btnGraphicEqualizerStop" class="button-with-icon" type="button" disabled>
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M6 6h12v12H6z" fill="currentColor" />
+                            </svg>
+                            <span>Stop</span>
+                        </button>
+                    </div>
+                    <div id="graphicEqualizerSeekControl" class="graphic-equalizer-seek-control" hidden>
+                        <span id="graphicEqualizerTimeCurrent">00:00</span>
+                        <input id="graphicEqualizerSeek" type="range" min="0" max="1000" step="1" value="0"
+                            aria-label="MIDI playback position" disabled>
+                        <span id="graphicEqualizerTimeTotal">00:00</span>
+                    </div>
+                </div>
+                <div class="dialog-actions graphic-equalizer-actions">
+                    <button id="btnResetGraphicEqualizer" type="button">Reset to 0 dB</button>
+                    <button id="btnApplyGraphicEqualizer" class="primary" type="button">Apply EQ</button>
+                    <button id="btnCancelGraphicEqualizer" type="button">Close</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
+    <dialog id="resetGraphicEqualizerDialog" aria-labelledby="resetGraphicEqualizerTitle"
+        aria-describedby="resetGraphicEqualizerMessage">
+        <div class="dialog-content">
+            <header class="dialog-header">
+                <h2 id="resetGraphicEqualizerTitle">Reset Graphic Equalizer</h2>
+                <button id="btnCloseResetGraphicEqualizer" class="dialog-close" type="button" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <p id="resetGraphicEqualizerMessage">Reset all equalizer bands to 0 dB?</p>
+            </div>
+            <footer class="dialog-footer">
+                <div class="dialog-actions">
+                    <button id="btnCancelResetGraphicEqualizer" type="button">Cancel</button>
+                    <button id="btnConfirmResetGraphicEqualizer" class="primary" type="button">Reset to 0 dB</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
     <div class="layout">
         <aside>
             <div class="project-controls">
@@ -375,6 +450,10 @@
                             <path d="M3 5h18v14H3zM8 5v8m5-8v8m5-8v8M6 13h4m4 0h4" />
                         </svg>
                         <span>Scale</span>
+                    </button>
+                    <button id="btnGraphicEqualizer" class="graphic-equalizer-button" type="button"
+                        aria-haspopup="dialog" aria-controls="graphicEqualizerDialog" hidden>
+                        Graphic Equalizer
                     </button>
                     <button id="btnStop" class="button-with-icon">
                         <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -559,13 +638,15 @@
                     </div>
                     <div class="actions sequencer-actions">
                         <button id="btnSequencerPlay" class="primary button-with-icon" type="button">
-                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <svg id="sequencerPlayIcon" class="button-icon" viewBox="0 0 24 24"
+                                aria-hidden="true" focusable="false">
                                 <path d="M8 5v14l11-7z" fill="currentColor" />
                             </svg>
-                            <span>Play Sequence</span>
-                        </button>
-                        <button id="btnSequencerPause" class="button-with-icon" type="button" disabled>
-                            <span>Pause</span>
+                            <svg id="sequencerPauseIcon" class="button-icon" viewBox="0 0 24 24"
+                                aria-hidden="true" focusable="false" hidden>
+                                <path d="M7 5h4v14H7zM15 5h4v14h-4z" fill="currentColor" />
+                            </svg>
+                            <span>Play</span>
                         </button>
                         <button id="btnSequencerStop" class="button-with-icon" type="button" disabled>
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">

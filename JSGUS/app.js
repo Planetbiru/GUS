@@ -102,6 +102,9 @@ class FileDownloader {
 const PATCH_CACHE_PREFIX = 'pig:';
 const PATCH_CACHE_ENABLED_STORAGE_KEY = 'gus-patch-generator-patch-cache-enabled-v1';
 const WAVEFORM_VERTICAL_ZOOM_STORAGE_KEY = 'gus-patch-generator-waveform-vertical-zoom-v1';
+const MIDI_FILE_DB_NAME = 'gus-patch-generator-midi-file';
+const MIDI_FILE_DB_STORE = 'files';
+const LAST_MIDI_FILE_KEY = 'last-selected';
 
 class GusPatchApp {
     constructor(library) {
@@ -111,6 +114,8 @@ class GusPatchApp {
         this.timidityPlayerReady = null;
         this.midiData = null;
         this.midiFileName = '';
+        this.midiFileDb = null;
+        this.midiFileDbReady = null;
         this.midiDuration = 0;
         this.midiPosition = 0;
         this.midiTick = 0;
@@ -151,6 +156,7 @@ class GusPatchApp {
         this.midiControllerPendingNotes = new Set();
         this.sequencerPlaying = false;
         this.sequencerPaused = false;
+        this.sequencerReady = false;
         this.sequencerMidiData = null;
         this.sequencerGeneration = 0;
         this.sequencerLoadPromise = Promise.resolve();
@@ -168,6 +174,7 @@ class GusPatchApp {
         this._presetModel = null;
         this.dialogOpenOrder = [];
         this.pendingPresetArrayRemoval = null;
+        this.graphicEqualizerDraft = null;
     }
 
     $(id) { return document.getElementById(id); }
@@ -450,6 +457,7 @@ class GusPatchApp {
         document.addEventListener('fullscreenchange', () => this.updateButton());
 
         this.updateButton();
+        await this.restoreLastMidiFile();
     }
 
     updateButton() {
@@ -692,12 +700,42 @@ class GusPatchApp {
         label.textContent = name;
         instrumentName.append(icon, label);
 
+        const presetStatus = document.createElement('span');
+        presetStatus.className = 'instrument-preset-status';
+
         const number = document.createElement('span');
         number.className = 'num';
         number.textContent = num;
-        d.append(instrumentName, number);
+        d.append(instrumentName, presetStatus, number);
+        this.updatePresetOverrideMarker(type, midi, d);
         d.onclick = () => this.selectInstrument(type, midi);
         return d;
+    }
+
+    updatePresetOverrideMarker(type, midi, item) {
+        const instrumentItem = item || this.$('instrumentList')?.querySelector(
+            `.inst[data-type="${type}"][data-midi="${midi}"]`
+        );
+        const marker = instrumentItem?.querySelector('.instrument-preset-status');
+        if (!marker) return;
+
+        const isOverridden = Object.prototype.hasOwnProperty.call(
+            this.generatorState.presets,
+            `${type}:${midi}`
+        );
+        const status = isOverridden ? 'Preset overridden in this project' : 'Original factory preset';
+        marker.textContent = '';
+        marker.setAttribute('role', 'img');
+        marker.setAttribute('aria-label', status);
+        marker.classList.toggle('is-overridden', isOverridden);
+        marker.classList.toggle('is-original', !isOverridden);
+        marker.title = status;
+    }
+
+    updatePresetOverrideMarkers() {
+        this.$('instrumentList').querySelectorAll('.inst').forEach(item => {
+            this.updatePresetOverrideMarker(item.dataset.type, item.dataset.midi, item);
+        });
     }
 
     enhanceNumberInputs() {
@@ -714,6 +752,40 @@ class GusPatchApp {
         this.$('btnDoneAbout').onclick = () => this.$('aboutDialog').close();
         this.$('btnPlayNote').onclick = () => this.playPreview();
         this.$('btnPlayScale').onclick = () => this.playScale();
+        this.$('btnGraphicEqualizer').onclick = () => this.openGraphicEqualizer();
+        this.$('btnCloseGraphicEqualizer').onclick = () => this.$('graphicEqualizerDialog').close();
+        this.$('btnCancelGraphicEqualizer').onclick = () => this.$('graphicEqualizerDialog').close();
+        this.$('btnResetGraphicEqualizer').onclick = () => this.requestResetGraphicEqualizer();
+        this.$('btnCloseResetGraphicEqualizer').onclick = () => this.$('resetGraphicEqualizerDialog').close();
+        this.$('btnCancelResetGraphicEqualizer').onclick = () => this.$('resetGraphicEqualizerDialog').close();
+        this.$('btnConfirmResetGraphicEqualizer').onclick = () => this.confirmResetGraphicEqualizer();
+        this.$('resetGraphicEqualizerDialog').addEventListener('click', event => {
+            if (event.target === this.$('resetGraphicEqualizerDialog')) {
+                this.$('resetGraphicEqualizerDialog').close();
+            }
+        });
+        this.$('btnApplyGraphicEqualizer').onclick = () => this.applyPresetJson();
+        this.$('btnGraphicEqualizerPlayback').onclick = () => {
+            if (this.midiMode === 'sequencer') {
+                if (this.sequencerPlaying) this.toggleSequencerPause();
+                else this.startMidiSequencer();
+            } else if (this.midiMode === 'file') {
+                this.toggleMidiPlayback();
+            }
+        };
+        this.$('btnGraphicEqualizerStop').onclick = () => {
+            if (this.midiMode === 'sequencer') this.stopMidiSequencer();
+            else if (this.midiMode === 'file') this.stopMidiPlayback();
+        };
+        this.$('graphicEqualizerSeek').addEventListener('input', event => {
+            this.handleMidiSeekInput(event, this.$('midiSeek'));
+        });
+        this.$('graphicEqualizerSeek').addEventListener('change', () => this.commitMidiSeek());
+        this.$('graphicEqualizerDialog').addEventListener('click', event => {
+            if (event.target === this.$('graphicEqualizerDialog')) {
+                this.$('graphicEqualizerDialog').close();
+            }
+        });
         this.$('btnStop').onclick = () => this.audio.stop();
         this.$('btnWaveZoomIn').onclick = () => this.setWaveformVerticalZoom(this.waveformVerticalZoom * 2);
         this.$('btnWaveZoomOut').onclick = () => this.setWaveformVerticalZoom(this.waveformVerticalZoom / 2);
@@ -821,10 +893,15 @@ class GusPatchApp {
                 });
             }
         });
-        this.$('btnSequencerPlay').onclick = () => this.startMidiSequencer();
-        this.$('btnSequencerPause').onclick = () => this.toggleSequencerPause();
+        this.$('btnSequencerPlay').onclick = () => {
+            if (this.sequencerPlaying) this.toggleSequencerPause();
+            else this.startMidiSequencer();
+        };
         this.$('btnSequencerStop').onclick = () => this.stopMidiSequencer();
-        this.$('sequencerTempo').addEventListener('input', () => this.validateSequencerTempo());
+        this.$('sequencerTempo').addEventListener('input', () => {
+            this.validateSequencerTempo();
+            this.updateGraphicEqualizerTransportControls();
+        });
         this.$('sequencerVelocity').addEventListener('input', () => {
             this.$('sequencerVelocityValue').value = this.$('sequencerVelocity').value;
             if (this.sequencerPlaying) this.scheduleSequencerPatternUpdate();
@@ -1081,6 +1158,7 @@ class GusPatchApp {
                     this.renderProjectControls();
                     this.$('newProjectDialog').close();
                     this.selectInstrument('melodic', 0);
+                    this.updatePresetOverrideMarkers();
                     this.log(`Project created: ${name}.`, 'ok');
                 } catch (error) {
                     this.$('newProjectError').textContent = error.message;
@@ -1100,6 +1178,7 @@ class GusPatchApp {
                     await this.writeProjects(this.projects);
                     this.currentProjectId = projectId;
                     this.generatorState = this.normalizeProjectState(nextProject.state);
+                    this.updatePresetOverrideMarkers();
                     this.currentType = null;
                     this.currentMidi = null;
                     const selected = this.generatorState.selected;
@@ -1193,6 +1272,7 @@ class GusPatchApp {
                         this.audio.stop();
                         this.currentProjectId = remaining[0].id;
                         this.generatorState = this.normalizeProjectState(remaining[0].state);
+                        this.updatePresetOverrideMarkers();
                         this.currentType = null;
                         this.currentMidi = null;
                         const selected = this.generatorState.selected;
@@ -1387,7 +1467,9 @@ class GusPatchApp {
 
         updatePresetEditor() {
             const preset = this.getInstrumentPreset(this.currentType, this.currentMidi);
+            this.updatePresetOverrideMarker(this.currentType, this.currentMidi);
             this.$('presetJson').value = JSON.stringify(preset, null, 2);
+            this.updateGraphicEqualizerButton(preset);
             // Rebuild form hanya jika isi preset berbeda dari yang tampil di form.
             if (JSON.stringify(preset) !== JSON.stringify(this._presetModel)) {
                 this.buildPresetForm(preset);
@@ -1395,12 +1477,126 @@ class GusPatchApp {
             this.validatePresetJson();
         }
 
+        updateGraphicEqualizerButton(preset) {
+            this.$('btnGraphicEqualizer').hidden =
+                !preset || !Object.prototype.hasOwnProperty.call(preset, 'graphicEqualizer');
+        }
+
+        openGraphicEqualizer() {
+            let preset;
+            try {
+                preset = JSON.parse(this.$('presetJson').value);
+            } catch (error) {
+                this.setPresetEditorStatus(`Graphic equalizer cannot open: ${error.message}`, true);
+                return;
+            }
+            if (!preset || typeof preset !== 'object' || Array.isArray(preset)
+                || !Object.prototype.hasOwnProperty.call(preset, 'graphicEqualizer')) {
+                return;
+            }
+
+            const bands = GUSPatchGenerator.GRAPHIC_EQUALIZER_BANDS;
+            const currentGains = Array.isArray(preset.graphicEqualizer)
+                ? preset.graphicEqualizer
+                : [];
+            const gains = bands.map((_band, index) => {
+                const gain = Number(currentGains[index]);
+                return Number.isFinite(gain)
+                    ? Math.round(Math.min(12, Math.max(-12, gain)) * 100) / 100
+                    : 0;
+            });
+            this.graphicEqualizerDraft = preset;
+            this.graphicEqualizerDraft.graphicEqualizer = gains;
+            this.$('graphicEqualizerTitle').textContent =
+                `Graphic Equalizer — ${this.$('title').textContent}`;
+
+            const container = this.$('graphicEqualizerBands');
+            container.replaceChildren();
+            bands.forEach((band, index) => {
+                const control = document.createElement('div');
+                control.className = 'graphic-equalizer-band';
+
+                const output = document.createElement('output');
+                output.htmlFor = `graphicEqualizerBand${index}`;
+                output.value = this.formatGraphicEqualizerGain(gains[index]);
+
+                const input = document.createElement('input');
+                input.id = `graphicEqualizerBand${index}`;
+                input.type = 'range';
+                input.min = '-12';
+                input.max = '12';
+                input.step = '0.01';
+                input.value = String(gains[index]);
+                input.setAttribute('aria-orientation', 'vertical');
+                input.setAttribute('aria-label', `${band.label} band gain`);
+                input.addEventListener('input', () => {
+                    const gain = Number(input.value);
+                    output.value = this.formatGraphicEqualizerGain(gain);
+                    this.graphicEqualizerDraft.graphicEqualizer[index] = gain;
+                    this.syncGraphicEqualizerDraft();
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = input.id;
+                label.textContent = band.label;
+                const slider = document.createElement('div');
+                slider.className = 'graphic-equalizer-slider';
+                slider.appendChild(input);
+                control.append(output, slider, label);
+                container.appendChild(control);
+            });
+
+            if (gains.some((gain, index) => gain !== currentGains[index])) {
+                this.syncGraphicEqualizerDraft();
+            }
+            this.updateGraphicEqualizerTransportControls();
+            this.showDialogCentered(this.$('graphicEqualizerDialog'));
+            container.querySelector('input')?.focus();
+        }
+
+        formatGraphicEqualizerGain(gain) {
+            const formattedGain = Number(gain.toFixed(2)).toString();
+            return `${gain > 0 ? '+' : ''}${formattedGain} dB`;
+        }
+
+        requestResetGraphicEqualizer() {
+            if (!this.graphicEqualizerDraft) return;
+            this.showDialogCentered(this.$('resetGraphicEqualizerDialog'));
+            this.$('btnCancelResetGraphicEqualizer').focus();
+        }
+
+        confirmResetGraphicEqualizer() {
+            this.resetGraphicEqualizer();
+            this.$('resetGraphicEqualizerDialog').close();
+        }
+
+        syncGraphicEqualizerDraft() {
+            const gains = this.graphicEqualizerDraft.graphicEqualizer;
+            this.$('presetJson').value = JSON.stringify(this.graphicEqualizerDraft, null, 2);
+            if (this._presetModel
+                && Object.prototype.hasOwnProperty.call(this._presetModel, 'graphicEqualizer')) {
+                this._presetModel.graphicEqualizer = gains.slice();
+            }
+            this.handlePresetJsonInput();
+        }
+
+        resetGraphicEqualizer() {
+            if (!this.graphicEqualizerDraft) return;
+            const gains = new Array(GUSPatchGenerator.GRAPHIC_EQUALIZER_BANDS.length).fill(0);
+            this.graphicEqualizerDraft.graphicEqualizer = gains;
+            this.$('graphicEqualizerBands').querySelectorAll('input[type="range"]').forEach(input => {
+                input.value = '0';
+                input.closest('.graphic-equalizer-band').querySelector('output').value = '0 dB';
+            });
+            this.syncGraphicEqualizerDraft();
+        }
+
         async applyPresetJson() {
             const type = this.currentType;
             const midi = this.currentMidi;
             const generation = ++this.presetApplyGeneration;
             const parsedPreset = this.validatePresetJson();
-            if (!parsedPreset) return;
+            if (!parsedPreset) return false;
             const key = this.getCurrentPresetKey();
             const projectId = this.currentProjectId;
             const presetText = this.$('presetJson').value;
@@ -1427,17 +1623,17 @@ class GusPatchApp {
                     generatorState,
                     () => !isCurrentApply()
                 );
-                if (!isCurrentApply()) return;
+                if (!isCurrentApply()) return false;
                 if (!patchData.preview) throw new Error('The preview sample could not be generated.');
                 patchBytes = GusPatchEncoder.encode({
                     name: patchData.name,
                     samples: patchData.zones.map(({sample}) => sample),
                 });
             } catch (error) {
-                if (!isCurrentApply()) return;
+                if (!isCurrentApply()) return false;
                 this.setPresetEditorStatus(`Preset cannot generate a patch: ${error.message}`, true);
                 this.log(`Preset apply failed: ${error.message}`, 'err');
-                return;
+                return false;
             }
 
             this.removePatchCacheEntry(projectId, type, midi);
@@ -1461,6 +1657,7 @@ class GusPatchApp {
             this.queuePatchCacheWrite(cacheKey, generatedKey, patchBytes);
             this.setPresetEditorStatus('Preset applied and patch regenerated.');
             this.log(`Preset applied: ${type} ${midi}.`, 'ok');
+            return true;
         }
 
         // ---- Preset form editor ----
@@ -1501,6 +1698,7 @@ class GusPatchApp {
         }
 
         renderPresetField(parentObj, key, container, path) {
+            if (key === 'graphicEqualizer') return;
             const value = parentObj[key];
             const fieldPath = [...path, key];
 
@@ -1937,6 +2135,7 @@ class GusPatchApp {
                     ...this.generatorState.presets,
                     ...Object.fromEntries(imported),
                 };
+                this.updatePresetOverrideMarkers();
                 if (activePreset) this.refreshGeneratorDuration(type, Number(this.currentMidi));
                 await this.persistGeneratorState();
 
@@ -2095,6 +2294,7 @@ class GusPatchApp {
             const type = this.currentType || 'melodic';
             const midi = this.currentMidi == null ? 0 : this.currentMidi;
             this.generatorState = {selected: null, instruments: {}, presets: {}};
+            this.updatePresetOverrideMarkers();
             this.currentType = null;
             this.currentMidi = null;
             this.selectInstrument(type, midi);
@@ -2164,7 +2364,7 @@ class GusPatchApp {
         // Initialize TimidityPlayer with custom loaders for configuration and instruments
         const player = new TimidityPlayer({
             sampleRate: 48000, // Sample rate
-            bufferSize: 1024, // Default buffer size for non-realtime playback
+            bufferSize: 512, // Default buffer size for non-realtime playback
             bufferSizeRealtime: 512, // Less latency for realtime instrument playback
             timidityCfgLoader: () => this.buildMidiTimidityConfig(),
             instrumentLoader: async (bank, isDrum, program) => {
@@ -2691,6 +2891,28 @@ class GusPatchApp {
                 toggle.title = `${action} ${label.textContent}`;
             }
         }
+        this.updateMidiMixerEqualizerButton(channel);
+    }
+
+    updateMidiMixerEqualizerButton(channel, button) {
+        const equalizerButton = button || this.$('midiMixerChannelList')?.querySelector(
+            `.midi-mixer-channel[data-channel="${channel}"] .midi-mixer-equalizer-button`
+        );
+        if (!equalizerButton) return;
+
+        const instrument = this.getMidiMixerInstrumentSelection(channel);
+        const preset = instrument
+            ? this.getInstrumentPreset(instrument.type, instrument.program)
+            : null;
+        equalizerButton.disabled =
+            !preset || !Object.prototype.hasOwnProperty.call(preset, 'graphicEqualizer');
+        if (instrument) {
+            equalizerButton.setAttribute(
+                'aria-label',
+                `Open Graphic Equalizer for channel ${channel + 1} (${instrument.name})`
+            );
+            equalizerButton.title = `Open Graphic Equalizer for channel ${channel + 1} (${instrument.name})`;
+        }
     }
 
     selectMidiMixerInstrument(channel) {
@@ -2699,12 +2921,13 @@ class GusPatchApp {
             const message = `No instrument is available for MIDI channel ${channel + 1}.`;
             this.$('midiStatus').textContent = message;
             this.log(message, 'err');
-            return;
+            return false;
         }
 
         this.selectInstrument(instrument.type, instrument.program);
         const selector = `.inst[data-type="${instrument.type}"][data-midi="${instrument.program}"]`;
         document.querySelector(selector)?.scrollIntoView({block: 'nearest'});
+        return true;
     }
 
     openMidiMixer() {
@@ -2735,11 +2958,29 @@ class GusPatchApp {
             instrumentButton.className = 'icon-btn midi-mixer-instrument-button';
             instrumentButton.dataset.channel = String(channel);
             instrumentButton.addEventListener('click', () => this.selectMidiMixerInstrument(channel));
+            const equalizerButton = document.createElement('button');
+            equalizerButton.type = 'button';
+            equalizerButton.className = 'channel-toggle midi-mixer-channel-toggle midi-mixer-equalizer-button';
+            const equalizerIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            equalizerIcon.classList.add('midi-mixer-equalizer-icon');
+            equalizerIcon.setAttribute('viewBox', '0 0 24 24');
+            equalizerIcon.setAttribute('aria-hidden', 'true');
+            equalizerIcon.setAttribute('focusable', 'false');
+            const equalizerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            equalizerPath.setAttribute('d', 'M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M2 14h4m4-6h4m4 8h4');
+            equalizerIcon.appendChild(equalizerPath);
+            equalizerButton.appendChild(equalizerIcon);
+            equalizerButton.setAttribute('aria-label', `Open Graphic Equalizer for channel ${channel + 1}`);
+            equalizerButton.title = `Open Graphic Equalizer for channel ${channel + 1}`;
+            equalizerButton.addEventListener('click', () => {
+                if (this.selectMidiMixerInstrument(channel)) this.openGraphicEqualizer();
+            });
             const channelLabel = document.createElement('span');
             channelLabel.className = 'midi-mixer-channel-name';
             channelLabel.textContent = channel === 9 ? 'Channel 9 · Drums' : `Channel ${channel}`;
-            channelInfo.append(indicator, instrumentButton, channelLabel);
+            channelInfo.append(indicator, instrumentButton, equalizerButton, channelLabel);
             this.updateMidiMixerInstrument(channel, instrumentButton, channelLabel);
+            this.updateMidiMixerEqualizerButton(channel, equalizerButton);
 
             const channelToggles = document.createElement('span');
             channelToggles.className = 'midi-mixer-channel-toggles';
@@ -3324,6 +3565,72 @@ class GusPatchApp {
         return result;
     }
 
+    async openMidiFileDb() {
+        if (this.midiFileDb) return this.midiFileDb;
+        if (this.midiFileDbReady) return this.midiFileDbReady;
+        if (!window.indexedDB) throw new Error('IndexedDB is not available in this browser.');
+
+        this.midiFileDbReady = new Promise((resolve, reject) => {
+            const request = indexedDB.open(MIDI_FILE_DB_NAME, 1);
+            request.onupgradeneeded = () => {
+                if (!request.result.objectStoreNames.contains(MIDI_FILE_DB_STORE)) {
+                    request.result.createObjectStore(MIDI_FILE_DB_STORE);
+                }
+            };
+            request.onsuccess = () => {
+                this.midiFileDb = request.result;
+                resolve(this.midiFileDb);
+            };
+            request.onerror = () => {
+                this.midiFileDbReady = null;
+                reject(request.error || new Error('Could not open MIDI file storage.'));
+            };
+        });
+        return this.midiFileDbReady;
+    }
+
+    async saveLastMidiFile(file) {
+        const db = await this.openMidiFileDb();
+        const record = {
+            name: file.name,
+            type: file.type,
+            lastModified: file.lastModified,
+            data: await file.arrayBuffer(),
+        };
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(MIDI_FILE_DB_STORE, 'readwrite');
+            transaction.objectStore(MIDI_FILE_DB_STORE).put(record, LAST_MIDI_FILE_KEY);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('Could not save MIDI file.'));
+            transaction.onabort = () => reject(transaction.error || new Error('MIDI file save was aborted.'));
+        });
+    }
+
+    async restoreLastMidiFile() {
+        try {
+            const db = await this.openMidiFileDb();
+            const record = await new Promise((resolve, reject) => {
+                const transaction = db.transaction(MIDI_FILE_DB_STORE, 'readonly');
+                const request = transaction.objectStore(MIDI_FILE_DB_STORE).get(LAST_MIDI_FILE_KEY);
+                request.onsuccess = () => resolve(request.result || null);
+                request.onerror = () => reject(request.error || new Error('Could not read saved MIDI file.'));
+            });
+            if (!record) return;
+            if (typeof record.name !== 'string' || !(record.data instanceof ArrayBuffer)) {
+                throw new Error('The saved MIDI file data is invalid.');
+            }
+
+            const file = new File([record.data], record.name, {
+                type: record.type || 'audio/midi',
+                lastModified: record.lastModified || Date.now(),
+            });
+            await this.loadMidiFile({target: {files: [file], value: ''}});
+        } catch (error) {
+            this.$('midiStatus').textContent = `Saved MIDI restore failed: ${error.message}`;
+            this.log(`Saved MIDI restore failed: ${error.message}`, 'err');
+        }
+    }
+
     async loadMidiFile(event) {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
@@ -3366,6 +3673,11 @@ class GusPatchApp {
             this.updateMidiPlaybackUI();
             status.textContent = `Ready: ${file.name}`;
             this.scheduleMidiInstrumentProgressHide();
+            try {
+                await this.saveLastMidiFile(file);
+            } catch (error) {
+                this.log(`Could not remember MIDI file for reload: ${error.message}`, 'err');
+            }
         } catch (error) {
             this.hideMidiInstrumentProgress();
             this.clearMidiInstrumentList();
@@ -3376,7 +3688,7 @@ class GusPatchApp {
             this.log(`MIDI load failed: ${error.message}`, 'err');
             this.updateMidiPlaybackUI();
         } finally {
-            event.target.value = '';
+            if (event.target) event.target.value = '';
         }
     }
 
@@ -3628,16 +3940,21 @@ class GusPatchApp {
         const valid = Number.isFinite(tempo) && tempo >= 40 && tempo <= 240;
         tempoInput.setCustomValidity(valid ? '' : 'Tempo must be between 40 and 240 BPM.');
         tempoInput.disabled = this.sequencerPlaying;
-        this.$('btnSequencerPlay').disabled = !valid || this.sequencerPlaying;
+        this.$('btnSequencerPlay').disabled = this.sequencerPlaying
+            ? !this.sequencerReady
+            : !valid;
         return valid;
     }
 
     updateSequencerControls() {
-        this.$('btnSequencerPause').disabled = !this.sequencerPlaying;
-        this.$('btnSequencerPause').querySelector('span').textContent =
-            this.sequencerPaused ? 'Resume' : 'Pause';
+        const isPlaying = this.sequencerPlaying && !this.sequencerPaused;
+        this.$('sequencerPlayIcon').hidden = isPlaying;
+        this.$('sequencerPauseIcon').hidden = !isPlaying;
+        this.$('btnSequencerPlay').querySelector('span').textContent =
+            !this.sequencerPlaying ? 'Play Sequence' : this.sequencerPaused ? 'Play' : 'Pause';
         this.$('btnSequencerStop').disabled = !this.sequencerPlaying;
         this.validateSequencerTempo();
+        this.updateGraphicEqualizerTransportControls();
     }
 
     async startMidiSequencer() {
@@ -3652,11 +3969,10 @@ class GusPatchApp {
             if (this.midiMode !== 'sequencer') return;
             this.sequencerPlaying = true;
             this.sequencerPaused = false;
+            this.sequencerReady = false;
             this.sequencerMidiData = this.buildSequencerMidiData();
+            this.updateSequencerControls();
             const generation = ++this.sequencerGeneration;
-            this.validateSequencerTempo();
-            this.$('btnSequencerStop').disabled = false;
-            this.$('btnSequencerPause').disabled = true;
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
             await this.queueSequencerLoad(generation);
         } catch (error) {
@@ -3783,6 +4099,7 @@ class GusPatchApp {
                 player.sendEvent(player.ME_PROGRAM, 0, Number(this.currentMidi));
             }
             if (!updatedInPlace) player.play(0);
+            this.sequencerReady = true;
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
             this.updateSequencerControls();
         }).catch(error => {
@@ -3797,6 +4114,7 @@ class GusPatchApp {
     stopMidiSequencer() {
         this.sequencerPlaying = false;
         this.sequencerPaused = false;
+        this.sequencerReady = false;
         this.sequencerGeneration++;
         clearTimeout(this.sequencerUpdateTimer);
         this.sequencerUpdateTimer = null;
@@ -4324,6 +4642,54 @@ class GusPatchApp {
         this.$('midiTimeTotal').textContent = this.formatMidiTime(this.midiDuration);
         this.$('midiMixerTimeCurrent').textContent = this.formatMidiTime(position);
         this.$('midiMixerTimeTotal').textContent = this.formatMidiTime(this.midiDuration);
+        this.updateGraphicEqualizerTransportControls();
+    }
+
+    updateGraphicEqualizerTransportControls() {
+        const isMidiFileMode = this.midiMode === 'file';
+        const hasMidiFile = isMidiFileMode && Boolean(this.midiData);
+        const hasMidiFilePlayback = hasMidiFile && this.midiDuration > 0;
+        const isSequencerMode = this.midiMode === 'sequencer';
+        const transport = this.$('graphicEqualizerTransport');
+        const seekControl = this.$('graphicEqualizerSeekControl');
+        const midiPlayback = this.$('graphicEqualizerMidiPlayback');
+        const seek = this.$('graphicEqualizerSeek');
+        const playbackButton = this.$('btnGraphicEqualizerPlayback');
+        const stopButton = this.$('btnGraphicEqualizerStop');
+        const isMidiFilePlaying = Boolean(
+            this.timidityPlayer?.isPlaying && !this.timidityPlayer.isPaused
+        );
+        const isSequencerPlaying = this.sequencerPlaying && !this.sequencerPaused;
+        const showPlayback = isMidiFileMode || isSequencerMode;
+
+        seekControl.hidden = !hasMidiFilePlayback;
+        midiPlayback.hidden = !showPlayback;
+        stopButton.hidden = !showPlayback;
+        transport.hidden = !showPlayback;
+        seek.disabled = !hasMidiFilePlayback;
+        stopButton.disabled = isSequencerMode ? !this.sequencerPlaying : !hasMidiFile;
+        if (!this.midiSeeking) {
+            seek.value = this.midiDuration
+                ? String(Math.round(this.midiPosition / this.midiDuration * 1000))
+                : '0';
+        }
+        this.$('graphicEqualizerTimeCurrent').textContent = this.formatMidiTime(this.midiPosition);
+        this.$('graphicEqualizerTimeTotal').textContent = this.formatMidiTime(this.midiDuration);
+
+        const isPlaybackActive = isSequencerMode ? isSequencerPlaying : isMidiFilePlaying;
+        this.$('graphicEqualizerPlaybackLabel').textContent = isSequencerMode
+            ? !this.sequencerPlaying ? 'Play' : this.sequencerPaused ? 'Play' : 'Pause'
+            : isMidiFilePlaying ? 'Pause' : 'Play';
+        this.$('graphicEqualizerPlayIcon').hidden = isPlaybackActive;
+        this.$('graphicEqualizerPauseIcon').hidden = !isPlaybackActive;
+        playbackButton.setAttribute(
+            'aria-pressed',
+            String(isPlaybackActive)
+        );
+        const tempo = Number(this.$('sequencerTempo').value);
+        playbackButton.disabled = isSequencerMode
+            ? !this.sequencerPlaying && (!Number.isFinite(tempo) || tempo < 40 || tempo > 240)
+            : !hasMidiFile;
     }
 
     formatMidiTime(seconds) {

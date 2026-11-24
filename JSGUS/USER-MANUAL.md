@@ -41,6 +41,18 @@ Turn **Auto apply** on to apply valid edits automatically after a short pause. T
 
 Preset edits are saved in the active project.
 
+## Use the Graphic Equalizer
+
+Select **Graphic Equalizer** in the instrument editor to adjust the selected instrument's rendered sound. The button is available when the preset contains a `graphicEqualizer` property. The MIDI mixer also has an equalizer icon beside each channel's instrument; it selects that channel's instrument in the editor and opens its equalizer.
+
+The equalizer has ten bands, from 31 Hz to 16 kHz. Each band ranges from -12 dB to +12 dB in 0.01 dB steps. Built-in presets start with every band at 0 dB.
+
+- Select **Reset to 0 dB** and confirm to return all bands to zero.
+- Select **Apply EQ** to apply the changes to the preset and regenerate its samples. This updates the rendered PCM used for playback and for `.pat`, ZIP, and SF2 exports; the equalizer is not limited to playback.
+- **Apply EQ** leaves the equalizer open. Select **Close** when you are done.
+
+The applied equalizer settings are saved with the preset in the active project.
+
 ## Play a MIDI File
 
 In **MIDI Playback**, select the **MIDI file** mode and choose a `.mid` or `.midi` file.
@@ -72,6 +84,7 @@ Select **Sequencer** in MIDI Playback. The sequencer uses the instrument current
 - For a melodic instrument, it repeats C4, D4, E4, and F4.
 - For a drum instrument, it repeatedly plays that instrument's MIDI pitch.
 - Set **Tempo** from 40 to 240 BPM and **Velocity** from 1 to 127 before starting.
+- The **Play Sequence** button changes to **Pause** while playing and **Resume** while paused.
 - Each note lasts one beat. Tempo is locked while the sequencer is running; velocity remains adjustable.
 - You can change the selected instrument during playback. The sequencer switches to it without requiring a stop.
 - Select **Stop** to end the sequence.

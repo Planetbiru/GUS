@@ -5,7 +5,7 @@ var GUS_DRUM_PRESETS = {
   "type": "drum",
   "version": "1.0",
   "lastModified": "2026-11-21T12:00:00Z",
-  "gain": 0.58,
+  "gain": 0.66,
   "instruments": [
     {
       "note": 25,
@@ -48,6 +48,7 @@ var GUS_DRUM_PRESETS = {
           0.44
         ],
         "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000
       }
     },
@@ -116,6 +117,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.28
         },
         "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -153,7 +155,8 @@ var GUS_DRUM_PRESETS = {
           "duration": 0.002,
           "amp": 0.18
         },
-        "highpass": 180
+        "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -237,6 +240,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.2
         },
         "highpass": 70,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8000
       }
     },
@@ -296,6 +300,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6200
       }
     },
@@ -359,6 +364,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7600
       }
     },
@@ -405,6 +411,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.2
         },
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000
       }
     },
@@ -438,6 +445,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.22
         },
         "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000
       }
     },
@@ -465,6 +473,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.15
         },
         "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6000
       }
     },
@@ -489,6 +498,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.48
         },
         "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -499,7 +509,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Deep kick thump with a short beater click.",
       "preset": {
         "mute": false,
-        "gain": 0.32,
+        "gain": 0.35,
         "duration": 0.55,
         "membrane": {
           "freq": 46,
@@ -550,6 +560,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
+        "highpass": 30,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4200
       }
     },
@@ -560,7 +572,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Punchy kick with a focused low end.",
       "preset": {
         "mute": false,
-        "gain": 0.32,
+        "gain": 0.35,
         "duration": 0.55,
         "membrane": {
           "freq": 52,
@@ -611,6 +623,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
+        "highpass": 30,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4500
       }
     },
@@ -657,6 +671,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.25
         },
         "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -704,7 +719,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.65
           }
         },
-        "highpass": 600
+        "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -726,6 +742,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "bursts": [
           0,
           0.011,
@@ -778,7 +795,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.7
           }
         },
-        "highpass": 600
+        "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -791,9 +809,9 @@ var GUS_DRUM_PRESETS = {
         "gain": 0.85,
         "duration": 0.65,
         "membrane": {
-          "freq": 65,
-          "pitchDecay": 0.06,
-          "decay": 0.5,
+          "freq": 78,
+          "pitchDecay": 0.025,
+          "decay": 0.26,
           "modes": [
             {
               "ratio": 1,
@@ -819,19 +837,21 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.18
+          "amp": 0.3
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.024,
+          "amp": 0.34,
+          "decay": 0.018,
           "type": "pink",
           "bandpass": {
-            "center": 1200,
+            "center": 2200,
             "q": 0.75
           }
         },
-        "highpass": 40,
-        "lowpass": 3200
+        "highpass": 55,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 5500,
+        "fadeOut": 0.06
       }
     },
     {
@@ -849,7 +869,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.009,
             "type": "white",
             "bandpass": {
-              "center": 8400,
+              "center": 9600,
               "q": 0.52
             }
           },
@@ -858,7 +878,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.017,
             "type": "pink",
             "bandpass": {
-              "center": 6500,
+              "center": 7600,
               "q": 0.58
             }
           },
@@ -867,13 +887,14 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.014,
             "type": "white",
             "bandpass": {
-              "center": 9800,
+              "center": 11000,
               "q": 0.7
             }
           }
         ],
-        "highpass": 3900,
-        "lowpass": 10500
+        "highpass": 4500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
       }
     },
     {
@@ -887,8 +908,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.6,
         "membrane": {
           "freq": 90,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -914,19 +935,21 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.2
+          "amp": 0.26
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.022,
+          "amp": 0.29,
+          "decay": 0.018,
           "type": "pink",
           "bandpass": {
-            "center": 1350,
+            "center": 1800,
             "q": 0.75
           }
         },
         "highpass": 55,
-        "lowpass": 3600
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 5000,
+        "fadeOut": 0.05
       }
     },
     {
@@ -944,7 +967,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.008,
             "type": "white",
             "bandpass": {
-              "center": 8000,
+              "center": 9200,
               "q": 0.62
             }
           },
@@ -953,7 +976,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.015,
             "type": "pink",
             "bandpass": {
-              "center": 4200,
+              "center": 5200,
               "q": 0.72
             }
           }
@@ -962,8 +985,9 @@ var GUS_DRUM_PRESETS = {
           "duration": 0.002,
           "amp": 0.12
         },
-        "highpass": 1800,
-        "lowpass": 9200
+        "highpass": 2800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
       }
     },
     {
@@ -977,8 +1001,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 120,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.025,
+          "decay": 0.25,
           "modes": [
             {
               "ratio": 1,
@@ -1004,19 +1028,21 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.2
+          "amp": 0.3
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.02,
+          "amp": 0.34,
+          "decay": 0.016,
           "type": "pink",
           "bandpass": {
-            "center": 1500,
+            "center": 2700,
             "q": 0.75
           }
         },
-        "highpass": 70,
-        "lowpass": 3900
+        "highpass": 100,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6500,
+        "fadeOut": 0.05
       }
     },
     {
@@ -1035,13 +1061,14 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.24,
             "type": "pink",
             "bandpass": {
-              "center": 6200,
+              "center": 7600,
               "q": 0.5
             }
           }
         ],
-        "highpass": 3800,
-        "lowpass": 8200
+        "highpass": 4600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
       }
     },
     {
@@ -1055,8 +1082,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 155,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -1082,19 +1109,21 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.2
+          "amp": 0.26
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.019,
+          "amp": 0.29,
+          "decay": 0.015,
           "type": "pink",
           "bandpass": {
-            "center": 1700,
+            "center": 2200,
             "q": 0.75
           }
         },
         "highpass": 90,
-        "lowpass": 4250
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6000,
+        "fadeOut": 0.05
       }
     },
     {
@@ -1108,8 +1137,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 190,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -1135,19 +1164,21 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.22
+          "amp": 0.28
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.018,
+          "amp": 0.29,
+          "decay": 0.014,
           "type": "pink",
           "bandpass": {
-            "center": 1850,
+            "center": 2400,
             "q": 0.75
           }
         },
         "highpass": 115,
-        "lowpass": 4500
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6500,
+        "fadeOut": 0.05
       }
     },
     {
@@ -1166,7 +1197,7 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.02,
           "type": "white",
           "bandpass": {
-            "center": 4400,
+            "center": 5200,
             "q": 0.55
           }
         },
@@ -1176,7 +1207,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.09,
             "type": "white",
             "bandpass": {
-              "center": 7600,
+              "center": 9200,
               "q": 0.7
             }
           },
@@ -1185,7 +1216,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.14,
             "type": "white",
             "bandpass": {
-              "center": 8200,
+              "center": 9800,
               "q": 0.75
             }
           },
@@ -1194,7 +1225,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 2,
             "type": "pink",
             "bandpass": {
-              "center": 5600,
+              "center": 6800,
               "q": 0.65
             }
           },
@@ -1203,7 +1234,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 1.5,
             "type": "pink",
             "bandpass": {
-              "center": 7200,
+              "center": 8600,
               "q": 0.7
             }
           },
@@ -1212,13 +1243,14 @@ var GUS_DRUM_PRESETS = {
             "decay": 3,
             "type": "pink",
             "bandpass": {
-              "center": 4200,
+              "center": 5200,
               "q": 0.8
             }
           }
         ],
-        "highpass": 1200,
-        "lowpass": 11000
+        "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
       }
     },
     {
@@ -1232,8 +1264,8 @@ var GUS_DRUM_PRESETS = {
         "duration": 0.55,
         "membrane": {
           "freq": 240,
-          "pitchDecay": 0.06,
-          "decay": 0.42,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
           "modes": [
             {
               "ratio": 1,
@@ -1259,19 +1291,21 @@ var GUS_DRUM_PRESETS = {
         },
         "click": {
           "duration": 0.004,
-          "amp": 0.22
+          "amp": 0.28
         },
         "noise": {
-          "amp": 0.24,
-          "decay": 0.017,
+          "amp": 0.29,
+          "decay": 0.013,
           "type": "pink",
           "bandpass": {
-            "center": 2100,
+            "center": 2700,
             "q": 0.75
           }
         },
         "highpass": 145,
-        "lowpass": 4900
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 7000,
+        "fadeOut": 0.05
       }
     },
     {
@@ -1281,24 +1315,9 @@ var GUS_DRUM_PRESETS = {
       "description": "Bright ride strike with a clear, ringing.",
       "preset": {
         "mute": false,
-        "gain": 0.06,
+        "gain": 0.19,
         "duration": 1.5,
         "fadeOut": 0.3,
-        "metallic": {
-          "baseFreq": 305,
-          "partials": [
-            1,
-            8.34,
-            10.24,
-            10.86,
-            12.3,
-            15.06,
-            16.71
-          ],
-          "amp": 0.045,
-          "decay": 0.5,
-          "randomPhase": true
-        },
         "noiseLayers": [
           {
             "amp": 0.7,
@@ -1338,6 +1357,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -1348,7 +1368,7 @@ var GUS_DRUM_PRESETS = {
       "description": "Bright cymbal crash with a broad metallic.",
       "preset": {
         "mute": false,
-        "gain": 0.15,
+        "gain": 0.16,
         "duration": 1.8,
         "noiseLayers": [
           {
@@ -1388,7 +1408,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 3000
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1460,7 +1481,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 2500,
+        "highpass": 1800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 11000
       }
     },
@@ -1532,6 +1554,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 3400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500
       }
     },
@@ -1582,7 +1605,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 3000
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1610,7 +1634,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.5
           }
         ],
-        "highpass": 400
+        "highpass": 400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1629,7 +1654,7 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.018,
           "type": "white",
           "bandpass": {
-            "center": 4600,
+            "center": 5400,
             "q": 0.55
           }
         },
@@ -1639,7 +1664,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.09,
             "type": "white",
             "bandpass": {
-              "center": 7800,
+              "center": 9400,
               "q": 0.7
             }
           },
@@ -1648,7 +1673,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.14,
             "type": "white",
             "bandpass": {
-              "center": 8400,
+              "center": 10000,
               "q": 0.75
             }
           },
@@ -1657,7 +1682,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 1.85,
             "type": "pink",
             "bandpass": {
-              "center": 5800,
+              "center": 7000,
               "q": 0.65
             }
           },
@@ -1666,7 +1691,7 @@ var GUS_DRUM_PRESETS = {
             "decay": 1.4,
             "type": "pink",
             "bandpass": {
-              "center": 7400,
+              "center": 8800,
               "q": 0.7
             }
           },
@@ -1675,13 +1700,14 @@ var GUS_DRUM_PRESETS = {
             "decay": 2.8,
             "type": "pink",
             "bandpass": {
-              "center": 4300,
+              "center": 5300,
               "q": 0.8
             }
           }
         ],
-        "highpass": 1200,
-        "lowpass": 11000
+        "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
       }
     },
     {
@@ -1711,7 +1737,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.3,
           "type": "pink"
         },
-        "highpass": 800
+        "highpass": 800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1721,16 +1748,9 @@ var GUS_DRUM_PRESETS = {
       "description": "Bright ride strike with a clear, ringing.",
       "preset": {
         "mute": false,
-        "gain": 0.08,
+        "gain": 0.28,
         "duration": 1.4,
         "fadeOut": 0.28,
-        "metallic": {
-          "baseFreq": 330,
-          "partials": [1, 7.71, 9.46, 10.03, 13.92, 15.44],
-          "amp": 0.042,
-          "decay": 0.45,
-          "randomPhase": true
-        },
         "noiseLayers": [
           {
             "amp": 0.7,
@@ -1770,6 +1790,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -1812,7 +1833,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "highpass": 260
+        "highpass": 260,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1854,7 +1876,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "highpass": 220
+        "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1901,7 +1924,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 4600
+        "lowpass": 4600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1948,7 +1972,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 2400
+        "lowpass": 2400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -1995,7 +2020,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 2000
+        "lowpass": 2000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2072,6 +2098,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 110,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4500
       }
     },
@@ -2149,6 +2176,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 90,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 3800
       }
     },
@@ -2177,7 +2205,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.3
           }
         ],
-        "highpass": 500
+        "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2205,7 +2234,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.3
           }
         ],
-        "highpass": 500
+        "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2226,7 +2256,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.6
           }
         },
-        "highpass": 6000
+        "highpass": 6000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2247,7 +2278,8 @@ var GUS_DRUM_PRESETS = {
             "q": 0.6
           }
         },
-        "highpass": 7000
+        "highpass": 7000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2291,7 +2323,8 @@ var GUS_DRUM_PRESETS = {
             "q": 10
           }
         },
-        "highpass": 3200
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2335,7 +2368,8 @@ var GUS_DRUM_PRESETS = {
             "q": 12
           }
         },
-        "highpass": 3200
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2390,7 +2424,8 @@ var GUS_DRUM_PRESETS = {
             "bandpass": { "center": 7100, "q": 0.8 }
           }
         ],
-        "highpass": 1700
+        "highpass": 1700,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2469,7 +2504,8 @@ var GUS_DRUM_PRESETS = {
             "bandpass": { "center": 8000, "q": 0.8 }
           }
         ],
-        "highpass": 1600
+        "highpass": 1600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2497,7 +2533,8 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.5
           }
         ],
-        "highpass": 1500
+        "highpass": 1500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2523,7 +2560,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.006,
           "type": "pink"
         },
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2549,7 +2587,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.006,
           "type": "pink"
         },
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2574,7 +2613,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2599,7 +2639,8 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 300
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2628,6 +2669,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.1
         },
         "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -2651,7 +2693,8 @@ var GUS_DRUM_PRESETS = {
           "decay": 1,
           "amp": 0.55
         },
-        "highpass": 3000
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2684,6 +2727,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 6200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 11500
       }
     },
@@ -2718,7 +2762,8 @@ var GUS_DRUM_PRESETS = {
             "q": 1.2
           }
         },
-        "highpass": 220
+        "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     },
     {
@@ -2745,6 +2790,7 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.42
         },
         "highpass": 650,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500
       }
     },
@@ -2798,6 +2844,7 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -2851,6 +2898,7 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 35,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 1800
       }
     },
@@ -2863,11 +2911,11 @@ var GUS_DRUM_PRESETS = {
         "mute": false,
         "gain": 0.36,
         "duration": 1.3,
-        "fadeOut": 0.55,
+        "fadeOut": 0.15,
         "membrane": {
           "freq": 92,
-          "pitchDecay": 0.032,
-          "decay": 0.67,
+          "pitchDecay": 0.022,
+          "decay": 0.42,
           "modes": [
             {
               "ratio": 1,
@@ -2897,20 +2945,21 @@ var GUS_DRUM_PRESETS = {
           ]
         },
         "click": {
-          "duration": 0.004,
-          "amp": 0.12
+          "duration": 0.007,
+          "amp": 0.28
         },
         "noise": {
-          "amp": 0.1,
-          "decay": 0.04,
+          "amp": 0.18,
+          "decay": 0.025,
           "type": "pink",
           "bandpass": {
-            "center": 320,
-            "q": 0.65
+            "center": 380,
+            "q": 0.7
           }
         },
-        "highpass": 30,
-        "lowpass": 1500
+        "highpass": 45,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 1200
       }
     }
   ]

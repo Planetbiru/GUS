@@ -246,8 +246,8 @@ button.toggle-button[aria-pressed="true"]:hover:not(:disabled):not(.primary):not
     min-width: 85px;
 }
 
-#btnSequencerPause {
-    min-width: 76px;
+#btnSequencerPlay {
+    min-width: 85px;
 }
 
 #btnMidiControllerConnect {
@@ -355,8 +355,9 @@ aside {
     border-radius: 3px;
     cursor: pointer;
     font-size: 13px;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8px 3ch;
+    column-gap: 8px;
     align-items: center;
     margin-bottom: 2px;
     transition: .12s;
@@ -401,10 +402,23 @@ aside {
     white-space: nowrap;
 }
 
+.inst .instrument-preset-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.inst .instrument-preset-status.is-overridden {
+    background: #c2185b;
+}
+
 .inst .num {
+    width: 3ch;
     font-size: 11px;
     opacity: .6;
     font-variant-numeric: tabular-nums;
+    text-align: right;
 }
 
 .inst.active .num {
@@ -769,6 +783,196 @@ label[for="presetJson"] {
     border-radius: 6px;
 }
 
+.graphic-equalizer-button[hidden] {
+    display: none;
+}
+
+.graphic-equalizer-dialog {
+    width: min(820px, calc(100vw - 32px));
+}
+
+.graphic-equalizer-dialog .dialog-body {
+    overflow-x: auto;
+}
+
+.graphic-equalizer-dialog .dialog-footer {
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.graphic-equalizer-transport {
+    display: flex;
+    flex: 1 1 220px;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.graphic-equalizer-transport[hidden],
+.graphic-equalizer-transport [hidden] {
+    display: none;
+}
+
+.graphic-equalizer-midi-playback {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 6px;
+}
+
+#btnGraphicEqualizerPlayback {
+    width: 85px;
+    flex: 0 0 85px;
+}
+
+.graphic-equalizer-seek-control {
+    display: grid;
+    flex: 1;
+    grid-template-columns: 7ch minmax(0, 1fr) 7ch;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.graphic-equalizer-seek-control > span {
+    width: 7ch;
+    color: var(--dim);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+#graphicEqualizerTimeCurrent {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#graphicEqualizerTimeTotal {
+    grid-column: 3;
+    grid-row: 1;
+    text-align: right;
+}
+
+#graphicEqualizerSeek {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.graphic-equalizer-actions {
+    flex: 0 0 auto;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.graphic-equalizer-bands {
+    --graphic-equalizer-slider-height: 150px;
+    --graphic-equalizer-slider-top: 21px;
+    --graphic-equalizer-thumb-half-size: 8px;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(10, minmax(34px, 1fr));
+    gap: 8px;
+    min-width: 430px;
+    margin-top: 18px;
+}
+
+.graphic-equalizer-bands::before {
+    position: absolute;
+    top: calc(var(--graphic-equalizer-slider-top) + var(--graphic-equalizer-thumb-half-size));
+    right: 0;
+    left: 0;
+    height: calc(var(--graphic-equalizer-slider-height) - 2 * var(--graphic-equalizer-thumb-half-size));
+    background:
+        linear-gradient(to right, rgba(88, 166, 255, .55), rgba(88, 166, 255, .55))
+            0 50% / 100% 1px no-repeat,
+        linear-gradient(to right, rgba(139, 148, 158, .36), rgba(139, 148, 158, .36))
+            0 0 / 100% 1px no-repeat,
+        linear-gradient(to right, rgba(139, 148, 158, .28), rgba(139, 148, 158, .28))
+            0 25% / 100% 1px no-repeat,
+        linear-gradient(to right, rgba(139, 148, 158, .28), rgba(139, 148, 158, .28))
+            0 75% / 100% 1px no-repeat,
+        linear-gradient(to right, rgba(139, 148, 158, .36), rgba(139, 148, 158, .36))
+            0 100% / 100% 1px no-repeat;
+    content: "";
+    pointer-events: none;
+}
+
+.graphic-equalizer-band {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.graphic-equalizer-slider {
+    position: relative;
+    display: flex;
+    flex: 0 0 150px;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 150px;
+}
+
+.graphic-equalizer-band output {
+    color: var(--fg);
+    font-size: 11px;
+    line-height: 13px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.graphic-equalizer-slider input[type="range"] {
+    position: absolute;
+    width: 150px;
+    min-width: 150px;
+    height: 24px;
+    margin: 0;
+    transform: rotate(-90deg);
+    touch-action: none;
+}
+
+.graphic-equalizer-band label {
+    color: var(--dim);
+    font-size: 10px;
+    line-height: 12px;
+    white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+    .graphic-equalizer-transport {
+        flex-basis: 100%;
+    }
+
+    .graphic-equalizer-actions {
+        margin-left: auto;
+    }
+
+    .graphic-equalizer-bands {
+        gap: 4px;
+    }
+
+    .graphic-equalizer-slider {
+        flex-basis: 125px;
+        height: 125px;
+    }
+
+    .graphic-equalizer-bands {
+        --graphic-equalizer-slider-height: 125px;
+    }
+
+    .graphic-equalizer-slider input[type="range"] {
+        width: 125px;
+        min-width: 125px;
+    }
+}
+
 .midi-instrument-lists {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -928,6 +1132,18 @@ label[for="presetJson"] {
     font-size: 10px;
 }
 
+.midi-mixer-equalizer-icon {
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 .midi-mixer-control {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 32px;
@@ -976,8 +1192,8 @@ label[for="presetJson"] {
 }
 
 #btnMidiMixerPlay {
-    width: 88px;
-    flex: 0 0 88px;
+    width: 85px;
+    flex: 0 0 85px;
 }
 
 .midi-mixer-seek-control {
@@ -1550,4 +1766,8 @@ canvas {
 
 #btnTogglePatchCache{
     width: 140px;
+}
+
+#btnTogglePatchCache .button-icon {
+    transform: translateY(1px);
 }
