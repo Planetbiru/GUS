@@ -710,6 +710,10 @@ label[for="presetJson"] {
     text-transform: uppercase;
 }
 
+.preset-json-actions {
+    margin-top: 8px;
+}
+
 .preset-json-status {
     min-height: 18px;
     margin-top: 6px;

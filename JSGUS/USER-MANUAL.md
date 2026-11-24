@@ -37,6 +37,8 @@ For melodic instruments, choose a base waveform, sample rate, root frequency, an
 
 The **Instrument Preset** editor displays JSON for the selected instrument. Edit the JSON and choose **Apply preset** to validate it, regenerate the patch, and update MIDI playback. Invalid JSON cannot be applied.
 
+Use **Copy** and **Paste** below the JSON editor to transfer its text. **Export JSON** and **Import JSON** are in the instrument action row and are available in both Form and JSON modes. Importing replaces the editor draft and updates the form view; apply it with **Apply Preset** unless Auto Apply is on. If clipboard read access is denied, focus the JSON editor and use Ctrl+V.
+
 Turn **Auto apply** on to apply valid edits automatically after a short pause. Turn it off to return to manual application. **Reset to factory preset** restores only the selected instrument's factory preset.
 
 Preset edits are saved in the active project.

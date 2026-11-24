@@ -786,7 +786,6 @@ class GusPatchApp {
                 this.$('graphicEqualizerDialog').close();
             }
         });
-        this.$('btnStop').onclick = () => this.audio.stop();
         this.$('btnWaveZoomIn').onclick = () => this.setWaveformVerticalZoom(this.waveformVerticalZoom * 2);
         this.$('btnWaveZoomOut').onclick = () => this.setWaveformVerticalZoom(this.waveformVerticalZoom / 2);
         this.$('btnWaveZoomReset').onclick = () => this.setWaveformVerticalZoom(1);
@@ -842,6 +841,11 @@ class GusPatchApp {
             this.cancelRemovePresetArrayItem();
         });
         this.$('presetJson').addEventListener('input', () => this.handlePresetJsonInput());
+        this.$('btnCopyPresetJson').onclick = () => this.copyPresetJson();
+        this.$('btnPastePresetJson').onclick = () => this.pastePresetJson();
+        this.$('btnExportPresetJson').onclick = () => this.exportPresetJson();
+        this.$('btnImportPresetJson').onclick = () => this.$('presetJsonFile').click();
+        this.$('presetJsonFile').addEventListener('change', event => this.importPresetJson(event));
         this.$('btnChooseMidi').onclick = () => this.$('midiFile').click();
         this.$('midiFile').addEventListener('change', event => this.loadMidiFile(event));
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
@@ -1396,12 +1400,75 @@ class GusPatchApp {
         handlePresetJsonInput() {
             this.presetApplyGeneration++;
             const preset = this.validatePresetJson();
-            if (!this.autoApplyPreset) return;
+            if (!this.autoApplyPreset) return preset;
             if (!preset) {
                 this.cancelAutoApplyPreset();
-                return;
+                return null;
             }
             this.scheduleAutoApplyPreset();
+            return preset;
+        }
+
+        async copyPresetJson() {
+            try {
+                await navigator.clipboard.writeText(this.$('presetJson').value);
+                this.setPresetEditorStatus('Preset JSON copied to clipboard.');
+            } catch (error) {
+                this.setPresetEditorStatus(`Could not copy preset JSON: ${error.message}`, true);
+                this.log(`Preset JSON copy failed: ${error.message}`, 'err');
+            }
+        }
+
+        async pastePresetJson() {
+            const editor = this.$('presetJson');
+            editor.focus();
+            try {
+                editor.value = await navigator.clipboard.readText();
+                this.handlePresetJsonInput();
+            } catch (error) {
+                this.setPresetEditorStatus(
+                    `Could not paste preset JSON: ${error.message}. Use Ctrl+V in the JSON editor if clipboard access is denied.`,
+                    true
+                );
+                this.log(`Preset JSON paste failed: ${error.message}`, 'err');
+            }
+        }
+
+        exportPresetJson() {
+            const filename = this.currentType == null || this.currentMidi == null
+                ? 'preset.json'
+                : `${this.currentType}-${this.currentMidi}-preset.json`;
+            try {
+                FileDownloader.download(
+                    new Blob([this.$('presetJson').value], {type: 'application/json'}),
+                    filename
+                );
+                this.setPresetEditorStatus(`Preset JSON exported: ${filename}.`);
+            } catch (error) {
+                this.setPresetEditorStatus(`Preset JSON export failed: ${error.message}`, true);
+                this.log(`Preset JSON export failed: ${error.message}`, 'err');
+            }
+        }
+
+        async importPresetJson(event) {
+            const input = event.target;
+            const file = input.files && input.files[0];
+            if (!file) return;
+            try {
+                const editor = this.$('presetJson');
+                editor.value = await file.text();
+                editor.focus();
+                const preset = this.handlePresetJsonInput();
+                if (preset) {
+                    this.updateGraphicEqualizerButton(preset);
+                    if (!this.$('presetFormPanel').hidden) this.buildPresetForm(preset);
+                }
+            } catch (error) {
+                this.setPresetEditorStatus(`Preset JSON import failed: ${error.message}`, true);
+                this.log(`Preset JSON import failed: ${error.message}`, 'err');
+            } finally {
+                input.value = '';
+            }
         }
 
         cancelAutoApplyPreset() {

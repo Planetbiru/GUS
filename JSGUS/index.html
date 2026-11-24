@@ -451,22 +451,34 @@
                         </svg>
                         <span>Scale</span>
                     </button>
-                    <button id="btnGraphicEqualizer" class="graphic-equalizer-button" type="button"
+                    <button id="btnGraphicEqualizer" class="graphic-equalizer-button button-with-icon" type="button"
                         aria-haspopup="dialog" aria-controls="graphicEqualizerDialog" hidden>
-                        Graphic Equalizer
-                    </button>
-                    <button id="btnStop" class="button-with-icon">
                         <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M6 6h12v12H6z" fill="currentColor" />
+                            <path d="M4 7h16M4 17h16M8 4v6M16 14v6" />
+                            <circle cx="8" cy="7" r="2" />
+                            <circle cx="16" cy="17" r="2" />
                         </svg>
-                        <span>Stop</span>
+                        <span>Graphic Equalizer</span>
                     </button>
                     <button id="btnDownload" class="button-with-icon">
                         <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                             <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
                         </svg>
-                        <span>Download .pat</span>
+                        <span>Download PAT</span>
                     </button>
+                    <button id="btnExportPresetJson" class="button-with-icon" type="button">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                        </svg>
+                        <span>Export JSON</span>
+                    </button>
+                    <button id="btnImportPresetJson" class="button-with-icon" type="button">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 21V9m-5 5 5-5 5 5M4 3h16" />
+                        </svg>
+                        <span>Import JSON</span>
+                    </button>
+                    <input id="presetJsonFile" type="file" accept=".json,application/json" hidden>
                 </div>
 
                 <div class="stats">
@@ -493,6 +505,10 @@
                         <label for="presetJson">Preset JSON</label>
                         <textarea id="presetJson" rows="12" spellcheck="false"
                             aria-describedby="presetJsonStatus"></textarea>
+                        <div class="actions preset-json-actions">
+                            <button id="btnCopyPresetJson" type="button">Copy</button>
+                            <button id="btnPastePresetJson" type="button">Paste</button>
+                        </div>
                     </div>
 
                     <div id="presetJsonStatus" class="preset-json-status" role="status" aria-live="polite"></div>
