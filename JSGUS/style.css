@@ -246,8 +246,8 @@ button.toggle-button[aria-pressed="true"]:hover:not(:disabled):not(.primary):not
     min-width: 85px;
 }
 
-#btnSequencerPause {
-    min-width: 76px;
+#btnSequencerPlay {
+    min-width: 85px;
 }
 
 #btnMidiControllerConnect {
@@ -821,8 +821,8 @@ label[for="presetJson"] {
 }
 
 #btnGraphicEqualizerPlayback {
-    width: 88px;
-    flex: 0 0 88px;
+    width: 85px;
+    flex: 0 0 85px;
 }
 
 .graphic-equalizer-seek-control {
@@ -869,6 +869,8 @@ label[for="presetJson"] {
 
 .graphic-equalizer-bands {
     --graphic-equalizer-slider-height: 150px;
+    --graphic-equalizer-slider-top: 21px;
+    --graphic-equalizer-thumb-half-size: 8px;
     position: relative;
     display: grid;
     grid-template-columns: repeat(10, minmax(34px, 1fr));
@@ -879,18 +881,21 @@ label[for="presetJson"] {
 
 .graphic-equalizer-bands::before {
     position: absolute;
-    top: 21px;
+    top: calc(var(--graphic-equalizer-slider-top) + var(--graphic-equalizer-thumb-half-size));
     right: 0;
     left: 0;
-    height: var(--graphic-equalizer-slider-height);
+    height: calc(var(--graphic-equalizer-slider-height) - 2 * var(--graphic-equalizer-thumb-half-size));
     background:
         linear-gradient(to right, rgba(88, 166, 255, .55), rgba(88, 166, 255, .55))
             0 50% / 100% 1px no-repeat,
-        repeating-linear-gradient(
-            to bottom,
-            rgba(139, 148, 158, .28) 0 1px,
-            transparent 1px 25%
-        );
+        linear-gradient(to right, rgba(139, 148, 158, .36), rgba(139, 148, 158, .36))
+            0 0 / 100% 1px no-repeat,
+        linear-gradient(to right, rgba(139, 148, 158, .28), rgba(139, 148, 158, .28))
+            0 25% / 100% 1px no-repeat,
+        linear-gradient(to right, rgba(139, 148, 158, .28), rgba(139, 148, 158, .28))
+            0 75% / 100% 1px no-repeat,
+        linear-gradient(to right, rgba(139, 148, 158, .36), rgba(139, 148, 158, .36))
+            0 100% / 100% 1px no-repeat;
     content: "";
     pointer-events: none;
 }
@@ -1187,8 +1192,8 @@ label[for="presetJson"] {
 }
 
 #btnMidiMixerPlay {
-    width: 88px;
-    flex: 0 0 88px;
+    width: 85px;
+    flex: 0 0 85px;
 }
 
 .midi-mixer-seek-control {
@@ -1761,4 +1766,8 @@ canvas {
 
 #btnTogglePatchCache{
     width: 140px;
+}
+
+#btnTogglePatchCache .button-icon {
+    transform: translateY(1px);
 }

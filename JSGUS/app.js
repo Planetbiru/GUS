@@ -156,6 +156,7 @@ class GusPatchApp {
         this.midiControllerPendingNotes = new Set();
         this.sequencerPlaying = false;
         this.sequencerPaused = false;
+        this.sequencerReady = false;
         this.sequencerMidiData = null;
         this.sequencerGeneration = 0;
         this.sequencerLoadPromise = Promise.resolve();
@@ -892,8 +893,10 @@ class GusPatchApp {
                 });
             }
         });
-        this.$('btnSequencerPlay').onclick = () => this.startMidiSequencer();
-        this.$('btnSequencerPause').onclick = () => this.toggleSequencerPause();
+        this.$('btnSequencerPlay').onclick = () => {
+            if (this.sequencerPlaying) this.toggleSequencerPause();
+            else this.startMidiSequencer();
+        };
         this.$('btnSequencerStop').onclick = () => this.stopMidiSequencer();
         this.$('sequencerTempo').addEventListener('input', () => {
             this.validateSequencerTempo();
@@ -1499,7 +1502,7 @@ class GusPatchApp {
             const gains = bands.map((_band, index) => {
                 const gain = Number(currentGains[index]);
                 return Number.isFinite(gain)
-                    ? Math.round(Math.min(12, Math.max(-12, gain)) * 10) / 10
+                    ? Math.round(Math.min(12, Math.max(-12, gain)) * 100) / 100
                     : 0;
             });
             this.graphicEqualizerDraft = preset;
@@ -1522,7 +1525,7 @@ class GusPatchApp {
                 input.type = 'range';
                 input.min = '-12';
                 input.max = '12';
-                input.step = '0.1';
+                input.step = '0.01';
                 input.value = String(gains[index]);
                 input.setAttribute('aria-orientation', 'vertical');
                 input.setAttribute('aria-label', `${band.label} band gain`);
@@ -1552,7 +1555,7 @@ class GusPatchApp {
         }
 
         formatGraphicEqualizerGain(gain) {
-            const formattedGain = Number.isInteger(gain) ? String(gain) : gain.toFixed(1);
+            const formattedGain = Number(gain.toFixed(2)).toString();
             return `${gain > 0 ? '+' : ''}${formattedGain} dB`;
         }
 
@@ -3937,14 +3940,18 @@ class GusPatchApp {
         const valid = Number.isFinite(tempo) && tempo >= 40 && tempo <= 240;
         tempoInput.setCustomValidity(valid ? '' : 'Tempo must be between 40 and 240 BPM.');
         tempoInput.disabled = this.sequencerPlaying;
-        this.$('btnSequencerPlay').disabled = !valid || this.sequencerPlaying;
+        this.$('btnSequencerPlay').disabled = this.sequencerPlaying
+            ? !this.sequencerReady
+            : !valid;
         return valid;
     }
 
     updateSequencerControls() {
-        this.$('btnSequencerPause').disabled = !this.sequencerPlaying;
-        this.$('btnSequencerPause').querySelector('span').textContent =
-            this.sequencerPaused ? 'Resume' : 'Pause';
+        const isPlaying = this.sequencerPlaying && !this.sequencerPaused;
+        this.$('sequencerPlayIcon').hidden = isPlaying;
+        this.$('sequencerPauseIcon').hidden = !isPlaying;
+        this.$('btnSequencerPlay').querySelector('span').textContent =
+            !this.sequencerPlaying ? 'Play Sequence' : this.sequencerPaused ? 'Play' : 'Pause';
         this.$('btnSequencerStop').disabled = !this.sequencerPlaying;
         this.validateSequencerTempo();
         this.updateGraphicEqualizerTransportControls();
@@ -3962,12 +3969,10 @@ class GusPatchApp {
             if (this.midiMode !== 'sequencer') return;
             this.sequencerPlaying = true;
             this.sequencerPaused = false;
+            this.sequencerReady = false;
             this.sequencerMidiData = this.buildSequencerMidiData();
-            this.updateGraphicEqualizerTransportControls();
+            this.updateSequencerControls();
             const generation = ++this.sequencerGeneration;
-            this.validateSequencerTempo();
-            this.$('btnSequencerStop').disabled = false;
-            this.$('btnSequencerPause').disabled = true;
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
             await this.queueSequencerLoad(generation);
         } catch (error) {
@@ -4094,6 +4099,7 @@ class GusPatchApp {
                 player.sendEvent(player.ME_PROGRAM, 0, Number(this.currentMidi));
             }
             if (!updatedInPlace) player.play(0);
+            this.sequencerReady = true;
             this.$('midiStatus').textContent = `Sequencer playing: ${this.currentType} ${this.currentMidi}.`;
             this.updateSequencerControls();
         }).catch(error => {
@@ -4108,6 +4114,7 @@ class GusPatchApp {
     stopMidiSequencer() {
         this.sequencerPlaying = false;
         this.sequencerPaused = false;
+        this.sequencerReady = false;
         this.sequencerGeneration++;
         clearTimeout(this.sequencerUpdateTimer);
         this.sequencerUpdateTimer = null;
@@ -4671,7 +4678,7 @@ class GusPatchApp {
 
         const isPlaybackActive = isSequencerMode ? isSequencerPlaying : isMidiFilePlaying;
         this.$('graphicEqualizerPlaybackLabel').textContent = isSequencerMode
-            ? !this.sequencerPlaying ? 'Play' : this.sequencerPaused ? 'Resume' : 'Pause'
+            ? !this.sequencerPlaying ? 'Play' : this.sequencerPaused ? 'Play' : 'Pause'
             : isMidiFilePlaying ? 'Pause' : 'Play';
         this.$('graphicEqualizerPlayIcon').hidden = isPlaybackActive;
         this.$('graphicEqualizerPauseIcon').hidden = !isPlaybackActive;

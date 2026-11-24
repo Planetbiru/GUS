@@ -638,13 +638,15 @@
                     </div>
                     <div class="actions sequencer-actions">
                         <button id="btnSequencerPlay" class="primary button-with-icon" type="button">
-                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <svg id="sequencerPlayIcon" class="button-icon" viewBox="0 0 24 24"
+                                aria-hidden="true" focusable="false">
                                 <path d="M8 5v14l11-7z" fill="currentColor" />
                             </svg>
-                            <span>Play Sequence</span>
-                        </button>
-                        <button id="btnSequencerPause" class="button-with-icon" type="button" disabled>
-                            <span>Pause</span>
+                            <svg id="sequencerPauseIcon" class="button-icon" viewBox="0 0 24 24"
+                                aria-hidden="true" focusable="false" hidden>
+                                <path d="M7 5h4v14H7zM15 5h4v14h-4z" fill="currentColor" />
+                            </svg>
+                            <span>Play</span>
                         </button>
                         <button id="btnSequencerStop" class="button-with-icon" type="button" disabled>
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
