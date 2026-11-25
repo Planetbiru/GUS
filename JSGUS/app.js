@@ -104,6 +104,8 @@ const PATCH_CACHE_ENABLED_STORAGE_KEY = 'gus-patch-generator-patch-cache-enabled
 const WAVEFORM_VERTICAL_ZOOM_STORAGE_KEY = 'gus-patch-generator-waveform-vertical-zoom-v1';
 const INSTRUMENT_PRESET_FILTER_STORAGE_KEY = 'gus-patch-generator-instrument-preset-filter-v1';
 const MIDI_FILE_DB_NAME = 'gus-patch-generator-midi-file';
+const PATCH_CACHE_DB_NAME = 'gus-patch-generator-patch-cache';
+const PATCH_CACHE_DB_STORE = 'patches';
 const MIDI_FILE_DB_STORE = 'files';
 const LAST_MIDI_FILE_KEY = 'last-selected';
 
@@ -117,6 +119,8 @@ class GusPatchApp {
         this.midiFileName = '';
         this.midiFileDb = null;
         this.midiFileDbReady = null;
+        this.patchCacheDb = null;
+        this.patchCacheDbReady = null;
         this.midiDuration = 0;
         this.midiPosition = 0;
         this.midiTick = 0;
@@ -264,17 +268,7 @@ class GusPatchApp {
         return `${PATCH_CACHE_PREFIX}${encodeURIComponent(projectId)}:${type}:${program}`;
     }
 
-    encodePatchCacheValue(patchData) {
-        const bytes = new Uint8Array(patchData);
-        const chunkSize = 8192;
-        let binary = '';
-        for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-            binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
-        }
-        return binary;
-    }
-
-    decodePatchCacheValue(binary) {
+    decodeLegacyPatchCacheValue(binary) {
         const bytes = new Uint8Array(binary.length);
         for (let index = 0; index < binary.length; index++) {
             bytes[index] = binary.charCodeAt(index);
@@ -282,7 +276,76 @@ class GusPatchApp {
         return bytes;
     }
 
-    getCachedOrBuildMidiPatch(isDrum, program) {
+    async readPatchCacheValue(cacheKey) {
+        const db = await this.openPatchCacheDb();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(PATCH_CACHE_DB_STORE, 'readonly');
+            const request = transaction.objectStore(PATCH_CACHE_DB_STORE).get(cacheKey);
+            let patchData = null;
+            request.onsuccess = () => {
+                if (request.result == null) return;
+                if (!(request.result instanceof ArrayBuffer)) {
+                    reject(new Error('Cached patch data is invalid.'));
+                    return;
+                }
+                patchData = new Uint8Array(request.result);
+            };
+            request.onerror = () => reject(request.error || new Error('Could not read cached patch.'));
+            transaction.oncomplete = () => resolve(patchData);
+            transaction.onerror = () => reject(transaction.error || new Error('Patch cache read failed.'));
+            transaction.onabort = () => reject(transaction.error || new Error('Patch cache read was aborted.'));
+        });
+    }
+
+    async writePatchCacheValue(cacheKey, patchData) {
+        const db = await this.openPatchCacheDb();
+        const bytes = new Uint8Array(patchData).slice();
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(PATCH_CACHE_DB_STORE, 'readwrite');
+            transaction.objectStore(PATCH_CACHE_DB_STORE).put(bytes.buffer, cacheKey);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('Could not write cached patch.'));
+            transaction.onabort = () => reject(transaction.error || new Error('Patch cache write was aborted.'));
+        });
+    }
+
+    async deletePatchCacheValue(cacheKey) {
+        const db = await this.openPatchCacheDb();
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(PATCH_CACHE_DB_STORE, 'readwrite');
+            transaction.objectStore(PATCH_CACHE_DB_STORE).delete(cacheKey);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('Could not remove cached patch.'));
+            transaction.onabort = () => reject(transaction.error || new Error('Patch cache removal was aborted.'));
+        });
+    }
+
+    async migrateLegacyPatchCacheValue(cacheKey) {
+        let legacyValue;
+        try {
+            legacyValue = localStorage.getItem(cacheKey);
+        } catch (error) {
+            this.reportPatchCacheError('legacy cache read', error);
+            return null;
+        }
+        if (legacyValue === null) return null;
+
+        const patchData = this.decodeLegacyPatchCacheValue(legacyValue);
+        try {
+            await this.writePatchCacheValue(cacheKey, patchData);
+        } catch (error) {
+            this.reportPatchCacheError('legacy cache migration', error);
+            return patchData;
+        }
+        try {
+            localStorage.removeItem(cacheKey);
+        } catch (error) {
+            this.reportPatchCacheError('legacy cache removal', error);
+        }
+        return patchData;
+    }
+
+    async getCachedOrBuildMidiPatch(isDrum, program) {
         const type = isDrum ? 'drum' : 'melodic';
         const cacheKey = this.getPatchCacheKey(this.currentProjectId, type, program);
         const generatedKey = cacheKey || `${type}:${program}`;
@@ -290,19 +353,26 @@ class GusPatchApp {
         if (generatedPatch) return generatedPatch;
         if (!this.patchCacheEnabled || !cacheKey) return this.buildMidiPatch(isDrum, program);
 
+        let cachedPatch;
         try {
-            const cachedPatch = localStorage.getItem(cacheKey);
-            if (cachedPatch !== null) return this.decodePatchCacheValue(cachedPatch);
+            cachedPatch = await this.readPatchCacheValue(cacheKey);
         } catch (error) {
             this.reportPatchCacheError('read', error);
             return this.buildMidiPatch(isDrum, program);
         }
+        if (!this.patchCacheEnabled) return this.buildMidiPatch(isDrum, program);
+        if (cachedPatch) return cachedPatch;
+
+        const legacyPatch = await this.migrateLegacyPatchCacheValue(cacheKey);
+        if (legacyPatch) return legacyPatch;
 
         const patchData = this.buildMidiPatch(isDrum, program);
-        try {
-            localStorage.setItem(cacheKey, this.encodePatchCacheValue(patchData));
-        } catch (error) {
-            this.reportPatchCacheError('write', error);
+        if (this.patchCacheEnabled) {
+            try {
+                await this.writePatchCacheValue(cacheKey, patchData);
+            } catch (error) {
+                this.reportPatchCacheError('write', error);
+            }
         }
         return patchData;
     }
@@ -315,35 +385,43 @@ class GusPatchApp {
         this.pendingPatchCacheWrites.set(cacheKey, {generatedKey, patchData});
         if (this.patchCacheWriteTimer !== null) return;
 
-        const flush = () => {
+        const flush = async () => {
             this.patchCacheWriteTimer = null;
             const midiIsPlaying = this.timidityPlayer?.isPlaying && !this.timidityPlayer.isPaused;
             const controllerHasNotes = this.midiMode === 'controller'
                 && this.midiControllerActiveNotes.size > 0;
             if (midiIsPlaying || controllerHasNotes) {
-                this.patchCacheWriteTimer = setTimeout(flush, 250);
+                this.patchCacheWriteTimer = setTimeout(() => {
+                    flush().catch(error => this.reportPatchCacheError('write', error));
+                }, 250);
                 return;
             }
-            if (this.patchCacheEnabled) {
-                for (const [key, pending] of this.pendingPatchCacheWrites) {
-                    try {
-                        localStorage.setItem(key, this.encodePatchCacheValue(pending.patchData));
-                    } catch (error) {
-                        this.reportPatchCacheError('write', error);
-                    }
+
+            for (const [key, pending] of [...this.pendingPatchCacheWrites]) {
+                if (this.pendingPatchCacheWrites.get(key) !== pending) continue;
+                if (!this.patchCacheEnabled) {
+                    this.pendingPatchCacheWrites.delete(key);
                     this.prebuiltMidiPatchBuffers.delete(pending.generatedKey);
+                    continue;
                 }
-            } else {
-                for (const {generatedKey} of this.pendingPatchCacheWrites.values()) {
-                    this.prebuiltMidiPatchBuffers.delete(generatedKey);
+                try {
+                    await this.writePatchCacheValue(key, pending.patchData);
+                } catch (error) {
+                    this.reportPatchCacheError('write', error);
+                } finally {
+                    if (this.pendingPatchCacheWrites.get(key) === pending) {
+                        this.pendingPatchCacheWrites.delete(key);
+                        this.prebuiltMidiPatchBuffers.delete(pending.generatedKey);
+                    }
                 }
             }
-            this.pendingPatchCacheWrites.clear();
         };
-        this.patchCacheWriteTimer = setTimeout(flush, 0);
+        this.patchCacheWriteTimer = setTimeout(() => {
+            flush().catch(error => this.reportPatchCacheError('write', error));
+        }, 0);
     }
 
-    removePatchCacheEntry(projectId, type, program) {
+    async removePatchCacheEntry(projectId, type, program) {
         const cacheKey = this.getPatchCacheKey(projectId, type, program);
         const generatedKey = cacheKey || `${type}:${program}`;
         this.prebuiltMidiPatchBuffers.delete(generatedKey);
@@ -354,9 +432,24 @@ class GusPatchApp {
         } catch (error) {
             this.reportPatchCacheError('entry removal', error);
         }
+        try {
+            await this.deletePatchCacheValue(cacheKey);
+        } catch (error) {
+            this.reportPatchCacheError('entry removal', error);
+        }
     }
 
-    clearPatchCacheForProject(projectId) {
+    removeLegacyPatchCacheEntries(prefix) {
+        const cacheKeys = [];
+        for (let index = 0; index < localStorage.length; index++) {
+            const key = localStorage.key(index);
+            if (key && key.startsWith(prefix)) cacheKeys.push(key);
+        }
+        for (const key of cacheKeys) localStorage.removeItem(key);
+        return cacheKeys.length;
+    }
+
+    async clearPatchCacheForProject(projectId) {
         if (typeof projectId !== 'string' || !projectId) return;
         const projectPrefix = `${PATCH_CACHE_PREFIX}${encodeURIComponent(projectId)}:`;
         for (const key of this.prebuiltMidiPatchBuffers.keys()) {
@@ -366,31 +459,70 @@ class GusPatchApp {
             if (key.startsWith(projectPrefix)) this.pendingPatchCacheWrites.delete(key);
         }
         try {
-            const cacheKeys = [];
-            for (let index = 0; index < localStorage.length; index++) {
-                const key = localStorage.key(index);
-                if (key && key.startsWith(projectPrefix)) cacheKeys.push(key);
-            }
-            for (const key of cacheKeys) localStorage.removeItem(key);
+            this.removeLegacyPatchCacheEntries(projectPrefix);
+        } catch (error) {
+            this.reportPatchCacheError('legacy project clear', error);
+        }
+        try {
+            const db = await this.openPatchCacheDb();
+            await new Promise((resolve, reject) => {
+                const transaction = db.transaction(PATCH_CACHE_DB_STORE, 'readwrite');
+                const store = transaction.objectStore(PATCH_CACHE_DB_STORE);
+                const request = store.getAllKeys();
+                request.onsuccess = () => {
+                    for (const key of request.result) {
+                        if (typeof key === 'string' && key.startsWith(projectPrefix)) {
+                            store.delete(key);
+                        }
+                    }
+                };
+                request.onerror = () => reject(request.error || new Error('Could not list cached patches.'));
+                transaction.oncomplete = () => resolve();
+                transaction.onerror = () => reject(transaction.error || new Error('Project patch cache clear failed.'));
+                transaction.onabort = () => reject(transaction.error || new Error('Project patch cache clear was aborted.'));
+            });
         } catch (error) {
             this.reportPatchCacheError('project clear', error);
         }
     }
 
-    clearAllPatchCache() {
+    async clearAllPatchCache() {
         this.prebuiltMidiPatchBuffers.clear();
         this.pendingPatchCacheWrites.clear();
+        if (this.patchCacheWriteTimer !== null) {
+            clearTimeout(this.patchCacheWriteTimer);
+            this.patchCacheWriteTimer = null;
+        }
+
+        let patchCount = null;
+        let legacyCount = null;
         try {
-            const cacheKeys = [];
-            for (let index = 0; index < localStorage.length; index++) {
-                const key = localStorage.key(index);
-                if (key && key.startsWith(PATCH_CACHE_PREFIX)) cacheKeys.push(key);
-            }
-            for (const key of cacheKeys) localStorage.removeItem(key);
-            this.log(`Cleared ${cacheKeys.length} cached patch${cacheKeys.length === 1 ? '' : 'es'} across all projects.`, 'ok');
+            const db = await this.openPatchCacheDb();
+            patchCount = await new Promise((resolve, reject) => {
+                const transaction = db.transaction(PATCH_CACHE_DB_STORE, 'readwrite');
+                const store = transaction.objectStore(PATCH_CACHE_DB_STORE);
+                let count = 0;
+                const countRequest = store.count();
+                countRequest.onsuccess = () => { count = countRequest.result; };
+                countRequest.onerror = () => reject(countRequest.error || new Error('Could not count cached patches.'));
+                store.clear();
+                transaction.oncomplete = () => resolve(count);
+                transaction.onerror = () => reject(transaction.error || new Error('Patch cache clear failed.'));
+                transaction.onabort = () => reject(transaction.error || new Error('Patch cache clear was aborted.'));
+            });
         } catch (error) {
             this.reportPatchCacheError('clear', error);
         }
+        try {
+            legacyCount = this.removeLegacyPatchCacheEntries(PATCH_CACHE_PREFIX);
+        } catch (error) {
+            this.reportPatchCacheError('legacy clear', error);
+        }
+        if (patchCount === null || legacyCount === null) {
+            this.log('Patch cache clear was incomplete; see the error log.', 'err');
+            return;
+        }
+        this.log(`Cleared ${patchCount + legacyCount} cached patches across all projects.`, 'ok');
     }
 
     // ---- Inisialisasi ----
@@ -1764,7 +1896,7 @@ class GusPatchApp {
                 return false;
             }
 
-            this.removePatchCacheEntry(projectId, type, midi);
+            await this.removePatchCacheEntry(projectId, type, midi);
             this.generatorState.presets[key] = parsedPreset;
             this.generatorState.instruments[key] = generatorState;
             this.refreshGeneratorDuration(type, midi);
@@ -2178,7 +2310,7 @@ class GusPatchApp {
                 return;
             }
 
-            this.removePatchCacheEntry(this.currentProjectId, type, midi);
+            await this.removePatchCacheEntry(this.currentProjectId, type, midi);
             delete this.generatorState.presets[key];
             this.refreshGeneratorDuration(type, midi);
             this.persistGeneratorState();
@@ -2256,9 +2388,9 @@ class GusPatchApp {
                 const activePreset = imported.get(currentKey);
                 if (activePreset) this.buildMidiPatch(isDrum, Number(this.currentMidi), activePreset);
 
-                for (const key of imported.keys()) {
-                    this.removePatchCacheEntry(this.currentProjectId, type, Number(key.slice(key.indexOf(':') + 1)));
-                }
+                await Promise.all([...imported.keys()].map(key =>
+                    this.removePatchCacheEntry(this.currentProjectId, type, Number(key.slice(key.indexOf(':') + 1)))
+                ));
                 this.generatorState.presets = {
                     ...this.generatorState.presets,
                     ...Object.fromEntries(imported),
@@ -2326,9 +2458,9 @@ class GusPatchApp {
                 this.generatorState.instruments[key] = state;
             }
             this.saveCurrentGeneratorState();
-            this.removePatchCacheEntry(this.currentProjectId, this.currentType, this.currentMidi);
             this.drawPreview();
-            this.scheduleMidiInstrumentReload();
+            this.removePatchCacheEntry(this.currentProjectId, this.currentType, this.currentMidi)
+                .then(() => this.scheduleMidiInstrumentReload());
         }
 
         scheduleMidiInstrumentReload() {
@@ -2415,10 +2547,10 @@ class GusPatchApp {
             }
         }
 
-        resetGeneratorState() {
+        async resetGeneratorState() {
             if (this.midiPatchReloadTimer) clearTimeout(this.midiPatchReloadTimer);
             this.midiPatchReloadTimer = null;
-            this.clearPatchCacheForProject(this.currentProjectId);
+            const cacheClear = this.clearPatchCacheForProject(this.currentProjectId);
             const type = this.currentType || 'melodic';
             const midi = this.currentMidi == null ? 0 : this.currentMidi;
             this.generatorState = {selected: null, instruments: {}, presets: {}};
@@ -2427,7 +2559,8 @@ class GusPatchApp {
             this.currentMidi = null;
             this.selectInstrument(type, midi);
             this.persistGeneratorState();
-            this.reloadAllLoadedMidiPatches();
+            await cacheClear;
+            await this.reloadAllLoadedMidiPatches();
             this.log('Saved generator state reset to defaults.', 'ok');
         }
 
@@ -3699,7 +3832,7 @@ class GusPatchApp {
         if (!window.indexedDB) throw new Error('IndexedDB is not available in this browser.');
 
         this.midiFileDbReady = new Promise((resolve, reject) => {
-            const request = indexedDB.open(MIDI_FILE_DB_NAME, 1);
+            const request = indexedDB.open(MIDI_FILE_DB_NAME);
             request.onupgradeneeded = () => {
                 if (!request.result.objectStoreNames.contains(MIDI_FILE_DB_STORE)) {
                     request.result.createObjectStore(MIDI_FILE_DB_STORE);
@@ -3715,6 +3848,35 @@ class GusPatchApp {
             };
         });
         return this.midiFileDbReady;
+    }
+
+    async openPatchCacheDb() {
+        if (this.patchCacheDb) return this.patchCacheDb;
+        if (this.patchCacheDbReady) return this.patchCacheDbReady;
+        if (!window.indexedDB) throw new Error('IndexedDB is not available in this browser.');
+
+        this.patchCacheDbReady = new Promise((resolve, reject) => {
+            const request = indexedDB.open(PATCH_CACHE_DB_NAME, 1);
+            request.onupgradeneeded = () => {
+                if (!request.result.objectStoreNames.contains(PATCH_CACHE_DB_STORE)) {
+                    request.result.createObjectStore(PATCH_CACHE_DB_STORE);
+                }
+            };
+            request.onsuccess = () => {
+                this.patchCacheDb = request.result;
+                this.patchCacheDb.onversionchange = () => {
+                    this.patchCacheDb.close();
+                    this.patchCacheDb = null;
+                    this.patchCacheDbReady = null;
+                };
+                resolve(this.patchCacheDb);
+            };
+            request.onerror = () => {
+                this.patchCacheDbReady = null;
+                reject(request.error || new Error('Could not open patch cache storage.'));
+            };
+        });
+        return this.patchCacheDbReady;
     }
 
     async saveLastMidiFile(file) {
