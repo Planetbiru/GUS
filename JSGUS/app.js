@@ -946,6 +946,7 @@ class GusPatchApp {
         this.$('btnGraphicEqualizer').onclick = () => this.openGraphicEqualizer();
         this.$('btnCloseGraphicEqualizer').onclick = () => this.$('graphicEqualizerDialog').close();
         this.$('btnCancelGraphicEqualizer').onclick = () => this.$('graphicEqualizerDialog').close();
+        this.$('btnTestGraphicEqualizer').onclick = () => this.testGraphicEqualizer();
         this.$('btnResetGraphicEqualizer').onclick = () => this.requestResetGraphicEqualizer();
         this.$('btnCloseResetGraphicEqualizer').onclick = () => this.$('resetGraphicEqualizerDialog').close();
         this.$('btnCancelResetGraphicEqualizer').onclick = () => this.$('resetGraphicEqualizerDialog').close();
@@ -1849,6 +1850,58 @@ class GusPatchApp {
                 input.closest('.graphic-equalizer-band').querySelector('output').value = '0 dB';
             });
             this.syncGraphicEqualizerDraft();
+        }
+
+        testGraphicEqualizer() {
+            if (!this.graphicEqualizerDraft) return;
+
+            try {
+                const type = this.currentType;
+                const midi = Number(this.currentMidi);
+                const isDrum = type === 'drum';
+                const state = this.getInstrumentGeneratorState(type, midi);
+                let previewZoneIndex = null;
+                let previewRootNote = null;
+
+                if (!isDrum) {
+                    const ranges = ProjectPatchGenerator.getPitchRanges(false, midi);
+                    previewZoneIndex = ranges.findIndex(
+                        range => range.pitchFrom <= 60 && range.pitchTo >= 60
+                    );
+                    if (previewZoneIndex < 0) {
+                        throw new Error('No melodic sample zone contains MIDI note 60.');
+                    }
+                    const range = ranges[previewZoneIndex];
+                    previewRootNote = Math.round((range.pitchFrom + range.pitchTo) / 2);
+                }
+
+                const patchData = this.buildMidiPatchData(
+                    isDrum,
+                    midi,
+                    this.graphicEqualizerDraft,
+                    previewZoneIndex,
+                    state
+                );
+                const preview = patchData.preview;
+                if (!preview) throw new Error('The test sample could not be generated.');
+
+                const naturalFrequency = preview.naturalFreq || state.root;
+                const rate = isDrum
+                    ? 1
+                    : ProjectPatchGenerator.midiPitchToFrequency(60) / naturalFrequency;
+                if (!Number.isFinite(rate) || rate <= 0) {
+                    throw new Error('The test sample has an invalid playback frequency.');
+                }
+
+                this.audio.play(preview.pcm, preview.SR, rate);
+                const label = isDrum
+                    ? `drum note ${midi}`
+                    : `${this.lib.melodic[midi].name}, MIDI note 60 (zone root ${previewRootNote})`;
+                this.log(`Graphic equalizer test: ${label}.`);
+            } catch (error) {
+                this.setPresetEditorStatus(`Graphic equalizer test failed: ${error.message}`, true);
+                this.log(`Graphic equalizer test failed: ${error.message}`, 'err');
+            }
         }
 
         async applyPresetJson() {
