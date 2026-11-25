@@ -1116,10 +1116,22 @@ class MelodicRenderer {
             const targetFreq = o.freq || p.freq || 441;
             cs = p.cycleSamples || Math.max(2, Math.round(SR / targetFreq));
             naturalFreq = SR / cs;
-            const cycles = p.cycles || 12;
+            const hasExplicitLoopTiming = p.loopStartSeconds != null || p.loopEndSeconds != null;
+            if (hasExplicitLoopTiming
+                && (!Number.isFinite(p.loopStartSeconds) || p.loopStartSeconds < 0
+                    || !Number.isFinite(p.loopEndSeconds)
+                    || p.loopEndSeconds <= p.loopStartSeconds)) {
+                throw new Error('Loop start and end times must be valid, increasing seconds values.');
+            }
+            const loopStartCycles = hasExplicitLoopTiming
+                ? Math.round(p.loopStartSeconds * naturalFreq)
+                : (p.loopSkip || 3);
+            const cycles = hasExplicitLoopTiming
+                ? Math.max(loopStartCycles + 1, Math.round(p.loopEndSeconds * naturalFreq))
+                : (p.cycles || 12);
             const releaseSeconds = Number.isFinite(env.r) && env.r > 0 ? env.r : 0.3;
             const tailCycles = p.tailCycles || Math.max(4, Math.ceil(targetFreq * releaseSeconds));
-            loopStart = (p.loopSkip || 3) * cs;
+            loopStart = loopStartCycles * cs;
             loopEnd = cs * cycles;
             // Loop sample size is defined by cycles/tailCycles; p.length only applies to one-shots.
             length = loopEnd + cs * tailCycles;
@@ -1169,8 +1181,8 @@ class MelodicRenderer {
         const noiseBuf    = (isLoop && noiseAmt > 0 && !p.noiseOnly) ? this._buildLoopNoise(cs) : null;
         const lowNoiseAmt = isLoop && p.noiseOnly ? (p.lowNoise || 0) : 0;
         const lowNoiseBuf = lowNoiseAmt > 0 ? this._buildLoopNoise(cs, 'brown') : null;
-        const fadeSamples = isLoop ? cs : 0;
-        const loopAttackSamples = isLoop && p.loopAttack
+        const fadeSamples = isLoop && p.loopFadeIn !== false ? cs : 0;
+        const loopAttackSamples = isLoop && p.loopFadeIn !== false && p.loopAttack
             ? Math.min(loopStart, Math.max(1, Math.round(SR * p.loopAttack)))
             : 0;
 

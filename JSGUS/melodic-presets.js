@@ -2209,7 +2209,7 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Overdriven Gtr",
       "shortName": "Overdriven Gtr",
-      "description": "Driven guitar with a sustained loop.",
+      "description": "Warm overdriven guitar with a quick picked attack.",
       "preset": {
         "graphicEqualizer": [
           0,
@@ -2219,22 +2219,22 @@ var GUS_MELODIC_PRESETS = {
           0,
           0,
           0,
-          2.8,
-          7.4,
-          8.86
+          0,
+          0,
+          0
         ],
         "mute": false,
-        "defaultWaveform": "saw",
-        "gain": 0.97,
+        "gain": 0.52,
         "freq": 441,
         "length": 44100,
         "loop": true,
-        "cycles": 32,
-        "loopSkip": 8,
-        "loopAttack": 0.006,
+        "loopFadeIn": false,
+        "loopStartSeconds": 0.74,
+        "loopEndSeconds": 0.77,
+        "tailCycles": 4,
         "loopAttackNoise": {
-          "amp": 0.06,
-          "duration": 0.014
+          "amp": 0.09,
+          "duration": 0.012
         },
         "env": {
           "a": 0.004,
@@ -2244,71 +2244,65 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.72,
-          0.55,
-          0.42,
-          0.33,
-          0.26,
-          0.2,
-          0.155,
-          0.12,
-          0.095,
-          0.075,
+          0.21,
+          0.38,
+          0.08,
+          0.19,
           0.06,
-          0.048,
-          0.038,
-          0.031,
-          0.025,
+          0.07,
+          0.04,
+          0.095,
+          0.03,
+          0.06,
+          0.04,
           0.02,
-          0.017,
-          0.014,
-          0.012,
+          0.016,
+          0.022,
+          0.009,
+          0.006,
+          0.018,
           0.01,
-          0.0085,
-          0.0075,
-          0.0065,
-          0.0055
+          0.008,
+          0.006,
+          0.004,
+          0.003,
+          0.002
         ],
-        "noise": 0.008,
-        "vibrato": {
-          "rate": 5,
-          "depth": 0.0035,
-          "sweep": 14
-        },
+        "noise": 0.002,
         "guitarAmp": {
-          "drive": 1.15,
-          "bias": 0.008,
-          "mix": 0.42,
+          "drive": 1.05,
+          "bias": 0,
+          "mix": 0.12,
           "clip": 0,
-          "preampCutoff": 70,
-          "cabinetCutoff": 7200
+          "preampCutoff": 35,
+          "cabinetCutoff": 6200
         },
         "formants": [
           {
             "freq": 500,
             "q": 1.5,
-            "gain": -1
+            "gain": -0.5
           },
           {
             "freq": 1100,
             "q": 1.3,
-            "gain": 1
+            "gain": 0.5
           },
           {
             "freq": 2000,
             "q": 1.4,
-            "gain": 1
+            "gain": 0.5
           },
           {
             "freq": 3800,
-            "q": 0.65,
-            "gain": 8
+            "q": 0.8,
+            "gain": 2
           }
         ],
         "brightness": {
-          "loopCutoff": 8500
+          "loopCutoff": 7000
         },
-        "highpass": 220,
+        "highpass": 120,
         "antiAlias": true
       }
     },
@@ -2317,31 +2311,32 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Distortion Gtr",
       "shortName": "Distortion Gtr",
-      "description": "Driven guitar with a sustained loop.",
+      "description": "Aggressive distorted guitar with a firm pick attack.",
       "preset": {
         "graphicEqualizer": [
-          -3,
-          -2.4,
-          -2.4,
-          7.57,
-          7.75,
-          8.31,
-          5.17,
-          9.6,
-          7.5,
-          9.5
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "mute": false,
-        "defaultWaveform": "saw",
+        "defaultWaveform": null,
         "gain": 0.97,
         "freq": 441,
         "length": 44100,
         "loop": true,
-        "cycles": 32,
-        "loopSkip": 8,
-        "loopAttack": 0.006,
+        "loopFadeIn": false,
+        "loopStartSeconds": 0.4,
+        "loopEndSeconds": 0.82,
+        "tailCycles": 4,
         "loopAttackNoise": {
-          "amp": 0.08,
+          "amp": 0.11,
           "duration": 0.014
         },
         "env": {
@@ -2352,73 +2347,65 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.68,
-          0.52,
-          0.4,
-          0.31,
+          0.35,
           0.24,
-          0.185,
-          0.145,
-          0.112,
-          0.088,
+          0.1,
+          0.1,
+          0.08,
           0.07,
-          0.055,
-          0.044,
-          0.035,
-          0.028,
-          0.023,
-          0.019,
-          0.015,
+          0.047,
+          0.046,
+          0.024,
+          0.016,
+          0.027,
           0.013,
-          0.011,
           0.009,
-          0.008,
-          0.007,
           0.006,
-          0.005
+          0.011,
+          0.005,
+          0.006,
+          0.004,
+          0.003,
+          0.002,
+          0.0015,
+          0.001,
+          0.001
         ],
-        "noise": 0.006,
-        "vibrato": {
-          "rate": 5.2,
-          "depth": 0.003,
-          "sweep": 12
-        },
+        "noise": 0.004,
         "guitarAmp": {
-          "drive": 1.65,
+          "drive": 1.4,
           "bias": 0.005,
-          "mix": 0.7,
-          "clip": 0,
-          "preampCutoff": 70,
-          "cabinetCutoff": 9000
+          "mix": 0.4,
+          "clip": 0.12,
+          "preampCutoff": 45,
+          "cabinetCutoff": 8500
         },
         "formants": [
           {
             "freq": 500,
             "q": 1.5,
-            "gain": -1.5
+            "gain": -1
           },
           {
             "freq": 1200,
             "q": 1.3,
-            "gain": 1
+            "gain": 0.5
           },
           {
             "freq": 2200,
             "q": 1.4,
-            "gain": 1.5
+            "gain": 1
           },
           {
             "freq": 3800,
             "q": 0.8,
-            "gain": 6
+            "gain": 3.5
           }
         ],
         "brightness": {
-          "start": 6000,
-          "end": 3500,
-          "loopCutoff": 10500
+          "loopCutoff": 9000
         },
-        "highpass": 220,
+        "highpass": 130,
         "antiAlias": true
       }
     },
