@@ -23,12 +23,12 @@ var GUS_MELODIC_PRESETS = {
           0,
           0.7,
           1.3,
-          1.7,
-          1
+          2,
+          1.2
         ],
         "mute": false,
-        "defaultWaveform": null,
-        "gain": 0.65,
+        "defaultWaveform": "pluck",
+        "gain": 0.84,
         "freq": 415.26,
         "length": 37044,
         "loop": false,
@@ -171,12 +171,12 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Bright Piano",
       "shortName": "Bright Piano",
-      "description": "Struck-key tone with a resonant decay.",
+      "description": "Bright piano with a crisp attack and clear decay.",
       "preset": {
         "graphicEqualizer": [
-          -0.55,
-          -1.11,
-          -1.29,
+          0,
+          0,
+          0,
           0,
           0,
           0,
@@ -186,10 +186,10 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "mute": false,
-        "defaultWaveform": "hammer",
+        "defaultWaveform": null,
         "gain": 0.65,
-        "freq": 441,
-        "length": 44100,
+        "freq": 415.26,
+        "length": 37220,
         "loop": false,
         "cycles": 36,
         "sustainLoop": true,
@@ -208,17 +208,17 @@ var GUS_MELODIC_PRESETS = {
         },
         "patchEnvelope": {
           "rates": [
-            12,
-            132,
-            0,
-            137,
-            0,
-            0
+            63,
+            63,
+            63,
+            213,
+            63,
+            63
           ],
           "offsets": [
-            255,
-            135,
-            135,
+            246,
+            246,
+            246,
             0,
             0,
             0
@@ -226,29 +226,42 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.85,
-          0.7,
-          0.55,
-          0.42,
-          0.3,
-          0.2,
-          0.13,
-          0.08,
-          0.05
+          0.36,
+          0.21,
+          0.057,
+          0.11,
+          0.075,
+          0.057,
+          0.002,
+          0.001,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.001,
+          0.0005,
+          0.005,
+          0.013,
+          0.018
         ],
         "partialDecay": [
-          4.5,
-          3,
-          2,
           1.4,
-          1,
-          0.75,
-          0.55,
-          0.4,
-          0.3,
-          0.22
+          0.21,
+          0.2,
+          0.23,
+          0.16,
+          0.16,
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.11,
+          0.22,
+          0.22,
+          0.11
         ],
-        "inharmonicity": 0.00035,
         "attackNoise": {
           "amp": 0.15,
           "duration": 0.015
@@ -258,22 +271,17 @@ var GUS_MELODIC_PRESETS = {
           "time": 0.012
         },
         "brightness": {
-          "start": 8000,
-          "end": 2000
+          "start": 16000,
+          "end": 8500
         },
         "formants": [
-          {
-            "freq": 180,
-            "q": 0.7,
-            "gain": -1.5
-          },
           {
             "freq": 4500,
             "q": 0.7,
             "gain": 0.5
           }
         ],
-        "highpass": 140,
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -282,12 +290,12 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "Electric Grand",
       "shortName": "Elec. Grand",
-      "description": "Struck-key tone with a resonant decay.",
+      "description": "Full rock piano with a bold, resonant strike.",
       "preset": {
         "graphicEqualizer": [
-          -0.55,
-          -1.11,
-          -1.29,
+          0,
+          0,
+          0,
           0,
           0,
           0,
@@ -297,10 +305,10 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "mute": false,
-        "defaultWaveform": "bell",
+        "defaultWaveform": null,
         "gain": 0.65,
-        "freq": 441,
-        "length": 55125,
+        "freq": 349.19,
+        "length": 30319,
         "loop": false,
         "cycles": 36,
         "sustainLoop": true,
@@ -319,17 +327,17 @@ var GUS_MELODIC_PRESETS = {
         },
         "patchEnvelope": {
           "rates": [
-            12,
-            132,
-            0,
-            137,
-            0,
-            0
+            63,
+            63,
+            63,
+            141,
+            63,
+            63
           ],
           "offsets": [
-            255,
-            135,
-            135,
+            246,
+            246,
+            246,
             0,
             0,
             0
@@ -337,27 +345,32 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.2,
-          0.08,
-          0.03
+          0.21,
+          0.085,
+          0.113,
+          0.097,
+          0.065,
+          0.089,
+          0.012,
+          0.001,
+          0.001,
+          0.045,
+          0.001,
+          0.051,
+          0.001,
+          0.003,
+          0.013,
+          0.05,
+          0.006
         ],
-        "fm": {
-          "ratio": 3,
-          "index": 1.8
-        },
         "formants": [
-          {
-            "freq": 180,
-            "q": 0.7,
-            "gain": -1.5
-          },
           {
             "freq": 4500,
             "q": 0.7,
             "gain": 0.5
           }
         ],
-        "highpass": 140,
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -376,8 +389,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0,
           0,
-          0,
-          0,
+          1.5,
+          0.5,
           0
         ],
         "mute": false,
@@ -480,12 +493,12 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "E.Piano 1",
       "shortName": "E.Piano 1",
-      "description": "Struck-key tone with a resonant decay.",
+      "description": "Warm electric piano with a clear bell-like tone.",
       "preset": {
         "graphicEqualizer": [
-          -0.55,
-          -1.11,
-          -1.29,
+          0,
+          0,
+          0,
           0,
           0,
           0,
@@ -495,14 +508,14 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "mute": false,
-        "defaultWaveform": "bell",
+        "defaultWaveform": null,
         "gain": 0.65,
-        "freq": 441,
+        "freq": 415.26,
         "length": 55125,
-        "loop": false,
-        "cycles": 36,
+        "loop": true,
+        "loopStartSeconds": 1,
+        "loopEndSeconds": 1.3,
         "sustainLoop": true,
-        "loopSkip": 16,
         "tailCycles": 180,
         "loopAttack": 0.01,
         "loopAttackNoise": {
@@ -517,17 +530,17 @@ var GUS_MELODIC_PRESETS = {
         },
         "patchEnvelope": {
           "rates": [
-            12,
-            132,
-            0,
-            137,
-            0,
-            0
+            63,
+            199,
+            63,
+            141,
+            63,
+            63
           ],
           "offsets": [
-            255,
-            135,
-            135,
+            246,
+            10,
+            10,
             0,
             0,
             0
@@ -535,27 +548,30 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.2,
-          0.08,
-          0.03
+          0.58,
+          0.145,
+          0.038,
+          0.01,
+          0.002,
+          0.0025,
+          0.004,
+          0.0015,
+          0.001,
+          0.0005,
+          0.0005,
+          0.028,
+          0.0005,
+          0.027,
+          0.0005
         ],
-        "fm": {
-          "ratio": 3,
-          "index": 1.6
-        },
         "formants": [
-          {
-            "freq": 180,
-            "q": 0.7,
-            "gain": -1.5
-          },
           {
             "freq": 4500,
             "q": 0.7,
             "gain": 0.5
           }
         ],
-        "highpass": 280,
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -564,12 +580,12 @@ var GUS_MELODIC_PRESETS = {
       "family": "Piano",
       "name": "E.Piano 2",
       "shortName": "E.Piano 2",
-      "description": "Struck-key tone with a resonant decay.",
+      "description": "Crystal piano with a clear, chiming sustain.",
       "preset": {
         "graphicEqualizer": [
-          -0.55,
-          -1.11,
-          -1.29,
+          0,
+          0,
+          0,
           0,
           0,
           0,
@@ -579,14 +595,14 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "mute": false,
-        "defaultWaveform": "bell",
+        "defaultWaveform": null,
         "gain": 0.65,
-        "freq": 441,
+        "freq": 261.6,
         "length": 55125,
-        "loop": false,
-        "cycles": 36,
+        "loop": true,
+        "loopStartSeconds": 1.66,
+        "loopEndSeconds": 2.4,
         "sustainLoop": true,
-        "loopSkip": 16,
         "tailCycles": 180,
         "loopAttack": 0.01,
         "loopAttackNoise": {
@@ -601,17 +617,17 @@ var GUS_MELODIC_PRESETS = {
         },
         "patchEnvelope": {
           "rates": [
-            12,
-            132,
-            0,
-            137,
-            0,
-            0
+            63,
+            203,
+            63,
+            141,
+            63,
+            63
           ],
           "offsets": [
-            255,
-            135,
-            135,
+            246,
+            10,
+            10,
             0,
             0,
             0
@@ -619,27 +635,30 @@ var GUS_MELODIC_PRESETS = {
         },
         "harm": [
           1,
-          0.2,
-          0.08,
-          0.03
+          0.101,
+          0.096,
+          0.428,
+          0.171,
+          0.059,
+          0.009,
+          0.006,
+          0.002,
+          0.001,
+          0.03,
+          0.001,
+          0.273,
+          0.001,
+          0.255,
+          0.001
         ],
-        "fm": {
-          "ratio": 2,
-          "index": 2.25
-        },
         "formants": [
-          {
-            "freq": 180,
-            "q": 0.7,
-            "gain": -1.5
-          },
           {
             "freq": 4500,
             "q": 0.7,
             "gain": 0.5
           }
         ],
-        "highpass": 280,
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -3589,16 +3608,16 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "graphicEqualizer": [
+          -0.3,
+          -0.9,
+          -1.4,
+          -1.2,
           0,
-          -0.55,
-          -0.92,
-          -0.92,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          0.5,
+          1.5,
+          3,
+          4,
+          2
         ],
         "mute": false,
         "defaultWaveform": null,
@@ -3659,12 +3678,12 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 3000,
             "q": 2.2,
-            "gain": -1
+            "gain": 0
           },
           {
             "freq": 5000,
             "q": 2.5,
-            "gain": -2
+            "gain": 0
           }
         ],
         "highpass": 120,
@@ -3679,16 +3698,16 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "graphicEqualizer": [
+          -0.3,
+          -0.9,
+          -1.4,
+          -1.2,
           0,
-          -0.55,
-          -0.92,
-          -0.92,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          0.5,
+          1.5,
+          3,
+          4,
+          2
         ],
         "mute": false,
         "defaultWaveform": null,
@@ -3749,12 +3768,12 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 2500,
             "q": 2.2,
-            "gain": -1
+            "gain": 0
           },
           {
             "freq": 4000,
             "q": 2.5,
-            "gain": -2
+            "gain": 0
           }
         ],
         "highpass": 120,
@@ -3777,8 +3796,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0,
           0,
-          0,
-          0
+          1.5,
+          0.5
         ],
         "mute": false,
         "defaultWaveform": "saw",
@@ -3867,8 +3886,8 @@ var GUS_MELODIC_PRESETS = {
           0,
           0,
           0,
-          0,
-          0
+          1.5,
+          0.5
         ],
         "mute": false,
         "defaultWaveform": "triangle",
