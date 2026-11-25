@@ -13,6 +13,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Snare Roll",
       "description": "Rapid, evenly spaced snare-wire strokes.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.5,
         "duration": 0.52,
@@ -48,7 +60,6 @@ var GUS_DRUM_PRESETS = {
           0.44
         ],
         "highpass": 600,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000
       }
     },
@@ -58,6 +69,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Snap",
       "description": "Dry, crisp finger snap with a brief resonant tail.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.34,
         "duration": 0.075,
@@ -117,7 +140,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.28
         },
         "highpass": 900,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -127,6 +149,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "High Q",
       "description": "Bright, articulate short percussion hit.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.45,
         "duration": 0.16,
@@ -155,8 +189,7 @@ var GUS_DRUM_PRESETS = {
           "duration": 0.002,
           "amp": 0.18
         },
-        "highpass": 180,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 180
       }
     },
     {
@@ -165,6 +198,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Slap",
       "description": "Dry hand slap with a sharp broadband attack and a woody body",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.34,
         "duration": 0.265,
@@ -240,7 +285,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.2
         },
         "highpass": 70,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8000
       }
     },
@@ -250,6 +294,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Scratch 1",
       "description": "Rough, low turntable scrape with a descending, gritty pitch.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.34,
         "duration": 0.42,
@@ -300,7 +356,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 180,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6200
       }
     },
@@ -310,6 +365,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Scratch 2",
       "description": "Short, brighter turntable scrape",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.3,
         "duration": 0.28,
@@ -364,7 +431,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 220,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7600
       }
     },
@@ -374,6 +440,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Sticks",
       "description": "Dry crossed-stick click with a woody tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.25,
         "duration": 0.18,
@@ -411,7 +489,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.2
         },
         "highpass": 250,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000
       }
     },
@@ -421,6 +498,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Square Click",
       "description": "Short, electronic metronome-like pulse.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.38,
         "duration": 0.1,
@@ -445,7 +534,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.22
         },
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000
       }
     },
@@ -455,6 +543,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Metro. Click",
       "description": "Short metallic tick.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.22,
         "duration": 0.08,
@@ -473,7 +573,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.15
         },
         "highpass": 250,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6000
       }
     },
@@ -483,6 +582,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Metro. Bell",
       "description": "Bright single timing bell.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.22,
         "duration": 0.45,
@@ -498,7 +609,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.48
         },
         "highpass": 500,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -508,6 +618,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Ac. Bass Drum",
       "description": "Deep kick thump with a short beater click.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.35,
         "duration": 0.55,
@@ -561,7 +683,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 30,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4200
       }
     },
@@ -571,6 +692,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Bass Drum 1",
       "description": "Punchy kick with a focused low end.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.35,
         "duration": 0.55,
@@ -624,7 +757,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 30,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4500
       }
     },
@@ -634,6 +766,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Side Stick",
       "description": "Dry rim click with a woody snap.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.45,
         "duration": 0.11,
@@ -671,7 +815,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.25
         },
         "highpass": 350,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -681,6 +824,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Ac. Snare",
       "description": "Crisp snare crack with a broad noise burst.",
       "preset": {
+        "graphicEqualizer": [
+          -1.1,
+          -2,
+          -2.2,
+          0,
+          0,
+          0,
+          2,
+          3.3,
+          4.8,
+          5
+        ],
         "mute": false,
         "gain": 0.88,
         "duration": 0.28,
@@ -719,8 +874,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.65
           }
         },
-        "highpass": 600,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 600
       }
     },
     {
@@ -729,6 +883,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Hand Clap",
       "description": "Layered clap with a sharp, brief transient.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          3.69,
+          4.06,
+          3.32,
+          0,
+          0,
+          5.91,
+          5.91,
+          7
+        ],
         "mute": false,
         "gain": 0.57,
         "duration": 0.3,
@@ -742,7 +908,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 900,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "bursts": [
           0,
           0.011,
@@ -757,6 +922,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Elec. Snare",
       "description": "Bright snare snap with a tight noisy tail.",
       "preset": {
+        "graphicEqualizer": [
+          -1.1,
+          -2,
+          -2.2,
+          0,
+          0,
+          0,
+          2,
+          3.3,
+          4.8,
+          5
+        ],
         "mute": false,
         "gain": 0.88,
         "duration": 0.28,
@@ -795,8 +972,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.7
           }
         },
-        "highpass": 600,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 600
       }
     },
     {
@@ -805,6 +981,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low Floor Tom",
       "description": "Pitched tom strike with a rounded, resonant.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.85,
         "duration": 0.65,
@@ -849,7 +1037,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 55,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 5500,
         "fadeOut": 0.06
       }
@@ -860,8 +1047,20 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Closed Hi-Hat",
       "description": "Dry, short hiss with a crisp cymbal edge.",
       "preset": {
+        "graphicEqualizer": [
+          -0.74,
+          -4.98,
+          -1.85,
+          0,
+          0,
+          0,
+          0,
+          0,
+          4.06,
+          2.03
+        ],
         "mute": false,
-        "gain": 0.17,
+        "gain": 0.28,
         "duration": 0.14,
         "noiseLayers": [
           {
@@ -893,7 +1092,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 4500,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -903,6 +1101,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "High Floor Tom",
       "description": "Pitched tom strike with a rounded, resonant.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.82,
         "duration": 0.6,
@@ -947,7 +1157,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 55,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 5000,
         "fadeOut": 0.05
       }
@@ -958,6 +1167,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Pedal Hi-Hat",
       "description": "Muted metal chick with a short, dry sizzle.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.85,
+          8.5,
+          7
+        ],
         "mute": false,
         "gain": 0.2,
         "duration": 0.13,
@@ -986,7 +1207,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.12
         },
         "highpass": 2800,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -996,6 +1216,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low Tom",
       "description": "Pitched tom strike with a rounded, resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.77,
         "duration": 0.55,
@@ -1040,7 +1272,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 100,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6500,
         "fadeOut": 0.05
       }
@@ -1051,8 +1282,20 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Open Hi-Hat",
       "description": "Bright metallic shimmer with a sustained decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.85,
+          8.5,
+          7
+        ],
         "mute": false,
-        "gain": 0.045,
+        "gain": 0.07,
         "duration": 0.9,
         "fadeOut": 0.18,
         "noiseLayers": [
@@ -1067,7 +1310,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 4600,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -1077,6 +1319,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low-Mid Tom",
       "description": "Pitched tom strike with a rounded, resonant.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.77,
         "duration": 0.55,
@@ -1121,7 +1375,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 90,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6000,
         "fadeOut": 0.05
       }
@@ -1132,6 +1385,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Hi-Mid Tom",
       "description": "Pitched tom strike with a rounded, resonant.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.77,
         "duration": 0.55,
@@ -1176,7 +1441,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 115,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 6500,
         "fadeOut": 0.05
       }
@@ -1187,9 +1451,21 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Crash Cymbal 1",
       "description": "Bright cymbal crash with a broad metallic.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.31,
-        "duration": 2.0,
+        "duration": 2,
         "fadeOut": 1,
         "impact": {
           "amp": 0.45,
@@ -1249,7 +1525,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 2200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -1259,6 +1534,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "High Tom",
       "description": "Pitched tom strike with a rounded, resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.77,
         "duration": 0.55,
@@ -1303,7 +1590,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 145,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7000,
         "fadeOut": 0.05
       }
@@ -1314,6 +1600,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Ride Cymbal 1",
       "description": "Bright ride strike with a clear, ringing.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          8.5,
+          7
+        ],
         "mute": false,
         "gain": 0.19,
         "duration": 1.5,
@@ -1357,7 +1655,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -1367,6 +1664,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Chinese Cymbal",
       "description": "Bright cymbal crash with a broad metallic.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          8.5,
+          7
+        ],
         "mute": false,
         "gain": 0.16,
         "duration": 1.8,
@@ -1408,8 +1717,7 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 3000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 3000
       }
     },
     {
@@ -1418,6 +1726,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Ride Bell",
       "description": "Bright ride strike with a clear, ringing sustain.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.23,
         "duration": 1.1,
@@ -1482,7 +1802,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 1800,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 11000
       }
     },
@@ -1492,6 +1811,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Tambourine",
       "description": "Bright tambourine jingle with a rattling tail.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.18,
         "duration": 0.3,
@@ -1554,7 +1885,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 3400,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500
       }
     },
@@ -1564,6 +1894,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Splash Cymbal",
       "description": "Bright cymbal crash with a broad metallic.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          8.5,
+          7
+        ],
         "mute": false,
         "gain": 0.18,
         "duration": 0.6,
@@ -1605,8 +1947,7 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 3000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 3000
       }
     },
     {
@@ -1615,6 +1956,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Cowbell",
       "description": "Pitched metal strike with a hollow bell-like ring.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.55,
         "duration": 0.5,
@@ -1634,8 +1987,7 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.5
           }
         ],
-        "highpass": 400,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 400
       }
     },
     {
@@ -1644,9 +1996,21 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Crash Cymbal 2",
       "description": "Bright cymbal crash with a broad metallic.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          8.5,
+          7
+        ],
         "mute": false,
         "gain": 0.31,
-        "duration": 2.0,
+        "duration": 2,
         "fadeOut": 0.95,
         "impact": {
           "amp": 0.42,
@@ -1706,7 +2070,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 2200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 12000
       }
     },
@@ -1716,6 +2079,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Vibraslap",
       "description": "Springy slap with a rattling, noisy decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.45,
         "duration": 0.55,
@@ -1737,8 +2112,7 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.3,
           "type": "pink"
         },
-        "highpass": 800,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 800
       }
     },
     {
@@ -1747,6 +2121,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Ride Cymbal 2",
       "description": "Bright ride strike with a clear, ringing.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          8.5,
+          7
+        ],
         "mute": false,
         "gain": 0.28,
         "duration": 1.4,
@@ -1790,7 +2176,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10000
       }
     },
@@ -1800,6 +2185,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Hi Bongo",
       "description": "Skin-drum strike with a crisp, woody tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.42,
         "duration": 0.27,
@@ -1833,8 +2230,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "highpass": 260,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 260
       }
     },
     {
@@ -1843,6 +2239,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low Bongo",
       "description": "Skin-drum strike with a crisp, woody tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.42,
         "duration": 0.27,
@@ -1876,8 +2284,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "highpass": 220,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 220
       }
     },
     {
@@ -1886,6 +2293,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Mute Hi Conga",
       "description": "Short, dry high conga strike with a bright, muted skin tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.32,
         "duration": 0.12,
@@ -1924,8 +2343,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 4600,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "lowpass": 4600
       }
     },
     {
@@ -1934,6 +2352,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Open Hi Conga",
       "description": "Conga strike with a rounded, resonant skin.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.55,
         "duration": 0.42,
@@ -1972,8 +2402,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 2400,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "lowpass": 2400
       }
     },
     {
@@ -1982,6 +2411,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low Conga",
       "description": "Conga strike with a rounded, resonant skin tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.55,
         "duration": 0.42,
@@ -2020,8 +2461,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.8
           }
         },
-        "lowpass": 2000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "lowpass": 2000
       }
     },
     {
@@ -2030,6 +2470,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "High Timbale",
       "description": "Bright, sharp, resonant metal drum.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.45,
         "duration": 0.28,
@@ -2098,7 +2550,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 110,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 4500
       }
     },
@@ -2108,6 +2559,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low Timbale",
       "description": "Bright, resonant metal drum with a full tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.45,
         "duration": 0.35,
@@ -2176,7 +2639,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 90,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 3800
       }
     },
@@ -2186,6 +2648,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "High Agogo",
       "description": "Pitched bell strike with a clear metallic ring.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.5,
         "duration": 0.5,
@@ -2205,8 +2679,7 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.3
           }
         ],
-        "highpass": 500,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 500
       }
     },
     {
@@ -2215,6 +2688,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low Agogo",
       "description": "Pitched bell strike with a clear metallic ring.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.5,
         "duration": 0.5,
@@ -2234,8 +2719,7 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.3
           }
         ],
-        "highpass": 500,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 500
       }
     },
     {
@@ -2244,6 +2728,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Cabasa",
       "description": "Dry shaker rattle with a fine, gritty texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.35,
         "duration": 0.16,
@@ -2256,8 +2752,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.6
           }
         },
-        "highpass": 6000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 6000
       }
     },
     {
@@ -2266,6 +2761,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Maracas",
       "description": "Crisp shaker rattle with a short, bright tail.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.12,
         "duration": 0.13,
@@ -2278,8 +2785,7 @@ var GUS_DRUM_PRESETS = {
             "q": 0.6
           }
         },
-        "highpass": 7000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 7000
       }
     },
     {
@@ -2288,6 +2794,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Short Whistle",
       "description": "Breathy whistle tone with a clear sustained.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.75,
         "duration": 0.25,
@@ -2323,8 +2841,7 @@ var GUS_DRUM_PRESETS = {
             "q": 10
           }
         },
-        "highpass": 3200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 3200
       }
     },
     {
@@ -2333,6 +2850,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Long Whistle",
       "description": "Breathy whistle tone with a clear sustained.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.7,
         "duration": 0.55,
@@ -2368,8 +2897,7 @@ var GUS_DRUM_PRESETS = {
             "q": 12
           }
         },
-        "highpass": 3200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 3200
       }
     },
     {
@@ -2378,6 +2906,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Short Guiro",
       "description": "Short guiro scrape with the same bright, rattling texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.23,
         "duration": 0.16,
@@ -2389,7 +2929,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.03,
             "amp": 0.04,
             "type": "white",
-            "bandpass": { "center": 2900, "q": 0.8 }
+            "bandpass": {
+              "center": 2900,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.022,
@@ -2397,7 +2940,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.03,
             "amp": 0.06,
             "type": "white",
-            "bandpass": { "center": 3700, "q": 0.8 }
+            "bandpass": {
+              "center": 3700,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.045,
@@ -2405,7 +2951,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.03,
             "amp": 0.08,
             "type": "white",
-            "bandpass": { "center": 4700, "q": 0.8 }
+            "bandpass": {
+              "center": 4700,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.068,
@@ -2413,7 +2962,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.03,
             "amp": 0.1,
             "type": "white",
-            "bandpass": { "center": 5900, "q": 0.8 }
+            "bandpass": {
+              "center": 5900,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.091,
@@ -2421,11 +2973,13 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.02,
             "amp": 0.12,
             "type": "white",
-            "bandpass": { "center": 7100, "q": 0.8 }
+            "bandpass": {
+              "center": 7100,
+              "q": 0.8
+            }
           }
         ],
-        "highpass": 1700,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 1700
       }
     },
     {
@@ -2434,6 +2988,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Long Guiro",
       "description": "Raspy guiro scrape with a textured, rattling.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.21,
         "duration": 0.3,
@@ -2445,7 +3011,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.035,
             "amp": 0.035,
             "type": "white",
-            "bandpass": { "center": 3000, "q": 0.8 }
+            "bandpass": {
+              "center": 3000,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.025,
@@ -2453,7 +3022,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.035,
             "amp": 0.05,
             "type": "white",
-            "bandpass": { "center": 3500, "q": 0.8 }
+            "bandpass": {
+              "center": 3500,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.05,
@@ -2461,7 +3033,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.035,
             "amp": 0.075,
             "type": "white",
-            "bandpass": { "center": 4000, "q": 0.8 }
+            "bandpass": {
+              "center": 4000,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.075,
@@ -2469,7 +3044,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.035,
             "amp": 0.09,
             "type": "white",
-            "bandpass": { "center": 4700, "q": 0.8 }
+            "bandpass": {
+              "center": 4700,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.1,
@@ -2477,7 +3055,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.035,
             "amp": 0.11,
             "type": "white",
-            "bandpass": { "center": 5300, "q": 0.8 }
+            "bandpass": {
+              "center": 5300,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.125,
@@ -2485,7 +3066,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.035,
             "amp": 0.13,
             "type": "white",
-            "bandpass": { "center": 6000, "q": 0.8 }
+            "bandpass": {
+              "center": 6000,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.15,
@@ -2493,7 +3077,10 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.035,
             "amp": 0.15,
             "type": "white",
-            "bandpass": { "center": 7000, "q": 0.8 }
+            "bandpass": {
+              "center": 7000,
+              "q": 0.8
+            }
           },
           {
             "delay": 0.18,
@@ -2501,11 +3088,13 @@ var GUS_DRUM_PRESETS = {
             "decay": 0.018,
             "amp": 0.2,
             "type": "white",
-            "bandpass": { "center": 8000, "q": 0.8 }
+            "bandpass": {
+              "center": 8000,
+              "q": 0.8
+            }
           }
         ],
-        "highpass": 1600,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 1600
       }
     },
     {
@@ -2514,6 +3103,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Claves",
       "description": "Sharp clave click with a dry, woody attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.16,
         "duration": 0.13,
@@ -2533,8 +3134,7 @@ var GUS_DRUM_PRESETS = {
             "amp": 0.5
           }
         ],
-        "highpass": 1500,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 1500
       }
     },
     {
@@ -2543,6 +3143,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Hi Wood Block",
       "description": "Woodblock knock with a firm, hollow.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.07,
         "duration": 0.13,
@@ -2560,8 +3172,7 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.006,
           "type": "pink"
         },
-        "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 300
       }
     },
     {
@@ -2570,6 +3181,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Low Wood Block",
       "description": "Woodblock knock with a firm, hollow.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.07,
         "duration": 0.13,
@@ -2587,8 +3210,7 @@ var GUS_DRUM_PRESETS = {
           "decay": 0.006,
           "type": "pink"
         },
-        "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 300
       }
     },
     {
@@ -2597,6 +3219,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Mute Cuica",
       "description": "Nasal cuica squeak with a sliding pitched.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.45,
         "duration": 0.18,
@@ -2613,8 +3247,7 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 300
       }
     },
     {
@@ -2623,6 +3256,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Open Cuica",
       "description": "Nasal cuica squeak with a sliding pitched.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.45,
         "duration": 0.4,
@@ -2639,8 +3284,7 @@ var GUS_DRUM_PRESETS = {
             }
           }
         ],
-        "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 300
       }
     },
     {
@@ -2649,6 +3293,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Mute Triangle",
       "description": "Short, subdued metallic tick.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.04,
         "duration": 0.12,
@@ -2669,7 +3325,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.1
         },
         "highpass": 2200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -2679,6 +3334,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Open Triangle",
       "description": "Metal triangle strike with a bright ringing.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.04,
         "duration": 1,
@@ -2693,8 +3360,7 @@ var GUS_DRUM_PRESETS = {
           "decay": 1,
           "amp": 0.55
         },
-        "highpass": 3000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 3000
       }
     },
     {
@@ -2703,6 +3369,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Shaker",
       "description": "Soft maracas-like shaker with a gentle, airy attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.05,
         "duration": 0.26,
@@ -2727,7 +3405,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 6200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 11500
       }
     },
@@ -2737,6 +3414,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Open Cuica 2",
       "description": "Upward squeak with a breathy edge.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.15,
         "duration": 0.42,
@@ -2762,8 +3451,7 @@ var GUS_DRUM_PRESETS = {
             "q": 1.2
           }
         },
-        "highpass": 220,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 220
       }
     },
     {
@@ -2772,6 +3460,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Bell Tree",
       "description": "Cascading metallic chime with a long shimmer.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.3,
         "duration": 1.1,
@@ -2790,7 +3490,6 @@ var GUS_DRUM_PRESETS = {
           "amp": 0.42
         },
         "highpass": 650,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500
       }
     },
@@ -2800,6 +3499,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Castanets",
       "description": "Dry, sharp wooden clacks with a pair of bright resonances.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.22,
         "duration": 0.18,
@@ -2844,7 +3555,6 @@ var GUS_DRUM_PRESETS = {
           }
         ],
         "highpass": 900,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8500
       }
     },
@@ -2854,6 +3564,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Mute Surdo",
       "description": "Short, damped low surdo thump with a soft beater attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.56,
         "duration": 0.3,
@@ -2898,7 +3620,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 35,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 1800
       }
     },
@@ -2908,6 +3629,18 @@ var GUS_DRUM_PRESETS = {
       "shortName": "Open Surdo",
       "description": "Deep, resonant surdo note with a rounded attack and decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.36,
         "duration": 1.3,
@@ -2958,7 +3691,6 @@ var GUS_DRUM_PRESETS = {
           }
         },
         "highpass": 45,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 1200
       }
     }

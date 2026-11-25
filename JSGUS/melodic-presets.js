@@ -14,6 +14,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Grand Piano",
       "description": "Clear struck-key tone with a controlled decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          1.66,
+          3.69,
+          4.06
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.65,
@@ -144,12 +156,23 @@ var GUS_MELODIC_PRESETS = {
           "end": 10500
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 320, "q": 0.8, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 320,
+            "q": 0.8,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -160,6 +183,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bright Piano",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.65,
@@ -237,11 +272,18 @@ var GUS_MELODIC_PRESETS = {
           "end": 2000
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 140,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -252,6 +294,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Elec. Grand",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.65,
@@ -302,11 +356,18 @@ var GUS_MELODIC_PRESETS = {
           "index": 1.8
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 140,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -317,6 +378,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Honky-tonk",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.65,
@@ -397,11 +470,18 @@ var GUS_MELODIC_PRESETS = {
           "end": 2000
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 140,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -412,6 +492,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "E.Piano 1",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.65,
@@ -462,11 +554,18 @@ var GUS_MELODIC_PRESETS = {
           "index": 1.6
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 280,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -477,6 +576,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "E.Piano 2",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.65,
@@ -527,11 +638,18 @@ var GUS_MELODIC_PRESETS = {
           "index": 2.25
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 280,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -542,6 +660,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harpsichord",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.65,
@@ -590,11 +720,18 @@ var GUS_MELODIC_PRESETS = {
           "end": 2000
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 140,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -605,6 +742,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Clavinet",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "graphicEqualizer": [
+          -0.55,
+          -1.11,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.65,
@@ -651,11 +800,18 @@ var GUS_MELODIC_PRESETS = {
           "end": 2000
         },
         "formants": [
-          { "freq": 180, "q": 0.7, "gain": -1.5 },
-          { "freq": 4500, "q": 0.7, "gain": 0.5 }
+          {
+            "freq": 180,
+            "q": 0.7,
+            "gain": -1.5
+          },
+          {
+            "freq": 4500,
+            "q": 0.7,
+            "gain": 0.5
+          }
         ],
         "highpass": 140,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -666,6 +822,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Celesta",
       "description": "A soft, rounded keyboard chime with a smooth decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.65,
         "freq": 441,
@@ -696,8 +864,7 @@ var GUS_MELODIC_PRESETS = {
           0.35
         ],
         "inharmonicity": 0.001,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -707,6 +874,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Glockenspiel",
       "description": "A bright metallic chime with a sharper strike.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.55,
         "freq": 441,
@@ -745,8 +924,7 @@ var GUS_MELODIC_PRESETS = {
           0.12
         ],
         "inharmonicity": 0.02,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -756,6 +934,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Music Box",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.55,
@@ -783,8 +973,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -794,6 +983,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Vibraphone",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.42,
@@ -827,7 +1028,6 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.02
         },
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -838,6 +1038,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Marimba",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.55,
@@ -865,8 +1077,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -876,6 +1087,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Xylophone",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.55,
@@ -902,8 +1125,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -913,6 +1135,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tubular Bells",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.58,
@@ -942,8 +1176,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -953,6 +1186,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Dulcimer",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.58,
@@ -998,8 +1243,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2000
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -1009,6 +1253,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Drawbar Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "organ",
         "gain": 0.38,
@@ -1031,8 +1287,7 @@ var GUS_MELODIC_PRESETS = {
           0,
           0.1
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -1042,6 +1297,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Percussive Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pulse",
         "gain": 0.38,
@@ -1066,8 +1333,7 @@ var GUS_MELODIC_PRESETS = {
           0,
           0.1
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -1077,6 +1343,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Rock Organ",
       "description": "A full drawbar tone with a mild driven edge.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.38,
@@ -1107,8 +1385,7 @@ var GUS_MELODIC_PRESETS = {
           0.06
         ],
         "drive": 0.18,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -1118,6 +1395,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Church Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "organ",
         "gain": 0.38,
@@ -1140,8 +1429,7 @@ var GUS_MELODIC_PRESETS = {
           0.12,
           0.1
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -1151,6 +1439,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Reed Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.38,
@@ -1196,7 +1496,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1207,6 +1506,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Accordion",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.38,
@@ -1232,7 +1543,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5.5,
           "depth": 0.006
         },
-        "drive": 1.0,
+        "drive": 1,
         "formants": [
           {
             "freq": 900,
@@ -1251,7 +1562,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1262,6 +1572,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harmonica",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.38,
@@ -1305,8 +1627,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -1316,6 +1637,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tango Accordion",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.38,
@@ -1361,7 +1694,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1372,6 +1704,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Nylon Gtr",
       "description": "Warm, rounded pluck with a soft decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          -0.37,
+          -0.74,
+          2.77,
+          4.6,
+          6.1,
+          8.31
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.51,
@@ -1431,7 +1775,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 16000
         },
         "highpass": 150,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1442,6 +1785,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Steel Gtr",
       "description": "Bright pluck with a smooth, controlled attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.51,
@@ -1586,7 +1941,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 330,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1597,6 +1951,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Jazz Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.465,
@@ -1660,7 +2026,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1671,6 +2036,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "E. Clean Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.8,
+          2.2,
+          2.8
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.76,
@@ -1737,7 +2114,6 @@ var GUS_MELODIC_PRESETS = {
           "loopCutoff": 6500
         },
         "highpass": 160,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1748,6 +2124,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Muted Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.34,
@@ -1813,7 +2201,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 1200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1824,6 +2211,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Overdriven Gtr",
       "description": "Driven guitar with a sustained loop.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2.8,
+          7.4,
+          8.86
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.97,
@@ -1844,13 +2243,35 @@ var GUS_MELODIC_PRESETS = {
           "r": 0.3
         },
         "harm": [
-          1.00, 0.72, 0.55, 0.42, 0.33, 0.26, 0.20, 0.155, 0.12, 0.095,
-          0.075, 0.060, 0.048, 0.038, 0.031, 0.025, 0.020, 0.017, 0.014, 0.012,
-          0.010, 0.0085, 0.0075, 0.0065, 0.0055
+          1,
+          0.72,
+          0.55,
+          0.42,
+          0.33,
+          0.26,
+          0.2,
+          0.155,
+          0.12,
+          0.095,
+          0.075,
+          0.06,
+          0.048,
+          0.038,
+          0.031,
+          0.025,
+          0.02,
+          0.017,
+          0.014,
+          0.012,
+          0.01,
+          0.0085,
+          0.0075,
+          0.0065,
+          0.0055
         ],
         "noise": 0.008,
         "vibrato": {
-          "rate": 5.0,
+          "rate": 5,
           "depth": 0.0035,
           "sweep": 14
         },
@@ -1858,21 +2279,36 @@ var GUS_MELODIC_PRESETS = {
           "drive": 1.15,
           "bias": 0.008,
           "mix": 0.42,
-          "clip": 0.0,
+          "clip": 0,
           "preampCutoff": 70,
           "cabinetCutoff": 7200
         },
         "formants": [
-          { "freq": 500,  "q": 1.5, "gain": -1.0 },
-          { "freq": 1100, "q": 1.3, "gain": 1.0 },
-          { "freq": 2000, "q": 1.4, "gain": 1.0 },
-          { "freq": 3800, "q": 0.65, "gain": 8 }
+          {
+            "freq": 500,
+            "q": 1.5,
+            "gain": -1
+          },
+          {
+            "freq": 1100,
+            "q": 1.3,
+            "gain": 1
+          },
+          {
+            "freq": 2000,
+            "q": 1.4,
+            "gain": 1
+          },
+          {
+            "freq": 3800,
+            "q": 0.65,
+            "gain": 8
+          }
         ],
         "brightness": {
           "loopCutoff": 8500
         },
         "highpass": 220,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1883,6 +2319,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Distortion Gtr",
       "description": "Driven guitar with a sustained loop.",
       "preset": {
+        "graphicEqualizer": [
+          -3,
+          -2.4,
+          -2.4,
+          7.57,
+          7.75,
+          8.31,
+          5.17,
+          9.6,
+          7.5,
+          9.5
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.97,
@@ -1971,7 +2419,6 @@ var GUS_MELODIC_PRESETS = {
           "loopCutoff": 10500
         },
         "highpass": 220,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -1982,6 +2429,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harmonics Gtr",
       "description": "Sustained guitar overtone with loop.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.6,
@@ -2041,8 +2500,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2052,6 +2510,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Bass",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.58,
@@ -2083,8 +2553,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2094,6 +2563,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Finger Bass",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0.2,
+          0.9,
+          0,
+          0,
+          0,
+          0,
+          0,
+          6.5,
+          8.7
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.62,
@@ -2126,7 +2607,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 900
         },
         "highpass": 80,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2137,6 +2617,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pick Bass",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.62,
@@ -2168,8 +2660,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2179,6 +2670,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Fretless Bass",
       "description": "A smooth, singing tone with a rounded attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.62,
         "freq": 220,
@@ -2209,8 +2712,7 @@ var GUS_MELODIC_PRESETS = {
         "brightness": {
           "loopCutoff": 3500
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2220,6 +2722,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Slap Bass 1",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.62,
@@ -2252,8 +2766,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2263,6 +2776,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Slap Bass 2",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.62,
@@ -2295,8 +2820,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2306,6 +2830,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Bass 1",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.62,
@@ -2336,8 +2872,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2347,6 +2882,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Bass 2",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "square",
         "gain": 0.62,
@@ -2379,8 +2926,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 5000,
           "end": 900
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2390,6 +2936,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Violin",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bow",
         "gain": 0.82,
@@ -2471,7 +3029,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 400,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2482,6 +3039,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Viola",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bow",
         "gain": 0.82,
@@ -2562,7 +3131,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2573,6 +3141,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Cello",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bow",
         "gain": 0.34,
@@ -2635,7 +3215,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2646,6 +3225,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Contrabass",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bow",
         "gain": 0.34,
@@ -2707,8 +3298,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": -2.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2718,6 +3308,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tremolo Str",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "string",
         "gain": 0.34,
@@ -2780,7 +3382,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2791,6 +3392,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pizzicato",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.34,
@@ -2860,7 +3473,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2871,6 +3483,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harp",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.34,
@@ -2936,7 +3560,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -2947,6 +3570,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Timpani",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.34,
@@ -2966,8 +3601,7 @@ var GUS_MELODIC_PRESETS = {
           0.2
         ],
         "noise": 0.1,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -2977,6 +3611,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Strings 1",
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          -0.55,
+          -0.92,
+          -0.92,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.27,
@@ -3045,7 +3691,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3056,6 +3701,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Strings 2",
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          -0.55,
+          -0.92,
+          -0.92,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.27,
@@ -3124,7 +3781,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3135,6 +3791,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthStrings 1",
       "description": "A layered orchestral blend with smooth.",
       "preset": {
+        "graphicEqualizer": [
+          -0.37,
+          -0.92,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.5775,
@@ -3203,7 +3871,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3214,6 +3881,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthStrings 2",
       "description": "A layered orchestral blend with smooth.",
       "preset": {
+        "graphicEqualizer": [
+          -0.37,
+          -0.92,
+          -1.29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "triangle",
         "gain": 0.5775,
@@ -3284,7 +3963,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3295,6 +3973,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Choir Aahs",
       "description": "Airy choral 'ah' vowel with a soft, open sustain.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.48,
@@ -3370,7 +4060,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3381,6 +4070,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Voice Oohs",
       "description": "Rounded vowel formants with a soft vocal onset.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.11,
+          2.03,
+          3.32,
+          4.43,
+          4.98
+        ],
         "mute": false,
         "defaultWaveform": "string",
         "gain": 0.48,
@@ -3476,7 +4177,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3487,6 +4187,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Voice",
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.48,
@@ -3558,7 +4270,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 350,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3569,6 +4280,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Orchestra Hit",
       "description": "A layered orchestral blend with smooth.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.65,
@@ -3608,8 +4331,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -3619,6 +4341,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Trumpet",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.42,
@@ -3701,7 +4435,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 400,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3712,6 +4445,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Trombone",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.21,
@@ -3778,7 +4523,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -3789,6 +4533,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tuba",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "square",
         "gain": 0.12,
@@ -3854,8 +4610,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -3865,6 +4620,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Muted Trpt",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pulse",
         "gain": 0.12,
@@ -3930,8 +4697,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -3941,6 +4707,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "French Horn",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.12,
@@ -4005,8 +4783,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4016,6 +4793,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Brass Section",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.34,
@@ -4115,8 +4904,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4126,6 +4914,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthBrass 1",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.1,
@@ -4183,8 +4983,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4194,6 +4993,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthBrass 2",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pulse",
         "gain": 0.1,
@@ -4245,8 +5056,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4256,6 +5066,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Soprano Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.5425,
@@ -4318,7 +5140,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 500,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4329,6 +5150,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Alto Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.5425,
@@ -4381,7 +5214,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4392,6 +5224,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tenor Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.875,
@@ -4467,7 +5311,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 300,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4478,6 +5321,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bari Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.5425,
@@ -4539,7 +5394,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 150,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -4550,6 +5404,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Oboe",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.335,
@@ -4600,8 +5466,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 2
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4611,6 +5476,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "English Horn",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.31,
@@ -4659,8 +5536,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 4
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4670,6 +5546,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bassoon",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "clarinet",
         "gain": 0.31,
@@ -4719,8 +5607,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 3.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4730,6 +5617,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Clarinet",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "clarinet",
         "gain": 0.31,
@@ -4771,8 +5670,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4782,6 +5680,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Piccolo",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "sine",
         "gain": 0.31,
@@ -4822,8 +5732,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4833,6 +5742,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Flute",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "flute",
         "gain": 0.63,
@@ -4879,8 +5800,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4890,6 +5810,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Recorder",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "flute",
         "gain": 0.42,
@@ -4936,8 +5868,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -4947,6 +5878,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pan Flute",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "sine",
         "gain": 0.42,
@@ -4993,8 +5936,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -5004,6 +5946,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Blown Bottle",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.42,
@@ -5039,8 +5993,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -5050,6 +6003,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Shakuhachi",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.42,
@@ -5090,8 +6055,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -5101,6 +6065,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Whistle",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "gain": 0.42,
@@ -5138,8 +6114,7 @@ var GUS_MELODIC_PRESETS = {
             "q": 12
           }
         },
-        "highpass": 3200,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "highpass": 3200
       }
     },
     {
@@ -5149,6 +6124,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ocarina",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "flute",
         "gain": 0.42,
@@ -5184,8 +6171,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 9000,
           "end": 5200
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -5195,6 +6181,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (square)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "square",
         "gain": 0.38,
@@ -5225,7 +6223,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5236,6 +6233,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (saw)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.38,
@@ -5264,7 +6273,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5275,6 +6283,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (calliope)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.38,
@@ -5363,8 +6383,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "drive": 0.8,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -5374,6 +6393,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (chiff)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "clarinet",
         "gain": 0.38,
@@ -5403,7 +6434,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5414,6 +6444,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (charang)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.38,
@@ -5441,7 +6483,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5452,6 +6493,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (voice)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.38,
@@ -5480,7 +6533,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 2500
         },
         "highpass": 350,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5491,6 +6543,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (fifths)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.38,
@@ -5516,8 +6580,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -5527,6 +6590,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (bass+ld)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "square",
         "gain": 0.34,
@@ -5553,8 +6628,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 8000,
           "end": 2500
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -5564,6 +6638,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (new age)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "triangle",
         "gain": 0.55,
@@ -5639,7 +6725,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 250,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5650,6 +6735,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (warm)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "triangle",
         "gain": 0.26,
@@ -5707,7 +6804,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5718,6 +6814,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (polysynth)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.975,
@@ -5776,7 +6884,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5787,6 +6894,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (choir)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.85,
+          2.95,
+          3.69,
+          3.69
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.51,
@@ -5863,7 +6982,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 250,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5874,6 +6992,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (bowed)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bow",
         "gain": 0.975,
@@ -5931,7 +7061,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -5942,6 +7071,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (metallic)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.975,
@@ -6003,7 +7144,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6014,6 +7154,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (halo)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "sine",
         "gain": 0.35,
@@ -6071,8 +7223,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6082,6 +7233,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (sweep)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "saw",
         "gain": 0.65,
@@ -6144,7 +7307,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6155,6 +7317,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (rain)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.3,
@@ -6171,11 +7345,12 @@ var GUS_MELODIC_PRESETS = {
           "s": 1,
           "r": 0.4
         },
-        "harm": [0],
+        "harm": [
+          0
+        ],
         "noise": 1,
         "noiseOnly": true,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6185,6 +7360,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (soundtrack)",
       "description": "An evolving synthetic texture with.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "string",
         "gain": 0.3,
@@ -6208,8 +7395,7 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.2,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6219,6 +7405,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (crystal)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.3,
@@ -6242,8 +7440,7 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.2,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6253,6 +7450,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (atmosphere)",
       "description": "Nylon pluck with a faint airy shimmer.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.3,
@@ -6310,7 +7519,6 @@ var GUS_MELODIC_PRESETS = {
           "end": 2600
         },
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6321,6 +7529,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (brightness)",
       "description": "An evolving synthetic texture with.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.3,
@@ -6344,8 +7564,7 @@ var GUS_MELODIC_PRESETS = {
           "index": 2
         },
         "noise": 0.2,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6355,6 +7574,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (goblins)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "square",
         "gain": 0.3,
@@ -6378,8 +7609,7 @@ var GUS_MELODIC_PRESETS = {
           "index": 4
         },
         "noise": 0.04,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6389,6 +7619,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (echoes)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.3,
@@ -6413,7 +7655,6 @@ var GUS_MELODIC_PRESETS = {
         ],
         "noise": 0.01,
         "highpass": 230,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6424,6 +7665,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (sci-fi)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "gain": 0.3,
         "defaultWaveform": "saw",
@@ -6447,8 +7700,7 @@ var GUS_MELODIC_PRESETS = {
           "index": 3.5
         },
         "noise": 0.2,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6458,6 +7710,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Sitar",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.3,
@@ -6485,8 +7749,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5,
           "depth": 0.01
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6496,6 +7759,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Banjo",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.3,
@@ -6559,7 +7834,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6570,6 +7844,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Shamisen",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.3,
@@ -6595,8 +7881,7 @@ var GUS_MELODIC_PRESETS = {
           "rate": 5,
           "depth": 0.01
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6606,6 +7891,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Koto",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pluck",
         "gain": 0.3,
@@ -6632,7 +7929,6 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.01
         },
         "highpass": 120,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6643,6 +7939,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Kalimba",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.3,
@@ -6669,8 +7977,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6680,6 +7987,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bagpipe",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.3,
@@ -6719,8 +8038,7 @@ var GUS_MELODIC_PRESETS = {
           "start": 7000,
           "end": 2500
         },
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6730,6 +8048,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Fiddle",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bow",
         "gain": 0.3,
@@ -6789,7 +8119,6 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "highpass": 230,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -6800,6 +8129,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Shanai",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "reed",
         "gain": 0.3,
@@ -6844,8 +8185,7 @@ var GUS_MELODIC_PRESETS = {
             "gain": 1.5
           }
         ],
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6855,6 +8195,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tinkle Bell",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.3,
@@ -6882,8 +8234,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6893,6 +8244,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Agogo",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "pulse",
         "gain": 0.3,
@@ -6919,8 +8282,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6930,6 +8292,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Steel Drums",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "bell",
         "gain": 0.3,
@@ -6959,8 +8333,7 @@ var GUS_MELODIC_PRESETS = {
           0.5
         ],
         "inharmonicity": 0.008,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6970,6 +8343,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Woodblock",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.3,
@@ -6988,8 +8373,7 @@ var GUS_MELODIC_PRESETS = {
           0.15
         ],
         "noise": 0.2,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -6999,6 +8383,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Taiko Drum",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.3,
@@ -7018,8 +8414,7 @@ var GUS_MELODIC_PRESETS = {
           0.15
         ],
         "noise": 0.1,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -7029,6 +8424,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Melodic Tom",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "hammer",
         "gain": 0.3,
@@ -7049,7 +8456,6 @@ var GUS_MELODIC_PRESETS = {
         ],
         "noise": 0.3,
         "highpass": 250,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
@@ -7060,6 +8466,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Drum",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "sine",
         "gain": 0.3,
@@ -7079,8 +8497,7 @@ var GUS_MELODIC_PRESETS = {
           0.1
         ],
         "noise": 0.15,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -7090,6 +8507,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Reverse Cymbal",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.3,
@@ -7113,8 +8542,7 @@ var GUS_MELODIC_PRESETS = {
           "index": 3
         },
         "noise": 0.6,
-        "antiAlias": true,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "antiAlias": true
       }
     },
     {
@@ -7124,6 +8552,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Fret Noise",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
@@ -7160,7 +8600,6 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 4000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7500,
         "fadeOut": 1
       }
@@ -7172,6 +8611,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Breath Noise",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
@@ -7194,7 +8645,6 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 450,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000,
         "fadeOut": 0.18
       }
@@ -7206,6 +8656,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Seashore",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
@@ -7223,7 +8685,6 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 180,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 8000,
         "fadeOut": 0.25
       }
@@ -7235,6 +8696,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bird Tweet",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
@@ -7264,7 +8737,6 @@ var GUS_MELODIC_PRESETS = {
           }
         },
         "highpass": 1000,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 9000,
         "fadeOut": 0.08
       }
@@ -7276,6 +8748,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Telephone",
       "description": "A classic dual-tone bell ring.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
@@ -7341,8 +8825,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "lowpass": 6500,
-        "fadeOut": 0.18,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "fadeOut": 0.18
       }
     },
     {
@@ -7352,6 +8835,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Helicopter",
       "description": "Broadband rotor chop and airflow noise.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "defaultWaveform": "breath",
         "gain": 0.36,
@@ -7369,7 +8864,9 @@ var GUS_MELODIC_PRESETS = {
           "r": 0.3
         },
         "noiseOnly": true,
-        "harm": [0],
+        "harm": [
+          0
+        ],
         "noise": 1,
         "lowNoise": 0.08,
         "tremolo": {
@@ -7377,7 +8874,6 @@ var GUS_MELODIC_PRESETS = {
           "depth": 0.82
         },
         "highpass": 23,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 7200,
         "antiAlias": true
       }
@@ -7389,6 +8885,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Applause",
       "description": "Procedurally generated broadband handclap crowd.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "gain": 0.45,
@@ -7405,7 +8913,6 @@ var GUS_MELODIC_PRESETS = {
           "peak": 0.95
         },
         "highpass": 250,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "lowpass": 10500,
         "fadeOut": 0.025
       }
@@ -7417,6 +8924,18 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Gunshot",
       "description": "A sharp crack with a low boom and short tail.",
       "preset": {
+        "graphicEqualizer": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         "mute": false,
         "renderMode": "drum",
         "pitchInvariant": true,
@@ -7494,8 +9013,7 @@ var GUS_MELODIC_PRESETS = {
           }
         ],
         "lowpass": 9000,
-        "fadeOut": 0.2,
-        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        "fadeOut": 0.2
       }
     }
   ]

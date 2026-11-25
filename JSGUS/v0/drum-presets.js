@@ -1,0 +1,2966 @@
+// Optional preset.tremolo: { rate: 0-25 Hz, sweep: GUS byte 0-255, depth: 0-1 }.
+// Omitted in the built-in presets so generated patches keep tremolo disabled.
+var GUS_DRUM_PRESETS = {
+  "name": "GUS Drum Presets",
+  "type": "drum",
+  "version": "1.0",
+  "lastModified": "2026-11-21T12:00:00Z",
+  "gain": 0.66,
+  "instruments": [
+    {
+      "note": 25,
+      "name": "Snare Roll",
+      "shortName": "Snare Roll",
+      "description": "Rapid, evenly spaced snare-wire strokes.",
+      "preset": {
+        "mute": false,
+        "gain": 0.5,
+        "duration": 0.52,
+        "noiseLayers": [
+          {
+            "amp": 0.6,
+            "decay": 0.012,
+            "type": "white",
+            "bandpass": {
+              "center": 2600,
+              "q": 0.75
+            }
+          },
+          {
+            "amp": 0.38,
+            "decay": 0.025,
+            "type": "pink",
+            "bandpass": {
+              "center": 4800,
+              "q": 0.7
+            }
+          }
+        ],
+        "bursts": [
+          0,
+          0.055,
+          0.11,
+          0.165,
+          0.22,
+          0.275,
+          0.33,
+          0.385,
+          0.44
+        ],
+        "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 9000
+      }
+    },
+    {
+      "note": 26,
+      "name": "Snap",
+      "shortName": "Snap",
+      "description": "Dry, crisp finger snap with a brief resonant tail.",
+      "preset": {
+        "mute": false,
+        "gain": 0.34,
+        "duration": 0.075,
+        "tones": [
+          {
+            "fStart": 4200,
+            "fEnd": 3300,
+            "pitchDecay": 0.002,
+            "decay": 0.004,
+            "amp": 0.12
+          },
+          {
+            "fStart": 5200,
+            "fEnd": 3900,
+            "pitchDecay": 0.001,
+            "decay": 0.0028,
+            "amp": 0.038
+          }
+        ],
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.003,
+            "decay": 0.0008,
+            "amp": 1,
+            "type": "white",
+            "bandpass": {
+              "center": 4100,
+              "q": 1.25
+            }
+          },
+          {
+            "delay": 0.0015,
+            "duration": 0.006,
+            "decay": 0.0015,
+            "amp": 0.38,
+            "type": "white",
+            "bandpass": {
+              "center": 2400,
+              "q": 1.35
+            }
+          },
+          {
+            "delay": 0.0025,
+            "duration": 0.008,
+            "decay": 0.0022,
+            "amp": 0.24,
+            "type": "white",
+            "bandpass": {
+              "center": 5600,
+              "q": 0.8
+            }
+          }
+        ],
+        "click": {
+          "duration": 0.0008,
+          "amp": 0.28
+        },
+        "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 8500
+      }
+    },
+    {
+      "note": 27,
+      "name": "High Q",
+      "shortName": "High Q",
+      "description": "Bright, articulate short percussion hit.",
+      "preset": {
+        "mute": false,
+        "gain": 0.45,
+        "duration": 0.16,
+        "tones": [
+          {
+            "fStart": 720,
+            "fEnd": 620,
+            "pitchDecay": 0.012,
+            "decay": 0.045,
+            "amp": 0.65
+          },
+          {
+            "fStart": 1450,
+            "fEnd": 1200,
+            "pitchDecay": 0.01,
+            "decay": 0.028,
+            "amp": 0.28
+          }
+        ],
+        "noise": {
+          "amp": 0.16,
+          "decay": 0.009,
+          "type": "pink"
+        },
+        "click": {
+          "duration": 0.002,
+          "amp": 0.18
+        },
+        "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 28,
+      "name": "Slap",
+      "shortName": "Slap",
+      "description": "Dry hand slap with a sharp broadband attack and a woody body",
+      "preset": {
+        "mute": false,
+        "gain": 0.34,
+        "duration": 0.265,
+        "tones": [
+          {
+            "fStart": 210,
+            "fEnd": 150,
+            "pitchDecay": 0.014,
+            "decay": 0.09,
+            "amp": 0.38
+          },
+          {
+            "fStart": 650,
+            "fEnd": 360,
+            "pitchDecay": 0.007,
+            "decay": 0.042,
+            "amp": 0.28
+          },
+          {
+            "fStart": 1350,
+            "fEnd": 760,
+            "pitchDecay": 0.004,
+            "decay": 0.022,
+            "amp": 0.16
+          }
+        ],
+        "noiseLayers": [
+          {
+            "amp": 0.82,
+            "decay": 0.008,
+            "type": "white",
+            "bandpass": {
+              "center": 1450,
+              "q": 0.8
+            }
+          },
+          {
+            "amp": 0.42,
+            "decay": 0.012,
+            "type": "pink",
+            "bandpass": {
+              "center": 2800,
+              "q": 0.68
+            }
+          }
+        ],
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.012,
+            "decay": 0.0025,
+            "amp": 0.92,
+            "type": "white",
+            "bandpass": {
+              "center": 950,
+              "q": 1
+            }
+          },
+          {
+            "delay": 0.003,
+            "duration": 0.018,
+            "decay": 0.004,
+            "amp": 0.36,
+            "type": "pink",
+            "bandpass": {
+              "center": 3900,
+              "q": 0.72
+            }
+          }
+        ],
+        "click": {
+          "duration": 0.0012,
+          "amp": 0.2
+        },
+        "highpass": 70,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 8000
+      }
+    },
+    {
+      "note": 29,
+      "name": "Scratch 1",
+      "shortName": "Scratch 1",
+      "description": "Rough, low turntable scrape with a descending, gritty pitch.",
+      "preset": {
+        "mute": false,
+        "gain": 0.34,
+        "duration": 0.42,
+        "tones": [
+          {
+            "fStart": 1750,
+            "fEnd": 410,
+            "pitchDecay": 0.11,
+            "decay": 0.19,
+            "amp": 0.3,
+            "fm": {
+              "ratio": 2.4,
+              "index": 1.15
+            }
+          },
+          {
+            "fStart": 920,
+            "fEnd": 260,
+            "pitchDecay": 0.075,
+            "decay": 0.12,
+            "amp": 0.18,
+            "fm": {
+              "ratio": 1.73,
+              "index": 0.8
+            }
+          }
+        ],
+        "noiseLayers": [
+          {
+            "amp": 0.62,
+            "attack": 0.004,
+            "decay": 0.17,
+            "type": "brown",
+            "bandpass": {
+              "center": 1350,
+              "q": 0.58
+            }
+          },
+          {
+            "amp": 0.3,
+            "attack": 0.002,
+            "decay": 0.075,
+            "type": "white",
+            "bandpass": {
+              "center": 3600,
+              "q": 0.68
+            }
+          }
+        ],
+        "highpass": 180,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6200
+      }
+    },
+    {
+      "note": 30,
+      "name": "Scratch 2",
+      "shortName": "Scratch 2",
+      "description": "Short, brighter turntable scrape",
+      "preset": {
+        "mute": false,
+        "gain": 0.3,
+        "duration": 0.28,
+        "tones": [
+          {
+            "fStart": 560,
+            "fPeak": 2350,
+            "fEnd": 760,
+            "riseTime": 0.009,
+            "fallTime": 0.12,
+            "decay": 0.13,
+            "amp": 0.28,
+            "fm": {
+              "ratio": 2.15,
+              "index": 1.05
+            }
+          },
+          {
+            "fStart": 850,
+            "fPeak": 3100,
+            "fEnd": 1250,
+            "riseTime": 0.006,
+            "fallTime": 0.075,
+            "decay": 0.075,
+            "amp": 0.14,
+            "fm": {
+              "ratio": 1.62,
+              "index": 0.65
+            }
+          }
+        ],
+        "noiseLayers": [
+          {
+            "amp": 0.56,
+            "attack": 0.002,
+            "decay": 0.095,
+            "type": "white",
+            "bandpass": {
+              "center": 2700,
+              "q": 0.64
+            }
+          },
+          {
+            "amp": 0.25,
+            "attack": 0.004,
+            "decay": 0.14,
+            "type": "pink",
+            "bandpass": {
+              "center": 1150,
+              "q": 0.72
+            }
+          }
+        ],
+        "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 7600
+      }
+    },
+    {
+      "note": 31,
+      "name": "Sticks",
+      "shortName": "Sticks",
+      "description": "Dry crossed-stick click with a woody tone.",
+      "preset": {
+        "mute": false,
+        "gain": 0.25,
+        "duration": 0.18,
+        "tones": [
+          {
+            "fStart": 1050,
+            "fEnd": 1050,
+            "decay": 0.035,
+            "amp": 0.48
+          },
+          {
+            "fStart": 1750,
+            "fEnd": 1750,
+            "decay": 0.025,
+            "amp": 0.24
+          },
+          {
+            "fStart": 2800,
+            "fEnd": 2800,
+            "decay": 0.012,
+            "amp": 0.1
+          }
+        ],
+        "noise": {
+          "amp": 0.18,
+          "decay": 0.004,
+          "type": "white",
+          "bandpass": {
+            "center": 2000,
+            "q": 0.85
+          }
+        },
+        "click": {
+          "duration": 0.0015,
+          "amp": 0.2
+        },
+        "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 7000
+      }
+    },
+    {
+      "note": 32,
+      "name": "Square Click",
+      "shortName": "Square Click",
+      "description": "Short, electronic metronome-like pulse.",
+      "preset": {
+        "mute": false,
+        "gain": 0.38,
+        "duration": 0.1,
+        "tones": [
+          {
+            "fStart": 1050,
+            "fEnd": 950,
+            "pitchDecay": 0.006,
+            "decay": 0.018,
+            "amp": 0.65
+          },
+          {
+            "fStart": 3150,
+            "fEnd": 2850,
+            "pitchDecay": 0.006,
+            "decay": 0.012,
+            "amp": 0.25
+          }
+        ],
+        "click": {
+          "duration": 0.0015,
+          "amp": 0.22
+        },
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 7000
+      }
+    },
+    {
+      "note": 33,
+      "name": "Metronome Click",
+      "shortName": "Metro. Click",
+      "description": "Short metallic tick.",
+      "preset": {
+        "mute": false,
+        "gain": 0.22,
+        "duration": 0.08,
+        "metallic": {
+          "baseFreq": 1400,
+          "partials": [
+            1,
+            2.4,
+            3.8
+          ],
+          "decay": 0.018,
+          "amp": 0.48
+        },
+        "click": {
+          "duration": 0.0015,
+          "amp": 0.15
+        },
+        "highpass": 250,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6000
+      }
+    },
+    {
+      "note": 34,
+      "name": "Metronome Bell",
+      "shortName": "Metro. Bell",
+      "description": "Bright single timing bell.",
+      "preset": {
+        "mute": false,
+        "gain": 0.22,
+        "duration": 0.45,
+        "metallic": {
+          "baseFreq": 1750,
+          "partials": [
+            1,
+            2.4,
+            3.8,
+            5.2
+          ],
+          "decay": 0.32,
+          "amp": 0.48
+        },
+        "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 10000
+      }
+    },
+    {
+      "note": 35,
+      "name": "Acoustic Bass Drum",
+      "shortName": "Ac. Bass Drum",
+      "description": "Deep kick thump with a short beater click.",
+      "preset": {
+        "mute": false,
+        "gain": 0.35,
+        "duration": 0.55,
+        "membrane": {
+          "freq": 46,
+          "pitchDecay": 0.035,
+          "decay": 0.24,
+          "modes": [
+            {
+              "ratio": 1,
+              "startRatio": 2.5,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "startRatio": 1.8,
+              "amp": 0.5,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.24,
+              "decay": 0.35
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.14,
+              "decay": 0.25
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.28
+        },
+        "noise": {
+          "amp": 0.1,
+          "decay": 0.025,
+          "type": "brown"
+        },
+        "noiseLayers": [
+          {
+            "amp": 0.32,
+            "decay": 0.014,
+            "type": "white",
+            "bandpass": {
+              "center": 1800,
+              "q": 0.75
+            }
+          }
+        ],
+        "highpass": 30,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 4200
+      }
+    },
+    {
+      "note": 36,
+      "name": "Bass Drum 1",
+      "shortName": "Bass Drum 1",
+      "description": "Punchy kick with a focused low end.",
+      "preset": {
+        "mute": false,
+        "gain": 0.35,
+        "duration": 0.55,
+        "membrane": {
+          "freq": 52,
+          "pitchDecay": 0.03,
+          "decay": 0.2,
+          "modes": [
+            {
+              "ratio": 1,
+              "startRatio": 2.8,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "startRatio": 1.9,
+              "amp": 0.5,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.24,
+              "decay": 0.35
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.14,
+              "decay": 0.25
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.25
+        },
+        "noise": {
+          "amp": 0.1,
+          "decay": 0.02,
+          "type": "brown"
+        },
+        "noiseLayers": [
+          {
+            "amp": 0.3,
+            "decay": 0.012,
+            "type": "white",
+            "bandpass": {
+              "center": 2300,
+              "q": 0.8
+            }
+          }
+        ],
+        "highpass": 30,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 4500
+      }
+    },
+    {
+      "note": 37,
+      "name": "Side Stick",
+      "shortName": "Side Stick",
+      "description": "Dry rim click with a woody snap.",
+      "preset": {
+        "mute": false,
+        "gain": 0.45,
+        "duration": 0.11,
+        "noiseLayers": [
+          {
+            "amp": 0.95,
+            "decay": 0.005,
+            "type": "white",
+            "bandpass": {
+              "center": 2600,
+              "q": 0.75
+            }
+          },
+          {
+            "amp": 0.7,
+            "decay": 0.018,
+            "type": "white",
+            "bandpass": {
+              "center": 1100,
+              "q": 0.7
+            }
+          },
+          {
+            "amp": 0.35,
+            "decay": 0.003,
+            "type": "white",
+            "bandpass": {
+              "center": 6000,
+              "q": 0.65
+            }
+          }
+        ],
+        "click": {
+          "duration": 0.0015,
+          "amp": 0.25
+        },
+        "highpass": 350,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 8500
+      }
+    },
+    {
+      "note": 38,
+      "name": "Acoustic Snare",
+      "shortName": "Ac. Snare",
+      "description": "Crisp snare crack with a broad noise burst.",
+      "preset": {
+        "mute": false,
+        "gain": 0.88,
+        "duration": 0.28,
+        "membrane": {
+          "freq": 180,
+          "pitchDecay": 0.025,
+          "decay": 0.06,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.3,
+              "decay": 0.75
+            },
+            {
+              "ratio": 1.83,
+              "amp": 0.26,
+              "decay": 0.68
+            },
+            {
+              "ratio": 2.13,
+              "amp": 0.16,
+              "decay": 0.48
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.006,
+          "amp": 0.4
+        },
+        "noise": {
+          "amp": 0.48,
+          "decay": 0.09,
+          "type": "pink",
+          "bandpass": {
+            "center": 4200,
+            "q": 0.65
+          }
+        },
+        "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 39,
+      "name": "Hand Clap",
+      "shortName": "Hand Clap",
+      "description": "Layered clap with a sharp, brief transient.",
+      "preset": {
+        "mute": false,
+        "gain": 0.57,
+        "duration": 0.3,
+        "noise": {
+          "amp": 0.85,
+          "decay": 0.13,
+          "type": "pink",
+          "bandpass": {
+            "center": 1400,
+            "q": 0.6
+          }
+        },
+        "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "bursts": [
+          0,
+          0.011,
+          0.022,
+          0.033
+        ]
+      }
+    },
+    {
+      "note": 40,
+      "name": "Electric Snare",
+      "shortName": "Elec. Snare",
+      "description": "Bright snare snap with a tight noisy tail.",
+      "preset": {
+        "mute": false,
+        "gain": 0.88,
+        "duration": 0.28,
+        "membrane": {
+          "freq": 195,
+          "pitchDecay": 0.025,
+          "decay": 0.055,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.28,
+              "decay": 0.75
+            },
+            {
+              "ratio": 1.83,
+              "amp": 0.25,
+              "decay": 0.68
+            },
+            {
+              "ratio": 2.13,
+              "amp": 0.16,
+              "decay": 0.48
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.006,
+          "amp": 0.38
+        },
+        "noise": {
+          "amp": 0.5,
+          "decay": 0.1,
+          "type": "pink",
+          "bandpass": {
+            "center": 4800,
+            "q": 0.7
+          }
+        },
+        "highpass": 600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 41,
+      "name": "Low Floor Tom",
+      "shortName": "Low Floor Tom",
+      "description": "Pitched tom strike with a rounded, resonant.",
+      "preset": {
+        "mute": false,
+        "gain": 0.85,
+        "duration": 0.65,
+        "membrane": {
+          "freq": 78,
+          "pitchDecay": 0.025,
+          "decay": 0.26,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.5,
+              "decay": 0.75
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.25,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.15,
+              "decay": 0.42
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.004,
+          "amp": 0.3
+        },
+        "noise": {
+          "amp": 0.34,
+          "decay": 0.018,
+          "type": "pink",
+          "bandpass": {
+            "center": 2200,
+            "q": 0.75
+          }
+        },
+        "highpass": 55,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 5500,
+        "fadeOut": 0.06
+      }
+    },
+    {
+      "note": 42,
+      "name": "Closed Hi-Hat",
+      "shortName": "Closed Hi-Hat",
+      "description": "Dry, short hiss with a crisp cymbal edge.",
+      "preset": {
+        "mute": false,
+        "gain": 0.17,
+        "duration": 0.14,
+        "noiseLayers": [
+          {
+            "amp": 0.95,
+            "decay": 0.009,
+            "type": "white",
+            "bandpass": {
+              "center": 9600,
+              "q": 0.52
+            }
+          },
+          {
+            "amp": 0.48,
+            "decay": 0.017,
+            "type": "pink",
+            "bandpass": {
+              "center": 7600,
+              "q": 0.58
+            }
+          },
+          {
+            "amp": 0.24,
+            "decay": 0.014,
+            "type": "white",
+            "bandpass": {
+              "center": 11000,
+              "q": 0.7
+            }
+          }
+        ],
+        "highpass": 4500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
+      }
+    },
+    {
+      "note": 43,
+      "name": "High Floor Tom",
+      "shortName": "High Floor Tom",
+      "description": "Pitched tom strike with a rounded, resonant.",
+      "preset": {
+        "mute": false,
+        "gain": 0.82,
+        "duration": 0.6,
+        "membrane": {
+          "freq": 90,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.5,
+              "decay": 0.75
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.25,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.15,
+              "decay": 0.42
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.004,
+          "amp": 0.26
+        },
+        "noise": {
+          "amp": 0.29,
+          "decay": 0.018,
+          "type": "pink",
+          "bandpass": {
+            "center": 1800,
+            "q": 0.75
+          }
+        },
+        "highpass": 55,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 5000,
+        "fadeOut": 0.05
+      }
+    },
+    {
+      "note": 44,
+      "name": "Pedal Hi-Hat",
+      "shortName": "Pedal Hi-Hat",
+      "description": "Muted metal chick with a short, dry sizzle.",
+      "preset": {
+        "mute": false,
+        "gain": 0.2,
+        "duration": 0.13,
+        "noiseLayers": [
+          {
+            "amp": 0.72,
+            "decay": 0.008,
+            "type": "white",
+            "bandpass": {
+              "center": 9200,
+              "q": 0.62
+            }
+          },
+          {
+            "amp": 0.4,
+            "decay": 0.015,
+            "type": "pink",
+            "bandpass": {
+              "center": 5200,
+              "q": 0.72
+            }
+          }
+        ],
+        "click": {
+          "duration": 0.002,
+          "amp": 0.12
+        },
+        "highpass": 2800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
+      }
+    },
+    {
+      "note": 45,
+      "name": "Low Tom",
+      "shortName": "Low Tom",
+      "description": "Pitched tom strike with a rounded, resonant decay.",
+      "preset": {
+        "mute": false,
+        "gain": 0.77,
+        "duration": 0.55,
+        "membrane": {
+          "freq": 120,
+          "pitchDecay": 0.025,
+          "decay": 0.25,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.5,
+              "decay": 0.75
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.25,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.15,
+              "decay": 0.42
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.004,
+          "amp": 0.3
+        },
+        "noise": {
+          "amp": 0.34,
+          "decay": 0.016,
+          "type": "pink",
+          "bandpass": {
+            "center": 2700,
+            "q": 0.75
+          }
+        },
+        "highpass": 100,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6500,
+        "fadeOut": 0.05
+      }
+    },
+    {
+      "note": 46,
+      "name": "Open Hi-Hat",
+      "shortName": "Open Hi-Hat",
+      "description": "Bright metallic shimmer with a sustained decay.",
+      "preset": {
+        "mute": false,
+        "gain": 0.045,
+        "duration": 0.9,
+        "fadeOut": 0.18,
+        "noiseLayers": [
+          {
+            "amp": 0.32,
+            "decay": 0.24,
+            "type": "pink",
+            "bandpass": {
+              "center": 7600,
+              "q": 0.5
+            }
+          }
+        ],
+        "highpass": 4600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
+      }
+    },
+    {
+      "note": 47,
+      "name": "Low-Mid Tom",
+      "shortName": "Low-Mid Tom",
+      "description": "Pitched tom strike with a rounded, resonant.",
+      "preset": {
+        "mute": false,
+        "gain": 0.77,
+        "duration": 0.55,
+        "membrane": {
+          "freq": 155,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.5,
+              "decay": 0.75
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.25,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.15,
+              "decay": 0.42
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.004,
+          "amp": 0.26
+        },
+        "noise": {
+          "amp": 0.29,
+          "decay": 0.015,
+          "type": "pink",
+          "bandpass": {
+            "center": 2200,
+            "q": 0.75
+          }
+        },
+        "highpass": 90,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6000,
+        "fadeOut": 0.05
+      }
+    },
+    {
+      "note": 48,
+      "name": "Hi-Mid Tom",
+      "shortName": "Hi-Mid Tom",
+      "description": "Pitched tom strike with a rounded, resonant.",
+      "preset": {
+        "mute": false,
+        "gain": 0.77,
+        "duration": 0.55,
+        "membrane": {
+          "freq": 190,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.5,
+              "decay": 0.75
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.25,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.15,
+              "decay": 0.42
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.004,
+          "amp": 0.28
+        },
+        "noise": {
+          "amp": 0.29,
+          "decay": 0.014,
+          "type": "pink",
+          "bandpass": {
+            "center": 2400,
+            "q": 0.75
+          }
+        },
+        "highpass": 115,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 6500,
+        "fadeOut": 0.05
+      }
+    },
+    {
+      "note": 49,
+      "name": "Crash Cymbal 1",
+      "shortName": "Crash Cymbal 1",
+      "description": "Bright cymbal crash with a broad metallic.",
+      "preset": {
+        "mute": false,
+        "gain": 0.31,
+        "duration": 2.0,
+        "fadeOut": 1,
+        "impact": {
+          "amp": 0.45,
+          "duration": 0.045,
+          "decay": 0.02,
+          "type": "white",
+          "bandpass": {
+            "center": 5200,
+            "q": 0.55
+          }
+        },
+        "noiseLayers": [
+          {
+            "amp": 0.7,
+            "decay": 0.09,
+            "type": "white",
+            "bandpass": {
+              "center": 9200,
+              "q": 0.7
+            }
+          },
+          {
+            "amp": 0.5,
+            "decay": 0.14,
+            "type": "white",
+            "bandpass": {
+              "center": 9800,
+              "q": 0.75
+            }
+          },
+          {
+            "amp": 0.85,
+            "decay": 2,
+            "type": "pink",
+            "bandpass": {
+              "center": 6800,
+              "q": 0.65
+            }
+          },
+          {
+            "amp": 0.6,
+            "decay": 1.5,
+            "type": "pink",
+            "bandpass": {
+              "center": 8600,
+              "q": 0.7
+            }
+          },
+          {
+            "amp": 0.5,
+            "decay": 3,
+            "type": "pink",
+            "bandpass": {
+              "center": 5200,
+              "q": 0.8
+            }
+          }
+        ],
+        "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
+      }
+    },
+    {
+      "note": 50,
+      "name": "High Tom",
+      "shortName": "High Tom",
+      "description": "Pitched tom strike with a rounded, resonant decay.",
+      "preset": {
+        "mute": false,
+        "gain": 0.77,
+        "duration": 0.55,
+        "membrane": {
+          "freq": 240,
+          "pitchDecay": 0.035,
+          "decay": 0.32,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.5,
+              "decay": 0.75
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.25,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.296,
+              "amp": 0.15,
+              "decay": 0.42
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.004,
+          "amp": 0.28
+        },
+        "noise": {
+          "amp": 0.29,
+          "decay": 0.013,
+          "type": "pink",
+          "bandpass": {
+            "center": 2700,
+            "q": 0.75
+          }
+        },
+        "highpass": 145,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 7000,
+        "fadeOut": 0.05
+      }
+    },
+    {
+      "note": 51,
+      "name": "Ride Cymbal 1",
+      "shortName": "Ride Cymbal 1",
+      "description": "Bright ride strike with a clear, ringing.",
+      "preset": {
+        "mute": false,
+        "gain": 0.19,
+        "duration": 1.5,
+        "fadeOut": 0.3,
+        "noiseLayers": [
+          {
+            "amp": 0.7,
+            "decay": 0.025,
+            "type": "white",
+            "bandpass": {
+              "center": 8200,
+              "q": 0.5
+            }
+          },
+          {
+            "amp": 0.52,
+            "decay": 0.25,
+            "type": "white",
+            "bandpass": {
+              "center": 6000,
+              "q": 0.55
+            }
+          },
+          {
+            "amp": 0.45,
+            "decay": 0.3,
+            "type": "pink",
+            "bandpass": {
+              "center": 3800,
+              "q": 0.65
+            }
+          },
+          {
+            "amp": 0.3,
+            "decay": 0.32,
+            "type": "pink",
+            "bandpass": {
+              "center": 2800,
+              "q": 0.8
+            }
+          }
+        ],
+        "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 10000
+      }
+    },
+    {
+      "note": 52,
+      "name": "Chinese Cymbal",
+      "shortName": "Chinese Cymbal",
+      "description": "Bright cymbal crash with a broad metallic.",
+      "preset": {
+        "mute": false,
+        "gain": 0.16,
+        "duration": 1.8,
+        "noiseLayers": [
+          {
+            "amp": 0.9,
+            "decay": 1,
+            "type": "white",
+            "bandpass": {
+              "center": 8500,
+              "q": 0.45
+            }
+          },
+          {
+            "amp": 0.7,
+            "decay": 0.8,
+            "type": "white",
+            "bandpass": {
+              "center": 6200,
+              "q": 0.5
+            }
+          },
+          {
+            "amp": 0.45,
+            "decay": 0.55,
+            "type": "pink",
+            "bandpass": {
+              "center": 3900,
+              "q": 0.6
+            }
+          },
+          {
+            "amp": 0.3,
+            "decay": 0.35,
+            "type": "white",
+            "bandpass": {
+              "center": 10200,
+              "q": 0.7
+            }
+          }
+        ],
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 53,
+      "name": "Ride Bell",
+      "shortName": "Ride Bell",
+      "description": "Bright ride strike with a clear, ringing sustain.",
+      "preset": {
+        "mute": false,
+        "gain": 0.23,
+        "duration": 1.1,
+        "metallic": {
+          "baseFreq": 900,
+          "partials": [
+            1,
+            1.36,
+            1.81,
+            2.42,
+            3.16,
+            4.08,
+            5.17,
+            6.44,
+            7.91,
+            9.54
+          ],
+          "decay": 0.42,
+          "amp": 0.32,
+          "randomPhase": true
+        },
+        "click": {
+          "duration": 0.002,
+          "amp": 0.22
+        },
+        "noiseLayers": [
+          {
+            "amp": 0.55,
+            "decay": 0.02,
+            "type": "white",
+            "bandpass": {
+              "center": 9000,
+              "q": 0.5
+            }
+          },
+          {
+            "amp": 0.4,
+            "decay": 0.3,
+            "type": "white",
+            "bandpass": {
+              "center": 6500,
+              "q": 0.48
+            }
+          },
+          {
+            "amp": 0.28,
+            "decay": 0.24,
+            "type": "pink",
+            "bandpass": {
+              "center": 4200,
+              "q": 0.6
+            }
+          },
+          {
+            "amp": 0.16,
+            "decay": 0.16,
+            "type": "white",
+            "bandpass": {
+              "center": 10200,
+              "q": 0.7
+            }
+          }
+        ],
+        "highpass": 1800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 11000
+      }
+    },
+    {
+      "note": 54,
+      "name": "Tambourine",
+      "shortName": "Tambourine",
+      "description": "Bright tambourine jingle with a rattling tail.",
+      "preset": {
+        "mute": false,
+        "gain": 0.18,
+        "duration": 0.3,
+        "metallic": {
+          "baseFreq": 3600,
+          "partials": [
+            0.83,
+            1,
+            1.15,
+            1.31,
+            1.48,
+            1.65,
+            1.82,
+            1.99,
+            2.17,
+            2.38,
+            2.6,
+            2.83
+          ],
+          "decay": 0.03,
+          "amp": 0.28,
+          "randomPhase": true
+        },
+        "noiseLayers": [
+          {
+            "amp": 0.9,
+            "decay": 0.045,
+            "type": "white",
+            "bandpass": {
+              "center": 9500,
+              "q": 0.55
+            }
+          },
+          {
+            "amp": 0.62,
+            "decay": 0.1,
+            "type": "white",
+            "bandpass": {
+              "center": 7000,
+              "q": 0.6
+            }
+          },
+          {
+            "amp": 0.42,
+            "decay": 0.15,
+            "type": "pink",
+            "bandpass": {
+              "center": 4800,
+              "q": 0.65
+            }
+          },
+          {
+            "amp": 0.28,
+            "decay": 0.065,
+            "type": "white",
+            "bandpass": {
+              "center": 10800,
+              "q": 0.72
+            }
+          }
+        ],
+        "highpass": 3400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 10500
+      }
+    },
+    {
+      "note": 55,
+      "name": "Splash Cymbal",
+      "shortName": "Splash Cymbal",
+      "description": "Bright cymbal crash with a broad metallic.",
+      "preset": {
+        "mute": false,
+        "gain": 0.18,
+        "duration": 0.6,
+        "noiseLayers": [
+          {
+            "amp": 0.9,
+            "decay": 0.35,
+            "type": "white",
+            "bandpass": {
+              "center": 8500,
+              "q": 0.45
+            }
+          },
+          {
+            "amp": 0.7,
+            "decay": 0.28,
+            "type": "white",
+            "bandpass": {
+              "center": 6200,
+              "q": 0.5
+            }
+          },
+          {
+            "amp": 0.45,
+            "decay": 0.1925,
+            "type": "pink",
+            "bandpass": {
+              "center": 3900,
+              "q": 0.6
+            }
+          },
+          {
+            "amp": 0.3,
+            "decay": 0.1225,
+            "type": "white",
+            "bandpass": {
+              "center": 10200,
+              "q": 0.7
+            }
+          }
+        ],
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 56,
+      "name": "Cowbell",
+      "shortName": "Cowbell",
+      "description": "Pitched metal strike with a hollow bell-like ring.",
+      "preset": {
+        "mute": false,
+        "gain": 0.55,
+        "duration": 0.5,
+        "tones": [
+          {
+            "fStart": 800,
+            "fEnd": 800,
+            "pitchDecay": 1,
+            "decay": 0.35,
+            "amp": 0.55
+          },
+          {
+            "fStart": 540,
+            "fEnd": 540,
+            "pitchDecay": 1,
+            "decay": 0.35,
+            "amp": 0.5
+          }
+        ],
+        "highpass": 400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 57,
+      "name": "Crash Cymbal 2",
+      "shortName": "Crash Cymbal 2",
+      "description": "Bright cymbal crash with a broad metallic.",
+      "preset": {
+        "mute": false,
+        "gain": 0.31,
+        "duration": 2.0,
+        "fadeOut": 0.95,
+        "impact": {
+          "amp": 0.42,
+          "duration": 0.04,
+          "decay": 0.018,
+          "type": "white",
+          "bandpass": {
+            "center": 5400,
+            "q": 0.55
+          }
+        },
+        "noiseLayers": [
+          {
+            "amp": 0.72,
+            "decay": 0.09,
+            "type": "white",
+            "bandpass": {
+              "center": 9400,
+              "q": 0.7
+            }
+          },
+          {
+            "amp": 0.48,
+            "decay": 0.14,
+            "type": "white",
+            "bandpass": {
+              "center": 10000,
+              "q": 0.75
+            }
+          },
+          {
+            "amp": 0.82,
+            "decay": 1.85,
+            "type": "pink",
+            "bandpass": {
+              "center": 7000,
+              "q": 0.65
+            }
+          },
+          {
+            "amp": 0.58,
+            "decay": 1.4,
+            "type": "pink",
+            "bandpass": {
+              "center": 8800,
+              "q": 0.7
+            }
+          },
+          {
+            "amp": 0.45,
+            "decay": 2.8,
+            "type": "pink",
+            "bandpass": {
+              "center": 5300,
+              "q": 0.8
+            }
+          }
+        ],
+        "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 12000
+      }
+    },
+    {
+      "note": 58,
+      "name": "Vibraslap",
+      "shortName": "Vibraslap",
+      "description": "Springy slap with a rattling, noisy decay.",
+      "preset": {
+        "mute": false,
+        "gain": 0.45,
+        "duration": 0.55,
+        "tones": [
+          {
+            "fStart": 400,
+            "fEnd": 400,
+            "pitchDecay": 1,
+            "decay": 0.4,
+            "amp": 0.5,
+            "fm": {
+              "ratio": 3.7,
+              "index": 2
+            }
+          }
+        ],
+        "noise": {
+          "amp": 0.4,
+          "decay": 0.3,
+          "type": "pink"
+        },
+        "highpass": 800,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 59,
+      "name": "Ride Cymbal 2",
+      "shortName": "Ride Cymbal 2",
+      "description": "Bright ride strike with a clear, ringing.",
+      "preset": {
+        "mute": false,
+        "gain": 0.28,
+        "duration": 1.4,
+        "fadeOut": 0.28,
+        "noiseLayers": [
+          {
+            "amp": 0.7,
+            "decay": 0.025,
+            "type": "white",
+            "bandpass": {
+              "center": 8200,
+              "q": 0.5
+            }
+          },
+          {
+            "amp": 0.5,
+            "decay": 0.22,
+            "type": "white",
+            "bandpass": {
+              "center": 6100,
+              "q": 0.55
+            }
+          },
+          {
+            "amp": 0.42,
+            "decay": 0.27,
+            "type": "pink",
+            "bandpass": {
+              "center": 3900,
+              "q": 0.65
+            }
+          },
+          {
+            "amp": 0.28,
+            "decay": 0.3,
+            "type": "pink",
+            "bandpass": {
+              "center": 2900,
+              "q": 0.8
+            }
+          }
+        ],
+        "highpass": 120,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 10000
+      }
+    },
+    {
+      "note": 60,
+      "name": "Hi Bongo",
+      "shortName": "Hi Bongo",
+      "description": "Skin-drum strike with a crisp, woody tone.",
+      "preset": {
+        "mute": false,
+        "gain": 0.42,
+        "duration": 0.27,
+        "membrane": {
+          "freq": 400,
+          "pitchDecay": 0.018,
+          "decay": 0.06,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.52,
+              "decay": 0.72
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.3,
+              "decay": 0.45
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.24
+        },
+        "noise": {
+          "amp": 0.16,
+          "decay": 0.008,
+          "type": "pink",
+          "bandpass": {
+            "center": 1700,
+            "q": 0.8
+          }
+        },
+        "highpass": 260,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 61,
+      "name": "Low Bongo",
+      "shortName": "Low Bongo",
+      "description": "Skin-drum strike with a crisp, woody tone.",
+      "preset": {
+        "mute": false,
+        "gain": 0.42,
+        "duration": 0.27,
+        "membrane": {
+          "freq": 280,
+          "pitchDecay": 0.018,
+          "decay": 0.07,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.56,
+              "decay": 0.72
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.32,
+              "decay": 0.45
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.22
+        },
+        "noise": {
+          "amp": 0.16,
+          "decay": 0.008,
+          "type": "pink",
+          "bandpass": {
+            "center": 1400,
+            "q": 0.8
+          }
+        },
+        "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 62,
+      "name": "Mute Hi Conga",
+      "shortName": "Mute Hi Conga",
+      "description": "Short, dry high conga strike with a bright, muted skin tone.",
+      "preset": {
+        "mute": false,
+        "gain": 0.32,
+        "duration": 0.12,
+        "membrane": {
+          "freq": 297,
+          "pitchDecay": 0.008,
+          "decay": 0.045,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.55,
+              "decay": 0.75
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.32,
+              "decay": 0.48
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.15,
+              "decay": 0.3
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.002,
+          "amp": 0.3
+        },
+        "noise": {
+          "amp": 0.19,
+          "decay": 0.012,
+          "type": "pink",
+          "bandpass": {
+            "center": 2200,
+            "q": 0.8
+          }
+        },
+        "lowpass": 4600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 63,
+      "name": "Open Hi Conga",
+      "shortName": "Open Hi Conga",
+      "description": "Conga strike with a rounded, resonant skin.",
+      "preset": {
+        "mute": false,
+        "gain": 0.55,
+        "duration": 0.42,
+        "membrane": {
+          "freq": 280,
+          "pitchDecay": 0.02,
+          "decay": 0.12,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.62,
+              "decay": 0.8
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.38,
+              "decay": 0.54
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.18,
+              "decay": 0.35
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.22
+        },
+        "noise": {
+          "amp": 0.16,
+          "decay": 0.01,
+          "type": "pink",
+          "bandpass": {
+            "center": 1550,
+            "q": 0.8
+          }
+        },
+        "lowpass": 2400,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 64,
+      "name": "Low Conga",
+      "shortName": "Low Conga",
+      "description": "Conga strike with a rounded, resonant skin tone.",
+      "preset": {
+        "mute": false,
+        "gain": 0.55,
+        "duration": 0.42,
+        "membrane": {
+          "freq": 200,
+          "pitchDecay": 0.02,
+          "decay": 0.09,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.6,
+              "decay": 0.78
+            },
+            {
+              "ratio": 1.593,
+              "amp": 0.35,
+              "decay": 0.52
+            },
+            {
+              "ratio": 2.136,
+              "amp": 0.16,
+              "decay": 0.34
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.2
+        },
+        "noise": {
+          "amp": 0.15,
+          "decay": 0.009,
+          "type": "pink",
+          "bandpass": {
+            "center": 1200,
+            "q": 0.8
+          }
+        },
+        "lowpass": 2000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 65,
+      "name": "High Timbale",
+      "shortName": "High Timbale",
+      "description": "Bright, sharp, resonant metal drum.",
+      "preset": {
+        "mute": false,
+        "gain": 0.45,
+        "duration": 0.28,
+        "membrane": {
+          "freq": 340,
+          "pitchDecay": 0.015,
+          "decay": 0.18,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 0.58,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 0.518,
+              "amp": 0.72,
+              "decay": 0.48,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 1.447,
+              "amp": 0.53,
+              "decay": 0.48,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 1.965,
+              "amp": 0.52,
+              "decay": 0.44,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.447,
+              "amp": 0.64,
+              "decay": 0.62,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.829,
+              "amp": 0.4,
+              "decay": 0.42,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 4.068,
+              "amp": 0.54,
+              "decay": 0.38,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 5.067,
+              "amp": 0.32,
+              "decay": 0.32,
+              "startRatio": 1.04
+            }
+          ]
+        },
+        "noise": {
+          "amp": 0.22,
+          "decay": 0.012,
+          "type": "white",
+          "bandpass": {
+            "center": 2500,
+            "q": 0.7
+          }
+        },
+        "highpass": 110,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 4500
+      }
+    },
+    {
+      "note": 66,
+      "name": "Low Timbale",
+      "shortName": "Low Timbale",
+      "description": "Bright, resonant metal drum with a full tone.",
+      "preset": {
+        "mute": false,
+        "gain": 0.45,
+        "duration": 0.35,
+        "membrane": {
+          "freq": 270,
+          "pitchDecay": 0.018,
+          "decay": 0.22,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 0.6,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 0.522,
+              "amp": 0.72,
+              "decay": 0.48,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 1.389,
+              "amp": 0.51,
+              "decay": 0.5,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 1.911,
+              "amp": 0.55,
+              "decay": 0.44,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.39,
+              "amp": 0.64,
+              "decay": 0.58,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 2.91,
+              "amp": 0.32,
+              "decay": 0.38,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 3.95,
+              "amp": 0.5,
+              "decay": 0.35,
+              "startRatio": 1.04
+            },
+            {
+              "ratio": 4.25,
+              "amp": 0.54,
+              "decay": 0.32,
+              "startRatio": 1.04
+            }
+          ]
+        },
+        "noise": {
+          "amp": 0.2,
+          "decay": 0.012,
+          "type": "white",
+          "bandpass": {
+            "center": 2300,
+            "q": 0.72
+          }
+        },
+        "highpass": 90,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 3800
+      }
+    },
+    {
+      "note": 67,
+      "name": "High Agogo",
+      "shortName": "High Agogo",
+      "description": "Pitched bell strike with a clear metallic ring.",
+      "preset": {
+        "mute": false,
+        "gain": 0.5,
+        "duration": 0.5,
+        "tones": [
+          {
+            "fStart": 1200,
+            "fEnd": 1200,
+            "pitchDecay": 1,
+            "decay": 0.3,
+            "amp": 0.6
+          },
+          {
+            "fStart": 2280,
+            "fEnd": 2280,
+            "pitchDecay": 1,
+            "decay": 0.2,
+            "amp": 0.3
+          }
+        ],
+        "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 68,
+      "name": "Low Agogo",
+      "shortName": "Low Agogo",
+      "description": "Pitched bell strike with a clear metallic ring.",
+      "preset": {
+        "mute": false,
+        "gain": 0.5,
+        "duration": 0.5,
+        "tones": [
+          {
+            "fStart": 800,
+            "fEnd": 800,
+            "pitchDecay": 1,
+            "decay": 0.3,
+            "amp": 0.6
+          },
+          {
+            "fStart": 1520,
+            "fEnd": 1520,
+            "pitchDecay": 1,
+            "decay": 0.2,
+            "amp": 0.3
+          }
+        ],
+        "highpass": 500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 69,
+      "name": "Cabasa",
+      "shortName": "Cabasa",
+      "description": "Dry shaker rattle with a fine, gritty texture.",
+      "preset": {
+        "mute": false,
+        "gain": 0.35,
+        "duration": 0.16,
+        "noise": {
+          "amp": 1,
+          "decay": 0.06,
+          "type": "pink",
+          "bandpass": {
+            "center": 7500,
+            "q": 0.6
+          }
+        },
+        "highpass": 6000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 70,
+      "name": "Maracas",
+      "shortName": "Maracas",
+      "description": "Crisp shaker rattle with a short, bright tail.",
+      "preset": {
+        "mute": false,
+        "gain": 0.12,
+        "duration": 0.13,
+        "noise": {
+          "amp": 1,
+          "decay": 0.04,
+          "type": "pink",
+          "bandpass": {
+            "center": 8000,
+            "q": 0.6
+          }
+        },
+        "highpass": 7000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 71,
+      "name": "Short Whistle",
+      "shortName": "Short Whistle",
+      "description": "Breathy whistle tone with a clear sustained.",
+      "preset": {
+        "mute": false,
+        "gain": 0.75,
+        "duration": 0.25,
+        "tones": [
+          {
+            "fStart": 3700,
+            "fEnd": 3700,
+            "pitchDecay": 20,
+            "decay": 10,
+            "amp": 0.9
+          },
+          {
+            "fStart": 3740,
+            "fEnd": 3740,
+            "pitchDecay": 20,
+            "decay": 10,
+            "amp": 0.85
+          },
+          {
+            "fStart": 7400,
+            "fEnd": 7400,
+            "pitchDecay": 20,
+            "decay": 10,
+            "amp": 0.15
+          }
+        ],
+        "noise": {
+          "amp": 0.06,
+          "decay": 0.05,
+          "type": "pink",
+          "bandpass": {
+            "center": 3720,
+            "q": 10
+          }
+        },
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 72,
+      "name": "Long Whistle",
+      "shortName": "Long Whistle",
+      "description": "Breathy whistle tone with a clear sustained.",
+      "preset": {
+        "mute": false,
+        "gain": 0.7,
+        "duration": 0.55,
+        "tones": [
+          {
+            "fStart": 3700,
+            "fEnd": 3700,
+            "pitchDecay": 20,
+            "decay": 10,
+            "amp": 0.9
+          },
+          {
+            "fStart": 3740,
+            "fEnd": 3740,
+            "pitchDecay": 20,
+            "decay": 10,
+            "amp": 0.85
+          },
+          {
+            "fStart": 7400,
+            "fEnd": 7400,
+            "pitchDecay": 20,
+            "decay": 10,
+            "amp": 0.2
+          }
+        ],
+        "noise": {
+          "amp": 0.03,
+          "decay": 0.3,
+          "type": "pink",
+          "bandpass": {
+            "center": 3720,
+            "q": 12
+          }
+        },
+        "highpass": 3200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 73,
+      "name": "Short Guiro",
+      "shortName": "Short Guiro",
+      "description": "Short guiro scrape with the same bright, rattling texture.",
+      "preset": {
+        "mute": false,
+        "gain": 0.23,
+        "duration": 0.16,
+        "fadeOut": 0.025,
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.04,
+            "type": "white",
+            "bandpass": { "center": 2900, "q": 0.8 }
+          },
+          {
+            "delay": 0.022,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.06,
+            "type": "white",
+            "bandpass": { "center": 3700, "q": 0.8 }
+          },
+          {
+            "delay": 0.045,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.08,
+            "type": "white",
+            "bandpass": { "center": 4700, "q": 0.8 }
+          },
+          {
+            "delay": 0.068,
+            "duration": 0.045,
+            "decay": 0.03,
+            "amp": 0.1,
+            "type": "white",
+            "bandpass": { "center": 5900, "q": 0.8 }
+          },
+          {
+            "delay": 0.091,
+            "duration": 0.05,
+            "decay": 0.02,
+            "amp": 0.12,
+            "type": "white",
+            "bandpass": { "center": 7100, "q": 0.8 }
+          }
+        ],
+        "highpass": 1700,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 74,
+      "name": "Long Guiro",
+      "shortName": "Long Guiro",
+      "description": "Raspy guiro scrape with a textured, rattling.",
+      "preset": {
+        "mute": false,
+        "gain": 0.21,
+        "duration": 0.3,
+        "fadeOut": 0.05,
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.035,
+            "type": "white",
+            "bandpass": { "center": 3000, "q": 0.8 }
+          },
+          {
+            "delay": 0.025,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.05,
+            "type": "white",
+            "bandpass": { "center": 3500, "q": 0.8 }
+          },
+          {
+            "delay": 0.05,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.075,
+            "type": "white",
+            "bandpass": { "center": 4000, "q": 0.8 }
+          },
+          {
+            "delay": 0.075,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.09,
+            "type": "white",
+            "bandpass": { "center": 4700, "q": 0.8 }
+          },
+          {
+            "delay": 0.1,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.11,
+            "type": "white",
+            "bandpass": { "center": 5300, "q": 0.8 }
+          },
+          {
+            "delay": 0.125,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.13,
+            "type": "white",
+            "bandpass": { "center": 6000, "q": 0.8 }
+          },
+          {
+            "delay": 0.15,
+            "duration": 0.05,
+            "decay": 0.035,
+            "amp": 0.15,
+            "type": "white",
+            "bandpass": { "center": 7000, "q": 0.8 }
+          },
+          {
+            "delay": 0.18,
+            "duration": 0.12,
+            "decay": 0.018,
+            "amp": 0.2,
+            "type": "white",
+            "bandpass": { "center": 8000, "q": 0.8 }
+          }
+        ],
+        "highpass": 1600,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 75,
+      "name": "Claves",
+      "shortName": "Claves",
+      "description": "Sharp clave click with a dry, woody attack.",
+      "preset": {
+        "mute": false,
+        "gain": 0.16,
+        "duration": 0.13,
+        "tones": [
+          {
+            "fStart": 2400,
+            "fEnd": 2000,
+            "pitchDecay": 0.005,
+            "decay": 0.05,
+            "amp": 0.8
+          },
+          {
+            "fStart": 3600,
+            "fEnd": 3200,
+            "pitchDecay": 0.005,
+            "decay": 0.04,
+            "amp": 0.5
+          }
+        ],
+        "highpass": 1500,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 76,
+      "name": "Hi Wood Block",
+      "shortName": "Hi Wood Block",
+      "description": "Woodblock knock with a firm, hollow.",
+      "preset": {
+        "mute": false,
+        "gain": 0.07,
+        "duration": 0.13,
+        "tones": [
+          {
+            "fStart": 900,
+            "fEnd": 810,
+            "pitchDecay": 0.01,
+            "decay": 0.05,
+            "amp": 1
+          }
+        ],
+        "noise": {
+          "amp": 0.18,
+          "decay": 0.006,
+          "type": "pink"
+        },
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 77,
+      "name": "Low Wood Block",
+      "shortName": "Low Wood Block",
+      "description": "Woodblock knock with a firm, hollow.",
+      "preset": {
+        "mute": false,
+        "gain": 0.07,
+        "duration": 0.13,
+        "tones": [
+          {
+            "fStart": 550,
+            "fEnd": 495,
+            "pitchDecay": 0.01,
+            "decay": 0.05,
+            "amp": 1
+          }
+        ],
+        "noise": {
+          "amp": 0.18,
+          "decay": 0.006,
+          "type": "pink"
+        },
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 78,
+      "name": "Mute Cuica",
+      "shortName": "Mute Cuica",
+      "description": "Nasal cuica squeak with a sliding pitched.",
+      "preset": {
+        "mute": false,
+        "gain": 0.45,
+        "duration": 0.18,
+        "tones": [
+          {
+            "fStart": 400,
+            "fEnd": 700,
+            "pitchDecay": 0.15,
+            "decay": 0.18,
+            "amp": 1,
+            "fm": {
+              "ratio": 2.3,
+              "index": 1
+            }
+          }
+        ],
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 79,
+      "name": "Open Cuica",
+      "shortName": "Open Cuica",
+      "description": "Nasal cuica squeak with a sliding pitched.",
+      "preset": {
+        "mute": false,
+        "gain": 0.45,
+        "duration": 0.4,
+        "tones": [
+          {
+            "fStart": 400,
+            "fEnd": 700,
+            "pitchDecay": 0.15,
+            "decay": 0.4,
+            "amp": 1,
+            "fm": {
+              "ratio": 2.3,
+              "index": 1
+            }
+          }
+        ],
+        "highpass": 300,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 80,
+      "name": "Mute Triangle",
+      "shortName": "Mute Triangle",
+      "description": "Short, subdued metallic tick.",
+      "preset": {
+        "mute": false,
+        "gain": 0.04,
+        "duration": 0.12,
+        "metallic": {
+          "baseFreq": 3600,
+          "partials": [
+            1,
+            1.42,
+            1.85,
+            2.3
+          ],
+          "decay": 0.045,
+          "amp": 0.3,
+          "randomPhase": true
+        },
+        "click": {
+          "duration": 0.002,
+          "amp": 0.1
+        },
+        "highpass": 2200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 8500
+      }
+    },
+    {
+      "note": 81,
+      "name": "Open Triangle",
+      "shortName": "Open Triangle",
+      "description": "Metal triangle strike with a bright ringing.",
+      "preset": {
+        "mute": false,
+        "gain": 0.04,
+        "duration": 1,
+        "metallic": {
+          "baseFreq": 5200,
+          "partials": [
+            1,
+            1.71,
+            2.94,
+            4.62
+          ],
+          "decay": 1,
+          "amp": 0.55
+        },
+        "highpass": 3000,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 82,
+      "name": "Shaker",
+      "shortName": "Shaker",
+      "description": "Soft maracas-like shaker with a gentle, airy attack.",
+      "preset": {
+        "mute": false,
+        "gain": 0.05,
+        "duration": 0.26,
+        "noiseLayers": [
+          {
+            "amp": 0.62,
+            "decay": 0.12,
+            "type": "pink",
+            "bandpass": {
+              "center": 8800,
+              "q": 0.6
+            }
+          },
+          {
+            "amp": 0.28,
+            "decay": 0.17,
+            "type": "pink",
+            "bandpass": {
+              "center": 10200,
+              "q": 0.56
+            }
+          }
+        ],
+        "highpass": 6200,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 11500
+      }
+    },
+    {
+      "note": 83,
+      "name": "Open Cuica 2",
+      "shortName": "Open Cuica 2",
+      "description": "Upward squeak with a breathy edge.",
+      "preset": {
+        "mute": false,
+        "gain": 0.15,
+        "duration": 0.42,
+        "tones": [
+          {
+            "fStart": 420,
+            "fEnd": 820,
+            "pitchDecay": 0.09,
+            "decay": 0.34,
+            "amp": 0.78,
+            "fm": {
+              "ratio": 2.1,
+              "index": 0.8
+            }
+          }
+        ],
+        "noise": {
+          "amp": 0.16,
+          "decay": 0.22,
+          "type": "pink",
+          "bandpass": {
+            "center": 1300,
+            "q": 1.2
+          }
+        },
+        "highpass": 220,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "note": 84,
+      "name": "Bell Tree",
+      "shortName": "Bell Tree",
+      "description": "Cascading metallic chime with a long shimmer.",
+      "preset": {
+        "mute": false,
+        "gain": 0.3,
+        "duration": 1.1,
+        "metallic": {
+          "baseFreq": 1900,
+          "partials": [
+            1,
+            1.31,
+            1.71,
+            2.04,
+            2.42,
+            2.83,
+            3.27
+          ],
+          "decay": 0.85,
+          "amp": 0.42
+        },
+        "highpass": 650,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 10500
+      }
+    },
+    {
+      "note": 85,
+      "name": "Castanets",
+      "shortName": "Castanets",
+      "description": "Dry, sharp wooden clacks with a pair of bright resonances.",
+      "preset": {
+        "mute": false,
+        "gain": 0.22,
+        "duration": 0.18,
+        "tones": [
+          {
+            "fStart": 1850,
+            "fEnd": 1450,
+            "pitchDecay": 0.004,
+            "decay": 0.032,
+            "amp": 0.54
+          },
+          {
+            "fStart": 3150,
+            "fEnd": 2600,
+            "pitchDecay": 0.003,
+            "decay": 0.021,
+            "amp": 0.3
+          }
+        ],
+        "impacts": [
+          {
+            "delay": 0,
+            "duration": 0.022,
+            "decay": 0.006,
+            "amp": 0.38,
+            "type": "white",
+            "bandpass": {
+              "center": 3600,
+              "q": 0.72
+            }
+          },
+          {
+            "delay": 0.014,
+            "duration": 0.018,
+            "decay": 0.005,
+            "amp": 0.2,
+            "type": "white",
+            "bandpass": {
+              "center": 4700,
+              "q": 0.68
+            }
+          }
+        ],
+        "highpass": 900,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 8500
+      }
+    },
+    {
+      "note": 86,
+      "name": "Mute Surdo",
+      "shortName": "Mute Surdo",
+      "description": "Short, damped low surdo thump with a soft beater attack.",
+      "preset": {
+        "mute": false,
+        "gain": 0.56,
+        "duration": 0.3,
+        "membrane": {
+          "freq": 118,
+          "pitchDecay": 0.018,
+          "decay": 0.16,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 0.9,
+              "decay": 1
+            },
+            {
+              "ratio": 1.62,
+              "amp": 0.34,
+              "decay": 0.58
+            },
+            {
+              "ratio": 2.18,
+              "amp": 0.16,
+              "decay": 0.38
+            },
+            {
+              "ratio": 2.76,
+              "amp": 0.07,
+              "decay": 0.25
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.003,
+          "amp": 0.16
+        },
+        "noise": {
+          "amp": 0.13,
+          "decay": 0.022,
+          "type": "pink",
+          "bandpass": {
+            "center": 460,
+            "q": 0.7
+          }
+        },
+        "highpass": 35,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 1800
+      }
+    },
+    {
+      "note": 87,
+      "name": "Open Surdo",
+      "shortName": "Open Surdo",
+      "description": "Deep, resonant surdo note with a rounded attack and decay.",
+      "preset": {
+        "mute": false,
+        "gain": 0.36,
+        "duration": 1.3,
+        "fadeOut": 0.15,
+        "membrane": {
+          "freq": 92,
+          "pitchDecay": 0.022,
+          "decay": 0.42,
+          "modes": [
+            {
+              "ratio": 1,
+              "amp": 1,
+              "decay": 1
+            },
+            {
+              "ratio": 1.58,
+              "amp": 0.42,
+              "decay": 0.78
+            },
+            {
+              "ratio": 2.12,
+              "amp": 0.2,
+              "decay": 0.55
+            },
+            {
+              "ratio": 2.68,
+              "amp": 0.12,
+              "decay": 0.4
+            },
+            {
+              "ratio": 3.16,
+              "amp": 0.07,
+              "decay": 0.3
+            }
+          ]
+        },
+        "click": {
+          "duration": 0.007,
+          "amp": 0.28
+        },
+        "noise": {
+          "amp": 0.18,
+          "decay": 0.025,
+          "type": "pink",
+          "bandpass": {
+            "center": 380,
+            "q": 0.7
+          }
+        },
+        "highpass": 45,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "lowpass": 1200
+      }
+    }
+  ]
+}
