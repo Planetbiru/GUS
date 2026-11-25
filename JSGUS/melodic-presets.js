@@ -3982,29 +3982,56 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "mute": false,
-        "defaultWaveform": "breath",
+        "defaultWaveform": null,
         "gain": 0.48,
         "loop": true,
-        "cycles": 38,
-        "loopSkip": 24,
+        "loopStartSeconds": 0.63,
+        "loopEndSeconds": 1.341,
         "env": {
           "a": 0.18,
           "d": 0.3,
           "s": 0.9,
           "r": 0.4
         },
+        "patchEnvelope": {
+          "rates": [
+            63,
+            63,
+            63,
+            141,
+            63,
+            63
+          ],
+          "offsets": [
+            246,
+            246,
+            246,
+            0,
+            0,
+            0
+          ]
+        },
         "harm": [
           1,
-          0.72,
-          0.48,
-          0.3,
-          0.18,
-          0.1,
-          0.055,
-          0.03,
-          0.016,
+          2.236,
+          2.247,
+          1.761,
+          0.321,
+          0.091,
+          0.069,
+          0.052,
+          0.045,
+          0.062,
+          0.072,
+          0.066,
+          0.051,
+          0.05,
+          0.024,
+          0.014,
+          0.024,
+          0.015,
           0.008,
-          0.004
+          0.012
         ],
         "phases": [
           -0.01,
@@ -4020,14 +4047,8 @@ var GUS_MELODIC_PRESETS = {
           -1.21
         ],
         "phaseScale": 0.01,
-        "noise": 0.035,
-        "vibratoOnset": 0.2,
-        "vibrato": {
-          "rate": 4.8,
-          "depth": 0.006,
-          "sweep": 20
-        },
-        "drive": 0.15,
+        "noise": 0.01,
+        "drive": 0,
         "loopAttack": 0.05,
         "loopAttackNoise": {
           "amp": 0.012,
@@ -4037,25 +4058,25 @@ var GUS_MELODIC_PRESETS = {
           {
             "freq": 800,
             "q": 0.85,
-            "gain": 8
+            "gain": 1.5
           },
           {
             "freq": 1400,
             "q": 1,
-            "gain": 6
+            "gain": 1.5
           },
           {
             "freq": 2700,
             "q": 1.5,
-            "gain": 1
+            "gain": 0.5
           },
           {
             "freq": 3500,
             "q": 1.8,
-            "gain": 0.3
+            "gain": 0
           }
         ],
-        "highpass": 350,
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -4072,40 +4093,67 @@ var GUS_MELODIC_PRESETS = {
           0,
           0,
           0,
-          1.11,
-          2.03,
-          3.32,
-          4.43,
-          4.98
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "mute": false,
-        "defaultWaveform": "string",
+        "defaultWaveform": null,
         "gain": 0.48,
         "loop": true,
-        "cycles": 14,
+        "loopStartSeconds": 1.802,
+        "loopEndSeconds": 3.454,
         "env": {
           "a": 0.12,
           "d": 0.25,
           "s": 0.9,
           "r": 0.35
         },
+        "patchEnvelope": {
+          "rates": [
+            63,
+            63,
+            63,
+            141,
+            63,
+            63
+          ],
+          "offsets": [
+            246,
+            246,
+            246,
+            0,
+            0,
+            0
+          ]
+        },
         "harm": [
           1,
-          0.72,
-          0.48,
-          0.3,
-          0.18,
-          0.1,
-          0.055,
-          0.03,
-          0.016,
-          0.008,
+          0.08,
+          0.01,
           0.006,
-          0.0045,
-          0.0034,
-          0.0025,
-          0.0019,
-          0.0014
+          0.008,
+          0.01,
+          0.01,
+          0.006,
+          0.004,
+          0.005,
+          0.002,
+          0.004,
+          0.006,
+          0.009,
+          0.02,
+          0.012,
+          0.006,
+          0.004,
+          0.007,
+          0.004,
+          0.001,
+          0.003,
+          0.002,
+          0.002
         ],
         "phases": [
           -0.01,
@@ -4126,53 +4174,46 @@ var GUS_MELODIC_PRESETS = {
           -2.56
         ],
         "phaseScale": 0.01,
-        "noise": 0.045,
-        "vibratoOnset": 0.2,
-        "vibrato": {
-          "rate": 5,
-          "depth": 0.007,
-          "sweep": 15
-        },
-        "drive": 0.05,
-        "loopSkip": 8,
+        "noise": 0.005,
+        "drive": 0,
         "loopAttack": 0.015,
         "loopAttackNoise": {
-          "amp": 0.045,
+          "amp": 0.015,
           "duration": 0.025
         },
         "formants": [
           {
             "freq": 320,
             "q": 1.05,
-            "gain": 3
+            "gain": 1.5
           },
           {
             "freq": 850,
             "q": 1.15,
-            "gain": 2.5
+            "gain": 1.5
           },
           {
             "freq": 2200,
             "q": 1.5,
-            "gain": 1.2
+            "gain": 0.5
           },
           {
             "freq": 3200,
             "q": 1.8,
-            "gain": 0.2
+            "gain": 0
           },
           {
             "freq": 3700,
             "q": 1.6,
-            "gain": 3
+            "gain": 1
           },
           {
             "freq": 5200,
             "q": 1.5,
-            "gain": 2
+            "gain": 0.5
           }
         ],
-        "highpass": 350,
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -4196,29 +4237,60 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "mute": false,
-        "defaultWaveform": "breath",
+        "defaultWaveform": null,
         "gain": 0.48,
         "loop": true,
-        "cycles": 14,
+        "loopStartSeconds": 0.173,
+        "loopEndSeconds": 1.754,
         "env": {
           "a": 0.15,
           "d": 0.3,
           "s": 0.9,
           "r": 0.4
         },
+        "patchEnvelope": {
+          "rates": [
+            63,
+            63,
+            63,
+            227,
+            63,
+            63
+          ],
+          "offsets": [
+            246,
+            246,
+            246,
+            0,
+            0,
+            0
+          ]
+        },
         "harm": [
+          0.3632,
+          0.1847,
+          0.2527,
+          0.1117,
+          0.0605,
+          0.1067,
           1,
-          0.7,
-          0.46,
-          0.29,
-          0.18,
-          0.11,
-          0.065,
-          0.038,
-          0.022,
-          0.013,
-          0.008,
-          0.004
+          0.0984,
+          0.1344,
+          0.9368,
+          0.1154,
+          0.1766,
+          0.2173,
+          0.2222,
+          0.1917,
+          0.2881,
+          0.2895,
+          0.1497,
+          0.152,
+          0.4037,
+          0.5209,
+          0.157,
+          0.6987,
+          0.2952
         ],
         "phases": [
           -0.01,
@@ -4235,37 +4307,31 @@ var GUS_MELODIC_PRESETS = {
           -1.44
         ],
         "phaseScale": 0.01,
-        "noise": 0.035,
-        "vibratoOnset": 0.2,
-        "vibrato": {
-          "rate": 5,
-          "depth": 0.006,
-          "sweep": 18
-        },
-        "drive": 0.12,
+        "noise": 0.01,
+        "drive": 0,
         "formants": [
           {
-            "freq": 650,
-            "q": 1.1,
-            "gain": 3.5
-          },
-          {
-            "freq": 1150,
+            "freq": 1800,
             "q": 1.2,
-            "gain": 2.5
+            "gain": 1.5
           },
           {
-            "freq": 2500,
-            "q": 1.5,
-            "gain": 1.2
+            "freq": 2600,
+            "q": 1.2,
+            "gain": 1
           },
           {
-            "freq": 3500,
-            "q": 1.8,
-            "gain": 0.2
+            "freq": 4400,
+            "q": 1.4,
+            "gain": 0.5
+          },
+          {
+            "freq": 5200,
+            "q": 1.4,
+            "gain": 0.5
           }
         ],
-        "highpass": 350,
+        "highpass": 35,
         "antiAlias": true
       }
     },
