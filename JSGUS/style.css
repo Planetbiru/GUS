@@ -324,8 +324,42 @@ aside {
     margin-bottom: 0;
 }
 
+.instrument-search-controls {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.instrument-search-controls .search {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+}
+
+.instrument-preset-filter {
+    flex: 0 0 84px;
+    min-width: 84px;
+    padding: 8px 6px;
+    white-space: nowrap;
+}
+
+.instrument-tab,
+.instrument-preset-filter {
+    height: 31px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 .search-empty {
-    margin: -4px 0 8px;
+    margin: 6px 0 8px;
+    padding: 6px 8px;
+    color: var(--dim);
+    background: rgba(139, 148, 158, .08);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
 }
 
 .family[hidden],

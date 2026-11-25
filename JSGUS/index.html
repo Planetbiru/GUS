@@ -376,9 +376,15 @@
             </div>
             <div id="instrumentList"></div>
             <div class="instrument-search-wrap">
-                <input id="instrumentSearch" class="search" type="search"
-                    placeholder="Search by instrument name or MIDI code..." aria-label="Search by instrument name or MIDI code">
-                <div id="instrumentFilterEmpty" class="meta search-empty" hidden>No instruments match your search.</div>
+                <div class="instrument-search-controls">
+                    <input id="instrumentSearch" class="search" type="search"
+                        placeholder="Search by instrument name or MIDI code..." aria-label="Search by instrument name or MIDI code">
+                    <button id="btnInstrumentPresetFilter" class="instrument-preset-filter" type="button"
+                        aria-label="Preset filter: All instruments" title="Show all instruments">All</button>
+                </div>
+                <div id="instrumentFilterEmpty" class="meta search-empty" hidden>
+                    No instruments match the selected filters.
+                </div>
             </div>
         </aside>
 
@@ -589,7 +595,8 @@
                         <button id="btnMidiRender" class="button-with-icon" type="button" disabled
                             aria-haspopup="dialog" aria-controls="midiRenderDialog">
                             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M12 3v12m-5-5 5 5 5-5M4 21h16" />
+                                <rect x="6" y="6" width="12" height="12" rx="2" />
+                                <path d="M9 10h6m-6 4h6M9 2v4m6-4v4m-6 12v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4" />
                             </svg>
                             <span>Render</span>
                         </button>

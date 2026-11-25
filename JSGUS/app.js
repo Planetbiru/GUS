@@ -102,6 +102,7 @@ class FileDownloader {
 const PATCH_CACHE_PREFIX = 'pig:';
 const PATCH_CACHE_ENABLED_STORAGE_KEY = 'gus-patch-generator-patch-cache-enabled-v1';
 const WAVEFORM_VERTICAL_ZOOM_STORAGE_KEY = 'gus-patch-generator-waveform-vertical-zoom-v1';
+const INSTRUMENT_PRESET_FILTER_STORAGE_KEY = 'gus-patch-generator-instrument-preset-filter-v1';
 const MIDI_FILE_DB_NAME = 'gus-patch-generator-midi-file';
 const MIDI_FILE_DB_STORE = 'files';
 const LAST_MIDI_FILE_KEY = 'last-selected';
@@ -134,6 +135,7 @@ class GusPatchApp {
         this.activeMidiChannelNotes = new Map();
         this.collectingMidiInstruments = false;
         this.generatorState = {selected: null, instruments: {}, presets: {}};
+        this.instrumentPresetFilter = 'all';
         this.projects = [];
         this.currentProjectId = null;
         this.projectDb = null;
@@ -624,7 +626,15 @@ class GusPatchApp {
     }
 
     filterInstrumentList() {
-        const query = this.$('instrumentSearch').value.trim().toLocaleLowerCase();
+        const searchInput = this.$('instrumentSearch');
+        const melodicPanel = this.$('melodicInstrumentList');
+        const drumPanel = this.$('drumInstrumentList');
+        if (!searchInput || !melodicPanel || !drumPanel) return;
+
+        const query = searchInput.value.trim().toLocaleLowerCase();
+        const presetFilter = this.instrumentPresetFilter;
+        const hasFilters = query !== '' || presetFilter !== 'all';
+        const isNumericQuery = /^\d+$/.test(query);
         const panels = ['melodic', 'drum'].map(type => ({
             type,
             panel: this.$(`${type}InstrumentList`),
@@ -637,17 +647,23 @@ class GusPatchApp {
             for (let i = children.length - 1; i >= 0; i--) {
                 const item = children[i];
                 if (item.classList.contains('family')) {
-                    item.hidden = query !== '' && !familyHasMatch;
+                    item.hidden = hasFilters && !familyHasMatch;
                     familyHasMatch = false;
                     continue;
                 }
                 if (!item.classList.contains('inst')) continue;
                 const name = item.querySelector('.instrument-name')?.textContent || '';
                 const midiCode = String(item.dataset.midi).padStart(3, '0');
-                const isNumericQuery = /^\d+$/.test(query);
-                const matches = !query || (isNumericQuery
+                const matchesSearch = !query || (isNumericQuery
                     ? midiCode === query.padStart(3, '0')
                     : name.toLocaleLowerCase().includes(query));
+                const isOverridden = Object.prototype.hasOwnProperty.call(
+                    this.generatorState.presets,
+                    `${item.dataset.type}:${item.dataset.midi}`
+                );
+                const matchesPresetFilter = presetFilter === 'all'
+                    || (presetFilter === 'modified' ? isOverridden : !isOverridden);
+                const matches = matchesSearch && matchesPresetFilter;
                 item.hidden = !matches;
                 if (matches) {
                     familyHasMatch = true;
@@ -656,22 +672,28 @@ class GusPatchApp {
             }
         }
 
-        if (query && totalMatches > 0) {
+        if (hasFilters && totalMatches > 0) {
             const activePanel = panels.find(({type}) => type === this.activeInstrumentList);
             if (activePanel.panel.querySelector('.inst:not([hidden])') === null) {
                 const matchingPanel = panels.find(({panel}) => panel.querySelector('.inst:not([hidden])'));
                 if (matchingPanel) this.setActiveInstrumentList(matchingPanel.type);
             }
         }
-        this.$('instrumentFilterEmpty').hidden = !query || totalMatches > 0;
+        this.$('instrumentFilterEmpty').hidden = !hasFilters || totalMatches > 0;
     }
 
     restoreInstrumentSearch() {
         try {
             this.$('instrumentSearch').value = localStorage.getItem('gus-patch-generator-instrument-search-v1') || '';
+            const storedFilter = localStorage.getItem(INSTRUMENT_PRESET_FILTER_STORAGE_KEY);
+            this.instrumentPresetFilter = ['all', 'modified', 'original'].includes(storedFilter)
+                ? storedFilter
+                : 'all';
         } catch (error) {
             this.$('instrumentSearch').value = '';
+            this.instrumentPresetFilter = 'all';
         }
+        this.updateInstrumentPresetFilterButton();
         this.filterInstrumentList();
     }
 
@@ -679,6 +701,42 @@ class GusPatchApp {
         try {
             localStorage.setItem('gus-patch-generator-instrument-search-v1', this.$('instrumentSearch').value);
         } catch (error) { }
+    }
+
+    updateInstrumentPresetFilterButton() {
+        const button = this.$('btnInstrumentPresetFilter');
+        if (!button) return;
+        const states = {
+            all: {
+                label: 'All',
+                description: 'Show all instruments',
+            },
+            modified: {
+                label: 'Modified',
+                description: 'Show only instruments with modified presets',
+            },
+            original: {
+                label: 'Original',
+                description: 'Show only instruments with original presets',
+            },
+        };
+        const state = states[this.instrumentPresetFilter] || states.all;
+        button.textContent = state.label;
+        button.title = `${state.description}. Click to cycle filters.`;
+        button.setAttribute('aria-label', `Preset filter: ${state.label}. ${state.description}.`);
+    }
+
+    cycleInstrumentPresetFilter() {
+        const states = ['all', 'modified', 'original'];
+        const currentIndex = states.indexOf(this.instrumentPresetFilter);
+        this.instrumentPresetFilter = states[(currentIndex + 1) % states.length];
+        this.updateInstrumentPresetFilterButton();
+        this.filterInstrumentList();
+        try {
+            localStorage.setItem(INSTRUMENT_PRESET_FILTER_STORAGE_KEY, this.instrumentPresetFilter);
+        } catch (error) {
+            this.log(`Could not save instrument preset filter: ${error.message}`, 'err');
+        }
     }
 
     _makeItem({ type, midi, name, num }) {
@@ -736,6 +794,7 @@ class GusPatchApp {
         this.$('instrumentList').querySelectorAll('.inst').forEach(item => {
             this.updatePresetOverrideMarker(item.dataset.type, item.dataset.midi, item);
         });
+        this.filterInstrumentList();
     }
 
     enhanceNumberInputs() {
@@ -820,6 +879,7 @@ class GusPatchApp {
             this.persistInstrumentSearch();
             this.filterInstrumentList();
         });
+        this.$('btnInstrumentPresetFilter').onclick = () => this.cycleInstrumentPresetFilter();
         this.$('btnApplyPreset').onclick = () => {
             this.cancelAutoApplyPreset();
             this.applyPresetJson();
@@ -1535,6 +1595,7 @@ class GusPatchApp {
         updatePresetEditor() {
             const preset = this.getInstrumentPreset(this.currentType, this.currentMidi);
             this.updatePresetOverrideMarker(this.currentType, this.currentMidi);
+            this.filterInstrumentList();
             this.$('presetJson').value = JSON.stringify(preset, null, 2);
             this.updateGraphicEqualizerButton(preset);
             // Rebuild form hanya jika isi preset berbeda dari yang tampil di form.
@@ -3458,7 +3519,7 @@ class GusPatchApp {
                 const name = document.createElement('span');
                 name.className = 'midi-instrument-name';
                 name.textContent = type === 'drum'
-                    ? `Drum ${instrument.program} - ${instrument.name}`
+                    ? `Drum ${String(instrument.program).padStart(3, '0')} - ${instrument.name}`
                     : `${String(instrument.program).padStart(3, '0')} - ${instrument.name}`;
                 button.append(indicator, name);
                 button.addEventListener('click', () => {
@@ -4834,7 +4895,7 @@ class GusPatchApp {
             this.$('wave').disabled = false;
         } else {
             const {note, name} = this.lib.findDrum(midi);
-            this.$('title').textContent = `Drum ${note} — ${name}`;
+            this.$('title').textContent = `Drum ${String(note).padStart(3, '0')} — ${name}`;
             this.$('familyLabel').textContent = 'Family: Drum Kit (GM Channel 10)';
             this.$('wave').disabled = true;
         }
