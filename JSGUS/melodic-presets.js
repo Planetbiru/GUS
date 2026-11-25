@@ -18,13 +18,13 @@ var GUS_MELODIC_PRESETS = {
           0,
           0,
           0,
+          -0.3,
+          -0.6,
           0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          0.7,
+          1.3,
+          1.7,
+          1
         ],
         "mute": false,
         "defaultWaveform": null,
@@ -152,8 +152,8 @@ var GUS_MELODIC_PRESETS = {
           "time": 0.006
         },
         "brightness": {
-          "start": 16500,
-          "end": 10500
+          "start": 18500,
+          "end": 12500
         },
         "formants": [
           {
