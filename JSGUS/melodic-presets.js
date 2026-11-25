@@ -664,38 +664,38 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Celesta",
       "shortName": "Celesta",
-      "description": "A bright strike with a clear ringing tone.",
+      "description": "A soft, rounded keyboard chime with a smooth decay.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "bell",
         "gain": 0.65,
         "freq": 441,
         "length": 55125,
         "loop": false,
         "env": {
           "a": 0.001,
-          "d": 1.5,
+          "d": 1.7,
           "s": 0,
-          "r": 0.6
+          "r": 0.7
         },
         "harm": [
           1,
           0,
-          0.5,
+          0.35,
           0,
-          0.25,
+          0.1,
           0,
-          0.12
+          0.025
         ],
         "partialDecay": [
-          3,
-          2,
-          1.4,
-          1,
-          0.7,
-          0.5
+          3.4,
+          2.6,
+          1.8,
+          1.2,
+          0.8,
+          0.55,
+          0.35
         ],
-        "inharmonicity": 0.008,
+        "inharmonicity": 0.001,
         "antiAlias": true,
         "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
@@ -705,38 +705,46 @@ var GUS_MELODIC_PRESETS = {
       "family": "Chromatic",
       "name": "Glockenspiel",
       "shortName": "Glockenspiel",
-      "description": "A bright strike with a clear ringing tone.",
+      "description": "A bright metallic chime with a sharper strike.",
       "preset": {
         "mute": false,
-        "defaultWaveform": "bell",
         "gain": 0.55,
         "freq": 441,
         "length": 55125,
         "loop": false,
         "env": {
           "a": 0.001,
-          "d": 1.5,
+          "d": 1.35,
           "s": 0,
-          "r": 0.6
+          "r": 0.45
         },
         "harm": [
           1,
-          0,
-          0.3,
-          0,
-          0.1,
-          0,
-          0.03
+          0.2,
+          0.55,
+          0.13,
+          0.35,
+          0.08,
+          0.23,
+          0.04,
+          0.14,
+          0.02,
+          0.08
         ],
         "partialDecay": [
-          3,
-          2,
-          1.4,
-          1,
-          0.7,
-          0.5
+          2.3,
+          1.8,
+          1.25,
+          0.9,
+          0.65,
+          0.48,
+          0.36,
+          0.28,
+          0.21,
+          0.16,
+          0.12
         ],
-        "inharmonicity": 0.008,
+        "inharmonicity": 0.02,
         "antiAlias": true,
         "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
