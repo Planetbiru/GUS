@@ -117,8 +117,11 @@ class GusPatchApp {
         this.timidityPlayerReady = null;
         this.midiData = null;
         this.midiFileName = '';
+        this.midiFileLoadPromises = new Set();
+        this.midiFileClearGeneration = 0;
         this.midiFileDb = null;
         this.midiFileDbReady = null;
+        this.midiFileClearing = false;
         this.patchCacheDb = null;
         this.patchCacheDbReady = null;
         this.midiDuration = 0;
@@ -1040,7 +1043,8 @@ class GusPatchApp {
         this.$('btnImportPresetJson').onclick = () => this.$('presetJsonFile').click();
         this.$('presetJsonFile').addEventListener('change', event => this.importPresetJson(event));
         this.$('btnChooseMidi').onclick = () => this.$('midiFile').click();
-        this.$('midiFile').addEventListener('change', event => this.loadMidiFile(event));
+        this.$('btnClearMidi').onclick = () => this.clearMidiFile();
+        this.$('midiFile').addEventListener('change', event => this.startMidiFileLoad(event));
         this.$('btnMidiPlay').onclick = () => this.toggleMidiPlayback();
         this.$('btnMidiStop').onclick = () => this.stopMidiPlayback();
         this.$('btnMidiMixer').onclick = () => this.openMidiMixer();
@@ -3950,6 +3954,7 @@ class GusPatchApp {
     }
 
     async restoreLastMidiFile() {
+        const clearGeneration = this.midiFileClearGeneration;
         try {
             const db = await this.openMidiFileDb();
             const record = await new Promise((resolve, reject) => {
@@ -3958,6 +3963,7 @@ class GusPatchApp {
                 request.onsuccess = () => resolve(request.result || null);
                 request.onerror = () => reject(request.error || new Error('Could not read saved MIDI file.'));
             });
+            if (clearGeneration !== this.midiFileClearGeneration) return;
             if (!record) return;
             if (typeof record.name !== 'string' || !(record.data instanceof ArrayBuffer)) {
                 throw new Error('The saved MIDI file data is invalid.');
@@ -3967,10 +3973,93 @@ class GusPatchApp {
                 type: record.type || 'audio/midi',
                 lastModified: record.lastModified || Date.now(),
             });
-            await this.loadMidiFile({target: {files: [file], value: ''}});
+            await this.startMidiFileLoad({target: {files: [file], value: ''}});
         } catch (error) {
             this.$('midiStatus').textContent = `Saved MIDI restore failed: ${error.message}`;
             this.log(`Saved MIDI restore failed: ${error.message}`, 'err');
+        }
+    }
+
+    startMidiFileLoad(event) {
+        if (this.midiFileClearing) {
+            if (event.target) event.target.value = '';
+            return Promise.resolve();
+        }
+        const loadPromise = this.loadMidiFile(event);
+        this.midiFileLoadPromises.add(loadPromise);
+        loadPromise.then(
+            () => this.midiFileLoadPromises.delete(loadPromise),
+            () => this.midiFileLoadPromises.delete(loadPromise)
+        );
+        return loadPromise;
+    }
+
+    async deleteLastMidiFile() {
+        const db = await this.openMidiFileDb();
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(MIDI_FILE_DB_STORE, 'readwrite');
+            transaction.objectStore(MIDI_FILE_DB_STORE).delete(LAST_MIDI_FILE_KEY);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('Could not clear the saved MIDI file.'));
+            transaction.onabort = () => reject(transaction.error || new Error('MIDI file removal was aborted.'));
+        });
+    }
+
+    async clearMidiFile() {
+        if (this.midiFileClearing || this.midiRenderInProgress) return;
+        this.midiFileClearGeneration++;
+        const button = this.$('btnClearMidi');
+        this.midiFileClearing = true;
+        button.disabled = true;
+        this.$('btnChooseMidi').disabled = true;
+        this.$('midiFile').disabled = true;
+
+        try {
+            this.stopMidiPlayback();
+            await Promise.all(this.midiFileLoadPromises);
+
+            this.stopMidiPlayback();
+            if (this.timidityPlayer) {
+                this.timidityPlayer.lastMidiData = null;
+                this.timidityPlayer.tempoMap = null;
+                this.timidityPlayer.midiInfo = {};
+                this.timidityPlayer.totalDuration = 0;
+            }
+            this.midiData = null;
+            this.midiFileName = '';
+            this.midiDuration = 0;
+            this.midiPosition = 0;
+            this.midiTick = 0;
+            this.midiSeeking = false;
+            this.midiChannelsUsed = [];
+            this.midiChannelStates.clear();
+            this.midiMixerControllerValues.clear();
+            this.clearMidiInstrumentList();
+            this.renderMidiChannelList();
+            this.$('midiFile').value = '';
+            this.$('midiFileName').textContent = 'No file selected';
+            this.hideMidiInstrumentProgress();
+            this.updateMidiPlaybackUI();
+
+            try {
+                await this.deleteLastMidiFile();
+                this.$('midiStatus').textContent =
+                    'Select a MIDI file to play with the generated GM bank.';
+                this.log('Loaded and saved MIDI file cleared.', 'ok');
+            } catch (error) {
+                this.$('midiStatus').textContent =
+                    `MIDI cleared for this session, but saved file removal failed: ${error.message}`;
+                this.log(`Saved MIDI file removal failed: ${error.message}`, 'err');
+            }
+        } catch (error) {
+            this.$('midiStatus').textContent = `Could not clear MIDI file: ${error.message}`;
+            this.log(`MIDI file clear failed: ${error.message}`, 'err');
+        } finally {
+            this.midiFileClearing = false;
+            this.$('btnChooseMidi').disabled = false;
+            this.$('midiFile').disabled = false;
+            button.disabled = this.midiRenderInProgress;
+            this.updateMidiPlaybackUI();
         }
     }
 
@@ -4970,6 +5059,7 @@ class GusPatchApp {
         this.$('btnMidiStop').disabled = this.midiMode !== 'file' || !this.midiData;
         this.$('btnMidiMixerStop').disabled = this.$('btnMidiStop').disabled;
         this.$('btnMidiRender').disabled = this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress;
+        this.$('btnClearMidi').disabled = this.midiRenderInProgress || this.midiFileClearing;
         seek.disabled = this.midiMode !== 'file' || !this.midiData || !this.midiDuration;
         mixerSeek.disabled = seek.disabled;
 
