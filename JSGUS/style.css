@@ -567,6 +567,7 @@ main {
     width: 20px;
     height: 20px;
     flex-basis: 20px;
+    transform: translateY(2px);
 }
 
 .midi-volume-control output {
