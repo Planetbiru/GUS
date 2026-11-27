@@ -631,7 +631,7 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.35,
+        "gain": 0.45,
         "duration": 0.55,
         "membrane": {
           "freq": 46,
@@ -705,7 +705,7 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.35,
+        "gain": 0.45,
         "duration": 0.55,
         "membrane": {
           "freq": 52,
