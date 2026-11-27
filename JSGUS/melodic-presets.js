@@ -4222,75 +4222,32 @@ var GUS_MELODIC_PRESETS = {
       "family": "Ensemble",
       "name": "Synth Voice",
       "shortName": "Synth Voice",
-      "description": "A layered orchestral blend with smooth sustain.",
+      "description": "A synthetic vowel pad with breath texture and smooth sustain",
       "preset": {
-        "graphicEqualizer": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
         "mute": false,
         "defaultWaveform": null,
-        "gain": 0.48,
+        "gain": 0.55,
         "loop": true,
-        "loopStartSeconds": 0.173,
-        "loopEndSeconds": 1.754,
+        "cycles": 14,
         "env": {
-          "a": 0.15,
-          "d": 0.3,
+          "a": 0.12,
+          "d": 0.25,
           "s": 0.9,
-          "r": 0.4
-        },
-        "patchEnvelope": {
-          "rates": [
-            63,
-            63,
-            63,
-            227,
-            63,
-            63
-          ],
-          "offsets": [
-            246,
-            246,
-            246,
-            0,
-            0,
-            0
-          ]
+          "r": 0.35
         },
         "harm": [
-          0.3632,
-          0.1847,
-          0.2527,
-          0.1117,
-          0.0605,
-          0.1067,
           1,
-          0.0984,
-          0.1344,
-          0.9368,
-          0.1154,
-          0.1766,
-          0.2173,
-          0.2222,
-          0.1917,
-          0.2881,
-          0.2895,
-          0.1497,
-          0.152,
-          0.4037,
-          0.5209,
-          0.157,
-          0.6987,
-          0.2952
+          0.55,
+          0.38,
+          0.26,
+          0.18,
+          0.12,
+          0.08,
+          0.05,
+          0.03,
+          0.018,
+          0.012,
+          0.006
         ],
         "phases": [
           -0.01,
@@ -4307,31 +4264,43 @@ var GUS_MELODIC_PRESETS = {
           -1.44
         ],
         "phaseScale": 0.01,
-        "noise": 0.01,
-        "drive": 0,
+        "noise": 0.02,
+        "loopAttack": 0.02,
+        "loopAttackNoise": {
+          "amp": 0.018,
+          "duration": 0.025
+        },
+        "vibratoOnset": 0.2,
+        "vibrato": {
+          "rate": 5,
+          "depth": 0.008,
+          "sweep": 18
+        },
+        "drive": 0.08,
         "formants": [
           {
-            "freq": 1800,
+            "freq": 650,
+            "q": 1.1,
+            "gain": 3.5
+          },
+          {
+            "freq": 1150,
             "q": 1.2,
-            "gain": 1.5
+            "gain": 2.5
           },
           {
-            "freq": 2600,
-            "q": 1.2,
-            "gain": 1
+            "freq": 2500,
+            "q": 1.5,
+            "gain": 1.2
           },
           {
-            "freq": 4400,
-            "q": 1.4,
-            "gain": 0.5
-          },
-          {
-            "freq": 5200,
-            "q": 1.4,
-            "gain": 0.5
+            "freq": 3500,
+            "q": 1.8,
+            "gain": 0.2
           }
         ],
         "highpass": 35,
+        "graphicEqualizer": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "antiAlias": true
       }
     },
