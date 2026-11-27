@@ -5,6 +5,7 @@
   "about_description": "Editor berbasis browser untuk membuka, mengelola, dan mengekspor patch instrumen GUS, SoundFont, dan SFZ.",
   "about_features": "Kelola proyek patch, pratinjau audio, dan putar MIDI di browser.",
   "about_company": "PT Planetbiru Studio Indonesia",
+  "home": "Beranda",
   "language_label": "Bahasa",
   "language_preference_save_failed": "Bahasa berubah, tetapi preferensi tidak dapat disimpan di browser ini.",
   "language_indonesian": "Bahasa Indonesia",

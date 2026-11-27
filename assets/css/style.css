@@ -132,7 +132,8 @@ header {
     box-shadow: 0 0 0 2px rgb(56 189 248 / 20%);
 }
 
-#btnAbout {
+#btnAbout,
+.actions a.btn[href="index.html"] {
     min-height: 32px;
 }
 

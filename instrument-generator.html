@@ -10,8 +10,8 @@
         content="GUS, Gravis Ultrasound, patch generator, GM instruments, JavaScript oscillators, preview, download, .pat">
     <meta name="author" content="Kamshory">
     <title>Planetbiru Instrument Generator</title>
-    <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/css/shared.css">
+    <link rel="stylesheet" href="JSGUS/style.css">
 </head>
 
 <body>
@@ -26,6 +26,7 @@
             </h1>
         </div>
         <div class="button-area">
+            <a class="btn" href="index.html">Home</a>
             <button id="btnFullscreen" aria-label-1="Fullscreen" aria-label-2="Exit Fullscreen">Fullscreen</button>
             <button id="btnAbout" class="header-about-button" type="button"
                 aria-haspopup="dialog" aria-controls="aboutDialog">About</button>
@@ -710,17 +711,17 @@
         </main>
     </div>
 
-    <script src="../timidity-player/timidity-player.js"></script>
-    <script src="../timidity-player/libtimidity.min.js"></script>
-    <script src="../jszip/jszip.min.js"></script>
-    <script src="../Flac/libflac.min.js"></script>
-    <script src="melodic-presets.js"></script>
-    <script src="drum-presets.js"></script>
-    <script src="ProjectPatchGenerator.js"></script>
-    <script src="soundfont-exporter.js"></script>
-    <script src="../assets/js/shared-controls.js"></script>
-    <script src="midi-icons.js"></script>
-    <script src="app.js"></script>
+    <script src="timidity-player/timidity-player.js"></script>
+    <script src="timidity-player/libtimidity.min.js"></script>
+    <script src="jszip/jszip.min.js"></script>
+    <script src="Flac/libflac.min.js"></script>
+    <script src="JSGUS/melodic-presets.js"></script>
+    <script src="JSGUS/drum-presets.js"></script>
+    <script src="JSGUS/ProjectPatchGenerator.js"></script>
+    <script src="JSGUS/soundfont-exporter.js"></script>
+    <script src="assets/js/shared-controls.js"></script>
+    <script src="JSGUS/midi-icons.js"></script>
+    <script src="JSGUS/app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const library = new InstrumentLibrary();
