@@ -994,51 +994,64 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.85,
-        "duration": 0.65,
-        "membrane": {
-          "freq": 78,
-          "pitchDecay": 0.025,
-          "decay": 0.26,
-          "modes": [
-            {
-              "ratio": 1,
-              "amp": 1,
-              "decay": 1
-            },
-            {
-              "ratio": 1.593,
-              "amp": 0.5,
-              "decay": 0.75
-            },
-            {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
-            },
-            {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
-            }
-          ]
-        },
-        "click": {
-          "duration": 0.004,
-          "amp": 0.3
-        },
-        "noise": {
-          "amp": 0.34,
-          "decay": 0.018,
-          "type": "pink",
-          "bandpass": {
-            "center": 2200,
-            "q": 0.75
+        "gain": 0.7,
+        "duration": 1.0281041667,
+        "tones": [
+          {
+            "fStart": 94,
+            "fPeak": 94,
+            "fEnd": 82,
+            "riseTime": 0.1,
+            "fallTime": 0.05,
+            "decay": 0.29,
+            "amp": 1
+          },
+          {
+            "fStart": 176,
+            "fPeak": 176,
+            "fEnd": 152,
+            "riseTime": 0.03,
+            "fallTime": 0.17,
+            "decay": 0.12,
+            "amp": 0.4
+          },
+          {
+            "fStart": 158,
+            "fPeak": 164,
+            "fEnd": 141,
+            "riseTime": 0.1,
+            "fallTime": 0.15,
+            "decay": 0.09,
+            "amp": 0.2
+          },
+          {
+            "fStart": 281,
+            "fPeak": 281,
+            "fEnd": 217,
+            "riseTime": 0.02,
+            "fallTime": 0.08,
+            "decay": 0.055,
+            "amp": 0.32
+          },
+          {
+            "fStart": 264,
+            "fPeak": 234,
+            "fEnd": 211,
+            "riseTime": 0.03,
+            "fallTime": 0.15,
+            "decay": 0.06,
+            "amp": 0.08
+          },
+          {
+            "fStart": 434,
+            "fPeak": 398,
+            "fEnd": 422,
+            "riseTime": 0.03,
+            "fallTime": 0.12,
+            "decay": 0.05,
+            "amp": 0.05
           }
-        },
-        "highpass": 55,
-        "lowpass": 5500,
-        "fadeOut": 0.06
+        ]
       }
     },
     {
@@ -1114,51 +1127,64 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.82,
-        "duration": 0.6,
-        "membrane": {
-          "freq": 90,
-          "pitchDecay": 0.035,
-          "decay": 0.32,
-          "modes": [
-            {
-              "ratio": 1,
-              "amp": 1,
-              "decay": 1
-            },
-            {
-              "ratio": 1.593,
-              "amp": 0.5,
-              "decay": 0.75
-            },
-            {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
-            },
-            {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
-            }
-          ]
-        },
-        "click": {
-          "duration": 0.004,
-          "amp": 0.26
-        },
-        "noise": {
-          "amp": 0.29,
-          "decay": 0.018,
-          "type": "pink",
-          "bandpass": {
-            "center": 1800,
-            "q": 0.75
+        "gain": 0.7,
+        "duration": 1.0281041667,
+        "tones": [
+          {
+            "fStart": 94,
+            "fPeak": 94,
+            "fEnd": 82,
+            "riseTime": 0.1,
+            "fallTime": 0.05,
+            "decay": 0.29,
+            "amp": 1
+          },
+          {
+            "fStart": 176,
+            "fPeak": 176,
+            "fEnd": 152,
+            "riseTime": 0.03,
+            "fallTime": 0.17,
+            "decay": 0.12,
+            "amp": 0.4
+          },
+          {
+            "fStart": 158,
+            "fPeak": 164,
+            "fEnd": 141,
+            "riseTime": 0.1,
+            "fallTime": 0.15,
+            "decay": 0.09,
+            "amp": 0.2
+          },
+          {
+            "fStart": 281,
+            "fPeak": 281,
+            "fEnd": 217,
+            "riseTime": 0.02,
+            "fallTime": 0.08,
+            "decay": 0.055,
+            "amp": 0.32
+          },
+          {
+            "fStart": 264,
+            "fPeak": 234,
+            "fEnd": 211,
+            "riseTime": 0.03,
+            "fallTime": 0.15,
+            "decay": 0.06,
+            "amp": 0.08
+          },
+          {
+            "fStart": 434,
+            "fPeak": 398,
+            "fEnd": 422,
+            "riseTime": 0.03,
+            "fallTime": 0.12,
+            "decay": 0.05,
+            "amp": 0.05
           }
-        },
-        "highpass": 55,
-        "lowpass": 5000,
-        "fadeOut": 0.05
+        ]
       }
     },
     {
@@ -1229,51 +1255,55 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.77,
-        "duration": 0.55,
-        "membrane": {
-          "freq": 120,
-          "pitchDecay": 0.025,
-          "decay": 0.25,
-          "modes": [
-            {
-              "ratio": 1,
-              "amp": 1,
-              "decay": 1
-            },
-            {
-              "ratio": 1.593,
-              "amp": 0.5,
-              "decay": 0.75
-            },
-            {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
-            },
-            {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
-            }
-          ]
-        },
-        "click": {
-          "duration": 0.004,
-          "amp": 0.3
-        },
-        "noise": {
-          "amp": 0.34,
-          "decay": 0.016,
-          "type": "pink",
-          "bandpass": {
-            "center": 2700,
-            "q": 0.75
+        "gain": 0.7,
+        "duration": 0.7460416667,
+        "tones": [
+          {
+            "fStart": 141,
+            "fPeak": 141,
+            "fEnd": 117,
+            "riseTime": 0.02,
+            "fallTime": 0.05,
+            "decay": 0.24,
+            "amp": 1
+          },
+          {
+            "fStart": 117,
+            "fPeak": 117,
+            "fEnd": 105,
+            "riseTime": 0.25,
+            "fallTime": 0.15,
+            "decay": 0.18,
+            "amp": 0.28
+          },
+          {
+            "fStart": 246,
+            "fPeak": 246,
+            "fEnd": 205,
+            "riseTime": 0.02,
+            "fallTime": 0.12,
+            "decay": 0.07,
+            "amp": 0.4
+          },
+          {
+            "fStart": 387,
+            "fPeak": 387,
+            "fEnd": 299,
+            "riseTime": 0.03,
+            "fallTime": 0.09,
+            "decay": 0.055,
+            "amp": 0.4
+          },
+          {
+            "fStart": 293,
+            "fPeak": 281,
+            "fEnd": 264,
+            "riseTime": 0.04,
+            "fallTime": 0.12,
+            "decay": 0.05,
+            "amp": 0.1
           }
-        },
-        "highpass": 100,
-        "lowpass": 6500,
-        "fadeOut": 0.05
+        ]
       }
     },
     {
@@ -1332,51 +1362,55 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.77,
-        "duration": 0.55,
-        "membrane": {
-          "freq": 155,
-          "pitchDecay": 0.035,
-          "decay": 0.32,
-          "modes": [
-            {
-              "ratio": 1,
-              "amp": 1,
-              "decay": 1
-            },
-            {
-              "ratio": 1.593,
-              "amp": 0.5,
-              "decay": 0.75
-            },
-            {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
-            },
-            {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
-            }
-          ]
-        },
-        "click": {
-          "duration": 0.004,
-          "amp": 0.26
-        },
-        "noise": {
-          "amp": 0.29,
-          "decay": 0.015,
-          "type": "pink",
-          "bandpass": {
-            "center": 2200,
-            "q": 0.75
+        "gain": 0.7,
+        "duration": 0.7460416667,
+        "tones": [
+          {
+            "fStart": 141,
+            "fPeak": 141,
+            "fEnd": 117,
+            "riseTime": 0.02,
+            "fallTime": 0.05,
+            "decay": 0.24,
+            "amp": 1
+          },
+          {
+            "fStart": 117,
+            "fPeak": 117,
+            "fEnd": 105,
+            "riseTime": 0.25,
+            "fallTime": 0.15,
+            "decay": 0.18,
+            "amp": 0.28
+          },
+          {
+            "fStart": 246,
+            "fPeak": 246,
+            "fEnd": 205,
+            "riseTime": 0.02,
+            "fallTime": 0.12,
+            "decay": 0.07,
+            "amp": 0.4
+          },
+          {
+            "fStart": 387,
+            "fPeak": 387,
+            "fEnd": 299,
+            "riseTime": 0.03,
+            "fallTime": 0.09,
+            "decay": 0.055,
+            "amp": 0.4
+          },
+          {
+            "fStart": 293,
+            "fPeak": 281,
+            "fEnd": 264,
+            "riseTime": 0.04,
+            "fallTime": 0.12,
+            "decay": 0.05,
+            "amp": 0.1
           }
-        },
-        "highpass": 90,
-        "lowpass": 6000,
-        "fadeOut": 0.05
+        ]
       }
     },
     {
@@ -1398,51 +1432,53 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.77,
-        "duration": 0.55,
-        "membrane": {
-          "freq": 190,
-          "pitchDecay": 0.035,
-          "decay": 0.32,
-          "modes": [
-            {
-              "ratio": 1,
-              "amp": 1,
-              "decay": 1
-            },
-            {
-              "ratio": 1.593,
-              "amp": 0.5,
-              "decay": 0.75
-            },
-            {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
-            },
-            {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
-            }
-          ]
-        },
-        "click": {
-          "duration": 0.004,
-          "amp": 0.28
-        },
-        "noise": {
-          "amp": 0.29,
-          "decay": 0.014,
-          "type": "pink",
-          "bandpass": {
-            "center": 2400,
-            "q": 0.75
+        "gain": 0.7,
+        "duration": 0.5198125,
+        "tones": [
+          {
+            "fStart": 188,
+            "fPeak": 188,
+            "fEnd": 158,
+            "riseTime": 0.025,
+            "fallTime": 0.08,
+            "decay": 0.2,
+            "amp": 1
+          },
+          {
+            "fStart": 164,
+            "fEnd": 164,
+            "pitchDecay": 0.12,
+            "decay": 0.16,
+            "amp": 0.18
+          },
+          {
+            "fStart": 340,
+            "fPeak": 340,
+            "fEnd": 316,
+            "riseTime": 0.025,
+            "fallTime": 0.075,
+            "decay": 0.06,
+            "amp": 0.25
+          },
+          {
+            "fStart": 539,
+            "fPeak": 539,
+            "fEnd": 422,
+            "riseTime": 0.04,
+            "fallTime": 0.04,
+            "decay": 0.05,
+            "amp": 0.2
+          },
+          {
+            "fStart": 457,
+            "fPeak": 457,
+            "fEnd": 428,
+            "riseTime": 0.02,
+            "fallTime": 0.08,
+            "decay": 0.06,
+            "amp": 0.1
           }
-        },
-        "highpass": 115,
-        "lowpass": 6500,
-        "fadeOut": 0.05
+        ]
       }
     },
     {
@@ -1547,51 +1583,53 @@ var GUS_DRUM_PRESETS = {
           0
         ],
         "mute": false,
-        "gain": 0.77,
-        "duration": 0.55,
-        "membrane": {
-          "freq": 240,
-          "pitchDecay": 0.035,
-          "decay": 0.32,
-          "modes": [
-            {
-              "ratio": 1,
-              "amp": 1,
-              "decay": 1
-            },
-            {
-              "ratio": 1.593,
-              "amp": 0.5,
-              "decay": 0.75
-            },
-            {
-              "ratio": 2.136,
-              "amp": 0.25,
-              "decay": 0.55
-            },
-            {
-              "ratio": 2.296,
-              "amp": 0.15,
-              "decay": 0.42
-            }
-          ]
-        },
-        "click": {
-          "duration": 0.004,
-          "amp": 0.28
-        },
-        "noise": {
-          "amp": 0.29,
-          "decay": 0.013,
-          "type": "pink",
-          "bandpass": {
-            "center": 2700,
-            "q": 0.75
+        "gain": 0.7,
+        "duration": 0.4631003,
+        "tones": [
+          {
+            "fStart": 211.023,
+            "fPeak": 211.023,
+            "fEnd": 177.349,
+            "riseTime": 0.0222725,
+            "fallTime": 0.0712719,
+            "decay": 0.1781797,
+            "amp": 1
+          },
+          {
+            "fStart": 184.084,
+            "fEnd": 184.084,
+            "pitchDecay": 0.1069078,
+            "decay": 0.1425438,
+            "amp": 0.18
+          },
+          {
+            "fStart": 381.637,
+            "fPeak": 381.637,
+            "fEnd": 354.698,
+            "riseTime": 0.0222725,
+            "fallTime": 0.0668174,
+            "decay": 0.0534539,
+            "amp": 0.25
+          },
+          {
+            "fStart": 605.007,
+            "fPeak": 605.007,
+            "fEnd": 473.679,
+            "riseTime": 0.0356359,
+            "fallTime": 0.0356359,
+            "decay": 0.0445449,
+            "amp": 0.2
+          },
+          {
+            "fStart": 512.965,
+            "fPeak": 512.965,
+            "fEnd": 480.414,
+            "riseTime": 0.017818,
+            "fallTime": 0.0712719,
+            "decay": 0.0534539,
+            "amp": 0.1
           }
-        },
-        "highpass": 145,
-        "lowpass": 7000,
-        "fadeOut": 0.05
+        ]
       }
     },
     {
