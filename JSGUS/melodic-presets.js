@@ -3608,85 +3608,61 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "graphicEqualizer": [
-          -0.3,
-          -0.9,
-          -1.4,
-          -1.2,
           0,
-          0.5,
-          1.5,
-          3,
-          4,
-          2
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.27,
         "loop": true,
-        "cycles": 22,
-        "loopSkip": 8,
+        "loopStartSeconds": 0.454,
+        "loopEndSeconds": 1.661,
+        "tailCycles": 4,
         "env": {
           "a": 0.2,
           "d": 0.2,
           "s": 0.95,
           "r": 0.4
         },
+        "patchEnvelope": {
+          "rates": [63, 63, 63, 154, 63, 63],
+          "offsets": [246, 242, 242, 0, 0, 0]
+        },
         "harm": [
           1,
-          0.4786,
-          0.2318,
-          0.1288,
-          0.1161,
-          0.0716,
-          0.0589,
-          0.025,
-          0.0111,
-          0.0079,
-          0.0075,
-          0.005,
-          0.005,
-          0.004,
-          0.0035,
-          0.003,
-          0.0026,
-          0.0023,
+          0.601,
+          0.255,
+          0.084,
+          0.086,
+          0.111,
+          0.062,
+          0.037,
+          0.034,
+          0.009,
+          0.018,
+          0.013,
+          0.006,
           0.002,
-          0.0017
+          0.002,
+          0.005,
+          0.003,
+          0.006,
+          0.003,
+          0.005
         ],
-        "vibratoOnset": 0.2,
-        "vibrato": {
-          "rate": 4.5,
-          "depth": 0.004
-        },
         "drive": 0,
-        "formants": [
-          {
-            "freq": 280,
-            "q": 1.2,
-            "gain": 1.5
-          },
-          {
-            "freq": 500,
-            "q": 1.5,
-            "gain": 1.5
-          },
-          {
-            "freq": 1200,
-            "q": 1.8,
-            "gain": 1
-          },
-          {
-            "freq": 3000,
-            "q": 2.2,
-            "gain": 0
-          },
-          {
-            "freq": 5000,
-            "q": 2.5,
-            "gain": 0
-          }
-        ],
-        "highpass": 120,
+        "brightness": {
+          "loopCutoff": 10500
+        },
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -3698,85 +3674,61 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
         "graphicEqualizer": [
-          -0.3,
-          -0.9,
-          -1.4,
-          -1.2,
           0,
-          0.5,
-          1.5,
-          3,
-          4,
-          2
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.27,
         "loop": true,
-        "cycles": 22,
-        "loopSkip": 8,
+        "loopStartSeconds": 0.454,
+        "loopEndSeconds": 1.661,
+        "tailCycles": 4,
         "env": {
           "a": 0.2,
           "d": 0.2,
           "s": 0.95,
           "r": 0.4
         },
+        "patchEnvelope": {
+          "rates": [159, 63, 63, 135, 63, 63],
+          "offsets": [246, 246, 246, 0, 0, 0]
+        },
         "harm": [
           1,
-          0.4786,
-          0.2318,
-          0.1288,
-          0.1161,
-          0.0716,
-          0.0589,
-          0.025,
-          0.0111,
-          0.0079,
-          0.0075,
-          0.005,
-          0.005,
-          0.004,
-          0.0035,
-          0.003,
-          0.0026,
-          0.0023,
+          0.601,
+          0.255,
+          0.084,
+          0.086,
+          0.111,
+          0.062,
+          0.037,
+          0.034,
+          0.009,
+          0.018,
+          0.013,
+          0.006,
           0.002,
-          0.0017
+          0.002,
+          0.005,
+          0.003,
+          0.006,
+          0.003,
+          0.005
         ],
-        "vibratoOnset": 0.2,
-        "vibrato": {
-          "rate": 4.5,
-          "depth": 0.004
-        },
         "drive": 0,
-        "formants": [
-          {
-            "freq": 220,
-            "q": 1.2,
-            "gain": 1.5
-          },
-          {
-            "freq": 400,
-            "q": 1.5,
-            "gain": 2
-          },
-          {
-            "freq": 900,
-            "q": 1.8,
-            "gain": 1
-          },
-          {
-            "freq": 2500,
-            "q": 2.2,
-            "gain": 0
-          },
-          {
-            "freq": 4000,
-            "q": 2.5,
-            "gain": 0
-          }
-        ],
-        "highpass": 120,
+        "brightness": {
+          "loopCutoff": 10500
+        },
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -3788,23 +3740,24 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth.",
       "preset": {
         "graphicEqualizer": [
-          -0.37,
-          -0.92,
-          -1.29,
           0,
           0,
           0,
           0,
           0,
-          1.5,
-          0.5
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "mute": false,
-        "defaultWaveform": "saw",
+        "defaultWaveform": null,
         "gain": 0.5775,
         "loop": true,
-        "cycles": 34,
-        "loopSkip": 20,
+        "cycles": 328,
+        "loopSkip": 109,
+        "tailCycles": 4,
         "loopAttack": 0.025,
         "loopAttackNoise": {
           "amp": 0.018,
@@ -3816,16 +3769,35 @@ var GUS_MELODIC_PRESETS = {
           "s": 0.95,
           "r": 0.5
         },
+        "patchEnvelope": {
+          "rates": [103, 63, 63, 148, 63, 63],
+          "offsets": [246, 246, 246, 0, 0, 0]
+        },
         "harm": [
           1,
-          0.496,
-          0.336,
-          0.224,
-          0.144,
-          0.088,
-          0.052,
-          0.028,
-          0.0144
+          0.72,
+          0.03,
+          0.5,
+          0.02,
+          0.34,
+          0.02,
+          0.24,
+          0.02,
+          0.18,
+          0.02,
+          0.13,
+          0.02,
+          0.11,
+          0.015,
+          0.075,
+          0.015,
+          0.055,
+          0.015,
+          0.045,
+          0.015,
+          0.045,
+          0.015,
+          0.045
         ],
         "phases": [
           0,
@@ -3842,31 +3814,11 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "noise": 0,
-        "vibratoOnset": 0.2,
-        "vibrato": {
-          "rate": 4.8,
-          "depth": 0.003,
-          "sweep": 24
+        "drive": 0,
+        "brightness": {
+          "loopCutoff": 18000
         },
-        "drive": 0.2,
-        "formants": [
-          {
-            "freq": 420,
-            "q": 1.1,
-            "gain": 1.5
-          },
-          {
-            "freq": 1250,
-            "q": 1.4,
-            "gain": 2
-          },
-          {
-            "freq": 3200,
-            "q": 1.8,
-            "gain": 1.5
-          }
-        ],
-        "highpass": 300,
+        "highpass": 35,
         "antiAlias": true
       }
     },
@@ -3878,23 +3830,24 @@ var GUS_MELODIC_PRESETS = {
       "description": "A layered orchestral blend with smooth.",
       "preset": {
         "graphicEqualizer": [
-          -0.37,
-          -0.92,
-          -1.29,
           0,
           0,
           0,
           0,
           0,
-          1.5,
-          0.5
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "mute": false,
-        "defaultWaveform": "triangle",
+        "defaultWaveform": null,
         "gain": 0.5775,
         "loop": true,
-        "cycles": 38,
-        "loopSkip": 24,
+        "cycles": 351,
+        "loopSkip": 131,
+        "tailCycles": 4,
         "loopAttack": 0.04,
         "loopAttackNoise": {
           "amp": 0.012,
@@ -3906,17 +3859,35 @@ var GUS_MELODIC_PRESETS = {
           "s": 0.95,
           "r": 0.5
         },
+        "patchEnvelope": {
+          "rates": [160, 195, 63, 223, 63, 63],
+          "offsets": [246, 238, 238, 0, 0, 0]
+        },
         "harm": [
           1,
-          0.624,
-          0.464,
-          0.336,
-          0.24,
-          0.168,
-          0.112,
-          0.072,
-          0.044,
-          0.024
+          1.45,
+          1.17,
+          0.82,
+          0.53,
+          0.38,
+          0.29,
+          0.18,
+          0.14,
+          0.12,
+          0.087,
+          0.126,
+          0.098,
+          0.075,
+          0.059,
+          0.043,
+          0.032,
+          0.031,
+          0.028,
+          0.023,
+          0.018,
+          0.016,
+          0.014,
+          0.012
         ],
         "phases": [
           0,
@@ -3934,31 +3905,11 @@ var GUS_MELODIC_PRESETS = {
           0
         ],
         "noise": 0,
-        "vibratoOnset": 0.2,
-        "vibrato": {
-          "rate": 4.2,
-          "depth": 0.004,
-          "sweep": 30
+        "drive": 0,
+        "brightness": {
+          "loopCutoff": 18000
         },
-        "drive": 0.2,
-        "formants": [
-          {
-            "freq": 300,
-            "q": 1,
-            "gain": 2
-          },
-          {
-            "freq": 850,
-            "q": 1.3,
-            "gain": 2.5
-          },
-          {
-            "freq": 2100,
-            "q": 1.7,
-            "gain": 1.5
-          }
-        ],
-        "highpass": 300,
+        "highpass": 35,
         "antiAlias": true
       }
     },
