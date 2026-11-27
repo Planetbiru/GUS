@@ -2662,24 +2662,77 @@ var GUS_DRUM_PRESETS = {
         ],
         "mute": false,
         "gain": 0.5,
-        "duration": 0.5,
+        "sampleRate": 48000,
+        "duration": 0.0750833333,
         "tones": [
           {
-            "fStart": 1200,
-            "fEnd": 1200,
-            "pitchDecay": 1,
-            "decay": 0.3,
-            "amp": 0.6
+            "fStart": 1430,
+            "fEnd": 1430,
+            "pitchDecay": 0.02,
+            "decay": 0.024,
+            "amp": 1
           },
           {
-            "fStart": 2280,
-            "fEnd": 2280,
-            "pitchDecay": 1,
-            "decay": 0.2,
-            "amp": 0.3
+            "fStart": 4218,
+            "fEnd": 4218,
+            "pitchDecay": 0.02,
+            "decay": 0.022,
+            "amp": 0.48
+          },
+          {
+            "fStart": 3160,
+            "fEnd": 3160,
+            "pitchDecay": 0.02,
+            "decay": 0.02,
+            "amp": 0.08
+          },
+          {
+            "fStart": 4594,
+            "fEnd": 4594,
+            "pitchDecay": 0.02,
+            "decay": 0.018,
+            "amp": 0.1
+          },
+          {
+            "fStart": 6118,
+            "fEnd": 6118,
+            "pitchDecay": 0.02,
+            "decay": 0.015,
+            "amp": 0.08
+          },
+          {
+            "fStart": 9679,
+            "fEnd": 9679,
+            "pitchDecay": 0.02,
+            "decay": 0.012,
+            "amp": 0.16
+          },
+          {
+            "fStart": 10031,
+            "fEnd": 10031,
+            "pitchDecay": 0.02,
+            "decay": 0.012,
+            "amp": 0.09
+          },
+          {
+            "fStart": 11062,
+            "fEnd": 11062,
+            "pitchDecay": 0.02,
+            "decay": 0.01,
+            "amp": 0.09
           }
         ],
-        "highpass": 500
+        "noise": {
+          "amp": 0.08,
+          "decay": 0.008,
+          "type": "white",
+          "bandpass": {
+            "center": 6000,
+            "q": 0.7
+          }
+        },
+        "highpass": 500,
+        "fadeOut": 0.004
       }
     },
     {
@@ -2702,24 +2755,84 @@ var GUS_DRUM_PRESETS = {
         ],
         "mute": false,
         "gain": 0.5,
-        "duration": 0.5,
+        "sampleRate": 48000,
+        "duration": 0.1014166667,
         "tones": [
           {
-            "fStart": 800,
-            "fEnd": 800,
-            "pitchDecay": 1,
-            "decay": 0.3,
-            "amp": 0.6
+            "fStart": 1063,
+            "fEnd": 1063,
+            "pitchDecay": 0.02,
+            "decay": 0.03,
+            "amp": 1
           },
           {
-            "fStart": 1520,
-            "fEnd": 1520,
-            "pitchDecay": 1,
-            "decay": 0.2,
-            "amp": 0.3
+            "fStart": 3117,
+            "fEnd": 3117,
+            "pitchDecay": 0.02,
+            "decay": 0.026,
+            "amp": 0.52
+          },
+          {
+            "fStart": 2332,
+            "fEnd": 2332,
+            "pitchDecay": 0.02,
+            "decay": 0.018,
+            "amp": 0.1
+          },
+          {
+            "fStart": 2484,
+            "fEnd": 2484,
+            "pitchDecay": 0.02,
+            "decay": 0.018,
+            "amp": 0.1
+          },
+          {
+            "fStart": 3398,
+            "fEnd": 3398,
+            "pitchDecay": 0.02,
+            "decay": 0.021,
+            "amp": 0.11
+          },
+          {
+            "fStart": 4535,
+            "fEnd": 4535,
+            "pitchDecay": 0.02,
+            "decay": 0.017,
+            "amp": 0.08
+          },
+          {
+            "fStart": 7172,
+            "fEnd": 7172,
+            "pitchDecay": 0.02,
+            "decay": 0.014,
+            "amp": 0.16
+          },
+          {
+            "fStart": 8191,
+            "fEnd": 8191,
+            "pitchDecay": 0.02,
+            "decay": 0.012,
+            "amp": 0.09
+          },
+          {
+            "fStart": 9023,
+            "fEnd": 9023,
+            "pitchDecay": 0.02,
+            "decay": 0.01,
+            "amp": 0.07
           }
         ],
-        "highpass": 500
+        "noise": {
+          "amp": 0.1,
+          "decay": 0.01,
+          "type": "white",
+          "bandpass": {
+            "center": 5000,
+            "q": 0.7
+          }
+        },
+        "highpass": 500,
+        "fadeOut": 0.006
       }
     },
     {
