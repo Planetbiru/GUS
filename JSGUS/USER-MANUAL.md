@@ -24,6 +24,7 @@ Press **F2** anywhere in the app to focus the instrument search and select its c
 
 For melodic instruments, choose a base waveform, sample rate, root frequency, and duration. Waveform selection is unavailable for drums. Available harmonic profiles include sine, triangle, square, saw, pulse, organ, flute, clarinet, reed, string, bell, pluck, hammer, bow, and breath. The waveform canvas shows the generated preview. Use **Zoom In** and **Zoom Out** to double or halve the vertical scale (1× to 64×); **Reset** returns it to 1×. The zoom level is saved across instrument changes and page reloads.
 
+- **Bytes** shows the estimated size of a single-sample PAT using the current preview. **PAT Size** estimates the complete multi-zone patch without generating PCM samples; it updates when the instrument or its settings change.
 - **Play C4** previews the selected instrument. For a drum, it plays the selected drum sound.
 - **Scale** plays a short scale for melodic instruments or a sequence of drum sounds for a drum selection.
 - **Stop** stops the preview.
@@ -31,6 +32,7 @@ For melodic instruments, choose a base waveform, sample rate, root frequency, an
 - Melodic presets may define `preset.zones` as zone widths. These widths override the default ranges in generated patches; processing stops at MIDI 127 and any zone crossing that boundary is trimmed. If the total is short, the remaining range is added to the last used zone. If omitted, the program's existing profile is used.
 - **Download All (ZIP)** generates a ZIP containing the melodic and drum patches and their configuration files.
 - **Download SF2** builds a SoundFont 2 file from the active project's melodic and drum presets and generator settings. It contains the 128 melodic programs and a GM drum bank. The download uses the active project name.
+- WAV rendering, mono/stereo stem rendering, patch ZIP export, and SoundFont export share a progress display in the Log card. The main view scrolls to it automatically when an export starts.
 - **Export Melodic Preset** and **Export Drum Preset** download the corresponding preset sets as JSON.
 - **Import Melodic Preset** and **Import Drum Preset** load JSON archives created by the matching export buttons into the active project. Matching instrument presets are replaced; presets not present in the file are kept. Invalid or unknown entries are skipped, and an import with no valid entries is rejected. If the currently selected instrument is included, its editor, preview, and loaded MIDI patch are refreshed.
 
@@ -66,6 +68,7 @@ In **MIDI Playback**, select the **MIDI file** mode and choose a `.mid` or `.mid
 - Adjust **Volume** from 0% to 100%; changes take effect during playback.
 - Choose **Render WAV** to render and download the loaded MIDI file as a WAV.
 - Choose **Render Stem Stereo (FLAC)** or **Render Stem Mono (FLAC)** to download a ZIP of individual FLAC files. MIDI Type 1 files are split by track; Type 0 files are split by channel. Mono stems contain one audio channel, with MIDI pan (CC 10) events removed.
+- In render options, enable **Trim MIDI after the last event** to skip the silent MIDI ending for WAVs or stems. The rendered audio tail is preserved; trimming is off by default.
 
 After a MIDI file loads, **Instruments used** lists the melodic instruments and drum sounds it uses. The **Channels** list provides two controls for each channel:
 

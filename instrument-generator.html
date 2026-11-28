@@ -132,6 +132,11 @@
                     <option value="48000" selected>48000 Hz</option>
                     <option value="96000">96000 Hz</option>
                 </select>
+                <label class="midi-render-trim-option" for="midiRenderTrim">
+                    <input id="midiRenderTrim" type="checkbox">
+                    <span>Trim MIDI after the last event (excluding End-of-Track)</span>
+                </label>
+                <p class="midi-render-trim-help">Shortens silent endings while preserving the audio tail. Off by default.</p>
                 <p>Mixed exports a WAV file. Stem options export FLAC files in a ZIP archive.</p>
             </div>
             <footer class="dialog-footer">
@@ -484,6 +489,7 @@
                     <div>Samples: <b id="statLen">—</b></div>
                     <div>Loop: <b id="statLoop">—</b></div>
                     <div>Bytes: <b id="statBytes">—</b></div>
+                    <div>PAT Size: <b id="statPatSize">—</b></div>
                 </div>
                 <section class="preset-editor-section" aria-labelledby="presetEditorTitle">
                     <h2 id="presetEditorTitle">Instrument Preset</h2>

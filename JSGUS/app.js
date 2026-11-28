@@ -130,6 +130,8 @@ class GusPatchApp {
         this.midiSeeking = false;
         this.midiRenderInProgress = false;
         this.midiRenderOperation = '';
+        this.midiRenderProgressRange = null;
+        this.exportProgressValue = 0;
         this.midiInstrumentList = new Map();
         this.midiInstrumentElements = new Map();
         this.midiInstrumentFiles = new Map();
@@ -2862,8 +2864,16 @@ class GusPatchApp {
         // Called when TimidityPlayer render progress update
         player.onRenderProgress(progress => {
             if (this.midiRenderInProgress) {
-                const operation = this.midiRenderOperation || 'WAV';
-                this.$('midiStatus').textContent = `Rendering ${operation}: ${Math.round(progress)}%`;
+                const range = this.midiRenderProgressRange || {
+                    start: 0,
+                    span: 95,
+                    label: `Rendering ${this.midiRenderOperation || 'WAV'}`,
+                };
+                const percent = Math.max(0, Math.min(100, Number(progress) || 0));
+                this.updateExportProgress(
+                    range.start + range.span * percent / 100,
+                    `${range.label}: ${Math.round(percent)}%`
+                );
             }
         });
 
@@ -4603,6 +4613,7 @@ class GusPatchApp {
     confirmMidiRender() {
         const type = this.$('midiRenderType').value;
         const sampleRate = Number(this.$('midiRenderSampleRate').value);
+        const trim = this.$('midiRenderTrim').checked;
         const status = this.$('midiStatus');
         if (!['mixed', 'mono', 'stereo'].includes(type)) {
             const message = `Unsupported MIDI render type: ${type}.`;
@@ -4619,20 +4630,26 @@ class GusPatchApp {
 
         this.$('midiRenderDialog').close();
         if (type === 'mixed') {
-            this.renderMidiToWav(sampleRate);
+            this.renderMidiToWav(sampleRate, trim);
         } else {
-            this.renderMidiStemsToFlac(type, sampleRate);
+            this.renderMidiStemsToFlac(type, sampleRate, trim);
         }
     }
 
-    async renderMidiToWav(sampleRate = this.timidityPlayer?.sampleRate || 48000) {
+    async renderMidiToWav(sampleRate = this.timidityPlayer?.sampleRate || 48000, trim = false) {
         if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
         this.midiRenderInProgress = true;
-        this.midiRenderOperation = `WAV ${sampleRate} Hz`;
+        this.midiRenderOperation = `WAV ${sampleRate} Hz${trim ? ' with trim' : ''}`;
+        this.midiRenderProgressRange = {
+            start: 0,
+            span: 95,
+            label: `Rendering WAV at ${sampleRate} Hz${trim ? ' with trim' : ''}`,
+        };
+        this.beginExportProgress(`Preparing WAV render at ${sampleRate} Hz${trim ? ' with trim' : ''}...`);
         this.updateMidiPlaybackUI();
-        const status = this.$('midiStatus');
 
         try {
+            await this.yieldForExportPaint();
             const player = await this.ensureTimidityPlayer();
             if (!player.lastMidiData) {
                 const loaded = await player.load(this.midiData);
@@ -4640,21 +4657,27 @@ class GusPatchApp {
             }
 
             const resumePlayback = player.isPlaying && !player.isPaused;
-            status.textContent = `Rendering WAV at ${sampleRate} Hz...`;
-            const wav = await player.renderOffline({sampleRate});
+            this.updateExportProgress(
+                0,
+                `Rendering WAV at ${sampleRate} Hz${trim ? ' with trim' : ''}...`
+            );
+            const wav = await player.renderOffline({sampleRate, trim});
             if (!(wav instanceof Blob)) throw new Error('TimidityPlayer returned no WAV data.');
 
             const baseName = this.midiFileName.replace(/\.(mid|midi)$/i, '') || 'midi-render';
+            this.updateExportProgress(95, 'Preparing WAV download...');
             FileDownloader.download(wav, `${baseName}.wav`);
-            status.textContent = `WAV downloaded: ${baseName}.wav`;
+            this.updateExportProgress(100, `WAV downloaded: ${baseName}.wav`);
 
             if (resumePlayback) await player.resume();
         } catch (error) {
-            status.textContent = `WAV render failed: ${error.message}`;
+            this.updateExportProgress(this.exportProgressValue, `WAV render failed: ${error.message}`);
             this.log(`WAV render failed: ${error.message}`, 'err');
         } finally {
             this.midiRenderInProgress = false;
             this.midiRenderOperation = '';
+            this.midiRenderProgressRange = null;
+            this.finishExportProgress();
             this.updateMidiPlaybackUI();
         }
     }
@@ -4681,7 +4704,7 @@ class GusPatchApp {
         return flac;
     }
 
-    async encodeWavToFlac(wavBlob) {
+    async encodeWavToFlac(wavBlob, onProgress = null) {
         const flac = await this.waitForFlacEncoder();
         const buffer = await wavBlob.arrayBuffer();
         const view = new DataView(buffer);
@@ -4753,6 +4776,10 @@ class GusPatchApp {
                 }
                 if (!flac.FLAC__stream_encoder_process_interleaved(encoder, pcm, frameCount)) {
                     throw new Error('FLAC encoder failed while processing PCM samples.');
+                }
+                if (onProgress) {
+                    onProgress((frameOffset + frameCount) / totalFrames * 100);
+                    await new Promise(resolve => setTimeout(resolve, 0));
                 }
             }
 
@@ -4955,19 +4982,27 @@ class GusPatchApp {
         return output;
     }
 
-    async renderMidiStemsToFlac(stemLayout, sampleRate = this.timidityPlayer?.sampleRate || 48000) {
+    async renderMidiStemsToFlac(
+        stemLayout,
+        sampleRate = this.timidityPlayer?.sampleRate || 48000,
+        trim = false
+    ) {
         if (this.midiMode !== 'file' || !this.midiData || this.midiRenderInProgress) return;
         if (stemLayout !== 'mono' && stemLayout !== 'stereo') {
             throw new Error(`Unsupported stem output layout: ${stemLayout}.`);
         }
         this.midiRenderInProgress = true;
-        this.midiRenderOperation = `FLAC stems ${sampleRate} Hz`;
+        this.midiRenderOperation = `FLAC stems ${sampleRate} Hz${trim ? ' with trim' : ''}`;
+        this.midiRenderProgressRange = null;
+        this.beginExportProgress(
+            `Preparing ${stemLayout} FLAC stems at ${sampleRate} Hz${trim ? ' with trim' : ''}...`
+        );
         this.updateMidiPlaybackUI();
-        const status = this.$('midiStatus');
         let player = null;
         let resumePlayback = false;
 
         try {
+            await this.yieldForExportPaint();
             if (typeof JSZip === 'undefined') throw new Error('JSZip is unavailable.');
             await this.waitForFlacEncoder();
             player = await this.ensureTimidityPlayer();
@@ -4990,7 +5025,7 @@ class GusPatchApp {
             const zip = new JSZip();
             const baseName = this.midiFileName.replace(/\.(mid|midi)$/i, '') || 'midi-render';
             const safeBaseName = baseName.replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim() || 'midi-render';
-            const renderOptions = {sampleRate, isMono};
+            const renderOptions = {sampleRate, isMono, trim};
 
             for (let i = 0; i < stems.length; i++) {
                 const stem = stems[i];
@@ -4999,7 +5034,15 @@ class GusPatchApp {
                     ? `Track_${String(stem.index + 1).padStart(2, '0')}_${midi.tracks[stem.index].name || `Track_${stem.index + 1}`}`
                         .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim()
                     : `Channel_${String(stem.index + 1).padStart(2, '0')}`;
-                status.textContent = `Rendering FLAC stem ${i + 1}/${stems.length} at ${sampleRate} Hz: ${stemName}...`;
+                const stemStart = i / stems.length * 82;
+                const stemSpan = 82 / stems.length;
+                const renderLabel = `Rendering ${stemLayout} stem ${i + 1}/${stems.length}${trim ? ' with trim' : ''}: ${stemName}`;
+                this.midiRenderProgressRange = {
+                    start: stemStart,
+                    span: stemSpan * 0.8,
+                    label: renderLabel,
+                };
+                this.updateExportProgress(stemStart, `${renderLabel}...`);
                 const options = stem.type === 'track'
                     ? {...renderOptions, soloTrack: stem.index}
                     : renderOptions;
@@ -5020,28 +5063,60 @@ class GusPatchApp {
                     if (isMono && player.c) player.c.forceMonoPan = originalForceMonoPan;
                 }
                 if (!(wav instanceof Blob)) throw new Error(`Could not render ${stemName}.`);
-                zip.file(`${stemName}.flac`, await this.encodeWavToFlac(wav));
+                const encodeStart = stemStart + stemSpan * 0.8;
+                const encodeSpan = stemSpan * 0.2;
+                this.updateExportProgress(
+                    encodeStart,
+                    `Encoding ${stemLayout} stem ${i + 1}/${stems.length}: ${stemName}...`
+                );
+                const flac = await this.encodeWavToFlac(
+                    wav,
+                    percent => this.updateExportProgress(
+                        encodeStart + encodeSpan * percent / 100,
+                        `Encoding ${stemLayout} stem ${i + 1}/${stems.length}: ${stemName} — ${Math.round(percent)}%`
+                    )
+                );
+                zip.file(`${stemName}.flac`, flac);
+                this.updateExportProgress(
+                    stemStart + stemSpan,
+                    `${stemLayout} stem ${i + 1}/${stems.length} ready: ${stemName}`
+                );
             }
 
-            status.textContent = 'Packaging FLAC stems...';
-            const archive = await zip.generateAsync({type: 'blob', compression: 'STORE'});
+            this.midiRenderProgressRange = null;
+            this.updateExportProgress(82, `Packaging ${stemLayout} FLAC stems...`);
+            const archive = await zip.generateAsync(
+                {type: 'blob', compression: 'STORE'},
+                metadata => this.updateExportProgress(
+                    82 + metadata.percent * 0.17,
+                    `Packaging ${stemLayout} FLAC stems — ${Math.round(metadata.percent)}%`
+                )
+            );
             const filename = `${safeBaseName}_${stemLayout}_stems.zip`;
             FileDownloader.download(archive, filename);
-            status.textContent = `FLAC stems downloaded: ${filename}`;
+            this.updateExportProgress(100, `FLAC stems downloaded: ${filename}`);
         } catch (error) {
-            status.textContent = `FLAC stem render failed: ${error.message}`;
+            this.updateExportProgress(
+                this.exportProgressValue,
+                `FLAC stem render failed: ${error.message}`
+            );
             this.log(`FLAC stem render failed: ${error.message}`, 'err');
         } finally {
             if (resumePlayback && player && player.isPaused) {
                 try {
                     await player.resume();
                 } catch (error) {
-                    status.textContent = `FLAC stems rendered, but MIDI playback could not resume: ${error.message}`;
+                    this.updateExportProgress(
+                        this.exportProgressValue,
+                        `FLAC stems rendered, but MIDI playback could not resume: ${error.message}`
+                    );
                     this.log(`MIDI playback resume failed after FLAC stem render: ${error.message}`, 'err');
                 }
             }
             this.midiRenderInProgress = false;
             this.midiRenderOperation = '';
+            this.midiRenderProgressRange = null;
+            this.finishExportProgress();
             this.updateMidiPlaybackUI();
         }
     }
@@ -5299,6 +5374,61 @@ class GusPatchApp {
         this.$('statLen').textContent = r.length;
         this.$('statLoop').textContent = r.loop ? `${r.loopStart} → ${r.loopEnd}` : 'no';
         this.$('statBytes').textContent = (129 + 63 + 47 + 96 + r.length * 2).toLocaleString();
+        this.updatePatSize();
+    }
+
+    updatePatSize() {
+        const output = this.$('statPatSize');
+        try {
+            const type = this.currentType;
+            const program = this.currentMidi;
+            const state = this.getInstrumentGeneratorState(type, program);
+            let sampleLengths;
+
+            if (type === 'drum') {
+                const basePreset = this.getInstrumentPreset(type, program);
+                const presetDuration = Number(basePreset && basePreset.duration);
+                const duration = state.durationCustomized
+                    || !Number.isFinite(presetDuration)
+                    || presetDuration <= 0
+                    ? state.duration
+                    : Math.min(3, Math.max(0.05, presetDuration));
+                sampleLengths = [new DrumRenderer(
+                    {...basePreset, duration},
+                    state.sampleRate
+                ).length];
+            } else if (type === 'melodic') {
+                const preset = this.presetWithWaveform(
+                    this.getInstrumentPreset(type, program),
+                    state.wave
+                );
+                const ranges = ProjectPatchGenerator.getPitchRanges(false, program, preset);
+                sampleLengths = ranges.map(range => {
+                    const rootNote = Math.round((range.pitchFrom + range.pitchTo) / 2);
+                    const freq = state.root * Math.pow(2, (rootNote - 60) / 12);
+                    return MelodicRenderer.estimateLength(preset, {
+                        sampleRate: state.sampleRate,
+                        freq,
+                        duration: state.duration,
+                    });
+                });
+            } else {
+                throw new Error(`Unknown instrument type: ${type}.`);
+            }
+
+            const patBytes = 129 + 63 + 47 + sampleLengths.reduce(
+                (total, length) => total + 96 + length * 2,
+                0
+            );
+            output.textContent = patBytes >= 1024 * 1024
+                ? `${(patBytes / (1024 * 1024)).toFixed(2)} MB`
+                : `${(patBytes / 1024).toFixed(2)} KB`;
+            output.title = 'Estimated without generating PCM samples.';
+        } catch (error) {
+            output.textContent = 'Unavailable';
+            output.title = error.message;
+            this.log(`PAT size estimation failed: ${error.message}`, 'err');
+        }
     }
 
     // ---- Playback ----
@@ -5364,12 +5494,27 @@ class GusPatchApp {
 
     updateExportProgress(percent, label) {
         const value = Math.max(0, Math.min(100, Math.round(percent)));
+        this.exportProgressValue = value;
         const progressBar = this.$('progressBar');
         const progressTrack = this.$('progressTrack');
         progressBar.style.width = `${value}%`;
         progressTrack.setAttribute('aria-valuenow', String(value));
         progressTrack.setAttribute('aria-valuetext', `${value}% — ${label}`);
         this.$('exportProgressLabel').textContent = label;
+        this.$('midiStatus').textContent = label;
+    }
+
+    beginExportProgress(label) {
+        this.$('progressWrap').classList.add('show');
+        this.updateExportProgress(0, label);
+        requestAnimationFrame(() => {
+            const main = document.querySelector('main');
+            if (main && main.scrollHeight > main.clientHeight) {
+                main.scrollTo({top: main.scrollHeight, behavior: 'smooth'});
+                return;
+            }
+            this.$('progressWrap').scrollIntoView({behavior: 'smooth', block: 'end'});
+        });
     }
 
     async yieldForExportPaint() {
@@ -5382,12 +5527,12 @@ class GusPatchApp {
         this.$('progressTrack').setAttribute('aria-valuenow', '0');
         this.$('progressTrack').removeAttribute('aria-valuetext');
         this.$('exportProgressLabel').textContent = '';
+        this.exportProgressValue = 0;
     }
 
     async downloadSoundFont() {
         this.saveCurrentGeneratorState();
         const button = this.$('btnSoundFont');
-        const progress = this.$('progressWrap');
         const samples = [];
         const instruments = [];
         const presets = [];
@@ -5395,8 +5540,7 @@ class GusPatchApp {
         const totalZones = this.exportZoneCount();
         let completedZones = 0;
         button.disabled = true;
-        progress.classList.add('show');
-        this.updateExportProgress(0, 'Preparing SoundFont export...');
+        this.beginExportProgress('Preparing SoundFont export...');
 
         try {
             await this.yieldForExportPaint();
@@ -5498,11 +5642,12 @@ class GusPatchApp {
                 )
             );
             const filename = `${this.getProjectZipFilename().replace(/\.zip$/i, '')}.sf2`;
-            this.updateExportProgress(100, 'Download ready.');
             FileDownloader.download(new Blob([soundFont], {type: 'application/octet-stream'}), filename);
+            this.updateExportProgress(100, `SoundFont downloaded: ${filename}`);
             this.log(`SoundFont exported: ${filename} (${(soundFont.byteLength / 1024 / 1024).toFixed(1)} MB).`, 'ok');
             await this.yieldForExportPaint();
         } catch (error) {
+            this.updateExportProgress(this.exportProgressValue, `SoundFont export failed: ${error.message}`);
             this.log(`SoundFont export failed: ${error.message}`, 'err');
         } finally {
             this.finishExportProgress();
@@ -5517,14 +5662,12 @@ class GusPatchApp {
         }
         this.saveCurrentGeneratorState();
         const button = this.$('btnZip');
-        const progress = this.$('progressWrap');
         const zip = new JSZip();
         const sampleRates = new Set();
         const totalZones = this.exportZoneCount();
         let completedZones = 0;
         button.disabled = true;
-        progress.classList.add('show');
-        this.updateExportProgress(0, 'Preparing ZIP export...');
+        this.beginExportProgress('Preparing ZIP export...');
 
         try {
             await this.yieldForExportPaint();
@@ -5602,11 +5745,12 @@ class GusPatchApp {
                 )
             );
             const filename = this.getProjectZipFilename();
-            this.updateExportProgress(100, 'Download ready.');
             FileDownloader.download(blob, filename);
+            this.updateExportProgress(100, `ZIP downloaded: ${filename}`);
             this.log(`✓ Complete: ${(blob.size / 1024).toFixed(1)} KB`, 'ok');
             await this.yieldForExportPaint();
         } catch (error) {
+            this.updateExportProgress(this.exportProgressValue, `ZIP export failed: ${error.message}`);
             this.log(`ZIP export failed: ${error.message}`, 'err');
         } finally {
             this.finishExportProgress();

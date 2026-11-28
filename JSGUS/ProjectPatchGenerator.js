@@ -1051,6 +1051,59 @@ class MelodicRenderer {
         this.isLoop = preset.loop && !override.forceNoLoop;
     }
 
+    static estimateLength(preset, override = {}) {
+        const sampleRate = override.sampleRate || preset.sampleRate || 22050;
+        if (preset.renderMode === 'drum') {
+            const duration = override.duration ?? preset.duration;
+            const length = Math.round(sampleRate * (duration || 0.5));
+            if (preset.loop !== true) return length;
+
+            const loopStart = Math.max(0, Math.min(
+                length - 1,
+                Math.round((preset.loopStartSeconds || 0) * sampleRate)
+            ));
+            const loopEnd = Math.max(loopStart + 1, Math.min(
+                length,
+                Math.round((preset.loopEndSeconds || duration) * sampleRate)
+            ));
+            const crossfadeLength = Math.min(
+                Math.round((preset.loopCrossfadeSeconds || 0) * sampleRate),
+                Math.floor((loopEnd - loopStart) / 4)
+            );
+            return crossfadeLength > 1 ? length - crossfadeLength : length;
+        }
+
+        if (preset.loop && !override.forceNoLoop) {
+            const targetFreq = override.freq || preset.freq || 441;
+            const cycleSamples = preset.cycleSamples
+                || Math.max(2, Math.round(sampleRate / targetFreq));
+            const naturalFreq = sampleRate / cycleSamples;
+            const env = preset.env || {r: 0.3};
+            const hasExplicitLoopTiming = preset.loopStartSeconds != null
+                || preset.loopEndSeconds != null;
+            if (hasExplicitLoopTiming
+                && (!Number.isFinite(preset.loopStartSeconds) || preset.loopStartSeconds < 0
+                    || !Number.isFinite(preset.loopEndSeconds)
+                    || preset.loopEndSeconds <= preset.loopStartSeconds)) {
+                throw new Error('Loop start and end times must be valid, increasing seconds values.');
+            }
+            const loopStartCycles = hasExplicitLoopTiming
+                ? Math.round(preset.loopStartSeconds * naturalFreq)
+                : (preset.loopSkip || 3);
+            const cycles = hasExplicitLoopTiming
+                ? Math.max(loopStartCycles + 1, Math.round(preset.loopEndSeconds * naturalFreq))
+                : (preset.cycles || 12);
+            const releaseSeconds = Number.isFinite(env.r) && env.r > 0 ? env.r : 0.3;
+            const tailCycles = preset.tailCycles
+                || Math.max(4, Math.ceil(targetFreq * releaseSeconds));
+            return cycleSamples * (cycles + tailCycles);
+        }
+
+        return preset.length
+            ? Math.round(preset.length * sampleRate / 22050)
+            : Math.round(sampleRate * (override.duration || 0.25));
+    }
+
     /**
      * Renders the preset into PCM samples.
      * @returns {{pcm: Float32Array, length: number, loopStart: number, loopEnd: number, loop: boolean, SR: number, naturalFreq?: number}} Rendered audio and loop metadata.

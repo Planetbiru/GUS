@@ -67,6 +67,26 @@ dialog.is-dragging .dialog-footer {
     font-size: 14px;
 }
 
+.dialog-content .midi-render-trim-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 0;
+    color: var(--fg);
+}
+
+.dialog-content .midi-render-trim-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    margin: 0;
+}
+
+.dialog-content .midi-render-trim-help {
+    margin: 4px 0 0;
+    font-size: 12px;
+}
+
 .about-website-link,
 .about-website-link:hover {
     color: var(--accent);

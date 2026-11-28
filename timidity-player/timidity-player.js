@@ -505,6 +505,7 @@ class TimidityPlayer {
      *   tracksCount: number,
      *   trackNames: string[],
      *   trackHasNotes: boolean[],
+     *   trackLastEventTicks: number[],
      *   channelsUsed: number[],
      *   maxTick: number,
      *   totalSeconds: number,
@@ -526,6 +527,7 @@ class TimidityPlayer {
      *   - `tracksCount` — number of MTrk chunks found in the file.
      *   - `trackNames` — best-effort track names (falls back to `Track N`).
      *   - `trackHasNotes` — whether each track contains any channel (0x8–0xE) events.
+     *   - `trackLastEventTicks` — last event tick in each track, excluding End-of-Track markers.
      *   - `maxTick` — highest absolute tick encountered across all tracks.
      *   - `totalSeconds` — computed song duration in seconds from tempo map + `maxTick`.
      *   - `programMap[ch]` — Program Change events for channel `ch`, sorted by tick.
@@ -564,6 +566,7 @@ class TimidityPlayer {
         const timeSigEvents = [];
         const trackNames = [];
         const trackHasNotes = [];
+        const trackLastEventTicks = [];
         const channelsUsed = new Set();
         const programEvents = [];
         const volumeEvents = [];
@@ -587,6 +590,7 @@ class TimidityPlayer {
             let runningStatus = 0;
             let currentTrackName = null;
             let hasChannelEvents = false;
+            let lastEventTick = 0;
 
             while (offset < trackEnd) {
                 absTick += readVLQ();
@@ -596,6 +600,7 @@ class TimidityPlayer {
                 if (status === 0xFF) {
                     const type = midiData[offset++];
                     const len = readVLQ();
+                    if (type !== 0x2F) lastEventTick = absTick;
                     if (type === 0x51 && len === 3) {
                         const mpqn = (midiData[offset] << 16) | (midiData[offset + 1] << 8) | midiData[offset + 2];
                         tempoEvents.push({ tick: absTick, mpqn });
@@ -612,9 +617,11 @@ class TimidityPlayer {
                     }
                     offset += len;
                 } else if (status === 0xF0 || status === 0xF7) {
+                    lastEventTick = absTick;
                     const len = readVLQ();
                     offset += len;
                 } else {
+                    lastEventTick = absTick;
                     // Channel event — perlu membaca data bytes untuk program/bank
                     const cmd = status >> 4;
                     const ch = status & 0xF;
@@ -664,6 +671,7 @@ class TimidityPlayer {
             if (absTick > maxTick) maxTick = absTick;
             trackNames.push(currentTrackName || `Track ${t}`);
             trackHasNotes.push(hasChannelEvents);
+            trackLastEventTicks.push(lastEventTick);
         }
 
         tempoEvents.sort((a, b) => a.tick - b.tick);
@@ -748,7 +756,7 @@ class TimidityPlayer {
             totalSeconds = lastMap.timeSec + deltaSec;
         }
 
-        return { division, timeMap, measureMap, tracksCount, trackNames, trackHasNotes, channelsUsed: Array.from(channelsUsed).sort((a, b) => a - b), maxTick, totalSeconds,
+        return { division, timeMap, measureMap, tracksCount, trackNames, trackHasNotes, trackLastEventTicks, channelsUsed: Array.from(channelsUsed).sort((a, b) => a - b), maxTick, totalSeconds,
             programMap, volumeMap, panMap, expressionMap, reverbMap, chorusMap, brightnessMap, bassMap, resonanceMap, bankMsbMap, bankLsbMap
         };
     }
@@ -2017,6 +2025,7 @@ class TimidityPlayer {
      * @param {boolean} [options.isSpatialInterpolation=false] - If true, interpolates spatial coordinates smoothly.
      * @param {boolean} [options.monoToStereo=false] - If true, applies stereo widening (Spectral Panning / EQ) to the final output.
      * @param {number} [options.monoToStereoWeight=5] - The intensity of the stereo widening effect (gain in dB).
+     * @param {boolean} [options.trim=false] - If true, stops after the last non-EOT event plus the audio tail. With soloTrack, uses that track's last event.
      * @returns {Promise<Blob>} The generated WAV file as a Blob.
      */
     renderOffline(options = {}) {
@@ -2049,9 +2058,39 @@ class TimidityPlayer {
             this.pause();
         }
 
-        let { sampleRate = 44100, isMono = false, isSpatial = false, isSpatialInterpolation = false, monoToStereo = false, monoToStereoWeight = 5, soloTrack = -1 } = options;
+        let { sampleRate = 44100, isMono = false, isSpatial = false, isSpatialInterpolation = false, monoToStereo = false, monoToStereoWeight = 5, soloTrack = -1, trim = false } = options;
+        trim = trim === true;
         if (isSpatial || monoToStereo) {
             isMono = false; // Force stereo if spatial or stereo widening is requested
+        }
+
+        let trimDurationSeconds = null;
+        if (trim) {
+            const renderTempoMap = this._buildTempoMap(this.lastMidiData);
+            const trackTicks = renderTempoMap.trackLastEventTicks;
+            const lastEventTick = Number.isInteger(soloTrack) && soloTrack >= 0 && soloTrack < trackTicks.length
+                ? trackTicks[soloTrack]
+                : trackTicks.reduce((maximum, tick) => Math.max(maximum, tick), 0);
+            if (renderTempoMap.division & 0x8000) {
+                const frameCode = renderTempoMap.division >> 8;
+                const signedFrameCode = frameCode > 127 ? frameCode - 256 : frameCode;
+                const framesPerSecond = signedFrameCode === -29
+                    ? 30000 / 1001
+                    : Math.abs(signedFrameCode);
+                const ticksPerFrame = renderTempoMap.division & 0xFF;
+                trimDurationSeconds = framesPerSecond > 0 && ticksPerFrame > 0
+                    ? lastEventTick / (framesPerSecond * ticksPerFrame)
+                    : 0;
+            } else {
+                let lastTempoEvent = renderTempoMap.timeMap[0];
+                for (const event of renderTempoMap.timeMap) {
+                    if (event.tick > lastEventTick) break;
+                    lastTempoEvent = event;
+                }
+                trimDurationSeconds = lastTempoEvent.timeSec
+                    + ((lastEventTick - lastTempoEvent.tick) / renderTempoMap.division)
+                        * (lastTempoEvent.mpqn / 1000000);
+            }
         }
 
         // Initialize offline processing parameters
@@ -2116,10 +2155,14 @@ class TimidityPlayer {
 
         const totalTime = this.c.getTotalTime(renderSongPtr);
         const durationSeconds = totalTime / 1000.0;
+        const renderDurationSeconds = trim
+            ? Math.min(durationSeconds, trimDurationSeconds)
+            : durationSeconds;
         const hasReverbSend = this.channelEffects.some(effects => effects.reverb) ||
             this.tempoMap?.reverbMap?.some(channelEvents => channelEvents.some(event => event.value > 0));
         const tailSeconds = hasReverbSend ? 2.5 : 1;
-        const renderBufferLength = Math.ceil(sampleRate * (durationSeconds + tailSeconds));
+        const renderBufferLength = Math.ceil(sampleRate * (renderDurationSeconds + tailSeconds));
+        const trimSampleLimit = trim ? renderBufferLength * channels : Infinity;
         let currentTime = 0;
 
         const pcmBytes = this.bufferSize * channels * 2; // bytes per sample = 2
@@ -2180,14 +2223,19 @@ class TimidityPlayer {
             const processChunk = () => {
                 let iterations = 0;
                 while (iterations < 20) { // Render 20 chunks per frame
-                    let bytesReadMain = this.c.readWave(renderSongPtr, pcmBufferPtr, pcmBytes, 1);
+                    const bytesAvailable = trim
+                        ? Math.min(pcmBytes, (trimSampleLimit - totalLength) * 2)
+                        : pcmBytes;
+                    let bytesReadMain = this.c.readWave(renderSongPtr, pcmBufferPtr, bytesAvailable, 1);
                     if (bytesReadMain > 0) {
                         const samples = bytesReadMain / 2;
                         const chunk = new Int16Array(samples);
                         chunk.set(new Int16Array(this.Module.HEAP16.buffer, pcmBufferPtr, samples));
                         chunks.push(chunk);
                         totalLength += chunk.length;
-                    } else if (bytesReadMain <= 0) {
+                    }
+                    if (bytesReadMain <= 0 || (trim && totalLength >= trimSampleLimit)) {
+                        if (trim) this.emit('onRenderProgress', 100);
                         this.Module._free(pcmBufferPtr);
                         if (renderCallbackPtr !== 0) {
                             // Do not call removeFunction because it's not exported by default and crashes Emscripten.
@@ -2332,12 +2380,15 @@ class TimidityPlayer {
                             resolve(wavBlob);
                         }
                         return;
+                    } else {
+                        iterations++;
                     }
-                    iterations++;
                 }
 
                 currentTime = this.c.getTime(renderSongPtr);
-                const progress = totalTime > 0 ? Math.min(100, Math.max(0, (currentTime / totalTime) * 100)) : 0;
+                const progress = trim
+                    ? Math.min(100, Math.max(0, totalLength / trimSampleLimit * 100))
+                    : totalTime > 0 ? Math.min(100, Math.max(0, (currentTime / totalTime) * 100)) : 0;
                 this.emit('onRenderProgress', progress);
 
                 setTimeout(processChunk, 0); // Yield to main thread

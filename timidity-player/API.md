@@ -762,10 +762,17 @@ Renders the currently loaded MIDI song to a WAV file offline (without playing it
     - `options.monoToStereo` *(boolean)*: If true, applies stereo widening (Spectral Panning / EQ) to the final output.
     - `options.monoToStereoWeight` *(number)*: The intensity of the stereo widening effect (gain in dB) (default `5`).
     - `options.soloTrack` *(number)*: If set to a valid track number, mutes all other tracks during rendering (default `-1`).
+    - `options.trim` *(boolean)*: If `true`, stops rendering after the last non-End-of-Track event and the normal audio tail. With a valid `soloTrack`, the selected track's last event is used; otherwise, the last event across all tracks is used (default `false`). This avoids rendering long silent endings; the WAV can still include the audio tail.
 - **Returns:** `Promise<Blob>` - The generated WAV file as a `Blob`.
 
+To render a single track without the MIDI file's trailing silent duration:
+
+```javascript
+const wav = await player.renderOffline({ soloTrack: trackIndex, trim: true });
+```
+
 ### `exportStems(trackList, options = {}, callback)`
-Exports audio stems by iteratively rendering selected tracks offline. For each track, it solos the track, renders the full song duration, and calls the callback with the resulting WAV file. The `onRenderProgress` event will still fire repeatedly for each stem rendering cycle.
+Exports audio stems by iteratively rendering selected tracks offline. For each track, it solos the track, renders the selected duration, and calls the callback with the resulting WAV file. Pass `{ trim: true }` in `options` to trim each stem to its last non-End-of-Track event while retaining the audio tail. The `onRenderProgress` event will still fire repeatedly for each stem rendering cycle.
 - **Parameters:**
   - `trackList` *(number[])*: Array of track numbers to export. If null or an empty array is provided, it defaults to exporting all parsed tracks in the MIDI file.
   - `options` *(Object)*: Configuration options passed directly to `renderOffline` (e.g., `{ monoToStereo: true }`).
