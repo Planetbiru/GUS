@@ -66,3 +66,9 @@ Perubahan pada tabel ini telah di-rollback dan tidak aktif pada preset saat ini.
 ## Penyesuaian noise Distortion Gtr setelah rollback
 
 Noise kontinu program 30 diturunkan dari **0,02** menjadi **0,01**. Parameter drive, mix, clipping, dan filter dibiarkan pada nilai awal agar pengurangan noise tidak menurunkan level maupun mengubah karakter gitar secara berlebihan.
+
+## Pencocokan Distortion Gtr dengan sampel PAT
+
+Program 30 kini memakai 12 profil harmonik yang diturunkan dari bagian sustain setiap zona pada `030_Distortion_Guita.pat`. Generator memilih profil terdekat menurut pitch, serta mengikuti titik loop dan envelope sampel. Saturasi tambahan amp dinonaktifkan agar karakter distorsi yang sudah terkandung dalam profil tidak diproses dua kali.
+
+Preset ini dirender pada **48 kHz** seperti sampel acuan. Ukuran PAT hasilnya akan lebih besar dibanding render standar 22,05 kHz. Dalam perbandingan spektrum empat pita pada 12 pitch acuan, galat rata-rata turun dari **0,86** menjadi **0,082**; ini mengukur kemiripan spektrum, bukan penilaian subjektif saat didengar.

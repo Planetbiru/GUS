@@ -2350,9 +2350,10 @@ var GUS_MELODIC_PRESETS = {
       "family": "Guitar",
       "name": "Distortion Gtr",
       "shortName": "Distortion Gtr",
-      "description": "Aggressive distorted guitar with a firm pick attack.",
+      "description": "Sample-matched distorted guitar, tuned per pitch.",
       "preset": {
         "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
+        "sampleRate": 48000,
         "graphicEqualizer": [
           0,
           0,
@@ -2367,7 +2368,7 @@ var GUS_MELODIC_PRESETS = {
         ],
         "mute": false,
         "defaultWaveform": null,
-        "gain": 0.97,
+        "gain": 5.8,
         "freq": 441,
         "length": 44100,
         "loop": true,
@@ -2375,6 +2376,153 @@ var GUS_MELODIC_PRESETS = {
         "loopStartSeconds": 0.4,
         "loopEndSeconds": 0.82,
         "tailCycles": 4,
+        // Reference-derived partials and loop points, selected by nearest MIDI pitch.
+        "pitchProfiles": [
+          {
+            "pitch": 44,
+            "loopStartSeconds": 0.3538,
+            "loopEndSeconds": 0.8092,
+            "tailCycles": 2,
+            "harm": [
+              0.048, 0.115, 0.666, 1, 0.609, 0.208,
+              0.06, 0.077, 0.086, 0.085, 0.067, 0.073,
+              0.024, 0.068, 0.061, 0.037, 0.025, 0.017,
+              0.017, 0.016, 0.017, 0.016, 0.01, 0.006
+            ]
+          },
+          {
+            "pitch": 47,
+            "loopStartSeconds": 0.3914,
+            "loopEndSeconds": 0.8074,
+            "tailCycles": 2,
+            "harm": [
+              0.117, 0.096, 1, 0.776, 0.107, 0.376,
+              0.27, 0.134, 0.126, 0.1, 0.063, 0.072,
+              0.062, 0.044, 0.054, 0.068, 0.058, 0.018,
+              0.024, 0.025, 0.018, 0.018, 0.019, 0.014
+            ]
+          },
+          {
+            "pitch": 50,
+            "loopStartSeconds": 0.4466,
+            "loopEndSeconds": 0.9359,
+            "tailCycles": 1,
+            "harm": [
+              0.231, 0.472, 1, 0.762, 0.27, 0.417,
+              0.304, 0.141, 0.097, 0.186, 0.08, 0.077,
+              0.061, 0.058, 0.095, 0.113, 0.112, 0.037,
+              0.045, 0.044, 0.05, 0.053, 0.046, 0.043
+            ]
+          },
+          {
+            "pitch": 53,
+            "loopStartSeconds": 0.3903,
+            "loopEndSeconds": 0.8073,
+            "tailCycles": 2,
+            "harm": [
+              0.07, 0.859, 1, 0.197, 0.25, 0.281,
+              0.2, 0.189, 0.089, 0.065, 0.126, 0.09,
+              0.101, 0.086, 0.059, 0.065, 0.058, 0.058,
+              0.049, 0.038, 0.039, 0.016, 0.035, 0.032
+            ]
+          },
+          {
+            "pitch": 56,
+            "loopStartSeconds": 0.3927,
+            "loopEndSeconds": 0.813,
+            "tailCycles": 1,
+            "harm": [
+              0.082, 1, 0.267, 0.191, 0.18, 0.172,
+              0.117, 0.047, 0.04, 0.046, 0.09, 0.043,
+              0.04, 0.048, 0.041, 0.048, 0.028, 0.03,
+              0.023, 0.021, 0.012, 0.016, 0.013, 0.009
+            ]
+          },
+          {
+            "pitch": 62,
+            "loopStartSeconds": 0.4197,
+            "loopEndSeconds": 0.8573,
+            "tailCycles": 1,
+            "harm": [
+              0.326, 1, 0.474, 0.053, 0.05, 0.113,
+              0.206, 0.089, 0.045, 0.036, 0.026, 0.059,
+              0.043, 0.014, 0.018, 0.01, 0.014, 0.01,
+              0.002, 0.003, 0.001, 0.002, 0.002, 0.001
+            ]
+          },
+          {
+            "pitch": 65,
+            "loopStartSeconds": 0.3968,
+            "loopEndSeconds": 0.823,
+            "tailCycles": 2,
+            "harm": [
+              0.208, 1, 0.146, 0.048, 0.15, 0.138,
+              0.077, 0.055, 0.1, 0.06, 0.034, 0.034,
+              0.036, 0.019, 0.02, 0.012, 0.007, 0.007,
+              0.009, 0.004, 0.004, 0.003, 0.002, 0.002
+            ]
+          },
+          {
+            "pitch": 71,
+            "loopStartSeconds": 0.4026,
+            "loopEndSeconds": 0.8176,
+            "tailCycles": 4,
+            "harm": [
+              1, 0.307, 0.035, 0.164, 0.107, 0.026,
+              0.078, 0.048, 0.016, 0.031, 0.017, 0.005,
+              0.011, 0.006, 0.003, 0.005, 0.002, 0.002,
+              0.002, 0.001, 0.001, 0.001, 0, 0
+            ]
+          },
+          {
+            "pitch": 77,
+            "loopStartSeconds": 0.4236,
+            "loopEndSeconds": 0.8255,
+            "tailCycles": 4,
+            "harm": [
+              1, 0.093, 0.232, 0.072, 0.091, 0.053,
+              0.034, 0.024, 0.011, 0.009, 0.004, 0.004,
+              0.001, 0.001, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0
+            ]
+          },
+          {
+            "pitch": 80,
+            "loopStartSeconds": 0.3969,
+            "loopEndSeconds": 0.8156,
+            "tailCycles": 7,
+            "harm": [
+              1, 0.065, 0.162, 0.05, 0.09, 0.025,
+              0.016, 0.005, 0.003, 0.001, 0, 0,
+              0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0
+            ]
+          },
+          {
+            "pitch": 83,
+            "loopStartSeconds": 0.4022,
+            "loopEndSeconds": 0.8102,
+            "tailCycles": 5,
+            "harm": [
+              1, 0.093, 0.368, 0.078, 0.084, 0.024,
+              0.018, 0.006, 0.004, 0.001, 0, 0.001,
+              0.001, 0, 0.001, 0, 0, 0,
+              0, 0, 0, 0, 0, 0
+            ]
+          },
+          {
+            "pitch": 85,
+            "loopStartSeconds": 0.399,
+            "loopEndSeconds": 0.9375,
+            "tailCycles": 11,
+            "harm": [
+              1, 0.076, 0.275, 0.038, 0.044, 0.006,
+              0.004, 0.001, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0
+            ]
+          }
+        ],
         "loopAttackNoise": {
           "amp": 0.11,
           "duration": 0.014
@@ -2384,6 +2532,10 @@ var GUS_MELODIC_PRESETS = {
           "d": 0.8,
           "s": 0.1,
           "r": 0.3
+        },
+        "patchEnvelope": {
+          "rates": [63, 195, 63, 71, 63, 63],
+          "offsets": [246, 234, 234, 0, 0, 0]
         },
         "harm": [
           1,
@@ -2413,10 +2565,10 @@ var GUS_MELODIC_PRESETS = {
         ],
         "noise": 0.004,
         "guitarAmp": {
-          "drive": 1.4,
-          "bias": 0.005,
-          "mix": 0.4,
-          "clip": 0.12,
+          "drive": 1,
+          "bias": 0,
+          "mix": 0,
+          "clip": 0,
           "preampCutoff": 45,
           "cabinetCutoff": 8500
         },

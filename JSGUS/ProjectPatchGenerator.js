@@ -245,6 +245,11 @@ class ProjectPatchGenerator {
         shortName = instrumentShortName;
         description = instrumentDescription;
         preset = melodicPreset;
+        if (preset.sampleRate != null
+            && (!Number.isInteger(preset.sampleRate) || preset.sampleRate <= 0)) {
+            throw new Error(`Invalid sample rate for melodic instrument: ${instrumentName}.`);
+        }
+        renderSampleRate = Math.max(this.sampleRate, preset.sampleRate || this.sampleRate);
 
         const selectedWaveform = waveform === undefined || waveform === 'preset'
             ? (preset.defaultWaveform ?? null)
@@ -278,6 +283,42 @@ class ProjectPatchGenerator {
         rootFreq = isFullPitchRange
             ? (preset.freq || 441)
             : ProjectPatchGenerator.midiPitchToFrequency(rootNote);
+        if (selectedWaveform == null && preset.pitchProfiles !== undefined) {
+            if (!Array.isArray(preset.pitchProfiles) || preset.pitchProfiles.length === 0) {
+                throw new Error(`Invalid pitch profiles for melodic instrument: ${instrumentName}.`);
+            }
+            let selectedProfile = null;
+            const profilePitch = Math.round(69 + 12 * Math.log2(rootFreq / 440));
+            for (const profile of preset.pitchProfiles) {
+                if (!profile || !Number.isInteger(profile.pitch)
+                    || profile.pitch < 0 || profile.pitch > 127
+                    || !Array.isArray(profile.harm) || profile.harm.length === 0
+                    || profile.harm.some(amplitude =>
+                        typeof amplitude !== 'number'
+                        || !Number.isFinite(amplitude)
+                        || amplitude < 0)
+                    || !Number.isFinite(profile.loopStartSeconds)
+                    || profile.loopStartSeconds < 0
+                    || !Number.isFinite(profile.loopEndSeconds)
+                    || profile.loopEndSeconds <= profile.loopStartSeconds
+                    || !Number.isInteger(profile.tailCycles)
+                    || profile.tailCycles < 1) {
+                    throw new Error(`Invalid pitch profile for melodic instrument: ${instrumentName}.`);
+                }
+                if (!selectedProfile
+                    || Math.abs(profile.pitch - profilePitch)
+                        < Math.abs(selectedProfile.pitch - profilePitch)) {
+                    selectedProfile = profile;
+                }
+            }
+            preset = {
+                ...preset,
+                harm: selectedProfile.harm,
+                loopStartSeconds: selectedProfile.loopStartSeconds,
+                loopEndSeconds: selectedProfile.loopEndSeconds,
+                tailCycles: selectedProfile.tailCycles
+            };
+        }
         if (preset.loop && rootFreq > renderSampleRate / 5) {
             renderSampleRate = Math.ceil(rootFreq * 5);
         }
