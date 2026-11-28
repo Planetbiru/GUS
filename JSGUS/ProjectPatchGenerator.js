@@ -143,8 +143,44 @@ class ProjectPatchGenerator {
     return this.library.melodic.map(({name}, id) => ({id, name}));
   }
 
-  static getPitchRanges(isDrum, program) {
+  static getPitchRanges(isDrum, program, preset = null) {
     if (isDrum) return this.DRUM_PITCH_RANGES;
+    let zones = preset ? preset.zones : undefined;
+    if (zones === undefined && typeof GUS_MELODIC_PRESETS !== 'undefined'
+        && Array.isArray(GUS_MELODIC_PRESETS.instruments)) {
+      const instrument = GUS_MELODIC_PRESETS.instruments.find(
+        entry => entry.program === Number(program)
+      );
+      zones = instrument && instrument.preset && instrument.preset.zones;
+    }
+    if (zones !== undefined) {
+      if (!Array.isArray(zones) || zones.length === 0) {
+        throw new Error('Preset zones must be a non-empty array.');
+      }
+      const normalizedZones = [];
+      let total = 0;
+      for (const zoneWidth of zones) {
+        const width = Number(zoneWidth);
+        if (!Number.isFinite(width) || width <= 0) continue;
+        const adjustedWidth = Math.min(width, 128 - total);
+        normalizedZones.push(adjustedWidth);
+        total += adjustedWidth;
+        if (total >= 128) break;
+      }
+      if (total < 128) {
+        if (normalizedZones.length === 0) {
+          normalizedZones.push(128);
+        } else {
+          normalizedZones[normalizedZones.length - 1] += 128 - total;
+        }
+      }
+      let pitchFrom = 0;
+      return Object.freeze(normalizedZones.map(width => {
+        const range = Object.freeze({pitchFrom, pitchTo: pitchFrom + width - 1});
+        pitchFrom += width;
+        return range;
+      }));
+    }
     if (this.MELODIC_PRECISION_PROGRAMS_BASS.includes(program)) {
       return this.MELODIC_PITCH_RANGES_BASS;
     }

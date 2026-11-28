@@ -1868,7 +1868,11 @@ class GusPatchApp {
                 let previewRootNote = null;
 
                 if (!isDrum) {
-                    const ranges = ProjectPatchGenerator.getPitchRanges(false, midi);
+                    const ranges = ProjectPatchGenerator.getPitchRanges(
+                        false,
+                        midi,
+                        this.graphicEqualizerDraft
+                    );
                     previewZoneIndex = ranges.findIndex(
                         range => range.pitchFrom <= 60 && range.pitchTo >= 60
                     );
@@ -3801,7 +3805,7 @@ class GusPatchApp {
         const {name} = instrument;
         const preset = this.presetWithWaveform(presetOverride, state.wave);
         const sampleName = this.slugify(name).slice(0, 5);
-        const ranges = ProjectPatchGenerator.getPitchRanges(false, program);
+        const ranges = ProjectPatchGenerator.getPitchRanges(false, program, preset);
         const indices = zoneIndex === null
             ? ranges.map((_range, index) => index)
             : [zoneIndex];
@@ -3862,7 +3866,7 @@ class GusPatchApp {
     ) {
         const ranges = isDrum
             ? [null]
-            : ProjectPatchGenerator.getPitchRanges(false, program);
+            : ProjectPatchGenerator.getPitchRanges(false, program, preset);
         const result = {name: null, zones: [], preview: null};
         for (let index = 0; index < ranges.length; index++) {
             if (shouldCancel()) throw new Error('Preset rendering was cancelled.');
@@ -5234,7 +5238,7 @@ class GusPatchApp {
 
         const basePreset = this.getInstrumentPreset('melodic', this.currentMidi);
         const p2 = this.presetWithWaveform(basePreset, settings.wave);
-        const ranges = ProjectPatchGenerator.getPitchRanges(false, this.currentMidi);
+        const ranges = ProjectPatchGenerator.getPitchRanges(false, this.currentMidi, p2);
         const previewRange = ranges.find(range => range.pitchFrom <= 60 && range.pitchTo >= 60)
             || ranges.reduce((closest, range) => {
                 const distance = range.pitchFrom > 60
@@ -5352,8 +5356,8 @@ class GusPatchApp {
 
     exportZoneCount() {
         return this.lib.melodic.reduce(
-            (total, _instrument, program) =>
-                total + ProjectPatchGenerator.getPitchRanges(false, program).length,
+            (total, instrument, program) =>
+                total + ProjectPatchGenerator.getPitchRanges(false, program, instrument.preset).length,
             this.lib.drums.length
         );
     }

@@ -14,6 +14,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Grand Piano",
       "description": "Bright hammer strike with a natural piano decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -173,6 +174,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bright Piano",
       "description": "Bright piano with a crisp attack and clear decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -292,6 +294,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Elec. Grand",
       "description": "Full rock piano with a bold, resonant strike.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -381,6 +384,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Honky-tonk",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           -0.55,
           -1.11,
@@ -495,6 +499,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "E.Piano 1",
       "description": "Warm electric piano with a clear bell-like tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -582,6 +587,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "E.Piano 2",
       "description": "Crystal piano with a clear, chiming sustain.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -669,6 +675,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harpsichord",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           -0.55,
           -1.11,
@@ -751,6 +758,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Clavinet",
       "description": "Struck-key tone with a resonant decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           -0.55,
           -1.11,
@@ -831,6 +839,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Celesta",
       "description": "A soft, rounded keyboard chime with a smooth decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -883,6 +892,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Glockenspiel",
       "description": "A bright metallic chime with a sharper strike.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -943,6 +953,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Music Box",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -992,6 +1003,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Vibraphone",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -1047,6 +1059,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Marimba",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -1096,6 +1109,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Xylophone",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -1144,6 +1158,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tubular Bells",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -1195,6 +1210,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Dulcimer",
       "description": "A bright strike with a clear ringing tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -1262,6 +1278,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Drawbar Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1306,6 +1323,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Percussive Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1352,6 +1370,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Rock Organ",
       "description": "A full drawbar tone with a mild driven edge.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1404,6 +1423,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Church Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1448,6 +1468,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Reed Organ",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1515,6 +1536,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Accordion",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1581,6 +1603,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harmonica",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1646,6 +1669,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tango Accordion",
       "description": "A steady tone with layered harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -1713,6 +1737,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Nylon Gtr",
       "description": "Warm, rounded pluck with a soft decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -1794,6 +1819,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Steel Gtr",
       "description": "Bright pluck with a smooth, controlled attack.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -1960,6 +1986,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Jazz Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -2045,6 +2072,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "E. Clean Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -2133,6 +2161,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Muted Gtr",
       "description": "A plucked-string attack with natural decay.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -2220,6 +2249,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Overdriven Gtr",
       "description": "Warm overdriven guitar with a quick picked attack.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -2322,6 +2352,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Distortion Gtr",
       "description": "Aggressive distorted guitar with a firm pick attack.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -2425,6 +2456,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harmonics Gtr",
       "description": "Sustained guitar overtone with loop.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -2506,6 +2538,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ac. Bass",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0,
@@ -2559,6 +2592,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Finger Bass",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0.2,
@@ -2613,6 +2647,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pick Bass",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0,
@@ -2666,6 +2701,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Fretless Bass",
       "description": "A smooth, singing tone with a rounded attack.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0,
@@ -2718,6 +2754,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Slap Bass 1",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0,
@@ -2772,6 +2809,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Slap Bass 2",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0,
@@ -2826,6 +2864,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Bass 1",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0,
@@ -2878,6 +2917,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Bass 2",
       "description": "A focused low end and firm fundamental.",
       "preset": {
+        "zones": [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 23, 32],
         "graphicEqualizer": [
           0,
           0,
@@ -2932,6 +2972,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Violin",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3035,6 +3076,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Viola",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3137,6 +3179,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Cello",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3221,6 +3264,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Contrabass",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3304,6 +3348,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tremolo Str",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3388,6 +3433,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pizzicato",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3479,6 +3525,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Harp",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3566,6 +3613,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Timpani",
       "description": "A bowed or plucked tone with rich harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -3607,6 +3655,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Strings 1",
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -3673,6 +3722,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Strings 2",
       "description": "A layered orchestral blend with smooth sustain.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -3739,6 +3789,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthStrings 1",
       "description": "A layered orchestral blend with smooth.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -3829,6 +3880,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthStrings 2",
       "description": "A layered orchestral blend with smooth.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -3920,6 +3972,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Choir Aahs",
       "description": "Airy choral 'ah' vowel with a soft, open sustain.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -4038,6 +4091,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Voice Oohs",
       "description": "Rounded vowel formants with a soft vocal onset.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -4174,6 +4228,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Voice",
       "description": "A synthetic vowel pad with breath texture and smooth sustain",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "mute": false,
         "defaultWaveform": null,
         "gain": 0.55,
@@ -4261,6 +4316,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Orchestra Hit",
       "description": "A layered orchestral blend with smooth.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -4322,6 +4378,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Trumpet",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -4426,6 +4483,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Trombone",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -4514,6 +4572,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tuba",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -4601,6 +4660,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Muted Trpt",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -4688,6 +4748,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "French Horn",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -4774,6 +4835,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Brass Section",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -4895,6 +4957,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthBrass 1",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -4974,6 +5037,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "SynthBrass 2",
       "description": "A bold attack and bright, focused tone.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5047,6 +5111,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Soprano Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5131,6 +5196,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Alto Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5205,6 +5271,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tenor Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5302,6 +5369,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bari Sax",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5385,6 +5453,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Oboe",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5457,6 +5526,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "English Horn",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5527,6 +5597,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bassoon",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5598,6 +5669,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Clarinet",
       "description": "A reedy wind tone with expressive harmonics.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5661,6 +5733,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Piccolo",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5723,6 +5796,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Flute",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5791,6 +5865,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Recorder",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5859,6 +5934,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pan Flute",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5927,6 +6003,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Blown Bottle",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -5984,6 +6061,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Shakuhachi",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -6046,6 +6124,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Whistle",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -6105,6 +6184,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Ocarina",
       "description": "A breath-driven tone with a rounded body.",
       "preset": {
+        "zones": [16, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 8, 16],
         "graphicEqualizer": [
           0,
           0,
@@ -6162,6 +6242,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (square)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6214,6 +6295,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (saw)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6264,6 +6346,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (calliope)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6374,6 +6457,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (chiff)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6425,6 +6509,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (charang)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6474,6 +6559,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (voice)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6524,6 +6610,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (fifths)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6571,6 +6658,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Lead (bass+ld)",
       "description": "A focused synth tone with strong harmonics.",
       "preset": {
+        "zones": [12, 12, 12, 12, 12, 12, 12, 12, 12, 20],
         "graphicEqualizer": [
           0,
           0,
@@ -6619,6 +6707,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (new age)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -6716,6 +6805,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (warm)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -6795,6 +6885,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (polysynth)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -6875,6 +6966,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (choir)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -6973,6 +7065,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (bowed)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7052,6 +7145,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (metallic)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7135,6 +7229,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (halo)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7214,6 +7309,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Pad (sweep)",
       "description": "A soft sustained synth texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7298,6 +7394,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (rain)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7341,6 +7438,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (soundtrack)",
       "description": "An evolving synthetic texture with.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7386,6 +7484,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (crystal)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7431,6 +7530,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (atmosphere)",
       "description": "Nylon pluck with a faint airy shimmer.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7510,6 +7610,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (brightness)",
       "description": "An evolving synthetic texture with.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7555,6 +7656,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (goblins)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7600,6 +7702,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (echoes)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7646,6 +7749,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "FX (sci-fi)",
       "description": "An evolving synthetic texture with distinct.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7691,6 +7795,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Sitar",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7740,6 +7845,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Banjo",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7825,6 +7931,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Shamisen",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7872,6 +7979,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Koto",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7920,6 +8028,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Kalimba",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -7968,6 +8077,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bagpipe",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8029,6 +8139,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Fiddle",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8110,6 +8221,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Shanai",
       "description": "A distinctive folk tone with a bright attack.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8176,6 +8288,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Tinkle Bell",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8225,6 +8338,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Agogo",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8273,6 +8387,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Steel Drums",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8324,6 +8439,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Woodblock",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8364,6 +8480,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Taiko Drum",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8405,6 +8522,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Melodic Tom",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8447,6 +8565,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Synth Drum",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8488,6 +8607,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Reverse Cymbal",
       "description": "A pitched strike with clear resonance.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8533,6 +8653,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Fret Noise",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8592,6 +8713,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Breath Noise",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8637,6 +8759,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Seashore",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8677,6 +8800,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Bird Tweet",
       "description": "A recognizable effect with a distinct texture.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8729,6 +8853,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Telephone",
       "description": "A classic dual-tone bell ring.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8816,6 +8941,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Helicopter",
       "description": "Broadband rotor chop and airflow noise.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8866,6 +8992,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Applause",
       "description": "Procedurally generated broadband handclap crowd.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,
@@ -8905,6 +9032,7 @@ var GUS_MELODIC_PRESETS = {
       "shortName": "Gunshot",
       "description": "A sharp crack with a low boom and short tail.",
       "preset": {
+        "zones": [20, 20, 20, 20, 20, 28],
         "graphicEqualizer": [
           0,
           0,

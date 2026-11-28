@@ -2465,7 +2465,11 @@ class MidiController {
         ...drums.map(instrument=>({instrument, isDrum:true, bank:128}))
       ];
       const getPitchRanges=task=>
-        ProjectPatchGenerator.getPitchRanges(task.isDrum,task.instrument.id);
+        ProjectPatchGenerator.getPitchRanges(
+          task.isDrum,
+          task.instrument.id,
+          task.isDrum ? undefined : projectPatchGenerator.library.melodic[task.instrument.id].preset
+        );
 
       const hasExpectedPitchCoverage=(entry, expectedRanges)=>{
         const samples=entry.patch.instruments.flatMap(inst=>

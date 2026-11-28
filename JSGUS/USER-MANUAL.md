@@ -28,6 +28,7 @@ For melodic instruments, choose a base waveform, sample rate, root frequency, an
 - **Scale** plays a short scale for melodic instruments or a sequence of drum sounds for a drum selection.
 - **Stop** stops the preview.
 - **Download .pat** downloads a patch for the selected instrument with multiple pitch zones. Melodic programs use the melodic ranges, bass programs use the bass ranges, and drum patches cover MIDI pitches 1–127.
+- Melodic presets may define `preset.zones` as zone widths. These widths override the default ranges in generated patches; processing stops at MIDI 127 and any zone crossing that boundary is trimmed. If the total is short, the remaining range is added to the last used zone. If omitted, the program's existing profile is used.
 - **Download All (ZIP)** generates a ZIP containing the melodic and drum patches and their configuration files.
 - **Download SF2** builds a SoundFont 2 file from the active project's melodic and drum presets and generator settings. It contains the 128 melodic programs and a GM drum bank. The download uses the active project name.
 - **Export Melodic Preset** and **Export Drum Preset** download the corresponding preset sets as JSON.
